@@ -1,7 +1,5 @@
 import React from "react";
-import GridShape from "../../components/common/GridShape";
-import { Link } from "react-router";
-import ThemeTogglerTwo from "../../components/common/ThemeTogglerTwo";
+import Logo from "../../../public/logo.png";
 
 export default function AuthLayout({
   children,
@@ -9,31 +7,45 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
-      <div className="relative flex flex-col justify-center w-full h-screen lg:flex-row dark:bg-gray-900 sm:p-0">
-        {children}
-        <div className="items-center hidden w-full h-full lg:w-1/2 bg-brand-950 dark:bg-white/5 lg:grid">
-          <div className="relative flex items-center justify-center z-1">
-            {/* <!-- ===== Common Grid Shape Start ===== --> */}
-            <GridShape />
-            <div className="flex flex-col items-center max-w-xs">
-              <Link to="/" className="block mb-4">
-                <img
-                  width={231}
-                  height={48}
-                  src="/images/logo/auth-logo.svg"
-                  alt="Logo"
-                />
-              </Link>
-              <p className="text-center text-gray-400 dark:text-white/60">
-                Free and Open-Source Tailwind CSS Admin Dashboard Template
-              </p>
-            </div>
+    <div className="min-h-screen flex">
+      {/* Left branding panel */}
+      <div className="hidden lg:flex lg:w-[45%] bg-[#402F75] relative overflow-hidden flex-col items-center justify-center p-12 z-10">
+        {/* Decorative blobs */}
+        <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#FBBB14]/10 rounded-full" />
+        <div className="absolute -bottom-40 -right-20 w-[28rem] h-[28rem] bg-white/5 rounded-full" />
+        <div className="absolute top-1/2 right-0 translate-x-1/2 w-48 h-48 bg-[#FBBB14]/15 rounded-full" />
+
+        <div className="relative z-10 text-center max-w-sm">
+          <img
+            src={Logo}
+            alt="Buyology"
+            className="w-24 h-24 rounded-2xl mx-auto shadow-2xl mb-8"
+          />
+          <h1 className="text-4xl font-bold text-white mb-3 tracking-tight">
+            Buyology
+          </h1>
+          <p className="text-white/60 text-base leading-relaxed">
+            Your all-in-one e-commerce dashboard for smarter business decisions.
+          </p>
+
+          <div className="mt-12 pt-8 border-t border-white/10 grid grid-cols-3 gap-4">
+            {[
+              { value: "10K+", label: "Products" },
+              { value: "99%", label: "Uptime" },
+              { value: "500+", label: "Clients" },
+            ].map(({ value, label }) => (
+              <div key={label}>
+                <div className="text-xl font-bold text-[#FBBB14]">{value}</div>
+                <div className="text-white/50 text-xs mt-0.5">{label}</div>
+              </div>
+            ))}
           </div>
         </div>
-        <div className="fixed z-50 hidden bottom-6 right-6 sm:block">
-          <ThemeTogglerTwo />
-        </div>
+      </div>
+
+      {/* Right form panel */}
+      <div className="flex-1 flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-6">
+        {children}
       </div>
     </div>
   );

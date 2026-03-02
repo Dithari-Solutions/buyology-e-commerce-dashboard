@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
+import PeopleIcon from '@mui/icons-material/People';
+import { useCallback, useEffect, useRef, useState } from "react";
+import VideoCameraBackIcon from '@mui/icons-material/VideoCameraBack';
 
 // Assume these icons are imported from an icon library
 import {
@@ -16,7 +18,6 @@ import {
   UserCircleIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
-import SidebarWidget from "./SidebarWidget";
 
 type NavItem = {
   name: string;
@@ -42,14 +43,17 @@ const navItems: NavItem[] = [
     path: "/profile",
   },
   {
-    name: "Forms",
-    icon: <ListIcon />,
-    subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
+    name: "Admins",
+    icon: <PeopleIcon />,
+    path: "/admins"
   },
   {
-    name: "Tables",
-    icon: <TableIcon />,
-    subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
+    name: "Story",
+    icon: <VideoCameraBackIcon />,
+    subItems: [
+      { name: "Stories", path: "/stories", pro: false },
+      { name: "New Story", path: "/new-story", pro: false }
+    ],
   },
   {
     name: "Pages",
@@ -167,7 +171,7 @@ const AppSidebar: React.FC = () => {
           {nav.subItems ? (
             <button
               onClick={() => handleSubmenuToggle(index, menuType)}
-              className={`menu-item group ${
+              className={`menu-item group rounded-[30px] ${
                 openSubmenu?.type === menuType && openSubmenu?.index === index
                   ? "menu-item-active"
                   : "menu-item-inactive"
@@ -178,7 +182,7 @@ const AppSidebar: React.FC = () => {
               }`}
             >
               <span
-                className={`menu-item-icon-size  ${
+                className={`menu-item-icon-size   ${
                   openSubmenu?.type === menuType && openSubmenu?.index === index
                     ? "menu-item-icon-active"
                     : "menu-item-icon-inactive"
@@ -187,7 +191,7 @@ const AppSidebar: React.FC = () => {
                 {nav.icon}
               </span>
               {(isExpanded || isHovered || isMobileOpen) && (
-                <span className="menu-item-text">{nav.name}</span>
+                <span className="menu-item-text rounded-[30px]">{nav.name}</span>
               )}
               {(isExpanded || isHovered || isMobileOpen) && (
                 <ChevronDownIcon
@@ -204,7 +208,7 @@ const AppSidebar: React.FC = () => {
             nav.path && (
               <Link
                 to={nav.path}
-                className={`menu-item group ${
+                className={`menu-item group rounded-[30px] ${
                   isActive(nav.path) ? "menu-item-active" : "menu-item-inactive"
                 }`}
               >
@@ -228,7 +232,7 @@ const AppSidebar: React.FC = () => {
               ref={(el) => {
                 subMenuRefs.current[`${menuType}-${index}`] = el;
               }}
-              className="overflow-hidden transition-all duration-300"
+              className="overflow-hidden transition-all duration-300 rounded-[30px]"
               style={{
                 height:
                   openSubmenu?.type === menuType && openSubmenu?.index === index
@@ -241,7 +245,7 @@ const AppSidebar: React.FC = () => {
                   <li key={subItem.name}>
                     <Link
                       to={subItem.path}
-                      className={`menu-dropdown-item ${
+                      className={`menu-dropdown-item rounded-[30px] ${
                         isActive(subItem.path)
                           ? "menu-dropdown-item-active"
                           : "menu-dropdown-item-inactive"
@@ -307,23 +311,24 @@ const AppSidebar: React.FC = () => {
           {isExpanded || isHovered || isMobileOpen ? (
             <>
               <img
-                className="dark:hidden"
-                src="/images/logo/logo.svg"
+                className="dark:hidden rounded-full"
+                src="/logo.png"
                 alt="Logo"
-                width={150}
+                width={90}
                 height={40}
               />
               <img
-                className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
+                className="hidden dark:block rounded-full"
+                src="/logo.png"
                 alt="Logo"
-                width={150}
+                width={90}
                 height={40}
               />
             </>
           ) : (
             <img
-              src="/images/logo/logo-icon.svg"
+            className=" rounded-full"
+              src="/logo.png"
               alt="Logo"
               width={32}
               height={32}
@@ -368,7 +373,6 @@ const AppSidebar: React.FC = () => {
             </div>
           </div>
         </nav>
-        {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
       </div>
     </aside>
   );

@@ -18,6 +18,7 @@ import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
+import Stories from "./pages/Stories/Stories";
 
 export default function App() {
   return (
@@ -28,6 +29,9 @@ export default function App() {
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
             <Route index path="/" element={<Home />} />
+
+            {/* Stories */}
+            <Route path="/stories" element={<Stories />} />
 
             {/* Others Page */}
             <Route path="/profile" element={<UserProfiles />} />
