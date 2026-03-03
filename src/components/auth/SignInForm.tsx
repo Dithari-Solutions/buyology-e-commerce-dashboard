@@ -1,14 +1,43 @@
 import { useState } from "react";
-import Label from "../form/Label";
 import { Link } from "react-router";
+import { useAuth } from "../../context/AuthContext";
+import { ApiRequestError } from "../../api/types/api.types";
+import Label from "../form/Label";
 import Button from "../ui/button/Button";
-import Logo from "../../../public/logo.png";
 import Input from "../form/input/InputField";
 import { EyeCloseIcon, EyeIcon } from "../../icons";
+import Logo from "../../../public/logo.png";
 import Curve from "../../assets/vectors/auth-bg-vector.png";
 
 export default function SignInForm() {
+  const { signIn } = useAuth();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      // signIn() POSTs to /auth/signin, stores the accessToken in memory,
+      // and navigates to "/" on success. The HttpOnly refresh_token cookie is
+      // set by the backend automatically — we never read or store it here.
+      await signIn({ email, password });
+    } catch (err) {
+      if (err instanceof ApiRequestError) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <>
@@ -30,13 +59,26 @@ export default function SignInForm() {
 
         {/* Form card */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
-          <form>
+          <form onSubmit={handleSubmit}>
             <div className="space-y-5">
+              {/* Error banner */}
+              {error && (
+                <div className="px-4 py-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/20 dark:text-red-400 dark:border-red-800">
+                  {error}
+                </div>
+              )}
+
               <div>
                 <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                   Email <span className="text-red-500">*</span>
                 </Label>
-                <Input type="email" placeholder="you@company.com" />
+                <Input
+                  type="email"
+                  placeholder="you@company.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
               </div>
 
               <div>
@@ -55,6 +97,9 @@ export default function SignInForm() {
                   <Input
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
                   />
                   <button
                     type="button"
@@ -71,15 +116,19 @@ export default function SignInForm() {
               </div>
 
               <div className="pt-1">
-                <Button className="w-full font-semibold tracking-wide" size="md">
-                  Sign in
+                <Button
+                  className="w-full font-semibold tracking-wide"
+                  size="md"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Signing in…" : "Sign in"}
                 </Button>
               </div>
             </div>
           </form>
         </div>
       </div>
-      <img src={Curve} alt="Buyology Curve" className="fixed bottom-0 right-0 z-0" />
+      <img src={Curve} alt="" className="fixed bottom-0 right-0 z-0" />
     </>
   );
 }

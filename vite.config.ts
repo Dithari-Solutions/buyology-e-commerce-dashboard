@@ -24,21 +24,21 @@ export default defineConfig(({ mode }) => {
         "/api": {
           target: apiBaseUrl,
           changeOrigin: true,
-          secure: true,
+          secure: apiBaseUrl.startsWith("https"),
         },
         // Proxy /story/<uuid>/... asset paths (thumbnails, media)
         // Uses regex to avoid matching the /stories React route
         "^/story/": {
           target: apiBaseUrl,
           changeOrigin: true,
-          secure: true,
+          secure: apiBaseUrl.startsWith("https"),
         },
         // Proxy /product/<uuid>/... asset paths (images, media)
         // Uses regex to avoid matching the /products React route
         "^/product/": {
           target: apiBaseUrl,
           changeOrigin: true,
-          secure: true,
+          secure: apiBaseUrl.startsWith("https"),
         },
       },
     },

@@ -1,4 +1,5 @@
-export { apiClient } from "./client";
+export { apiClient, setAccessToken, getAccessToken } from "./client";
+export { authService } from "./services/auth.service";
 export { storiesService } from "./services/stories.service";
 export type { StoryLanguage } from "./services/stories.service";
 export { productsService } from "./services/products.service";
