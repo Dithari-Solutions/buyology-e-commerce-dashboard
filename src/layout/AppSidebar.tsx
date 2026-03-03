@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router";
 import PeopleIcon from '@mui/icons-material/People';
+import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import { useCallback, useEffect, useRef, useState } from "react";
 import VideoCameraBackIcon from '@mui/icons-material/VideoCameraBack';
 
@@ -46,6 +47,11 @@ const navItems: NavItem[] = [
     name: "Admins",
     icon: <PeopleIcon />,
     path: "/admins"
+  },
+  {
+    name: "Products",
+    icon: <Inventory2OutlinedIcon />,
+    path: "/products",
   },
   {
     name: "Story",

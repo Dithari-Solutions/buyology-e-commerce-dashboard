@@ -32,6 +32,13 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: true,
         },
+        // Proxy /product/<uuid>/... asset paths (images, media)
+        // Uses regex to avoid matching the /products React route
+        "^/product/": {
+          target: apiBaseUrl,
+          changeOrigin: true,
+          secure: true,
+        },
       },
     },
   };
