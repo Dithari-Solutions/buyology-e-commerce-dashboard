@@ -26,8 +26,9 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: true,
         },
-        // Proxy /story asset paths (thumbnails, media)
-        "/story": {
+        // Proxy /story/<uuid>/... asset paths (thumbnails, media)
+        // Uses regex to avoid matching the /stories React route
+        "^/story/": {
           target: apiBaseUrl,
           changeOrigin: true,
           secure: true,
