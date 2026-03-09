@@ -115,7 +115,7 @@ export const productsService = {
       ? { Authorization: `Bearer ${token}` }
       : {};
 
-    const response = await fetch(`${env.apiBaseUrl}${BASE}`, {
+    const response = await fetch(`${env.apiBaseUrl}${BASE}/create`, {
       method: "POST",
       headers,
       credentials: "include",

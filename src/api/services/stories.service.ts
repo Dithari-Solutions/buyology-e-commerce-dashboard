@@ -3,7 +3,7 @@ import { ApiResponse, ApiRequestError } from "../types/api.types";
 import { Story } from "../../types/story.types";
 import { env } from "../../config/env";
 
-const BASE = "/api/story";
+const BASE = "/api/admin/story";
 
 export type StoryLanguage = "EN" | "AZ" | "RU";
 export type StoryStatus = "ACTIVE" | "INACTIVE";
@@ -74,7 +74,7 @@ export const storiesService = {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
 
-    const response = await fetch(`${env.apiBaseUrl}${BASE}`, {
+    const response = await fetch(`${env.apiBaseUrl}${BASE}/create`, {
       method: "POST",
       headers,
       credentials: "include",
