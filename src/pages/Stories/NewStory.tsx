@@ -448,13 +448,12 @@ export default function NewStory() {
         {/* ── Submit ─────────────────────────────────────────────────────── */}
         <div className="flex items-center justify-end gap-3 pt-2">
           <Button
-            type="button"
             variant="outline"
             onClick={() => navigate("/stories")}
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button disabled={isSubmitting}>
             {isSubmitting ? "Creating…" : "Create Story"}
           </Button>
         </div>
