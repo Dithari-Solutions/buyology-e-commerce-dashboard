@@ -21,8 +21,10 @@ import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import Stories from "./pages/Stories/Stories";
+import NewStory from "./pages/Stories/NewStory";
 import Products from "./pages/Products/Products";
 import ProductDetail from "./pages/Products/ProductDetail";
+import NewProduct from "./pages/Products/NewProduct";
 
 export default function App() {
   return (
@@ -39,10 +41,12 @@ export default function App() {
 
               {/* Stories */}
               <Route path="/stories" element={<Stories />} />
+              <Route path="/new-story" element={<NewStory />} />
 
               {/* Products */}
               <Route path="/products" element={<Products />} />
               <Route path="/products/:id" element={<ProductDetail />} />
+              <Route path="/new-product" element={<NewProduct />} />
 
               {/* Others Page */}
               <Route path="/profile" element={<UserProfiles />} />

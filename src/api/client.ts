@@ -32,6 +32,22 @@ export function getAccessToken(): string | null {
   return _accessToken;
 }
 
+/**
+ * Decodes the JWT payload (without verification) and returns the `sub` claim
+ * as the user ID. Returns null if no token is present or decoding fails.
+ */
+export function getUserIdFromToken(): string | null {
+  if (!_accessToken) return null;
+  try {
+    const payloadB64 = _accessToken.split(".")[1];
+    const json = atob(payloadB64.replace(/-/g, "+").replace(/_/g, "/"));
+    const payload = JSON.parse(json) as Record<string, unknown>;
+    return (payload.sub as string) ?? null;
+  } catch {
+    return null;
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Refresh & session-expiry hooks
 //

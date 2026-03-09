@@ -231,7 +231,10 @@ export default function Products() {
 
     productsService
       .getAll("EN", controller.signal)
-      .then((res) => setProducts(res.data))
+      .then((res) => {
+        console.log(res);
+        setProducts(res.data)
+      })
       .catch((err: unknown) => {
         if (err instanceof Error && err.name === "AbortError") return;
         const message =
