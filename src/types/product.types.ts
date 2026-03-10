@@ -6,6 +6,19 @@ export type DiscountType = "PERCENTAGE" | "FIXED";
 
 export type RefurbGrade = "A" | "B" | "C" | "D";
 
+export interface ProductSpecOption {
+  id: string;
+  value: string;
+  additionalPrice: number;
+}
+
+export interface ProductSpec {
+  id: string;
+  code: string;
+  name: string;
+  options: ProductSpecOption[];
+}
+
 export interface ProductVariant {
   id: string;
   sku: string;
@@ -38,7 +51,10 @@ export interface Product {
   isRefurbished: boolean;
   refurbGrade: RefurbGrade | null;
   accessoryIds: string[];
+  colors: string[];
+  slug: string;
   media: ProductMedia[];
+  specs: ProductSpec[];
   variants: ProductVariant[];
   createdAt: string;
   updatedAt: string;

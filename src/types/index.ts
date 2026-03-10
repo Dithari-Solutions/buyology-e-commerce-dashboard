@@ -3,6 +3,8 @@ export type { SignInRequest, SignInData, RefreshData } from "./auth.types";
 export { StoryStatus } from "./story.types";
 export type {
   Product,
+  ProductSpec,
+  ProductSpecOption,
   ProductVariant,
   ProductMedia,
   ProductStatus,

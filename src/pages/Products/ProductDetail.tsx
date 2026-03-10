@@ -413,6 +413,54 @@ export default function ProductDetail() {
             </div>
           </div>
 
+          {/* ── Specs ── */}
+          {product.specs.length > 0 && (
+            <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
+                <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
+                  Specifications
+                </h2>
+                <span className="inline-flex items-center justify-center rounded-full w-6 h-6 text-xs font-bold bg-brand-100 text-brand-700 dark:bg-brand-500/10 dark:text-brand-400">
+                  {product.specs.length}
+                </span>
+              </div>
+              <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                {product.specs.map((spec) => (
+                  <div key={spec.id} className="px-6 py-4">
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                      {spec.name}
+                      <span className="ml-2 font-normal normal-case text-gray-400 dark:text-gray-500">
+                        ({spec.code})
+                      </span>
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {spec.options.map((opt) => (
+                        <div
+                          key={opt.id}
+                          className="flex items-center gap-1.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-white/[0.03] px-3 py-1.5"
+                        >
+                          <span className="text-sm font-semibold text-gray-800 dark:text-white/90">
+                            {opt.value}
+                          </span>
+                          {opt.additionalPrice > 0 && (
+                            <span className="text-xs text-orange-500 dark:text-orange-400 font-medium">
+                              +{formatPrice(opt.additionalPrice)}
+                            </span>
+                          )}
+                          {opt.additionalPrice === 0 && (
+                            <span className="text-xs text-gray-400 dark:text-gray-500">
+                              base
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* ── Variants ── */}
           <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
