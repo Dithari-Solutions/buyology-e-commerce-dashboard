@@ -51,7 +51,8 @@ const navItems: NavItem[] = [
     icon: <Inventory2OutlinedIcon />,
     subItems: [
       { name: "Products", path: "/products", pro: false },
-      { name: "New Product", path: "/new-product", pro: false }
+      { name: "New Product", path: "/new-product", pro: false },
+      { name: "Trash", path: "/products/trash", pro: false }
     ],
   },
   {

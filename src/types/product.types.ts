@@ -1,4 +1,4 @@
-export type ProductStatus = "ACTIVE" | "INACTIVE";
+export type ProductStatus = "ACTIVE" | "INACTIVE" | "DELETED";
 
 export type ProductType = "SIMPLE" | "VARIABLE" | "BUNDLE";
 
@@ -58,4 +58,5 @@ export interface Product {
   variants: ProductVariant[];
   createdAt: string;
   updatedAt: string;
+  deletedAt: string | null;
 }

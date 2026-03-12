@@ -23,6 +23,7 @@ type SpecOptionState = {
   valueAz: string;
   valueEn: string;
   valueAr: string;
+  unit: string;
   additionalPrice: number;
 };
 
@@ -60,7 +61,7 @@ const defaultSpec = (): SpecState => ({
   nameAz: "",
   nameEn: "",
   nameAr: "",
-  options: [{ localKey: "", valueAz: "", valueEn: "", valueAr: "", additionalPrice: 0 }],
+  options: [{ localKey: "", valueAz: "", valueEn: "", valueAr: "", unit: "", additionalPrice: 0 }],
 });
 
 const defaultVariant = (): VariantState => ({
@@ -406,7 +407,7 @@ export default function NewProduct() {
               ...s,
               options: [
                 ...s.options,
-                { localKey: "", valueAz: "", valueEn: "", valueAr: "", additionalPrice: 0 },
+                { localKey: "", valueAz: "", valueEn: "", valueAr: "", unit: "", additionalPrice: 0 },
               ],
             }
           : s
@@ -528,6 +529,7 @@ export default function NewProduct() {
             valueAz: o.valueAz,
             valueEn: o.valueEn,
             valueAr: o.valueAr,
+            unit: o.unit || undefined,
             additionalPrice: Number(o.additionalPrice) || 0,
           })),
         })),
@@ -937,7 +939,7 @@ export default function NewProduct() {
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Options</p>
                     {spec.options.map((opt, oi) => (
                       <div key={oi} className="flex items-start gap-2 rounded-lg bg-gray-50 dark:bg-gray-900/50 p-3">
-                        <div className="grid flex-1 grid-cols-2 gap-3 sm:grid-cols-5">
+                        <div className="grid flex-1 grid-cols-2 gap-3 sm:grid-cols-6">
                           <div>
                             <Label className="mb-1 block text-xs text-gray-400">Local Key</Label>
                             <Input
@@ -968,6 +970,14 @@ export default function NewProduct() {
                               placeholder="16"
                               value={opt.valueAr}
                               onChange={(e) => updateSpecOption(si, oi, "valueAr", e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <Label className="mb-1 block text-xs text-gray-400">Unit</Label>
+                            <Input
+                              placeholder="GB"
+                              value={opt.unit}
+                              onChange={(e) => updateSpecOption(si, oi, "unit", e.target.value)}
                             />
                           </div>
                           <div>

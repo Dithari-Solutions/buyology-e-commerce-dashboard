@@ -13,6 +13,7 @@ export interface CreateProductSpecOption {
   valueAz: string;
   valueEn: string;
   valueAr: string;
+  unit?: string;
   additionalPrice: number;
 }
 
@@ -90,6 +91,19 @@ export const productsService = {
   ): Promise<ApiResponse<Product>> {
     return apiClient.get<ApiResponse<Product>>(
       `${BASE}/${id}?lang=${language}`,
+      { signal }
+    );
+  },
+
+  /**
+   * Fetch all trashed (soft-deleted) products.
+   */
+  getTrash(
+    language: ProductLanguage = "EN",
+    signal?: AbortSignal
+  ): Promise<ApiResponse<Product[]>> {
+    return apiClient.get<ApiResponse<Product[]>>(
+      `${BASE}/trash?lang=${language}`,
       { signal }
     );
   },
