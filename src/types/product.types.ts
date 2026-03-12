@@ -9,6 +9,7 @@ export type RefurbGrade = "A" | "B" | "C" | "D";
 export interface ProductSpecOption {
   id: string;
   value: string;
+  unit?: string;
   additionalPrice: number;
 }
 

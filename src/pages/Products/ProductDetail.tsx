@@ -441,6 +441,11 @@ export default function ProductDetail() {
                         >
                           <span className="text-sm font-semibold text-gray-800 dark:text-white/90">
                             {opt.value}
+                            {opt.unit && (
+                              <span className="ml-0.5 text-xs font-normal text-gray-400 dark:text-gray-500">
+                                {opt.unit}
+                              </span>
+                            )}
                           </span>
                           {opt.additionalPrice > 0 && (
                             <span className="text-xs text-orange-500 dark:text-orange-400 font-medium">
