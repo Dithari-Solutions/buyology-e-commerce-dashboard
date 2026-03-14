@@ -12,3 +12,13 @@ export type {
   DiscountType,
   RefurbGrade,
 } from "./product.types";
+export type {
+  Category,
+  CategoryDetail,
+  CategoryStatus,
+  CategoryLanguage,
+  CategoryTranslation,
+  CreateCategoryRequest,
+  UpdateCategoryRequest,
+  CreateCategoryTranslations,
+} from "./category.types";
