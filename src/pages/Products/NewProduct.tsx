@@ -5,7 +5,7 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Label from "../../components/form/Label";
 import Input from "../../components/form/input/InputField";
 import Button from "../../components/ui/button/Button";
-import { productsService, brandsService, specsService, SPEC_CODES, ApiRequestError } from "../../api";
+import { productsService, brandsService, specsService, SPEC_CODES, ApiRequestError, getGroupName, getOptionValue } from "../../api";
 import type { CreateProductRequest } from "../../api/services/products.service";
 import type { GlobalSpecGroup } from "../../api";
 import type {
@@ -734,7 +734,7 @@ export default function NewProduct() {
                       <option value="">Select group…</option>
                       {globalSpecGroups.map((g) => (
                         <option key={g.id} value={g.id}>
-                          {g.code} — {g.nameEn}
+                          {g.code} — {getGroupName(g, "EN")}
                         </option>
                       ))}
                     </select>
@@ -756,18 +756,18 @@ export default function NewProduct() {
                               <button
                                 key={opt.id}
                                 type="button"
-                                onClick={() => applyLibraryOption(opt.id, opt.valueEn)}
+                                onClick={() => applyLibraryOption(opt.id, getOptionValue(opt, "EN"))}
                                 className="flex w-full items-center justify-between rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-3 text-left hover:border-[#402F75] hover:bg-[#402F75]/5 dark:hover:border-[#FBBB14]/50 dark:hover:bg-[#FBBB14]/5 transition-colors"
                               >
                                 <div>
                                   <p className="text-sm font-semibold text-gray-800 dark:text-white/90">
-                                    {opt.valueEn}
+                                    {getOptionValue(opt, "EN")}
                                     {opt.unit && (
                                       <span className="ml-2 text-xs font-normal text-gray-400">({opt.unit})</span>
                                     )}
                                   </p>
                                   <p className="text-xs text-gray-400">
-                                    AZ: {opt.valueAz} · AR: {opt.valueAr}
+                                    AZ: {getOptionValue(opt, "AZ")} · AR: {getOptionValue(opt, "AR")}
                                   </p>
                                 </div>
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-gray-300">

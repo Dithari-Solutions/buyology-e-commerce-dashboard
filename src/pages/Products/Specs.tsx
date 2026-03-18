@@ -5,6 +5,8 @@ import {
   specsService,
   SPEC_CODES,
   ApiRequestError,
+  getGroupName,
+  getOptionValue,
 } from "../../api";
 import type {
   GlobalSpecGroup,
@@ -227,7 +229,7 @@ function SpecGroupRow({
           {group.code}
         </span>
         <span className="flex-1 text-sm font-semibold text-gray-800 dark:text-white/90">
-          {group.nameEn}
+          {getGroupName(group, "EN")}
         </span>
         <span className="rounded-full bg-gray-100 dark:bg-gray-800 px-2.5 py-0.5 text-xs font-medium text-gray-500 dark:text-gray-400">
           {group.options.length} option{group.options.length !== 1 ? "s" : ""}
@@ -252,15 +254,15 @@ function SpecGroupRow({
           <div className="mb-4 grid grid-cols-3 gap-3 text-xs">
             <div>
               <span className="font-medium text-gray-500">AZ:</span>{" "}
-              <span className="text-gray-700 dark:text-gray-300">{group.nameAz}</span>
+              <span className="text-gray-700 dark:text-gray-300">{getGroupName(group, "AZ")}</span>
             </div>
             <div>
               <span className="font-medium text-gray-500">EN:</span>{" "}
-              <span className="text-gray-700 dark:text-gray-300">{group.nameEn}</span>
+              <span className="text-gray-700 dark:text-gray-300">{getGroupName(group, "EN")}</span>
             </div>
             <div>
               <span className="font-medium text-gray-500">AR:</span>{" "}
-              <span className="text-gray-700 dark:text-gray-300" dir="rtl">{group.nameAr}</span>
+              <span className="text-gray-700 dark:text-gray-300" dir="rtl">{getGroupName(group, "AR")}</span>
             </div>
           </div>
 
@@ -284,9 +286,9 @@ function SpecGroupRow({
                 <tbody>
                   {group.options.map((opt) => (
                     <tr key={opt.id} className="border-b border-gray-100 dark:border-gray-800 last:border-0">
-                      <td className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">{opt.valueEn}</td>
-                      <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{opt.valueAz}</td>
-                      <td className="px-4 py-3 text-gray-500 dark:text-gray-400" dir="rtl">{opt.valueAr}</td>
+                      <td className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">{getOptionValue(opt, "EN")}</td>
+                      <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{getOptionValue(opt, "AZ")}</td>
+                      <td className="px-4 py-3 text-gray-500 dark:text-gray-400" dir="rtl">{getOptionValue(opt, "AR")}</td>
                       <td className="px-4 py-3">
                         {opt.unit ? (
                           <span className="rounded bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-mono text-gray-600 dark:text-gray-400">

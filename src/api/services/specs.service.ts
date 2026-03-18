@@ -3,21 +3,37 @@ import type { ApiResponse } from "../types/api.types";
 
 const BASE = "/api/admin/specs";
 
+export type SpecLanguage = "AZ" | "EN" | "AR";
+
+export interface SpecGroupTranslation {
+  language: SpecLanguage;
+  name: string;
+}
+
+export interface SpecOptionTranslation {
+  language: SpecLanguage;
+  value: string;
+}
+
 export interface GlobalSpecOption {
   id: string;
-  valueAz: string;
-  valueEn: string;
-  valueAr: string;
   unit: string | null;
+  translations: SpecOptionTranslation[];
 }
 
 export interface GlobalSpecGroup {
   id: string;
   code: string;
-  nameAz: string;
-  nameEn: string;
-  nameAr: string;
+  translations: SpecGroupTranslation[];
   options: GlobalSpecOption[];
+}
+
+export function getGroupName(group: GlobalSpecGroup, lang: SpecLanguage = "EN"): string {
+  return group.translations.find((t) => t.language === lang)?.name ?? "";
+}
+
+export function getOptionValue(option: GlobalSpecOption, lang: SpecLanguage = "EN"): string {
+  return option.translations.find((t) => t.language === lang)?.value ?? "";
 }
 
 export interface CreateGlobalSpecOptionInput {
