@@ -884,7 +884,9 @@ export default function NewProduct() {
                 <Select value={brandId} onChange={setBrandId}>
                   <option value="">No brand</option>
                   {brands.map((b) => (
-                    <option key={b.id} value={b.id}>{b.nameEn}</option>
+                    <option key={b.id} value={b.id}>
+                      {b.translations.find((t) => t.language === "EN")?.name ?? b.id}
+                    </option>
                   ))}
                 </Select>
               </div>
