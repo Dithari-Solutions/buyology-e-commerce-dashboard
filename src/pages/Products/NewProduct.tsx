@@ -1171,120 +1171,125 @@ export default function NewProduct() {
                     {spec.options.map((opt, oi) => (
                       <div key={oi} className="flex items-start gap-2 rounded-lg bg-gray-50 dark:bg-gray-900/50 p-3">
                         <div className="flex-1">
-                          {/* Mode toggle */}
-                          <div className="mb-3 flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => opt.mode === "library" ? clearLibraryOption(si, oi) : updateSpecOption(si, oi, "mode", "manual")}
-                              className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
-                                opt.mode === "manual"
-                                  ? "bg-[#402F75] text-white dark:bg-[#402F75]"
-                                  : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-200"
-                              }`}
-                            >
-                              Manual
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => openLibraryPicker(si, oi)}
-                              className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
-                                opt.mode === "library"
-                                  ? "bg-[#402F75] text-white dark:bg-[#402F75]"
-                                  : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-200"
-                              }`}
-                            >
-                              From Library
-                            </button>
-                            {opt.mode === "library" && opt.displayValue && (
-                              <span className="ml-1 text-xs text-[#402F75] dark:text-[#FBBB14] font-medium">
-                                → {opt.displayValue}
-                              </span>
-                            )}
-                          </div>
-
-                          {opt.mode === "library" ? (
-                            /* Library mode: only localKey + additionalPrice */
-                            <div className="grid grid-cols-2 gap-3">
-                              <div>
-                                <Label className="mb-1 block text-xs text-gray-400">Local Key</Label>
-                                <Input
-                                  placeholder="ram-16gb"
-                                  value={opt.localKey}
-                                  onChange={(e) => updateSpecOption(si, oi, "localKey", e.target.value)}
-                                />
+                          {(() => {
+                            const isGlobalSpec = globalSpecCodes.includes(spec.code);
+                            const globalGroup = globalSpecGroups.find((g) => g.code === spec.code);
+                            if (isGlobalSpec && globalGroup) {
+                              return (
+                                <div className="space-y-3">
+                                  <div>
+                                    <Label className="mb-1 block text-xs text-gray-400">
+                                      Select Option <span className="text-red-500">*</span>
+                                    </Label>
+                                    <select
+                                      value={opt.globalOptionId ?? ""}
+                                      onChange={(e) => {
+                                        const id = e.target.value;
+                                        if (!id) {
+                                          clearGlobalOption(si, oi);
+                                        } else {
+                                          const picked = globalGroup.options.find((o) => o.id === id);
+                                          const display = picked
+                                            ? (getOptionValue(picked, "EN") || id)
+                                            : id;
+                                          selectGlobalOption(si, oi, id, display, spec.code);
+                                        }
+                                      }}
+                                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200"
+                                    >
+                                      <option value="">— choose option —</option>
+                                      {globalGroup.options.map((go) => (
+                                        <option key={go.id} value={go.id}>
+                                          {getOptionValue(go, "EN") || go.id}
+                                          {go.unit ? ` (${go.unit})` : ""}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                      <Label className="mb-1 block text-xs text-gray-400">Local Key</Label>
+                                      <Input
+                                        placeholder="ram-16gb"
+                                        value={opt.localKey}
+                                        onChange={(e) => updateSpecOption(si, oi, "localKey", e.target.value)}
+                                      />
+                                    </div>
+                                    <div>
+                                      <Label className="mb-1 block text-xs text-gray-400">+Price</Label>
+                                      <Input
+                                        type="number"
+                                        placeholder="0"
+                                        value={opt.additionalPrice}
+                                        onChange={(e) =>
+                                          updateSpecOption(si, oi, "additionalPrice", parseFloat(e.target.value) || 0)
+                                        }
+                                        min="0"
+                                        step={0.01}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            }
+                            return (
+                              <div className="grid grid-cols-2 gap-3 sm:grid-cols-6">
+                                <div>
+                                  <Label className="mb-1 block text-xs text-gray-400">Local Key</Label>
+                                  <Input
+                                    placeholder="ram-16gb"
+                                    value={opt.localKey}
+                                    onChange={(e) => updateSpecOption(si, oi, "localKey", e.target.value)}
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="mb-1 block text-xs text-gray-400">Value AZ</Label>
+                                  <Input
+                                    placeholder="16GB"
+                                    value={opt.valueAz}
+                                    onChange={(e) => updateSpecOption(si, oi, "valueAz", e.target.value)}
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="mb-1 block text-xs text-gray-400">Value EN</Label>
+                                  <Input
+                                    placeholder="16GB"
+                                    value={opt.valueEn}
+                                    onChange={(e) => updateSpecOption(si, oi, "valueEn", e.target.value)}
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="mb-1 block text-xs text-gray-400">Value AR</Label>
+                                  <Input
+                                    placeholder="16GB"
+                                    value={opt.valueAr}
+                                    onChange={(e) => updateSpecOption(si, oi, "valueAr", e.target.value)}
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="mb-1 block text-xs text-gray-400">Unit</Label>
+                                  <Input
+                                    placeholder="GB"
+                                    value={opt.unit}
+                                    onChange={(e) => updateSpecOption(si, oi, "unit", e.target.value)}
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="mb-1 block text-xs text-gray-400">+Price</Label>
+                                  <Input
+                                    type="number"
+                                    placeholder="0"
+                                    value={opt.additionalPrice}
+                                    onChange={(e) =>
+                                      updateSpecOption(si, oi, "additionalPrice", parseFloat(e.target.value) || 0)
+                                    }
+                                    min="0"
+                                    step={0.01}
+                                  />
+                                </div>
                               </div>
-                              <div>
-                                <Label className="mb-1 block text-xs text-gray-400">+Price</Label>
-                                <Input
-                                  type="number"
-                                  placeholder="0"
-                                  value={opt.additionalPrice}
-                                  onChange={(e) =>
-                                    updateSpecOption(si, oi, "additionalPrice", parseFloat(e.target.value) || 0)
-                                  }
-                                  min="0"
-                                  step={0.01}
-                                />
-                              </div>
-                            </div>
-                          ) : (
-                            /* Manual mode: full fields */
-                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-6">
-                              <div>
-                                <Label className="mb-1 block text-xs text-gray-400">Local Key</Label>
-                                <Input
-                                  placeholder="ram-16gb"
-                                  value={opt.localKey}
-                                  onChange={(e) => updateSpecOption(si, oi, "localKey", e.target.value)}
-                                />
-                              </div>
-                              <div>
-                                <Label className="mb-1 block text-xs text-gray-400">Value AZ</Label>
-                                <Input
-                                  placeholder="16GB"
-                                  value={opt.valueAz}
-                                  onChange={(e) => updateSpecOption(si, oi, "valueAz", e.target.value)}
-                                />
-                              </div>
-                              <div>
-                                <Label className="mb-1 block text-xs text-gray-400">Value EN</Label>
-                                <Input
-                                  placeholder="16GB"
-                                  value={opt.valueEn}
-                                  onChange={(e) => updateSpecOption(si, oi, "valueEn", e.target.value)}
-                                />
-                              </div>
-                              <div>
-                                <Label className="mb-1 block text-xs text-gray-400">Value AR</Label>
-                                <Input
-                                  placeholder="16GB"
-                                  value={opt.valueAr}
-                                  onChange={(e) => updateSpecOption(si, oi, "valueAr", e.target.value)}
-                                />
-                              </div>
-                              <div>
-                                <Label className="mb-1 block text-xs text-gray-400">Unit</Label>
-                                <Input
-                                  placeholder="GB"
-                                  value={opt.unit}
-                                  onChange={(e) => updateSpecOption(si, oi, "unit", e.target.value)}
-                                />
-                              </div>
-                              <div>
-                                <Label className="mb-1 block text-xs text-gray-400">+Price</Label>
-                                <Input
-                                  type="number"
-                                  placeholder="0"
-                                  value={opt.additionalPrice}
-                                  onChange={(e) =>
-                                    updateSpecOption(si, oi, "additionalPrice", parseFloat(e.target.value) || 0)
-                                  }
-                                  min="0"
-                                  step={0.01}
-                                />
-                              </div>
-                            </div>
-                          )}
+                            );
+                          })()}
                         </div>
                         <div className="mt-10">
                           <RemoveBtn onClick={() => removeSpecOption(si, oi)} />
