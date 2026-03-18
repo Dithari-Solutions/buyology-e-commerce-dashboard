@@ -21,7 +21,10 @@ export interface CreateProductSpecOption {
 }
 
 export interface CreateProductSpec {
-  code: string;
+  // Mode A: reference an existing global spec group
+  globalSpecGroupId?: string;
+  // Mode B: define inline (find-or-create by code)
+  code?: string;
   nameAz?: string;
   nameEn?: string;
   nameAr?: string;
@@ -32,7 +35,6 @@ export interface CreateProductVariant {
   sku: string;
   price: number;
   stock: number;
-  specOptionIds: string[];
   specOptionLocalKeys: string[];
 }
 
