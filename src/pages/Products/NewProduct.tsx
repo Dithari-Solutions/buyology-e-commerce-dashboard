@@ -5,7 +5,7 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Label from "../../components/form/Label";
 import Input from "../../components/form/input/InputField";
 import Button from "../../components/ui/button/Button";
-import { productsService, brandsService, specsService, ApiRequestError, getGroupName, getOptionValue } from "../../api";
+import { productsService, brandsService, specsService, ApiRequestError, getOptionValue } from "../../api";
 import type { CreateProductRequest } from "../../api/services/products.service";
 import type { GlobalSpecGroup } from "../../api";
 import type {
@@ -312,7 +312,19 @@ function validate(
     const hasInvalidCustomSpec = specs.some(
       (s) => !globalSpecCodes.includes(s.code) && (!s.nameAz.trim() || !s.nameEn.trim() || !s.nameAr.trim())
     );
-    if (hasInvalidCustomSpec) e.specs = "Names are required for custom specs (AZ, EN, AR)";
+    if (hasInvalidCustomSpec) {
+      e.specs = "Names are required for custom specs (AZ, EN, AR)";
+    } else {
+      const hasInvalidOption = specs.some((s) =>
+        s.options.some((o) => {
+          if (!o.localKey.trim()) return true;
+          if (!o.globalOptionId && (!o.valueAz.trim() || !o.valueEn.trim() || !o.valueAr.trim())) return true;
+          if (o.additionalPrice < 0) return true;
+          return false;
+        })
+      );
+      if (hasInvalidOption) e.specs = "Each option requires a localKey and values (AZ, EN, AR) unless a global option is selected";
+    }
   }
 
   if (colors.length === 0) e.colors = "At least one color is required";
@@ -349,13 +361,9 @@ export default function NewProduct() {
   // ── Brands (fetched from API) ─────────────────────────────────────────────
   const [brands, setBrands] = useState<Brand[]>([]);
 
-  // ── Global spec library (for "pick from library" modal) ───────────────────
+  // ── Global spec library ───────────────────────────────────────────────────
   const [globalSpecGroups, setGlobalSpecGroups] = useState<GlobalSpecGroup[]>([]);
   const [specLibraryLoaded, setSpecLibraryLoaded] = useState(false);
-
-  // Modal state: which option is being picked from library
-  const [libraryPickTarget, setLibraryPickTarget] = useState<{ si: number; oi: number } | null>(null);
-  const [librarySelectedGroupId, setLibrarySelectedGroupId] = useState<string>("");
 
   // ── Translations ──────────────────────────────────────────────────────────
   const [titleAz, setTitleAz] = useState("");
@@ -474,17 +482,11 @@ export default function NewProduct() {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Global spec library picker helpers
+  // Global spec option inline selection
   // ─────────────────────────────────────────────────────────────────────────
 
-  function openLibraryPicker(si: number, oi: number) {
-    setLibraryPickTarget({ si, oi });
-    setLibrarySelectedGroupId("");
-  }
-
-  function applyLibraryOption(optionId: string, displayValue: string) {
-    if (!libraryPickTarget) return;
-    const { si, oi } = libraryPickTarget;
+  function selectGlobalOption(si: number, oi: number, optionId: string, displayValue: string, specCode: string) {
+    const slug = `${specCode}-${displayValue.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")}`;
     setSpecs((prev) =>
       prev.map((s, i) =>
         i === si
@@ -492,18 +494,16 @@ export default function NewProduct() {
               ...s,
               options: s.options.map((o, j) =>
                 j === oi
-                  ? { ...o, mode: "library" as SpecOptionMode, globalOptionId: optionId, displayValue }
+                  ? { ...o, mode: "library" as SpecOptionMode, globalOptionId: optionId, displayValue, localKey: o.localKey || slug }
                   : o
               ),
             }
           : s
       )
     );
-    setLibraryPickTarget(null);
-    setLibrarySelectedGroupId("");
   }
 
-  function clearLibraryOption(si: number, oi: number) {
+  function clearGlobalOption(si: number, oi: number) {
     setSpecs((prev) =>
       prev.map((s, i) =>
         i === si
@@ -530,16 +530,22 @@ export default function NewProduct() {
 
   function updateSpecOption(si: number, oi: number, key: string, value: string | number) {
     setSpecs((prev) =>
-      prev.map((s, i) =>
-        i === si
-          ? {
-              ...s,
-              options: s.options.map((o, j) =>
-                j === oi ? { ...o, [key]: value } : o
-              ),
+      prev.map((s, i) => {
+        if (i !== si) return s;
+        return {
+          ...s,
+          options: s.options.map((o, j) => {
+            if (j !== oi) return o;
+            const updated = { ...o, [key]: value };
+            // Auto-generate localKey from specCode + valueEn when localKey is still empty
+            if (key === "valueEn" && !o.localKey) {
+              const slug = `${s.code}-${String(value).toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")}`;
+              updated.localKey = slug;
             }
-          : s
-      )
+            return updated;
+          }),
+        };
+      })
     );
   }
 
@@ -709,97 +715,6 @@ export default function NewProduct() {
       />
  
       <PageBreadcrumb pageTitle="New Product" />
-
-      {/* ── Global Spec Library Picker Modal ─────────────────────────────── */}
-      {libraryPickTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-gray-900 shadow-xl overflow-hidden">
-            <div className="border-b border-gray-100 dark:border-gray-800 bg-[#402F75]/5 dark:bg-[#402F75]/20 px-6 py-4 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-[#402F75] dark:text-[#FBBB14] uppercase tracking-wide">
-                Pick from Library
-              </h3>
-              <button
-                type="button"
-                onClick={() => setLibraryPickTarget(null)}
-                className="flex h-7 w-7 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
-            </div>
-            <div className="p-5 space-y-4 max-h-[60vh] overflow-y-auto">
-              {globalSpecGroups.length === 0 ? (
-                <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-8">
-                  No global spec groups available. Create them in the Spec Library page first.
-                </p>
-              ) : (
-                <>
-                  <div>
-                    <label className="mb-1.5 block text-xs font-medium text-gray-500">
-                      Spec Group
-                    </label>
-                    <select
-                      value={librarySelectedGroupId}
-                      onChange={(e) => setLibrarySelectedGroupId(e.target.value)}
-                      className="h-10 w-full rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 focus:border-[#FBBB14] focus:outline-none focus:ring-2 focus:ring-[#FBBB14]/30 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
-                    >
-                      <option value="">Select group…</option>
-                      {globalSpecGroups.map((g) => (
-                        <option key={g.id} value={g.id}>
-                          {g.code} — {getGroupName(g, "EN")}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {librarySelectedGroupId && (() => {
-                    const group = globalSpecGroups.find((g) => g.id === librarySelectedGroupId);
-                    if (!group) return null;
-                    return (
-                      <div>
-                        <p className="mb-2 text-xs font-medium text-gray-500">
-                          Options — click to select
-                        </p>
-                        {group.options.length === 0 ? (
-                          <p className="text-xs text-gray-400">This group has no options yet.</p>
-                        ) : (
-                          <div className="space-y-2">
-                            {group.options.map((opt) => (
-                              <button
-                                key={opt.id}
-                                type="button"
-                                onClick={() => applyLibraryOption(opt.id, getOptionValue(opt, "EN"))}
-                                className="flex w-full items-center justify-between rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-3 text-left hover:border-[#402F75] hover:bg-[#402F75]/5 dark:hover:border-[#FBBB14]/50 dark:hover:bg-[#FBBB14]/5 transition-colors"
-                              >
-                                <div>
-                                  <p className="text-sm font-semibold text-gray-800 dark:text-white/90">
-                                    {getOptionValue(opt, "EN")}
-                                    {opt.unit && (
-                                      <span className="ml-2 text-xs font-normal text-gray-400">({opt.unit})</span>
-                                    )}
-                                  </p>
-                                  <p className="text-xs text-gray-400">
-                                    AZ: {getOptionValue(opt, "AZ")} · AR: {getOptionValue(opt, "AR")}
-                                  </p>
-                                </div>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-gray-300">
-                                  <path d="M9 18l6-6-6-6" />
-                                </svg>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })()}
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} noValidate className="space-y-6 pb-10">
 
