@@ -77,7 +77,7 @@ function DeactivateModal({
           Deactivate Brand
         </h3>
         <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-          Are you sure you want to deactivate <strong>{brand.nameEn}</strong>? It will be soft-deactivated (status → INACTIVE). Products linked to this brand will retain the reference.
+          Are you sure you want to deactivate <strong>{brand.translations.find((t) => t.language === "EN")?.name ?? brand.id}</strong>? It will be soft-deactivated (status → INACTIVE). Products linked to this brand will retain the reference.
         </p>
         <div className="mt-5 flex justify-end gap-3">
           <button
@@ -416,13 +416,13 @@ export default function Brands() {
                       className="border-b border-gray-100 dark:border-gray-800 last:border-0"
                     >
                       <td className="px-5 py-4 text-sm font-semibold text-gray-800 dark:text-white/90">
-                        {brand.nameEn}
+                        {brand.translations.find((t) => t.language === "EN")?.name ?? "—"}
                       </td>
                       <td className="px-5 py-4 text-sm text-gray-600 dark:text-gray-300">
-                        {brand.nameAz}
+                        {brand.translations.find((t) => t.language === "AZ")?.name ?? "—"}
                       </td>
                       <td className="px-5 py-4 text-sm text-gray-600 dark:text-gray-300" dir="rtl">
-                        {brand.nameAr}
+                        {brand.translations.find((t) => t.language === "AR")?.name ?? "—"}
                       </td>
                       <td className="px-5 py-4">
                         <Badge size="sm" color={brand.status === "ACTIVE" ? "success" : "light"}>
