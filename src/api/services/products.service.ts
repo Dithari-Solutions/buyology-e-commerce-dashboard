@@ -22,9 +22,9 @@ export interface CreateProductSpecOption {
 
 export interface CreateProductSpec {
   code: string;
-  nameAz: string;
-  nameEn: string;
-  nameAr: string;
+  nameAz?: string;
+  nameEn?: string;
+  nameAr?: string;
   options: CreateProductSpecOption[];
 }
 

@@ -5,7 +5,7 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Label from "../../components/form/Label";
 import Input from "../../components/form/input/InputField";
 import Button from "../../components/ui/button/Button";
-import { productsService, brandsService, specsService, SPEC_CODES, ApiRequestError, getGroupName, getOptionValue } from "../../api";
+import { productsService, brandsService, specsService, ApiRequestError, getGroupName, getOptionValue } from "../../api";
 import type { CreateProductRequest } from "../../api/services/products.service";
 import type { GlobalSpecGroup } from "../../api";
 import type {
@@ -290,7 +290,8 @@ function validate(
   descAr: string,
   specs: SpecState[],
   colors: ColorState[],
-  filesCount: number
+  filesCount: number,
+  globalSpecCodes: string[]
 ): FormErrors {
   const e: FormErrors = {};
 
@@ -305,7 +306,15 @@ function validate(
   if (!descEn.trim()) e.descEn = "Required";
   if (!descAr.trim()) e.descAr = "Required";
 
-  if (specs.length === 0) e.specs = "At least one specification is required";
+  if (specs.length === 0) {
+    e.specs = "At least one specification is required";
+  } else {
+    const hasInvalidCustomSpec = specs.some(
+      (s) => !globalSpecCodes.includes(s.code) && (!s.nameAz.trim() || !s.nameEn.trim() || !s.nameAr.trim())
+    );
+    if (hasInvalidCustomSpec) e.specs = "Names are required for custom specs (AZ, EN, AR)";
+  }
+
   if (colors.length === 0) e.colors = "At least one color is required";
   if (filesCount < 3)
     e.media = `At least 3 media files are required (${filesCount} added)`;
@@ -579,7 +588,8 @@ export default function NewProduct() {
       sku, basePrice, categoryId,
       titleAz, titleEn, titleAr,
       descAz, descEn, descAr,
-      specs, colors, files.length
+      specs, colors, files.length,
+      globalSpecCodes
     );
     setErrors(errs);
 
@@ -619,28 +629,29 @@ export default function NewProduct() {
           descriptionEn: descEn,
           descriptionAr: descAr,
         },
-        specs: specs.map((s) => ({
-          code: s.code,
-          nameAz: s.nameAz,
-          nameEn: s.nameEn,
-          nameAr: s.nameAr,
-          options: s.options.map((o) =>
-            o.mode === "library" && o.globalOptionId
-              ? {
-                  localKey: o.localKey,
-                  globalOptionId: o.globalOptionId,
-                  additionalPrice: Number(o.additionalPrice) || 0,
-                }
-              : {
-                  localKey: o.localKey,
-                  valueAz: o.valueAz,
-                  valueEn: o.valueEn,
-                  valueAr: o.valueAr,
-                  unit: o.unit || undefined,
-                  additionalPrice: Number(o.additionalPrice) || 0,
-                }
-          ),
-        })),
+        specs: specs.map((s) => {
+          const isGlobal = globalSpecCodes.includes(s.code);
+          return {
+            code: s.code,
+            ...(isGlobal ? {} : { nameAz: s.nameAz, nameEn: s.nameEn, nameAr: s.nameAr }),
+            options: s.options.map((o) =>
+              o.mode === "library" && o.globalOptionId
+                ? {
+                    localKey: o.localKey,
+                    globalOptionId: o.globalOptionId,
+                    additionalPrice: Number(o.additionalPrice) || 0,
+                  }
+                : {
+                    localKey: o.localKey,
+                    valueAz: o.valueAz,
+                    valueEn: o.valueEn,
+                    valueAr: o.valueAr,
+                    unit: o.unit || undefined,
+                    additionalPrice: Number(o.additionalPrice) || 0,
+                  }
+            ),
+          };
+        }),
         variants: variants.map((v) => ({
           sku: v.sku,
           price: parseFloat(v.price) || 0,
@@ -682,6 +693,9 @@ export default function NewProduct() {
   const specsHasError = submitted && !!errors.specs;
   const colorsHasError = submitted && !!errors.colors;
   const mediaHasError = submitted && !!errors.media;
+
+  // Derived from fetched global spec library
+  const globalSpecCodes = globalSpecGroups.map((g) => g.code);
 
   // ─────────────────────────────────────────────────────────────────────────
   // Render
@@ -1175,46 +1189,67 @@ export default function NewProduct() {
                     <RemoveBtn onClick={() => removeSpec(si)} />
                   </div>
 
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <div>
-                      <Label className="mb-1 block text-xs text-gray-500">Code</Label>
-                      <select
-                        value={spec.code}
-                        onChange={(e) => updateSpec(si, "code", e.target.value)}
-                        className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-[#FBBB14] focus:outline-none focus:ring-3 focus:ring-[#FBBB14]/30 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
-                      >
-                        <option value="">Select code…</option>
-                        {SPEC_CODES.map((c) => (
-                          <option key={c} value={c}>{c}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <Label className="mb-1 block text-xs text-gray-500">Name AZ</Label>
-                      <Input
-                        placeholder="RAM"
-                        value={spec.nameAz}
-                        onChange={(e) => updateSpec(si, "nameAz", e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <Label className="mb-1 block text-xs text-gray-500">Name EN</Label>
-                      <Input
-                        placeholder="RAM"
-                        value={spec.nameEn}
-                        onChange={(e) => updateSpec(si, "nameEn", e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <Label className="mb-1 block text-xs text-gray-500">Name AR</Label>
-                      <Input
-                        placeholder="ذاكرة الوصول العشوائي"
-                        value={spec.nameAr}
-                        onChange={(e) => updateSpec(si, "nameAr", e.target.value)}
-                        className="text-right"
-                      />
-                    </div>
-                  </div>
+                  {(() => {
+                    const isGlobal = globalSpecCodes.includes(spec.code);
+                    return (
+                      <div className={`grid grid-cols-1 gap-4 ${isGlobal ? "" : "sm:grid-cols-2 lg:grid-cols-4"}`}>
+                        <div>
+                          <Label className="mb-1 block text-xs text-gray-500">
+                            Code <span className="text-red-500">*</span>
+                          </Label>
+                          <Input
+                            placeholder="ram, storage, warranty…"
+                            value={spec.code}
+                            onChange={(e) => updateSpec(si, "code", e.target.value)}
+                          />
+                          {isGlobal && (
+                            <p className="mt-1.5 flex items-center gap-1.5 text-xs text-[#402F75] dark:text-[#FBBB14]">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+                                <path d="M9 12l2 2 4-4" />
+                              </svg>
+                              Names will be loaded from global spec library
+                            </p>
+                          )}
+                        </div>
+                        {!isGlobal && (
+                          <>
+                            <div>
+                              <Label className="mb-1 block text-xs text-gray-500">
+                                Name AZ <span className="text-red-500">*</span>
+                              </Label>
+                              <Input
+                                placeholder="Zəmanət"
+                                value={spec.nameAz}
+                                onChange={(e) => updateSpec(si, "nameAz", e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <Label className="mb-1 block text-xs text-gray-500">
+                                Name EN <span className="text-red-500">*</span>
+                              </Label>
+                              <Input
+                                placeholder="Warranty"
+                                value={spec.nameEn}
+                                onChange={(e) => updateSpec(si, "nameEn", e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <Label className="mb-1 block text-xs text-gray-500">
+                                Name AR <span className="text-red-500">*</span>
+                              </Label>
+                              <Input
+                                placeholder="ضمان"
+                                value={spec.nameAr}
+                                onChange={(e) => updateSpec(si, "nameAr", e.target.value)}
+                                className="text-right"
+                              />
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    );
+                  })()}
 
                   <div className="mt-4 space-y-3">
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Options</p>
