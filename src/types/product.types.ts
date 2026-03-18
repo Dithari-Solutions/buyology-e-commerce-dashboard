@@ -1,10 +1,12 @@
 export type ProductStatus = "ACTIVE" | "INACTIVE" | "DELETED";
 
-export type ProductType = "SIMPLE" | "VARIABLE" | "BUNDLE";
+export type ProductType = "SIMPLE" | "DIY" | "ACCESSORY";
 
 export type DiscountType = "PERCENTAGE" | "FIXED";
 
-export type RefurbGrade = "A" | "B" | "C" | "D";
+export type RefurbGrade = "A" | "B" | "C";
+
+export type AvailabilityStatus = "IN_STOCK" | "OUT_OF_STOCK" | "PRE_ORDER";
 
 export interface ProductSpecOption {
   id: string;
@@ -49,8 +51,13 @@ export interface Product {
   discountType: DiscountType | null;
   discountValue: number | null;
   categoryId: string;
+  brandId: string | null;
+  brandName: string | null;
   isRefurbished: boolean;
   refurbGrade: RefurbGrade | null;
+  availabilityStatus: AvailabilityStatus;
+  isSuperDeal: boolean;
+  isLimitedStock: boolean;
   accessoryIds: string[];
   colors: string[];
   slug: string;

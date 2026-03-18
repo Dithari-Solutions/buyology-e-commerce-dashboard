@@ -4,7 +4,7 @@ import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Badge from "../../components/ui/badge/Badge";
 import { productsService, ApiRequestError } from "../../api";
-import type { Product, ProductStatus } from "../../types";
+import type { Product, ProductStatus, AvailabilityStatus } from "../../types";
 import { env } from "../../config/env";
 
 // ---------------------------------------------------------------------------
@@ -40,12 +40,25 @@ function productTypeColor(type: string): string {
   switch (type) {
     case "SIMPLE":
       return "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400";
-    case "VARIABLE":
+    case "DIY":
       return "bg-purple-100 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400";
-    case "BUNDLE":
+    case "ACCESSORY":
       return "bg-orange-100 text-orange-700 dark:bg-orange-500/10 dark:text-orange-400";
     default:
       return "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300";
+  }
+}
+
+type AvailBadgeColor = "success" | "error" | "warning";
+
+function availabilityColor(status: AvailabilityStatus): AvailBadgeColor {
+  switch (status) {
+    case "IN_STOCK":
+      return "success";
+    case "OUT_OF_STOCK":
+      return "error";
+    case "PRE_ORDER":
+      return "warning";
   }
 }
 
@@ -114,6 +127,37 @@ function ProductRow({
         >
           {product.productType}
         </span>
+      </td>
+
+      {/* Brand */}
+      <td className="px-4 py-4 text-sm text-gray-600 dark:text-gray-300">
+        {product.brandName ?? <span className="text-gray-300 dark:text-gray-600">—</span>}
+      </td>
+
+      {/* Availability */}
+      <td className="px-4 py-4">
+        <Badge size="sm" color={availabilityColor(product.availabilityStatus)}>
+          {product.availabilityStatus.replace("_", " ")}
+        </Badge>
+      </td>
+
+      {/* Flags */}
+      <td className="px-4 py-4">
+        <div className="flex flex-col gap-1">
+          {product.isSuperDeal && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-yellow-100 dark:bg-yellow-500/10 px-2 py-0.5 text-[10px] font-semibold text-yellow-700 dark:text-yellow-400">
+              ★ Super Deal
+            </span>
+          )}
+          {product.isLimitedStock && (
+            <span className="inline-flex items-center rounded-full bg-red-100 dark:bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold text-red-600 dark:text-red-400">
+              Limited
+            </span>
+          )}
+          {!product.isSuperDeal && !product.isLimitedStock && (
+            <span className="text-xs text-gray-300 dark:text-gray-600">—</span>
+          )}
+        </div>
       </td>
 
       {/* Pricing */}
@@ -201,7 +245,7 @@ function SkeletonRow() {
           </div>
         </div>
       </td>
-      {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
         <td key={i} className="px-4 py-4">
           <div className="h-3 w-16 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" />
         </td>
@@ -430,7 +474,7 @@ export default function Products() {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-white/[0.02]">
-                  {["Product", "Type", "Price", "Discount", "Variants", "Status", "Created", ""].map(
+                  {["Product", "Type", "Brand", "Availability", "Flags", "Price", "Discount", "Variants", "Status", "Created", ""].map(
                     (col) => (
                       <th
                         key={col}

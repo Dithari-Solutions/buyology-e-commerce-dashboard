@@ -1,7 +1,7 @@
 import { apiClient, getAccessToken } from "../client";
 import { ApiRequestError } from "../types/api.types";
 import type { ApiResponse } from "../types/api.types";
-import type { Product, ProductStatus, ProductType, DiscountType, RefurbGrade } from "../../types/product.types";
+import type { Product, ProductStatus, ProductType, DiscountType, RefurbGrade, AvailabilityStatus } from "../../types/product.types";
 import { env } from "../../config/env";
 
 const BASE = "/api/admin/product";
@@ -10,9 +10,12 @@ export type ProductLanguage = "EN" | "AZ" | "AR";
 
 export interface CreateProductSpecOption {
   localKey: string;
-  valueAz: string;
-  valueEn: string;
-  valueAr: string;
+  // Library mode: send only globalOptionId (backend fills values)
+  globalOptionId?: string;
+  // Manual mode: fill all language fields
+  valueAz?: string;
+  valueEn?: string;
+  valueAr?: string;
   unit?: string;
   additionalPrice: number;
 }
@@ -47,8 +50,12 @@ export interface CreateProductRequest {
   basePrice: number;
   status: ProductStatus;
   productType: ProductType;
+  brandId: string | null;
   isRefurbished: boolean;
   refurbGrade: RefurbGrade | null;
+  availabilityStatus: AvailabilityStatus;
+  isSuperDeal: boolean;
+  isLimitedStock: boolean;
   discountType: DiscountType | null;
   discountValue: number | null;
   categoryId: string;

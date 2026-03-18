@@ -27,6 +27,8 @@ import ProductDetail from "./pages/Products/ProductDetail";
 import NewProduct from "./pages/Products/NewProduct";
 import ProductsTrash from "./pages/Products/ProductsTrash";
 import Categories from "./pages/Products/Categories";
+import Brands from "./pages/Products/Brands";
+import Specs from "./pages/Products/Specs";
 
 export default function App() {
   return (
@@ -51,6 +53,8 @@ export default function App() {
               <Route path="/new-product" element={<NewProduct />} />
               <Route path="/products/trash" element={<ProductsTrash />} />
               <Route path="/categories" element={<Categories />} />
+              <Route path="/brands" element={<Brands />} />
+              <Route path="/specs" element={<Specs />} />
 
               {/* Others Page */}
               <Route path="/profile" element={<UserProfiles />} />

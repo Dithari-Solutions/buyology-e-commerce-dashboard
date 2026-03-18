@@ -11,7 +11,9 @@ export type {
   ProductType,
   DiscountType,
   RefurbGrade,
+  AvailabilityStatus,
 } from "./product.types";
+export type { Brand, BrandStatus, CreateBrandRequest } from "./brand.types";
 export type {
   Category,
   CategoryDetail,
