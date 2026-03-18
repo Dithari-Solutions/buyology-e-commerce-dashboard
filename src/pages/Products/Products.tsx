@@ -137,7 +137,7 @@ function ProductRow({
       {/* Availability */}
       <td className="px-4 py-4">
         <Badge size="sm" color={availabilityColor(product.availabilityStatus)}>
-          {product.availabilityStatus.replace("_", " ")}
+          {product.availabilityStatus?.replace("_", " ") ?? "—"}
         </Badge>
       </td>
 
