@@ -3,6 +3,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import { useCallback, useEffect, useRef, useState } from "react";
 import VideoCameraBackIcon from '@mui/icons-material/VideoCameraBack';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
+import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 
 // Assume these icons are imported from an icon library
 import {
@@ -64,6 +65,14 @@ const navItems: NavItem[] = [
     subItems: [
       { name: "Stories", path: "/stories", pro: false },
       { name: "New Story", path: "/new-story", pro: false }
+    ],
+  },
+  {
+    name: "Reviews & Q&A",
+    icon: <RateReviewOutlinedIcon />,
+    subItems: [
+      { name: "Reviews", path: "/reviews", pro: false },
+      { name: "Questions", path: "/questions", pro: false },
     ],
   },
   {

@@ -14,6 +14,8 @@ export type {
   AvailabilityStatus,
 } from "./product.types";
 export type { Brand, BrandStatus, CreateBrandRequest } from "./brand.types";
+export type { Review, ReviewMedia, ReviewReply, ReviewStats, ReviewMediaType, ModerationStatus } from "./review.types";
+export type { Question, QuestionAnswer } from "./question.types";
 export type {
   Category,
   CategoryDetail,

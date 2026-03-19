@@ -1,4 +1,4 @@
-export { apiClient, setAccessToken, getAccessToken } from "./client";
+export { apiClient, setAccessToken, getAccessToken, getUserIdFromToken } from "./client";
 export { authService } from "./services/auth.service";
 export { storiesService } from "./services/stories.service";
 export type { StoryLanguage, StoryStatus, CreateStoryRequest } from "./services/stories.service";
@@ -7,6 +7,10 @@ export type { ProductLanguage, CreateProductRequest, CreateProductSpecOption } f
 export { categoriesService } from "./services/categories.service";
 export { brandsService } from "./services/brands.service";
 export { specsService, SPEC_CODES, getGroupName, getOptionValue } from "./services/specs.service";
+export { reviewsService } from "./services/reviews.service";
+export type { ModerateReviewRequest, AddReviewReplyRequest } from "./services/reviews.service";
+export { questionsService } from "./services/questions.service";
+export type { ModerateQuestionRequest, AddQuestionAnswerRequest } from "./services/questions.service";
 export type { GlobalSpecGroup, GlobalSpecOption, CreateGlobalSpecGroupRequest, CreateGlobalSpecOptionInput, SpecCode, SpecGroupTranslation, SpecOptionTranslation, SpecLanguage } from "./services/specs.service";
 export type { ApiResponse, ApiError } from "./types/api.types";
 export { ApiRequestError } from "./types/api.types";

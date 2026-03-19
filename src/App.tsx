@@ -29,6 +29,8 @@ import ProductsTrash from "./pages/Products/ProductsTrash";
 import Categories from "./pages/Products/Categories";
 import Brands from "./pages/Products/Brands";
 import Specs from "./pages/Products/Specs";
+import Reviews from "./pages/ReviewsQA/Reviews";
+import Questions from "./pages/ReviewsQA/Questions";
 
 export default function App() {
   return (
@@ -55,6 +57,10 @@ export default function App() {
               <Route path="/categories" element={<Categories />} />
               <Route path="/brands" element={<Brands />} />
               <Route path="/specs" element={<Specs />} />
+
+              {/* Reviews & Q&A */}
+              <Route path="/reviews" element={<Reviews />} />
+              <Route path="/questions" element={<Questions />} />
 
               {/* Others Page */}
               <Route path="/profile" element={<UserProfiles />} />
