@@ -14,7 +14,6 @@ import {
   ShootingStarIcon,
   PlusIcon,
   ArrowRightIcon,
-  TrashBinIcon,
   ListIcon,
 } from "../../icons";
 import InventoryIcon from "@mui/icons-material/Inventory";
