@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import VideoCameraBackIcon from '@mui/icons-material/VideoCameraBack';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
+import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
 
 // Assume these icons are imported from an icon library
 import {
@@ -65,6 +66,15 @@ const navItems: NavItem[] = [
     subItems: [
       { name: "Stories", path: "/stories", pro: false },
       { name: "New Story", path: "/new-story", pro: false }
+    ],
+  },
+  {
+    name: "Store",
+    icon: <StorefrontOutlinedIcon />,
+    subItems: [
+      { name: "Stores", path: "/stores", pro: false },
+      { name: "New Store", path: "/stores/new", pro: false },
+      { name: "Countries", path: "/countries", pro: false },
     ],
   },
   {

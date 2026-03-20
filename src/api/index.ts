@@ -10,6 +10,7 @@ export { specsService, SPEC_CODES, getGroupName, getOptionValue } from "./servic
 export { reviewsService } from "./services/reviews.service";
 export type { ModerateReviewRequest, AddReviewReplyRequest } from "./services/reviews.service";
 export { questionsService } from "./services/questions.service";
+export { storesService } from "./services/stores.service";
 export type { ModerateQuestionRequest, AddQuestionAnswerRequest } from "./services/questions.service";
 export type { GlobalSpecGroup, GlobalSpecOption, CreateGlobalSpecGroupRequest, CreateGlobalSpecOptionInput, SpecCode, SpecGroupTranslation, SpecOptionTranslation, SpecLanguage } from "./services/specs.service";
 export type { ApiResponse, ApiError } from "./types/api.types";

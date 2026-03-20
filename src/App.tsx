@@ -31,6 +31,10 @@ import Brands from "./pages/Products/Brands";
 import Specs from "./pages/Products/Specs";
 import Reviews from "./pages/ReviewsQA/Reviews";
 import Questions from "./pages/ReviewsQA/Questions";
+import Stores from "./pages/Stores/Stores";
+import NewStore from "./pages/Stores/NewStore";
+import StoreDetail from "./pages/Stores/StoreDetail";
+import Countries from "./pages/Stores/Countries";
 
 export default function App() {
   return (
@@ -57,6 +61,12 @@ export default function App() {
               <Route path="/categories" element={<Categories />} />
               <Route path="/brands" element={<Brands />} />
               <Route path="/specs" element={<Specs />} />
+
+              {/* Stores */}
+              <Route path="/stores" element={<Stores />} />
+              <Route path="/stores/new" element={<NewStore />} />
+              <Route path="/stores/:id" element={<StoreDetail />} />
+              <Route path="/countries" element={<Countries />} />
 
               {/* Reviews & Q&A */}
               <Route path="/reviews" element={<Reviews />} />
