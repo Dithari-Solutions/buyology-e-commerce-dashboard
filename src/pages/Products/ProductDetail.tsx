@@ -11,6 +11,10 @@ import { env } from "../../config/env";
 // ---------------------------------------------------------------------------
 
 
+function formatPrice(n: number): string {
+  return n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 function formatDate(iso: string): string {
   return new Intl.DateTimeFormat("en-US", {
     year: "numeric",
