@@ -1,7 +1,7 @@
 import { apiClient, getAccessToken } from "../client";
 import { ApiRequestError } from "../types/api.types";
 import type { ApiResponse } from "../types/api.types";
-import type { Product, ProductStatus, ProductType, DiscountType, RefurbGrade, AvailabilityStatus } from "../../types/product.types";
+import type { Product, ProductStatus, ProductType, RefurbGrade, AvailabilityStatus } from "../../types/product.types";
 import { env } from "../../config/env";
 
 const BASE = "/api/admin/product";
@@ -33,8 +33,6 @@ export interface CreateProductSpec {
 
 export interface CreateProductVariant {
   sku: string;
-  price: number;
-  stock: number;
   specOptionLocalKeys: string[];
 }
 
@@ -48,19 +46,15 @@ export interface CreateProductColor {
 }
 
 export interface CreateProductRequest {
-  sku: string;
-  basePrice: number;
-  status: ProductStatus;
-  productType: ProductType;
+  categoryId: string;
   brandId: string | null;
+  productType: ProductType;
+  status: ProductStatus;
   isRefurbished: boolean;
   refurbGrade: RefurbGrade | null;
   availabilityStatus: AvailabilityStatus;
   isSuperDeal: boolean;
   isLimitedStock: boolean;
-  discountType: DiscountType | null;
-  discountValue: number | null;
-  categoryId: string;
   accessoryIds: string[];
   translations: {
     titleAz: string;

@@ -4,7 +4,8 @@ import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Badge from "../../components/ui/badge/Badge";
 import { Modal } from "../../components/ui/modal";
-import { storesService, ApiRequestError } from "../../api";
+import { storesService, storeProductsService, ApiRequestError } from "../../api";
+import type { StoreProductResponse } from "../../types";
 import LocationPickerMap from "../../components/store/LocationPickerMap";
 import type { GeoResult } from "../../components/store/LocationPickerMap";
 import type {
@@ -868,7 +869,7 @@ function AssignAdminModal({ isOpen, onClose, storeId, existing, onSaved }: Assig
 // Page Tabs
 // ---------------------------------------------------------------------------
 
-type Tab = "overview" | "locations" | "admins";
+type Tab = "overview" | "locations" | "admins" | "products";
 
 // ---------------------------------------------------------------------------
 // Main Page
@@ -903,6 +904,10 @@ export default function StoreDetail() {
   const [adminsLoading, setAdminsLoading] = useState(false);
   const [adminModalOpen, setAdminModalOpen] = useState(false);
   const [editingAdmin, setEditingAdmin] = useState<StoreAdmin | null>(null);
+
+  // Store Products
+  const [storeProducts, setStoreProducts] = useState<StoreProductResponse[]>([]);
+  const [storeProductsLoading, setStoreProductsLoading] = useState(false);
 
   // ── Load store ─────────────────────────────────────────────────────────────
 
@@ -979,6 +984,31 @@ export default function StoreDetail() {
     }
   }, [tab, fetchAdmins]);
 
+  // ── Load store products ─────────────────────────────────────────────────────
+
+  const fetchStoreProducts = useCallback(
+    (signal?: AbortSignal) => {
+      if (!id) return;
+      setStoreProductsLoading(true);
+      storeProductsService
+        .list(id, signal)
+        .then((res) => setStoreProducts(res.data))
+        .catch((err: unknown) => {
+          if (err instanceof Error && err.name === "AbortError") return;
+        })
+        .finally(() => setStoreProductsLoading(false));
+    },
+    [id]
+  );
+
+  useEffect(() => {
+    if (tab === "products") {
+      const controller = new AbortController();
+      fetchStoreProducts(controller.signal);
+      return () => controller.abort();
+    }
+  }, [tab, fetchStoreProducts]);
+
   // ── Actions ────────────────────────────────────────────────────────────────
 
   async function handleDeactivateLocation(location: StoreLocation) {
@@ -1040,6 +1070,7 @@ export default function StoreDetail() {
     { id: "overview", label: "Overview" },
     { id: "locations", label: "Locations" },
     { id: "admins", label: "Admins" },
+    { id: "products", label: "Products" },
   ];
 
   return (
@@ -1429,6 +1460,112 @@ export default function StoreDetail() {
                       </tr>
                     ))
                   )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── PRODUCTS TAB ─────────────────────────────────────────────────────── */}
+      {tab === "products" && (
+        <div>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-base font-semibold text-gray-800 dark:text-white/90">
+              Store Products
+              {!storeProductsLoading && (
+                <span className="ml-2 text-sm font-normal text-gray-400">({storeProducts.length})</span>
+              )}
+            </h2>
+            <button
+              onClick={() => navigate(`/stores/${id}/products/assign`)}
+              className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Assign Product
+            </button>
+          </div>
+
+          {storeProductsLoading ? (
+            <div className="flex justify-center py-16">
+              <Spinner />
+            </div>
+          ) : storeProducts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 py-20 text-center">
+              <p className="text-sm text-gray-400 dark:text-gray-500">No products assigned to this store yet.</p>
+              <button
+                onClick={() => navigate(`/stores/${id}/products/assign`)}
+                className="mt-3 text-sm font-semibold text-brand-500 hover:text-brand-600"
+              >
+                Assign your first product
+              </button>
+            </div>
+          ) : (
+            <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03]">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-white/[0.02]">
+                    {["Product", "Price", "Sale Price", "Discount", "Variants", "Status", ""].map((col) => (
+                      <th
+                        key={col}
+                        className="px-4 py-3.5 first:pl-5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
+                      >
+                        {col}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50 dark:divide-gray-800/60">
+                  {storeProducts.map((sp) => {
+                    const hasDiscount = sp.effectivePrice < sp.storePrice;
+                    const discountLabel = !sp.discountType
+                      ? "—"
+                      : sp.discountType === "PERCENTAGE"
+                      ? `${sp.discountValue}% OFF`
+                      : `Sale: ${sp.discountValue?.toLocaleString()}`;
+                    return (
+                      <tr key={sp.id} className="hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-colors">
+                        <td className="px-5 py-4">
+                          <p className="font-semibold text-gray-800 dark:text-white/90 max-w-[180px] truncate">
+                            {sp.productTitle}
+                          </p>
+                          <p className="mt-0.5 font-mono text-xs text-gray-400">{sp.productSku}</p>
+                        </td>
+                        <td className="px-4 py-4 text-gray-700 dark:text-gray-300">
+                          {sp.storePrice.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                        </td>
+                        <td className="px-4 py-4">
+                          {hasDiscount ? (
+                            <span className="font-semibold text-green-600 dark:text-green-400">
+                              {sp.effectivePrice.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                            </span>
+                          ) : (
+                            <span className="text-gray-300 dark:text-gray-600">—</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-4 text-gray-600 dark:text-gray-300">{discountLabel}</td>
+                        <td className="px-4 py-4 text-gray-600 dark:text-gray-300">
+                          {sp.variants.length} variant{sp.variants.length !== 1 ? "s" : ""}
+                        </td>
+                        <td className="px-4 py-4">
+                          <Badge size="sm" color={sp.isActive ? "success" : "error"}>
+                            {sp.isActive ? "Active" : "Inactive"}
+                          </Badge>
+                        </td>
+                        <td className="px-4 py-4">
+                          <button
+                            onClick={() => navigate(`/stores/${id}/products`)}
+                            className="text-xs text-brand-500 hover:text-brand-600 font-medium hover:underline"
+                          >
+                            Manage
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

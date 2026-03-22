@@ -34,6 +34,8 @@ import Questions from "./pages/ReviewsQA/Questions";
 import Stores from "./pages/Stores/Stores";
 import NewStore from "./pages/Stores/NewStore";
 import StoreDetail from "./pages/Stores/StoreDetail";
+import StoreProducts from "./pages/Stores/StoreProducts";
+import AssignProduct from "./pages/Stores/AssignProduct";
 import Countries from "./pages/Stores/Countries";
 
 export default function App() {
@@ -66,6 +68,8 @@ export default function App() {
               <Route path="/stores" element={<Stores />} />
               <Route path="/stores/new" element={<NewStore />} />
               <Route path="/stores/:id" element={<StoreDetail />} />
+              <Route path="/stores/:id/products" element={<StoreProducts />} />
+              <Route path="/stores/:id/products/assign" element={<AssignProduct />} />
               <Route path="/countries" element={<Countries />} />
 
               {/* Reviews & Q&A */}

@@ -5,14 +5,6 @@ import { productsService, ApiRequestError } from "../../api";
 import type { Product } from "../../types";
 import { env } from "../../config/env";
 
-function formatPrice(value: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(value);
-}
-
 function formatDate(iso: string): string {
   return new Intl.DateTimeFormat("en-US", {
     year: "numeric",
@@ -48,9 +40,9 @@ function productTypeColor(type: string): string {
   switch (type) {
     case "SIMPLE":
       return "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400";
-    case "VARIABLE":
+    case "DIY":
       return "bg-purple-100 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400";
-    case "BUNDLE":
+    case "ACCESSORY":
       return "bg-orange-100 text-orange-700 dark:bg-orange-500/10 dark:text-orange-400";
     default:
       return "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300";
@@ -58,9 +50,6 @@ function productTypeColor(type: string): string {
 }
 
 function TrashRow({ product }: { product: Product }) {
-  const hasDiscount =
-    product.discountType !== null && product.discountValue !== null;
-  const savings = product.basePrice - product.effectivePrice;
   const primaryMedia =
     product.media.find((m) => m.isPrimary) ?? product.media[0] ?? null;
 
@@ -111,31 +100,6 @@ function TrashRow({ product }: { product: Product }) {
         </span>
       </td>
 
-      {/* Pricing */}
-      <td className="px-4 py-4">
-        <p className="text-sm font-semibold text-gray-800 dark:text-white/90">
-          {formatPrice(product.effectivePrice)}
-        </p>
-        {savings > 0 && (
-          <p className="mt-0.5 text-xs text-gray-400 line-through">
-            {formatPrice(product.basePrice)}
-          </p>
-        )}
-      </td>
-
-      {/* Discount */}
-      <td className="px-4 py-4">
-        {hasDiscount ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 dark:bg-orange-500/10 px-2.5 py-0.5 text-xs font-semibold text-orange-600 dark:text-orange-400">
-            {product.discountType === "PERCENTAGE"
-              ? `${product.discountValue}% off`
-              : formatPrice(product.discountValue!)}
-          </span>
-        ) : (
-          <span className="text-xs text-gray-300 dark:text-gray-600">—</span>
-        )}
-      </td>
-
       {/* Deleted at */}
       <td className="px-4 py-4 text-xs text-error-500 dark:text-error-400">
         {product.deletedAt ? formatDate(product.deletedAt) : "—"}
@@ -170,7 +134,7 @@ function SkeletonRow() {
           </div>
         </div>
       </td>
-      {[1, 2, 3, 4, 5, 6].map((i) => (
+      {[1, 2, 3, 4].map((i) => (
         <td key={i} className="px-4 py-4">
           <div className="h-3 w-16 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" />
         </td>
@@ -276,7 +240,7 @@ export default function ProductsTrash() {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-white/[0.02]">
-                  {["Product", "Type", "Price", "Discount", "Deleted At", "Permanent Deletion", "Created"].map(
+                  {["Product", "Type", "Deleted At", "Permanent Deletion", "Created"].map(
                     (col) => (
                       <th
                         key={col}

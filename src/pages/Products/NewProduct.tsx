@@ -19,7 +19,6 @@ import type { GlobalSpecGroup } from "../../api";
 import type {
   ProductStatus,
   ProductType,
-  DiscountType,
   RefurbGrade,
   AvailabilityStatus,
 } from "../../types/product.types";
@@ -82,8 +81,6 @@ type SpecState = {
 
 type VariantState = {
   sku: string;
-  price: string;
-  stock: string;
   selectedLocalKeys: string[];
 };
 
@@ -113,8 +110,6 @@ const defaultSpec = (): SpecState => ({
 
 const defaultVariant = (): VariantState => ({
   sku: "",
-  price: "",
-  stock: "",
   selectedLocalKeys: [],
 });
 
@@ -335,8 +330,6 @@ function Toggle({
 // ─────────────────────────────────────────────────────────────────────────────
 
 type FormErrors = Partial<{
-  sku: string;
-  basePrice: string;
   categoryId: string;
   titleAz: string;
   titleEn: string;
@@ -350,8 +343,6 @@ type FormErrors = Partial<{
 }>;
 
 function validate(
-  sku: string,
-  basePrice: string,
   categoryId: string,
   titleAz: string,
   titleEn: string,
@@ -365,8 +356,6 @@ function validate(
 ): FormErrors {
   const e: FormErrors = {};
 
-  if (!sku.trim()) e.sku = "SKU is required";
-  if (!basePrice || parseFloat(basePrice) <= 0) e.basePrice = "A valid base price is required";
   if (!categoryId.trim()) e.categoryId = "Category ID is required";
 
   if (!titleAz.trim()) e.titleAz = "Required";
@@ -381,7 +370,6 @@ function validate(
   } else {
     const invalidGroup = specs.some((s) => {
       if (s.groupMode === "library") return !s.globalSpecGroupId;
-      // inline: code required, names required for all
       return !s.code || !s.nameAz.trim() || !s.nameEn.trim() || !s.nameAr.trim();
     });
     if (invalidGroup) {
@@ -415,18 +403,14 @@ export default function NewProduct() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ── Basic fields ──────────────────────────────────────────────────────────
-  const [sku, setSku] = useState("");
-  const [basePrice, setBasePrice] = useState("");
   const [status, setStatus] = useState<ProductStatus>("ACTIVE");
   const [productType, setProductType] = useState<ProductType>("SIMPLE");
   const [brandId, setBrandId] = useState<string>("");
   const [isRefurbished, setIsRefurbished] = useState(false);
   const [refurbGrade, setRefurbGrade] = useState<RefurbGrade | "">("");
-  const [availabilityStatus, setAvailabilityStatus] = useState<AvailabilityStatus>("IN_STOCK");
+  const [availabilityStatus, setAvailabilityStatus] = useState<AvailabilityStatus>("PRE_ORDER");
   const [isSuperDeal, setIsSuperDeal] = useState(false);
   const [isLimitedStock, setIsLimitedStock] = useState(false);
-  const [discountType, setDiscountType] = useState<DiscountType | "">("");
-  const [discountValue, setDiscountValue] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [accessoryIdsRaw, setAccessoryIdsRaw] = useState("");
 
@@ -697,7 +681,7 @@ export default function NewProduct() {
     setVariants((prev) => prev.filter((_, i) => i !== vi));
   }
 
-  function updateVariant(vi: number, key: keyof Omit<VariantState, "selectedLocalKeys">, value: string) {
+  function updateVariant(vi: number, key: "sku", value: string) {
     setVariants((prev) => prev.map((v, i) => (i === vi ? { ...v, [key]: value } : v)));
   }
 
@@ -742,7 +726,7 @@ export default function NewProduct() {
     setSubmitted(true);
 
     const errs = validate(
-      sku, basePrice, categoryId,
+      categoryId,
       titleAz, titleEn, titleAr,
       descAz, descEn, descAr,
       specs, colors, files.length
@@ -750,7 +734,7 @@ export default function NewProduct() {
     setErrors(errs);
 
     if (Object.keys(errs).length > 0) {
-      const hasBasic = errs.sku || errs.basePrice || errs.categoryId;
+      const hasBasic = errs.categoryId;
       const hasTrans = errs.titleAz || errs.titleEn || errs.titleAr || errs.descAz || errs.descEn || errs.descAr;
       if (hasBasic) basicRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       else if (hasTrans) translationsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -763,19 +747,15 @@ export default function NewProduct() {
     setIsSubmitting(true);
     try {
       const payload: CreateProductRequest = {
-        sku,
-        basePrice: parseFloat(basePrice),
-        status,
-        productType,
+        categoryId,
         brandId: brandId || null,
+        productType,
+        status,
         isRefurbished,
         refurbGrade: isRefurbished ? (refurbGrade || null) : null,
         availabilityStatus,
         isSuperDeal,
         isLimitedStock,
-        discountType: discountType || null,
-        discountValue: discountValue ? parseFloat(discountValue) : null,
-        categoryId,
         accessoryIds: accessoryIdsRaw.split(",").map((s) => s.trim()).filter(Boolean),
         translations: {
           titleAz, titleEn, titleAr,
@@ -796,8 +776,6 @@ export default function NewProduct() {
         }),
         variants: variants.map((v) => ({
           sku: v.sku,
-          price: parseFloat(v.price) || 0,
-          stock: parseInt(v.stock) || 0,
           specOptionLocalKeys: v.selectedLocalKeys,
         })),
         colors: colors.map((c) => ({
@@ -830,7 +808,7 @@ export default function NewProduct() {
   // Derived
   // ─────────────────────────────────────────────────────────────────────────
 
-  const basicHasError = submitted && !!(errors.sku || errors.basePrice || errors.categoryId);
+  const basicHasError = submitted && !!errors.categoryId;
   const translationsHasError =
     submitted &&
     !!(errors.titleAz || errors.titleEn || errors.titleAr || errors.descAz || errors.descEn || errors.descAr);
@@ -1003,8 +981,6 @@ export default function NewProduct() {
                 Please fix the following before submitting:
               </p>
               <ul className="mt-1.5 space-y-0.5 text-xs text-orange-600 dark:text-orange-500 list-disc list-inside">
-                {errors.sku && <li>{errors.sku}</li>}
-                {errors.basePrice && <li>{errors.basePrice}</li>}
                 {errors.categoryId && <li>{errors.categoryId}</li>}
                 {(errors.titleAz || errors.titleEn || errors.titleAr) && <li>All titles are required (AZ, EN, AR)</li>}
                 {(errors.descAz || errors.descEn || errors.descAr) && <li>All descriptions are required (AZ, EN, AR)</li>}
@@ -1019,36 +995,22 @@ export default function NewProduct() {
         {/* ── Basic Info ───────────────────────────────────────────────────── */}
         <div ref={basicRef}>
           <Section title="Basic Info" hasError={basicHasError}>
+            {/* Store assignment reminder banner */}
+            <div className="mb-5 flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 dark:border-blue-800/40 dark:bg-blue-500/5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 shrink-0 text-blue-500">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              <div>
+                <p className="text-sm font-medium text-blue-700 dark:text-blue-400">No pricing or SKU required</p>
+                <p className="mt-0.5 text-xs text-blue-600 dark:text-blue-500">
+                  The SKU is auto-generated by the backend. After creating this product, assign it to stores from the Store Management section to set pricing and stock.
+                </p>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              <div>
-                <Label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  SKU <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  placeholder="LAPTOP-PRO-15-2024"
-                  value={sku}
-                  onChange={(e) => setSku(e.target.value)}
-                  error={submitted && !!errors.sku}
-                />
-                <FieldError msg={submitted ? errors.sku : undefined} />
-              </div>
-
-              <div>
-                <Label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Base Price (USD) <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  type="number"
-                  placeholder="299.99"
-                  value={basePrice}
-                  onChange={(e) => setBasePrice(e.target.value)}
-                  min="0"
-                  step={0.01}
-                  error={submitted && !!errors.basePrice}
-                />
-                <FieldError msg={submitted ? errors.basePrice : undefined} />
-              </div>
-
               <div>
                 <Label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Category ID <span className="text-red-500">*</span>
@@ -1081,9 +1043,9 @@ export default function NewProduct() {
                   Product Type
                 </Label>
                 <Select value={productType} onChange={(v) => setProductType(v as ProductType)}>
-                  <option value="SIMPLE">Simple</option>
-                  <option value="DIY">DIY</option>
-                  <option value="ACCESSORY">Accessory</option>
+                  <option value="SIMPLE">Simple (SKU: DTDX-XXXXXX)</option>
+                  <option value="DIY">DIY (SKU: DTDX-XXXXXX)</option>
+                  <option value="ACCESSORY">Accessory (SKU: DTAX-XXXXXX)</option>
                 </Select>
               </div>
 
@@ -1096,33 +1058,6 @@ export default function NewProduct() {
                   <option value="INACTIVE">Inactive</option>
                 </Select>
               </div>
-
-              <div>
-                <Label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Discount Type
-                </Label>
-                <Select value={discountType} onChange={(v) => setDiscountType(v as DiscountType | "")}>
-                  <option value="">None</option>
-                  <option value="FIXED">Fixed ($)</option>
-                  <option value="PERCENTAGE">Percentage (%)</option>
-                </Select>
-              </div>
-
-              {discountType && (
-                <div>
-                  <Label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Discount Value
-                  </Label>
-                  <Input
-                    type="number"
-                    placeholder={discountType === "PERCENTAGE" ? "10" : "20.00"}
-                    value={discountValue}
-                    onChange={(e) => setDiscountValue(e.target.value)}
-                    min="0"
-                    step={discountType === "PERCENTAGE" ? 1 : 0.01}
-                  />
-                </div>
-              )}
 
               <div className="flex items-center gap-3 pt-2">
                 <Toggle checked={isRefurbished} onChange={setIsRefurbished} />
@@ -1538,6 +1473,16 @@ export default function NewProduct() {
 
         {/* ── Variants ─────────────────────────────────────────────────────── */}
         <Section title="Variants">
+          <div className="mb-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-800/40 dark:bg-amber-500/5">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 shrink-0 text-amber-500">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            <p className="text-xs text-amber-700 dark:text-amber-400">
+              Price and stock are set per-store after creation. Variants here define only SKU and which spec options they represent.
+            </p>
+          </div>
           <div className="space-y-4">
             {variants.map((v, vi) => (
               <div key={vi} className="rounded-xl border border-gray-200 dark:border-gray-700 p-4">
@@ -1548,34 +1493,13 @@ export default function NewProduct() {
                   <RemoveBtn onClick={() => removeVariant(vi)} />
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
                     <Label className="mb-1 block text-xs text-gray-500">SKU</Label>
                     <Input
-                      placeholder="PROD-RED-XL-001"
+                      placeholder="HP-15-V1-512"
                       value={v.sku}
                       onChange={(e) => updateVariant(vi, "sku", e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <Label className="mb-1 block text-xs text-gray-500">Price</Label>
-                    <Input
-                      type="number"
-                      placeholder="149.99"
-                      value={v.price}
-                      onChange={(e) => updateVariant(vi, "price", e.target.value)}
-                      min="0"
-                      step={0.01}
-                    />
-                  </div>
-                  <div>
-                    <Label className="mb-1 block text-xs text-gray-500">Stock</Label>
-                    <Input
-                      type="number"
-                      placeholder="50"
-                      value={v.stock}
-                      onChange={(e) => updateVariant(vi, "stock", e.target.value)}
-                      min="0"
                     />
                   </div>
                 </div>

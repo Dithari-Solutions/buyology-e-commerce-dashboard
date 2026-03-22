@@ -1,8 +1,72 @@
 export type ProductStatus = "ACTIVE" | "INACTIVE" | "DELETED";
 
-export type ProductType = "SIMPLE" | "DIY" | "ACCESSORY";
+// ── Store Product Assignment Types ──────────────────────────────────────────
 
-export type DiscountType = "PERCENTAGE" | "FIXED";
+export type DiscountType = "FIXED" | "PERCENTAGE";
+
+export interface StoreVariantResponse {
+  id: string;
+  variantId: string;
+  variantSku: string;
+  storePrice: number;
+  stock: number;
+  isActive: boolean;
+  updatedAt: string;
+}
+
+export interface StoreProductResponse {
+  id: string;
+  storeId: string;
+  productId: string;
+  productSku: string;
+  productTitle: string;
+  storePrice: number;
+  effectivePrice: number;
+  discountType: DiscountType | null;
+  discountValue: number | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  variants: StoreVariantResponse[];
+}
+
+export interface AssignVariantInlineRequest {
+  variantId: string;
+  storePrice: number;
+  stock: number;
+  isActive?: boolean;
+}
+
+export interface AssignProductToStoreRequest {
+  productId: string;
+  storePrice: number;
+  discountType?: DiscountType;
+  discountValue?: number;
+  isActive?: boolean;
+  variants?: AssignVariantInlineRequest[];
+}
+
+export interface UpdateStoreProductRequest {
+  storePrice?: number;
+  discountType?: DiscountType | null;
+  discountValue?: number | null;
+  isActive?: boolean;
+}
+
+export interface AssignVariantToStoreRequest {
+  variantId: string;
+  storePrice: number;
+  stock: number;
+  isActive?: boolean;
+}
+
+export interface UpdateStoreVariantRequest {
+  storePrice?: number;
+  stock?: number;
+  isActive?: boolean;
+}
+
+export type ProductType = "SIMPLE" | "DIY" | "ACCESSORY";
 
 export type RefurbGrade = "A" | "B" | "C";
 
@@ -25,8 +89,6 @@ export interface ProductSpec {
 export interface ProductVariant {
   id: string;
   sku: string;
-  price: number;
-  stock: number;
   specOptionIds: string[];
 }
 
@@ -46,10 +108,6 @@ export interface Product {
   sku: string;
   status: ProductStatus;
   productType: ProductType;
-  basePrice: number;
-  effectivePrice: number;
-  discountType: DiscountType | null;
-  discountValue: number | null;
   categoryId: string;
   brandId: string | null;
   brandName: string | null;

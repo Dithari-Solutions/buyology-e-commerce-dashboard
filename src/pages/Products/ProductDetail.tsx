@@ -10,13 +10,6 @@ import { env } from "../../config/env";
 // Helpers
 // ---------------------------------------------------------------------------
 
-function formatPrice(value: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(value);
-}
 
 function formatDate(iso: string): string {
   return new Intl.DateTimeFormat("en-US", {
@@ -38,9 +31,9 @@ function productTypeColor(type: string): string {
   switch (type) {
     case "SIMPLE":
       return "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400";
-    case "VARIABLE":
+    case "DIY":
       return "bg-purple-100 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400";
-    case "BUNDLE":
+    case "ACCESSORY":
       return "bg-orange-100 text-orange-700 dark:bg-orange-500/10 dark:text-orange-400";
     default:
       return "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300";
@@ -76,16 +69,6 @@ function DetailSkeleton() {
           <div className="h-3 w-12 rounded-full bg-gray-200 dark:bg-gray-700" />
         </div>
         <div className="h-56 bg-gray-100 dark:bg-gray-800/60" />
-      </div>
-
-      {/* Pricing skeleton */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-5">
-            <div className="h-3 w-20 rounded-full bg-gray-100 dark:bg-gray-800 mb-3" />
-            <div className="h-8 w-28 rounded-lg bg-gray-200 dark:bg-gray-700" />
-          </div>
-        ))}
       </div>
 
       {/* Details skeleton */}
@@ -143,9 +126,6 @@ export default function ProductDetail() {
 
     return () => controller.abort();
   }, [id]);
-
-  const hasDiscount =
-    product?.discountType !== null && product?.discountValue !== null;
 
   return (
     <>
@@ -304,59 +284,6 @@ export default function ProductDetail() {
             </div>
           )}
 
-          {/* ── Pricing cards ── */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {/* Base price */}
-            <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-5">
-              <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
-                Base Price
-              </p>
-              <p className="text-3xl font-bold text-gray-800 dark:text-white/90">
-                {formatPrice(product.basePrice)}
-              </p>
-            </div>
-
-            {/* Effective price */}
-            <div className="rounded-2xl border border-brand-200 dark:border-brand-800/50 bg-brand-50 dark:bg-brand-500/5 p-5">
-              <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-brand-400">
-                Effective Price
-              </p>
-              <p className="text-3xl font-bold text-brand-600 dark:text-brand-400">
-                {formatPrice(product.effectivePrice)}
-              </p>
-              {product.basePrice > product.effectivePrice && (
-                <p className="mt-1 text-xs text-brand-400 dark:text-brand-500">
-                  Save {formatPrice(product.basePrice - product.effectivePrice)}
-                </p>
-              )}
-            </div>
-
-            {/* Discount */}
-            <div className={`rounded-2xl border p-5 ${
-              hasDiscount
-                ? "border-orange-200 dark:border-orange-800/50 bg-orange-50 dark:bg-orange-500/5"
-                : "border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03]"
-            }`}>
-              <p className={`mb-1 text-xs font-semibold uppercase tracking-wider ${hasDiscount ? "text-orange-400" : "text-gray-400"}`}>
-                Discount
-              </p>
-              {hasDiscount ? (
-                <>
-                  <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">
-                    {product.discountType === "PERCENTAGE"
-                      ? `${product.discountValue}%`
-                      : formatPrice(product.discountValue!)}
-                  </p>
-                  <p className="mt-1 text-xs text-orange-400 dark:text-orange-500">
-                    {product.discountType === "PERCENTAGE" ? "Percentage off" : "Fixed amount off"}
-                  </p>
-                </>
-              ) : (
-                <p className="text-2xl font-bold text-gray-300 dark:text-gray-600">No discount</p>
-              )}
-            </div>
-          </div>
-
           {/* ── Product details ── */}
           <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6">
             <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-400">
@@ -483,17 +410,21 @@ export default function ProductDetail() {
 
             {product.variants.length > 0 ? (
               <div className="overflow-x-auto">
+                <div className="border-b border-gray-100 dark:border-gray-800 bg-amber-50 dark:bg-amber-500/5 px-6 py-2.5 flex items-center gap-2">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-amber-500 shrink-0">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                  <p className="text-xs text-amber-700 dark:text-amber-400">
+                    Price and stock are managed per-store in Store Management.
+                  </p>
+                </div>
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-gray-50 dark:bg-white/[0.02]">
                       <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
                         SKU
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                        Price
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                        Stock
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
                         Spec Options
@@ -511,21 +442,6 @@ export default function ProductDetail() {
                       >
                         <td className="px-6 py-4 font-mono text-sm text-gray-700 dark:text-gray-300">
                           {v.sku}
-                        </td>
-                        <td className="px-6 py-4 text-right text-sm font-semibold text-gray-800 dark:text-white/90">
-                          {formatPrice(v.price)}
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                            v.stock > 10
-                              ? "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400"
-                              : v.stock > 0
-                              ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-400"
-                              : "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400"
-                          }`}>
-                            <span className="inline-block w-1.5 h-1.5 rounded-full bg-current opacity-70" />
-                            {v.stock} in stock
-                          </span>
                         </td>
                         <td className="px-6 py-4 text-right text-xs text-gray-400">
                           {v.specOptionIds.length > 0

@@ -9,9 +9,16 @@ export type {
   ProductMedia,
   ProductStatus,
   ProductType,
-  DiscountType,
   RefurbGrade,
   AvailabilityStatus,
+  DiscountType,
+  StoreVariantResponse,
+  StoreProductResponse,
+  AssignVariantInlineRequest,
+  AssignProductToStoreRequest,
+  UpdateStoreProductRequest,
+  AssignVariantToStoreRequest,
+  UpdateStoreVariantRequest,
 } from "./product.types";
 export type { Brand, BrandStatus, CreateBrandRequest } from "./brand.types";
 export type { Review, ReviewMedia, ReviewReply, ReviewStats, ReviewMediaType, ModerationStatus } from "./review.types";

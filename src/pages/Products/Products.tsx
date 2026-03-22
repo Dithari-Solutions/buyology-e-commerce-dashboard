@@ -11,14 +11,6 @@ import { env } from "../../config/env";
 // Helpers
 // ---------------------------------------------------------------------------
 
-function formatPrice(value: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(value);
-}
-
 function formatDate(iso: string): string {
   return new Intl.DateTimeFormat("en-US", {
     year: "numeric",
@@ -32,9 +24,6 @@ type BadgeColor = "success" | "error" | "warning" | "info" | "light";
 function statusColor(status: ProductStatus): BadgeColor {
   return status === "ACTIVE" ? "success" : "error";
 }
-
-console.log(env.apiBaseUrl);
-
 
 function productTypeColor(type: string): string {
   switch (type) {
@@ -73,9 +62,6 @@ function ProductRow({
   product: Product;
   onNavigate: (id: string) => void;
 }) {
-  const hasDiscount =
-    product.discountType !== null && product.discountValue !== null;
-  const savings = product.basePrice - product.effectivePrice;
   const primaryMedia =
     product.media.find((m) => m.isPrimary) ?? product.media[0] ?? null;
 
@@ -160,31 +146,6 @@ function ProductRow({
         </div>
       </td>
 
-      {/* Pricing */}
-      <td className="px-4 py-4">
-        <p className="text-sm font-semibold text-gray-800 dark:text-white/90">
-          {formatPrice(product.effectivePrice)}
-        </p>
-        {savings > 0 && (
-          <p className="mt-0.5 text-xs text-gray-400 line-through">
-            {formatPrice(product.basePrice)}
-          </p>
-        )}
-      </td>
-
-      {/* Discount */}
-      <td className="px-4 py-4">
-        {hasDiscount ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 dark:bg-orange-500/10 px-2.5 py-0.5 text-xs font-semibold text-orange-600 dark:text-orange-400">
-            {product.discountType === "PERCENTAGE"
-              ? `${product.discountValue}% off`
-              : formatPrice(product.discountValue!)}
-          </span>
-        ) : (
-          <span className="text-xs text-gray-300 dark:text-gray-600">—</span>
-        )}
-      </td>
-
       {/* Variants */}
       <td className="px-4 py-4">
         <span
@@ -245,7 +206,7 @@ function SkeletonRow() {
           </div>
         </div>
       </td>
-      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
+      {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
         <td key={i} className="px-4 py-4">
           <div className="h-3 w-16 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" />
         </td>
@@ -474,7 +435,7 @@ export default function Products() {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-white/[0.02]">
-                  {["Product", "Type", "Brand", "Availability", "Flags", "Price", "Discount", "Variants", "Status", "Created", ""].map(
+                  {["Product", "Type", "Brand", "Availability", "Flags", "Variants", "Status", "Created", ""].map(
                     (col) => (
                       <th
                         key={col}
