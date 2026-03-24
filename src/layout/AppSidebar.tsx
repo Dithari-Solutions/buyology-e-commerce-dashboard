@@ -1,10 +1,12 @@
 import { Link, useLocation } from "react-router";
 import PeopleIcon from '@mui/icons-material/People';
+import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import { useCallback, useEffect, useRef, useState } from "react";
 import VideoCameraBackIcon from '@mui/icons-material/VideoCameraBack';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
+import TwoWheelerOutlinedIcon from '@mui/icons-material/TwoWheelerOutlined';
 
 // Assume these icons are imported from an icon library
 import {
@@ -46,7 +48,16 @@ const navItems: NavItem[] = [
   {
     name: "Admins",
     icon: <PeopleIcon />,
-    path: "/admins"
+    subItems: [
+      { name: "All Admins", path: "/admin/admins", pro: false },
+    ],
+  },
+  {
+    name: "Users",
+    icon: <GroupOutlinedIcon />,
+    subItems: [
+      { name: "All Users", path: "/admin/users", pro: false },
+    ],
   },
   {
     name: "Product",
@@ -75,6 +86,14 @@ const navItems: NavItem[] = [
       { name: "Stores", path: "/stores", pro: false },
       { name: "New Store", path: "/stores/new", pro: false },
       { name: "Countries", path: "/countries", pro: false },
+    ],
+  },
+  {
+    name: "Couriers",
+    icon: <TwoWheelerOutlinedIcon />,
+    subItems: [
+      { name: "All Couriers", path: "/admin/couriers", pro: false },
+      { name: "New Courier", path: "/admin/couriers/new", pro: false },
     ],
   },
   {
@@ -139,9 +158,8 @@ const AppSidebar: React.FC = () => {
   );
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // const isActive = (path: string) => location.pathname === path;
   const isActive = useCallback(
-    (path: string) => location.pathname === path,
+    (path: string) => location.pathname === path || location.pathname.startsWith(path + "/"),
     [location.pathname]
   );
 

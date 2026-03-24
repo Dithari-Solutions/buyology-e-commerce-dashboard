@@ -37,6 +37,13 @@ import StoreDetail from "./pages/Stores/StoreDetail";
 import StoreProducts from "./pages/Stores/StoreProducts";
 import AssignProduct from "./pages/Stores/AssignProduct";
 import Countries from "./pages/Stores/Countries";
+import Users from "./pages/Users/Users";
+import UserDetail from "./pages/Users/UserDetail";
+import Admins from "./pages/Admins/Admins";
+import AdminDetail from "./pages/Admins/AdminDetail";
+import Couriers from "./pages/Couriers/Couriers";
+import CourierDetail from "./pages/Couriers/CourierDetail";
+import NewCourier from "./pages/Couriers/NewCourier";
 
 export default function App() {
   return (
@@ -71,6 +78,19 @@ export default function App() {
               <Route path="/stores/:id/products" element={<StoreProducts />} />
               <Route path="/stores/:id/products/assign" element={<AssignProduct />} />
               <Route path="/countries" element={<Countries />} />
+
+              {/* Admins */}
+              <Route path="/admin/admins" element={<Admins />} />
+              <Route path="/admin/admins/:authCredentialId" element={<AdminDetail />} />
+
+              {/* Users */}
+              <Route path="/admin/users" element={<Users />} />
+              <Route path="/admin/users/:authCredentialId" element={<UserDetail />} />
+
+              {/* Couriers */}
+              <Route path="/admin/couriers" element={<Couriers />} />
+              <Route path="/admin/couriers/new" element={<NewCourier />} />
+              <Route path="/admin/couriers/:courierId" element={<CourierDetail />} />
 
               {/* Reviews & Q&A */}
               <Route path="/reviews" element={<Reviews />} />
