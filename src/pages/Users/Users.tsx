@@ -243,7 +243,7 @@ export default function Users() {
   const activeCount = users.filter((u) => u.status === "ACTIVE").length;
   const suspendedCount = users.filter((u) => u.status === "SUSPENDED").length;
   const customerCount = users.filter((u) => u.userType === "CUSTOMER").length;
-  const adminCount = users.filter((u) => u.userType === "ADMIN").length;
+  // const adminCount = users.filter((u) => u.userType === "ADMIN").length;
 
   const stats = [
     {
