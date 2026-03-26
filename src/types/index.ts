@@ -48,8 +48,11 @@ export type {
 export type {
   VehicleType,
   CourierStatus,
+  CreateCourierData,
   CreateCourierRequest,
+  UpdateCourierData,
   UpdateCourierStatusRequest,
+  UpdateAvailabilityRequest,
   CourierSummary,
   CourierDetail,
   CourierListResponse,

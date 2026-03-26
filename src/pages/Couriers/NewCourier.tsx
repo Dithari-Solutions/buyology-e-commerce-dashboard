@@ -58,6 +58,13 @@ interface FormState {
   drivingLicenseExpiry: string;
 }
 
+interface FileState {
+  profileImage: File | null;
+  vehicleRegistration: File | null;
+  drivingLicenceFront: File | null;
+  drivingLicenceBack: File | null;
+}
+
 const VEHICLE_TYPES: VehicleType[] = ["BICYCLE", "FOOT", "SCOOTER", "CAR"];
 const NEEDS_LICENSE: VehicleType[] = ["SCOOTER", "CAR"];
 
@@ -85,14 +92,66 @@ export default function NewCourier() {
   });
 
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormState, string>>>({});
+  const [fileErrors, setFileErrors] = useState<Partial<Record<keyof FileState, string>>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const [files, setFiles] = useState<FileState>({
+    profileImage: null,
+    vehicleRegistration: null,
+    drivingLicenceFront: null,
+    drivingLicenceBack: null,
+  });
 
   const requiresLicense = NEEDS_LICENSE.includes(form.vehicleType);
 
   const set = (key: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm((prev) => ({ ...prev, [key]: e.target.value }));
     setFieldErrors((prev) => ({ ...prev, [key]: undefined }));
+  };
+
+  const setFile = (key: keyof FileState) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.currentTarget.files?.[0] || null;
+    setFiles((prev) => ({ ...prev, [key]: file }));
+    setFileErrors((prev) => ({ ...prev, [key]: undefined }));
+  };
+
+  const validateFiles = (): boolean => {
+    const errs: Partial<Record<keyof FileState, string>> = {};
+    const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+    const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+    const validateFile = (file: File | null, name: string, required: boolean = false) => {
+      if (!file && required) {
+        return `${name} is required.`;
+      }
+      if (file) {
+        if (!ALLOWED_TYPES.includes(file.type)) {
+          return `${name} must be JPEG, PNG, or WebP.`;
+        }
+        if (file.size > MAX_SIZE) {
+          return `${name} must be less than 10 MB.`;
+        }
+      }
+      return null;
+    };
+
+    const profileErr = validateFile(files.profileImage, "Profile image");
+    if (profileErr) errs.profileImage = profileErr;
+
+    const regErr = validateFile(files.vehicleRegistration, "Vehicle registration");
+    if (regErr) errs.vehicleRegistration = regErr;
+
+    if (requiresLicense) {
+      const frontErr = validateFile(files.drivingLicenceFront, "Driving licence front image", true);
+      if (frontErr) errs.drivingLicenceFront = frontErr;
+
+      const backErr = validateFile(files.drivingLicenceBack, "Driving licence back image", true);
+      if (backErr) errs.drivingLicenceBack = backErr;
+    }
+
+    setFileErrors(errs);
+    return Object.keys(errs).length === 0;
   };
 
   const validate = (): boolean => {
@@ -121,7 +180,7 @@ export default function NewCourier() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validate() || !validateFiles()) return;
 
     const payload: CreateCourierRequest = {
       firstName: form.firstName.trim(),
@@ -146,7 +205,12 @@ export default function NewCourier() {
     setSubmitError(null);
 
     couriersService
-      .create(payload)
+      .create(payload, {
+        profileImage: files.profileImage || undefined,
+        vehicleRegistration: files.vehicleRegistration || undefined,
+        drivingLicenceFront: files.drivingLicenceFront || undefined,
+        drivingLicenceBack: files.drivingLicenceBack || undefined,
+      })
       .then((data) => navigate(`/admin/couriers/${data.courierId}`))
       .catch((err: unknown) => {
         if (err instanceof ApiRequestError) {
@@ -335,6 +399,56 @@ export default function NewCourier() {
               </div>
             </div>
           )}
+
+          {/* ── File Uploads ───────────────────────────────────────────── */}
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6">
+            <h2 className="mb-5 text-base font-semibold text-gray-800 dark:text-white/90">File Uploads</h2>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <FormField label="Profile image" error={fileErrors.profileImage}>
+                <input
+                  type="file"
+                  accept="image/jpeg, image/png, image/webp"
+                  onChange={setFile("profileImage")}
+                  className={inputClass}
+                />
+                <p className="mt-1 text-xs text-gray-400">JPEG, PNG, or WebP — max 10 MB</p>
+              </FormField>
+
+              <FormField label="Vehicle registration" error={fileErrors.vehicleRegistration}>
+                <input
+                  type="file"
+                  accept="image/jpeg, image/png, image/webp"
+                  onChange={setFile("vehicleRegistration")}
+                  className={inputClass}
+                />
+                <p className="mt-1 text-xs text-gray-400">JPEG, PNG, or WebP — max 10 MB</p>
+              </FormField>
+
+              {requiresLicense && (
+                <>
+                  <FormField label="Driving licence front" required error={fileErrors.drivingLicenceFront}>
+                    <input
+                      type="file"
+                      accept="image/jpeg, image/png, image/webp"
+                      onChange={setFile("drivingLicenceFront")}
+                      className={`${inputClass} ${fileErrors.drivingLicenceFront ? "border-red-400 focus:ring-red-400/20" : ""}`}
+                    />
+                    <p className="mt-1 text-xs text-gray-400">JPEG, PNG, or WebP — max 10 MB</p>
+                  </FormField>
+
+                  <FormField label="Driving licence back" required error={fileErrors.drivingLicenceBack}>
+                    <input
+                      type="file"
+                      accept="image/jpeg, image/png, image/webp"
+                      onChange={setFile("drivingLicenceBack")}
+                      className={`${inputClass} ${fileErrors.drivingLicenceBack ? "border-red-400 focus:ring-red-400/20" : ""}`}
+                    />
+                    <p className="mt-1 text-xs text-gray-400">JPEG, PNG, or WebP — max 10 MB</p>
+                  </FormField>
+                </>
+              )}
+            </div>
+          </div>
 
           {/* ── Actions ───────────────────────────────────────────────── */}
           <div className="flex items-center justify-end gap-3 pb-6">

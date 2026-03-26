@@ -20,8 +20,7 @@ function statusBadgeColor(status: CourierStatus): BadgeColor {
   switch (status) {
     case "ACTIVE": return "success";
     case "SUSPENDED": return "error";
-    case "INACTIVE": return "light";
-    case "PENDING": return "warning";
+    case "OFFLINE": return "light";
   }
 }
 
@@ -189,6 +188,8 @@ export default function Couriers() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
   const [vehicleFilter, setVehicleFilter] = useState<VehicleFilter>("ALL");
 
+  console.log(couriers);
+
   const load = useCallback(
     (
       pageNum: number,
@@ -235,7 +236,7 @@ export default function Couriers() {
 
   const activeCount = couriers.filter((c) => c.accountStatus === "ACTIVE").length;
   const suspendedCount = couriers.filter((c) => c.accountStatus === "SUSPENDED").length;
-  const pendingCount = couriers.filter((c) => c.accountStatus === "PENDING").length;
+  const offlineCount = couriers.filter((c) => c.accountStatus === "OFFLINE").length;
 
   const stats = [
     {
@@ -272,9 +273,9 @@ export default function Couriers() {
       ),
     },
     {
-      label: "Pending",
-      value: pendingCount,
-      color: "text-warning-600 dark:text-warning-400 bg-warning-50 dark:bg-warning-500/10",
+      label: "Offline",
+      value: offlineCount,
+      color: "text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-500/10",
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
           <circle cx="12" cy="12" r="10" />
@@ -287,9 +288,8 @@ export default function Couriers() {
   const statusOptions: { label: string; value: StatusFilter }[] = [
     { label: "All", value: "ALL" },
     { label: "Active", value: "ACTIVE" },
+    { label: "Offline", value: "OFFLINE" },
     { label: "Suspended", value: "SUSPENDED" },
-    { label: "Inactive", value: "INACTIVE" },
-    { label: "Pending", value: "PENDING" },
   ];
 
   const vehicleOptions: { label: string; value: VehicleFilter }[] = [

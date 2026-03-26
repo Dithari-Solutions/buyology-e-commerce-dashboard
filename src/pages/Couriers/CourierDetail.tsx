@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import Badge from "../../components/ui/badge/Badge";
 import { couriersService, ApiRequestError } from "../../api";
+import { env } from "../../config/env";
 import type { CourierDetail as CourierDetailType, CourierStatus, VehicleType } from "../../types";
 
 // ---------------------------------------------------------------------------
@@ -14,7 +15,7 @@ function formatDate(iso: string): string {
     year: "numeric",
     month: "short",
     day: "numeric",
-  }).format(new Date(iso));
+  }).format(new Date(iso)); 
 }
 
 function fullName(first: string, last: string): string {
@@ -31,8 +32,7 @@ function statusBadgeColor(status: CourierStatus): BadgeColor {
   switch (status) {
     case "ACTIVE": return "success";
     case "SUSPENDED": return "error";
-    case "INACTIVE": return "light";
-    case "PENDING": return "warning";
+    case "OFFLINE": return "light";
   }
 }
 
@@ -94,7 +94,7 @@ function DetailSkeleton() {
 // Status Update Modal
 // ---------------------------------------------------------------------------
 
-const STATUS_OPTIONS: CourierStatus[] = ["ACTIVE", "SUSPENDED", "INACTIVE", "PENDING"];
+const STATUS_OPTIONS: CourierStatus[] = ["ACTIVE", "OFFLINE", "SUSPENDED"];
 
 function StatusModal({
   current,
@@ -103,12 +103,11 @@ function StatusModal({
   loading,
 }: {
   current: CourierStatus;
-  onConfirm: (status: CourierStatus, reason: string) => void;
+  onConfirm: (status: CourierStatus) => void;
   onClose: () => void;
   loading: boolean;
 }) {
   const [status, setStatus] = useState<CourierStatus>(current);
-  const [reason, setReason] = useState("");
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -138,21 +137,6 @@ function StatusModal({
           </div>
         </div>
 
-        <div className="mb-6">
-          <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-            Reason <span className="normal-case font-normal text-gray-400">(optional)</span>
-          </label>
-          <textarea
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            maxLength={500}
-            rows={3}
-            placeholder="Describe the reason for this status change…"
-            className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/20 transition-all resize-none"
-          />
-          <p className="mt-1 text-right text-xs text-gray-400">{reason.length}/500</p>
-        </div>
-
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
@@ -162,7 +146,7 @@ function StatusModal({
             Cancel
           </button>
           <button
-            onClick={() => onConfirm(status, reason)}
+            onClick={() => onConfirm(status)}
             disabled={loading || status === current}
             className="rounded-xl bg-brand-500 hover:bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
@@ -248,6 +232,13 @@ export default function CourierDetail() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
+  const [availabilityLoading, setAvailabilityLoading] = useState(false);
+
+  console.log(
+    courier
+  );
+  
+
   useEffect(() => {
     if (!courierId) return;
     const controller = new AbortController();
@@ -271,12 +262,12 @@ export default function CourierDetail() {
     return () => controller.abort();
   }, [courierId]);
 
-  const handleStatusUpdate = (status: CourierStatus, reason: string) => {
+  const handleStatusUpdate = (status: CourierStatus) => {
     if (!courierId) return;
     setStatusLoading(true);
     setStatusError(null);
     couriersService
-      .updateStatus(courierId, { status, reason: reason || undefined })
+      .updateStatus(courierId, { status })
       .then((res) => {
         setCourier((prev) => prev ? { ...prev, accountStatus: res.accountStatus } : prev);
         setShowStatusModal(false);
@@ -298,6 +289,21 @@ export default function CourierDetail() {
         setDeleteError(err instanceof ApiRequestError ? err.message : "Failed to delete courier.");
         setDeleteLoading(false);
       });
+  };
+
+  const handleAvailabilityToggle = () => {
+    if (!courierId || !courier) return;
+    setAvailabilityLoading(true);
+    couriersService
+      .updateAvailability(courierId, !courier.isAvailable)
+      .then((res) => {
+        setCourier((prev) => prev ? { ...prev, isAvailable: res.isAvailable } : prev);
+      })
+      .catch((err: unknown) => {
+        const message = err instanceof ApiRequestError ? err.message : "Failed to update availability.";
+        alert(message);
+      })
+      .finally(() => setAvailabilityLoading(false));
   };
 
   // ── Not found ──────────────────────────────────────────────────────────────
@@ -412,7 +418,7 @@ export default function CourierDetail() {
               <div className="flex-shrink-0">
                 {courier.profileImageUrl ? (
                   <img
-                    src={courier.profileImageUrl}
+                    src={`${env.courierImageBaseUrl}${courier.profileImageUrl}`}
                     alt={fullName(courier.firstName, courier.lastName)}
                     className="h-20 w-20 rounded-full object-cover border-2 border-gray-100 dark:border-gray-700"
                   />
@@ -459,7 +465,7 @@ export default function CourierDetail() {
               <ProfileField
                 label="Registration doc"
                 value={
-                  <a href={courier.vehicleRegistrationUrl} target="_blank" rel="noopener noreferrer" className="text-brand-500 hover:underline break-all">
+                  <a href={`${env.courierImageBaseUrl}${courier.vehicleRegistrationUrl}`} target="_blank" rel="noopener noreferrer" className="text-brand-500 hover:underline break-all">
                     View document
                   </a>
                 }
@@ -476,22 +482,12 @@ export default function CourierDetail() {
               {courier.drivingLicenseExpiry && (
                 <ProfileField label="Expiry date" value={courier.drivingLicenseExpiry} />
               )}
-              {courier.drivingLicenseFrontUrl && (
+              {courier.drivingLicenceImageUrl && (
                 <ProfileField
-                  label="Front image"
+                  label="Licence image"
                   value={
-                    <a href={courier.drivingLicenseFrontUrl} target="_blank" rel="noopener noreferrer" className="text-brand-500 hover:underline">
-                      View front
-                    </a>
-                  }
-                />
-              )}
-              {courier.drivingLicenseBackUrl && (
-                <ProfileField
-                  label="Back image"
-                  value={
-                    <a href={courier.drivingLicenseBackUrl} target="_blank" rel="noopener noreferrer" className="text-brand-500 hover:underline">
-                      View back
+                    <a href={`${env.courierImageBaseUrl}${courier.drivingLicenceImageUrl}`} target="_blank" rel="noopener noreferrer" className="text-brand-500 hover:underline">
+                      View image
                     </a>
                   }
                 />
@@ -501,6 +497,31 @@ export default function CourierDetail() {
 
           {/* ── Actions ───────────────────────────────────────────────── */}
           <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => navigate(`/admin/couriers/${courierId}/edit`)}
+              className="flex items-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+              Edit Profile
+            </button>
+            <button
+              onClick={handleAvailabilityToggle}
+              disabled={availabilityLoading}
+              className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-colors disabled:opacity-40 ${
+                courier.isAvailable
+                  ? "border border-yellow-200 dark:border-yellow-800/40 text-yellow-600 dark:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-500/5"
+                  : "border border-green-200 dark:border-green-800/40 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-500/5"
+              }`}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="1" />
+                <path d="M12 2v6m0 4v6" />
+              </svg>
+              {courier.isAvailable ? "Mark Unavailable" : "Mark Available"}
+            </button>
             <button
               onClick={() => setShowStatusModal(true)}
               className="flex items-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"

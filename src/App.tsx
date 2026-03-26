@@ -44,6 +44,7 @@ import AdminDetail from "./pages/Admins/AdminDetail";
 import Couriers from "./pages/Couriers/Couriers";
 import CourierDetail from "./pages/Couriers/CourierDetail";
 import NewCourier from "./pages/Couriers/NewCourier";
+import EditCourier from "./pages/Couriers/EditCourier";
 
 export default function App() {
   return (
@@ -91,6 +92,7 @@ export default function App() {
               <Route path="/admin/couriers" element={<Couriers />} />
               <Route path="/admin/couriers/new" element={<NewCourier />} />
               <Route path="/admin/couriers/:courierId" element={<CourierDetail />} />
+              <Route path="/admin/couriers/:courierId/edit" element={<EditCourier />} />
 
               {/* Reviews & Q&A */}
               <Route path="/reviews" element={<Reviews />} />

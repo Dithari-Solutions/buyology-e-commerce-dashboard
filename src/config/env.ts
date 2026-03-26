@@ -4,4 +4,5 @@
  */
 export const env = {
   apiBaseUrl: (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "",
+  courierImageBaseUrl: (import.meta.env.VITE_COURIER_IMAGE_BASE_URL as string | undefined) ?? "",
 } as const;
