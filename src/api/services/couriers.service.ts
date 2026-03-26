@@ -24,7 +24,7 @@ const BASE = "/api/admin/couriers";
 
 function normalizeSummary(raw: Record<string, unknown>): CourierSummary {
   return {
-    ...(raw as CourierSummary),
+    ...((raw as unknown) as CourierSummary),
     courierId: (raw.courierId as string) ?? (raw.id as string) ?? "",
     accountStatus:
       (raw.accountStatus as CourierStatus) ?? (raw.status as CourierStatus),
@@ -34,7 +34,7 @@ function normalizeSummary(raw: Record<string, unknown>): CourierSummary {
 
 function normalizeDetail(raw: Record<string, unknown>): CourierDetail {
   return {
-    ...(raw as CourierDetail),
+    ...((raw as unknown) as CourierDetail),
     courierId: (raw.courierId as string) ?? (raw.id as string) ?? "",
     accountStatus:
       (raw.accountStatus as CourierStatus) ?? (raw.status as CourierStatus),
