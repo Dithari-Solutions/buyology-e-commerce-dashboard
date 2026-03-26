@@ -7,28 +7,22 @@ const courierImageBaseUrlRaw = (import.meta.env.VITE_COURIER_IMAGE_BASE_URL as s
 
 const normalizeUrl = (value: string): string => value.replace(/\/$/, "");
 
+const DEFAULT_API_BASE = "https://api-dev.dithari.com";
+
 const resolveApiBaseUrl = (): string => {
   if (apiBaseUrlRaw.trim()) {
     return normalizeUrl(apiBaseUrlRaw);
   }
 
-  // For dev with proxy setup, use relative API path.
-  if (import.meta.env.DEV) {
-    console.warn(
-      "VITE_API_BASE_URL is not set. Falling back to /api proxy path (dev only). Configure VITE_API_BASE_URL for direct backend URL."
-    );
-    return "/api";
-  }
-
-  // Production fallback if env missing (avoid render crash). Expects backend reverse proxy.
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
   console.warn(
-    "VITE_API_BASE_URL is not set. Falling back to origin + /api. Set VITE_API_BASE_URL to backend API host for correct behavior."
+    "VITE_API_BASE_URL is not set. Falling back to default backend API URL.",
+    DEFAULT_API_BASE
   );
-  return normalizeUrl(`${origin}/api`);
+
+  return normalizeUrl(DEFAULT_API_BASE);
 };
 
 export const env = {
   apiBaseUrl: resolveApiBaseUrl(),
-  courierImageBaseUrl: normalizeUrl(courierImageBaseUrlRaw || apiBaseUrlRaw || "/api"),
+  courierImageBaseUrl: normalizeUrl(courierImageBaseUrlRaw || apiBaseUrlRaw || DEFAULT_API_BASE),
 } as const;
