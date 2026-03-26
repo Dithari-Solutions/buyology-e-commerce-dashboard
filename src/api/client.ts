@@ -109,6 +109,12 @@ class HttpClient {
   private readonly baseUrl: string;
 
   constructor(baseUrl: string) {
+    if (!baseUrl || !baseUrl.trim()) {
+      throw new Error(
+        "apiClient requires a non-empty baseUrl. Set env.apiBaseUrl (VITE_API_BASE_URL) to backend API URL."
+      );
+    }
+
     this.baseUrl = baseUrl.replace(/\/$/, ""); // strip trailing slash
   }
 
