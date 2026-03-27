@@ -73,6 +73,8 @@ export interface UserDetail {
   userType: UserType;
   status: UserStatus;
   joinedAt: string;
+  registrationIp: string | null;
+  registrationDevice: string | null;
   firstName: string | null;
   lastName: string | null;
   phoneNumber: string | null;

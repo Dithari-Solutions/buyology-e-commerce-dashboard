@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
@@ -34,6 +34,66 @@ function typeBadgeColor(type: UserType): BadgeColor {
 }
 
 // ---------------------------------------------------------------------------
+// ConfirmDialog
+// ---------------------------------------------------------------------------
+
+function ConfirmDialog({
+  open,
+  title,
+  message,
+  confirmLabel,
+  confirmColor,
+  loading,
+  onConfirm,
+  onCancel,
+}: {
+  open: boolean;
+  title: string;
+  message: string;
+  confirmLabel: string;
+  confirmColor: string;
+  loading: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+      <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-6 shadow-xl">
+        <h3 className="text-base font-semibold text-gray-800 dark:text-white/90 mb-2">{title}</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{message}</p>
+        <div className="flex gap-3 justify-end">
+          <button
+            onClick={onCancel}
+            disabled={loading}
+            className="rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className={`rounded-xl px-4 py-2 text-sm font-medium text-white disabled:opacity-50 transition-colors ${confirmColor}`}
+          >
+            {loading ? "Please wait…" : confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Toast
+// ---------------------------------------------------------------------------
+
+interface ToastItem {
+  id: number;
+  message: string;
+  type: "success" | "error";
+}
+
+// ---------------------------------------------------------------------------
 // Skeleton
 // ---------------------------------------------------------------------------
 
@@ -55,11 +115,19 @@ function SkeletonRow() {
 
 function UserRow({
   user,
+  actionUserId,
   onView,
+  onBlock,
+  onUnblock,
 }: {
   user: UserListItem;
+  actionUserId: string | null;
   onView: (authCredentialId: string) => void;
+  onBlock: (userId: string) => void;
+  onUnblock: (userId: string) => void;
 }) {
+  const isActioning = actionUserId === user.userId;
+
   return (
     <tr
       className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors cursor-pointer"
@@ -91,15 +159,31 @@ function UserRow({
         </span>
       </td>
       <td className="px-4 py-3">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onView(user.authCredentialId);
-          }}
-          className="rounded-xl border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-        >
-          View
-        </button>
+        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => onView(user.authCredentialId)}
+            className="rounded-xl border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          >
+            View
+          </button>
+          {user.status === "ACTIVE" ? (
+            <button
+              onClick={() => onBlock(user.userId)}
+              disabled={isActioning}
+              className="rounded-xl border border-red-200 dark:border-red-800/50 px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {isActioning ? "…" : "Block"}
+            </button>
+          ) : (
+            <button
+              onClick={() => onUnblock(user.userId)}
+              disabled={isActioning}
+              className="rounded-xl border border-brand-200 dark:border-brand-800/50 px-3 py-1.5 text-xs font-medium text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {isActioning ? "…" : "Unblock"}
+            </button>
+          )}
+        </div>
       </td>
     </tr>
   );
@@ -199,6 +283,23 @@ export default function Users() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("ALL");
 
+  // Per-row block/unblock loading
+  const [actionUserId, setActionUserId] = useState<string | null>(null);
+
+  // Block inactive
+  const [blockInactiveOpen, setBlockInactiveOpen] = useState(false);
+  const [blockInactiveLoading, setBlockInactiveLoading] = useState(false);
+
+  // Toasts
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const toastIdRef = useRef(0);
+
+  function showToast(message: string, type: "success" | "error") {
+    const id = ++toastIdRef.current;
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3500);
+  }
+
   const load = useCallback(
     (pageNum: number, signal?: AbortSignal) => {
       setLoading(true);
@@ -230,6 +331,68 @@ export default function Users() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  async function handleBlock(userId: string) {
+    setActionUserId(userId);
+    try {
+      await usersService.blockUser(userId);
+      setUsers((prev) =>
+        prev.map((u) => (u.userId === userId ? { ...u, status: "SUSPENDED" } : u))
+      );
+    } catch (err) {
+      if (err instanceof ApiRequestError && err.statusCode === 409) {
+        showToast("This user is already blocked.", "error");
+        load(page);
+      } else {
+        showToast(
+          err instanceof ApiRequestError ? err.message : "Failed to block user.",
+          "error"
+        );
+      }
+    } finally {
+      setActionUserId(null);
+    }
+  }
+
+  async function handleUnblock(userId: string) {
+    setActionUserId(userId);
+    try {
+      await usersService.unblockUser(userId);
+      setUsers((prev) =>
+        prev.map((u) => (u.userId === userId ? { ...u, status: "ACTIVE" } : u))
+      );
+    } catch (err) {
+      if (err instanceof ApiRequestError && err.statusCode === 409) {
+        showToast("This user is already active.", "error");
+        load(page);
+      } else {
+        showToast(
+          err instanceof ApiRequestError ? err.message : "Failed to unblock user.",
+          "error"
+        );
+      }
+    } finally {
+      setActionUserId(null);
+    }
+  }
+
+  async function handleBlockInactiveConfirm() {
+    setBlockInactiveLoading(true);
+    try {
+      const res = await usersService.blockInactive();
+      setBlockInactiveOpen(false);
+      showToast(res.message, "success");
+      load(page);
+    } catch (err) {
+      setBlockInactiveOpen(false);
+      showToast(
+        err instanceof ApiRequestError ? err.message : "Failed to block inactive users.",
+        "error"
+      );
+    } finally {
+      setBlockInactiveLoading(false);
+    }
+  }
+
   const filtered = users.filter((u) => {
     const term = search.toLowerCase();
     const matchesSearch =
@@ -243,7 +406,6 @@ export default function Users() {
   const activeCount = users.filter((u) => u.status === "ACTIVE").length;
   const suspendedCount = users.filter((u) => u.status === "SUSPENDED").length;
   const customerCount = users.filter((u) => u.userType === "CUSTOMER").length;
-  // const adminCount = users.filter((u) => u.userType === "ADMIN").length;
 
   const stats = [
     {
@@ -314,6 +476,32 @@ export default function Users() {
       />
       <PageBreadcrumb pageTitle="Users" />
 
+      {/* Confirm: Block Inactive Users */}
+      <ConfirmDialog
+        open={blockInactiveOpen}
+        title="Block Inactive Users"
+        message="This will suspend all customers who have not logged in for the inactivity period and revoke their sessions. Continue?"
+        confirmLabel="Block Inactive Users"
+        confirmColor="bg-red-500 hover:bg-red-600"
+        loading={blockInactiveLoading}
+        onConfirm={handleBlockInactiveConfirm}
+        onCancel={() => setBlockInactiveOpen(false)}
+      />
+
+      {/* Toast notifications */}
+      <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 items-end">
+        {toasts.map((t) => (
+          <div
+            key={t.id}
+            className={`rounded-xl px-4 py-3 text-sm font-medium shadow-lg text-white transition-all ${
+              t.type === "success" ? "bg-green-500" : "bg-red-500"
+            }`}
+          >
+            {t.message}
+          </div>
+        ))}
+      </div>
+
       {/* Stats */}
       <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
         {stats.map((stat) => (
@@ -345,6 +533,14 @@ export default function Users() {
           )}
         </h2>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          {/* Block Inactive Users */}
+          <button
+            onClick={() => setBlockInactiveOpen(true)}
+            disabled={blockInactiveLoading}
+            className="rounded-xl border border-red-200 dark:border-red-800/50 bg-red-50 dark:bg-red-500/10 px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+          >
+            Block Inactive Users
+          </button>
           {/* Status filter */}
           <div className="flex gap-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 p-1">
             {statusOptions.map(({ label, value }) => (
@@ -459,7 +655,10 @@ export default function Users() {
                     <UserRow
                       key={user.authCredentialId}
                       user={user}
+                      actionUserId={actionUserId}
                       onView={(id) => navigate(`/admin/users/${id}`)}
+                      onBlock={handleBlock}
+                      onUnblock={handleUnblock}
                     />
                   ))
                 )}

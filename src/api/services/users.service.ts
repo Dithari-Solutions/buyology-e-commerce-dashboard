@@ -25,4 +25,34 @@ export const usersService = {
       { signal }
     );
   },
+
+  blockUser(
+    userId: string,
+    signal?: AbortSignal
+  ): Promise<ApiResponse<unknown>> {
+    return apiClient.patch<ApiResponse<unknown>>(
+      `${BASE}/${userId}/block`,
+      undefined,
+      { signal }
+    );
+  },
+
+  unblockUser(
+    userId: string,
+    signal?: AbortSignal
+  ): Promise<ApiResponse<unknown>> {
+    return apiClient.patch<ApiResponse<unknown>>(
+      `${BASE}/${userId}/unblock`,
+      undefined,
+      { signal }
+    );
+  },
+
+  blockInactive(signal?: AbortSignal): Promise<ApiResponse<null>> {
+    return apiClient.post<ApiResponse<null>>(
+      `${BASE}/block-inactive`,
+      undefined,
+      { signal }
+    );
+  },
 };

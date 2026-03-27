@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import Badge from "../../components/ui/badge/Badge";
@@ -55,6 +55,66 @@ function initials(first: string | null, last: string | null): string {
   const f = first?.[0] ?? "";
   const l = last?.[0] ?? "";
   return (f + l).toUpperCase() || "?";
+}
+
+// ---------------------------------------------------------------------------
+// ConfirmDialog
+// ---------------------------------------------------------------------------
+
+function ConfirmDialog({
+  open,
+  title,
+  message,
+  confirmLabel,
+  confirmColor,
+  loading,
+  onConfirm,
+  onCancel,
+}: {
+  open: boolean;
+  title: string;
+  message: string;
+  confirmLabel: string;
+  confirmColor: string;
+  loading: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+      <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-6 shadow-xl">
+        <h3 className="text-base font-semibold text-gray-800 dark:text-white/90 mb-2">{title}</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{message}</p>
+        <div className="flex gap-3 justify-end">
+          <button
+            onClick={onCancel}
+            disabled={loading}
+            className="rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className={`rounded-xl px-4 py-2 text-sm font-medium text-white disabled:opacity-50 transition-colors ${confirmColor}`}
+          >
+            {loading ? "Please wait…" : confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Toast
+// ---------------------------------------------------------------------------
+
+interface ToastItem {
+  id: number;
+  message: string;
+  type: "success" | "error";
 }
 
 // ---------------------------------------------------------------------------
@@ -187,15 +247,24 @@ export default function UserDetail() {
   const [error, setError] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
 
-  useEffect(() => {
-    if (!authCredentialId) return;
-    const controller = new AbortController();
+  const [actionLoading, setActionLoading] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<"block" | "unblock" | null>(null);
+
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const toastIdRef = useRef(0);
+
+  function showToast(message: string, type: "success" | "error") {
+    const id = ++toastIdRef.current;
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3500);
+  }
+
+  const loadUser = useCallback((id: string, signal?: AbortSignal) => {
     setLoading(true);
     setError(null);
     setNotFound(false);
-
     usersService
-      .getById(authCredentialId, controller.signal)
+      .getById(id, signal)
       .then((res) => setUser(res.data))
       .catch((err: unknown) => {
         if (err instanceof Error && err.name === "AbortError") return;
@@ -206,9 +275,62 @@ export default function UserDetail() {
         }
       })
       .finally(() => setLoading(false));
+  }, []);
 
+  useEffect(() => {
+    if (!authCredentialId) return;
+    const controller = new AbortController();
+    loadUser(authCredentialId, controller.signal);
     return () => controller.abort();
-  }, [authCredentialId]);
+  }, [authCredentialId, loadUser]);
+
+  async function handleBlockConfirm() {
+    if (!user) return;
+    setActionLoading(true);
+    try {
+      await usersService.blockUser(user.userId);
+      setUser((prev) => (prev ? { ...prev, status: "SUSPENDED" } : prev));
+      setConfirmAction(null);
+      showToast("User blocked successfully.", "success");
+    } catch (err) {
+      setConfirmAction(null);
+      if (err instanceof ApiRequestError && err.statusCode === 409) {
+        showToast("This user is already blocked.", "error");
+        if (authCredentialId) loadUser(authCredentialId);
+      } else {
+        showToast(
+          err instanceof ApiRequestError ? err.message : "Failed to block user.",
+          "error"
+        );
+      }
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleUnblockConfirm() {
+    if (!user) return;
+    setActionLoading(true);
+    try {
+      await usersService.unblockUser(user.userId);
+      setUser((prev) => (prev ? { ...prev, status: "ACTIVE" } : prev));
+      setConfirmAction(null);
+      showToast("User unblocked successfully.", "success");
+    } catch (err) {
+      setConfirmAction(null);
+      if (err instanceof ApiRequestError && err.statusCode === 409) {
+        showToast("This user is already active.", "error");
+        if (authCredentialId) loadUser(authCredentialId);
+      } else {
+        showToast(
+          err instanceof ApiRequestError ? err.message : "Failed to unblock user.",
+          "error"
+        );
+      }
+    } finally {
+      setActionLoading(false);
+    }
+  }
 
   // ── Not found ──────────────────────────────────────────────────────────────
 
@@ -262,7 +384,7 @@ export default function UserDetail() {
     );
   }
 
-  // ── Loading ────────────────────────────────────────────────────────────────
+  // ── Main ───────────────────────────────────────────────────────────────────
 
   return (
     <>
@@ -270,6 +392,42 @@ export default function UserDetail() {
         title={user ? `${fullName(user.firstName, user.lastName)} | Buyology Dashboard` : "User | Buyology Dashboard"}
         description="View user profile, favorites, and active cart."
       />
+
+      {/* Confirm dialog */}
+      <ConfirmDialog
+        open={confirmAction === "block"}
+        title="Block Account"
+        message="Blocking this account will immediately suspend the user and revoke all their active sessions. They will not be able to sign in until unblocked. Continue?"
+        confirmLabel="Block Account"
+        confirmColor="bg-red-500 hover:bg-red-600"
+        loading={actionLoading}
+        onConfirm={handleBlockConfirm}
+        onCancel={() => setConfirmAction(null)}
+      />
+      <ConfirmDialog
+        open={confirmAction === "unblock"}
+        title="Unblock Account"
+        message="This will restore the user's access. They will be able to sign in again immediately. Continue?"
+        confirmLabel="Unblock Account"
+        confirmColor="bg-brand-500 hover:bg-brand-600"
+        loading={actionLoading}
+        onConfirm={handleUnblockConfirm}
+        onCancel={() => setConfirmAction(null)}
+      />
+
+      {/* Toast notifications */}
+      <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 items-end">
+        {toasts.map((t) => (
+          <div
+            key={t.id}
+            className={`rounded-xl px-4 py-3 text-sm font-medium shadow-lg text-white transition-all ${
+              t.type === "success" ? "bg-green-500" : "bg-red-500"
+            }`}
+          >
+            {t.message}
+          </div>
+        ))}
+      </div>
 
       {/* Back button + title */}
       <div className="mb-5 flex items-center gap-3">
@@ -352,11 +510,75 @@ export default function UserDetail() {
                   label="Member since"
                   value={formatDate(user.joinedAt)}
                 />
+                <ProfileField
+                  label="Registration IP"
+                  value={
+                    user.registrationIp ? (
+                      <code className="font-mono text-xs bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">
+                        {user.registrationIp}
+                      </code>
+                    ) : (
+                      "—"
+                    )
+                  }
+                />
+                <ProfileField
+                  label="Device"
+                  value={
+                    user.registrationDevice ? (
+                      <span
+                        title={user.registrationDevice}
+                        className="truncate block max-w-sm cursor-help"
+                      >
+                        {user.registrationDevice.length > 80
+                          ? `${user.registrationDevice.slice(0, 80)}…`
+                          : user.registrationDevice}
+                      </span>
+                    ) : (
+                      "—"
+                    )
+                  }
+                />
               </div>
             </div>
           </SectionCard>
 
-          {/* ── Section 2: Favorites ───────────────────────────────────────── */}
+          {/* ── Section 2: Account Actions ─────────────────────────────────── */}
+          <SectionCard title="Account Actions">
+            {user.status === "ACTIVE" ? (
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Block Account</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                    Suspends the user and revokes all active sessions immediately.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setConfirmAction("block")}
+                  className="flex-shrink-0 rounded-xl border border-red-200 dark:border-red-800/50 bg-red-50 dark:bg-red-500/10 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors"
+                >
+                  Block Account
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Unblock Account</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                    Restores the user's access so they can sign in again.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setConfirmAction("unblock")}
+                  className="flex-shrink-0 rounded-xl border border-brand-200 dark:border-brand-800/50 bg-brand-50 dark:bg-brand-500/10 px-4 py-2 text-sm font-medium text-brand-600 dark:text-brand-400 hover:bg-brand-100 dark:hover:bg-brand-500/20 transition-colors"
+                >
+                  Unblock Account
+                </button>
+              </div>
+            )}
+          </SectionCard>
+
+          {/* ── Section 3: Favorites ───────────────────────────────────────── */}
           <SectionCard
             title={
               <span>
@@ -413,7 +635,7 @@ export default function UserDetail() {
             )}
           </SectionCard>
 
-          {/* ── Section 3: Active Cart ─────────────────────────────────────── */}
+          {/* ── Section 4: Active Cart ─────────────────────────────────────── */}
           <SectionCard
             title={
               <span>
@@ -443,7 +665,6 @@ export default function UserDetail() {
                 {user.activeCart.items.map((item) => (
                   <CartItemRow key={item.id} item={item} />
                 ))}
-                {/* Total */}
                 <div className="flex items-center justify-between rounded-xl bg-brand-50 dark:bg-brand-500/10 px-4 py-3 mt-2">
                   <span className="text-sm font-semibold text-brand-700 dark:text-brand-400">
                     Cart Total
