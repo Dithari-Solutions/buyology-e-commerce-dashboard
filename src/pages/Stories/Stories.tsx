@@ -42,11 +42,19 @@ function statusLabel(status: StoryStatus): string {
 function MediaSlider({
   media,
   initialIndex,
+  onDeleteMedia,
 }: {
   media: StoryMedia[];
   initialIndex: number;
+  onDeleteMedia: (mediaId: string) => void;
 }) {
   const [current, setCurrent] = useState(initialIndex);
+
+  useEffect(() => {
+    if (media.length > 0 && current >= media.length) {
+      setCurrent(Math.max(0, media.length - 1));
+    }
+  }, [media.length, current]);
 
   const prev = useCallback(
     () => setCurrent((c) => (c - 1 + media.length) % media.length),
@@ -66,12 +74,32 @@ function MediaSlider({
     return () => window.removeEventListener("keydown", handleKey);
   }, [prev, next]);
 
+  if (media.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 py-20 text-gray-500 dark:text-gray-400">
+        <svg
+          width="40"
+          height="40"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          className="mb-3 opacity-20"
+        >
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <line x1="3" y1="3" x2="21" y2="21" />
+        </svg>
+        <p className="text-sm font-medium">No media items in this story.</p>
+      </div>
+    );
+  }
+
   const item = media[current];
 
   return (
     <div className="flex flex-col items-center gap-4">
       {/* Main media display */}
-      <div className="relative w-full max-h-[65vh] flex items-center justify-center bg-black/40 rounded-2xl overflow-hidden">
+      <div className="relative w-full max-h-[65vh] flex items-center justify-center bg-black/40 rounded-2xl overflow-hidden group/main">
         {item.mediaType === "VIDEO" ? (
           <video
             src={mediaUrl(item.url)}
@@ -85,6 +113,20 @@ function MediaSlider({
             className="max-h-[65vh] w-full object-contain rounded-2xl"
           />
         )}
+
+        {/* Delete button for specific media */}
+        <button
+          onClick={() => onDeleteMedia(item.id)}
+          className="absolute top-3 left-3 flex h-9 w-9 items-center justify-center rounded-full bg-red-500/80 text-white backdrop-blur-sm hover:bg-red-600 transition-all opacity-0 group-hover/main:opacity-100"
+          title="Delete this media"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            <line x1="10" y1="11" x2="10" y2="17"></line>
+            <line x1="14" y1="11" x2="14" y2="17"></line>
+          </svg>
+        </button>
 
         {/* Nav arrows */}
         {media.length > 1 && (
@@ -173,106 +215,40 @@ function MediaSlider({
 function StoryCard({
   story,
   onClick,
+  onDelete,
 }: {
   story: Story;
   onClick: (story: Story) => void;
+  onDelete: (storyId: string) => void;
 }) {
   const imageCount = story.media.filter((m) => m.mediaType === "IMAGE").length;
   const videoCount = story.media.filter((m) => m.mediaType === "VIDEO").length;
 
   return (
-    <button
-      onClick={() => onClick(story)}
-      className="group relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] text-left transition-all duration-300 hover:border-brand-300 dark:hover:border-brand-600 hover:shadow-lg hover:shadow-brand-500/10 hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
-    >
-      {/* Thumbnail */}
-      <div className="relative h-52 w-full overflow-hidden bg-gray-100 dark:bg-gray-800">
-        <img
-          src={mediaUrl(story.thumbnailUrl)}
-          alt={story.title}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+    <div className="group relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] text-left transition-all duration-300 hover:border-brand-300 dark:hover:border-brand-600 hover:shadow-lg hover:shadow-brand-500/10 hover:-translate-y-1">
+      {/* Clickable area for details */}
+      <button
+        onClick={() => onClick(story)}
+        className="w-full text-left focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+      >
+        {/* Thumbnail */}
+        <div className="relative h-52 w-full overflow-hidden bg-gray-100 dark:bg-gray-800">
+          <img
+            src={mediaUrl(story.thumbnailUrl)}
+            alt={story.title}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
 
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
-        {/* Media count chips */}
-        <div className="absolute top-3 right-3 flex flex-col gap-1.5 items-end">
-          {imageCount > 0 && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-black/50 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <polyline points="21 15 16 10 5 21" />
-              </svg>
-              {imageCount}
-            </span>
-          )}
-          {videoCount > 0 && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-black/50 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                <polygon points="23 7 16 12 23 17 23 7" />
-                <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-              </svg>
-              {videoCount}
-            </span>
-          )}
-        </div>
-
-        {/* Play hint on hover */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      {/* Card body */}
-      <div className="p-4">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="text-sm font-semibold text-gray-800 dark:text-white/90 line-clamp-1">
-            {story.title}
-          </h3>
-          <Badge size="sm" color="info">
-            {story.media.length} {story.media.length === 1 ? "item" : "items"}
-          </Badge>
-        </div>
-
-        <div className="mt-2">
-          <Badge size="sm" color={statusBadgeColor(story.status)}>
-            {statusLabel(story.status)}
-          </Badge>
-        </div>
-
-        {/* Media type pills */}
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {story.media.map((m, i) => (
-            <span
-              key={i}
-              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
-                m.mediaType === "VIDEO"
-                  ? "bg-purple-100 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400"
-                  : "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400"
-              }`}
-            >
-              {m.mediaType === "VIDEO" ? (
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
-                  <polygon points="23 7 16 12 23 17 23 7" />
-                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-                </svg>
-              ) : (
+          {/* Media count chips */}
+          <div className="absolute top-3 right-3 flex flex-col gap-1.5 items-end">
+            {imageCount > 0 && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-black/50 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
                 <svg
-                  width="10"
-                  height="10"
+                  width="12"
+                  height="12"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -282,13 +258,98 @@ function StoryCard({
                   <circle cx="8.5" cy="8.5" r="1.5" />
                   <polyline points="21 15 16 10 5 21" />
                 </svg>
-              )}
-              {m.mediaType === "VIDEO" ? "Video" : "Image"} {i + 1}
-            </span>
-          ))}
+                {imageCount}
+              </span>
+            )}
+            {videoCount > 0 && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-black/50 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="23 7 16 12 23 17 23 7" />
+                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                </svg>
+                {videoCount}
+              </span>
+            )}
+          </div>
+
+          {/* Play hint on hover */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </div>
+          </div>
         </div>
-      </div>
-    </button>
+
+        {/* Card body */}
+        <div className="p-4">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-sm font-semibold text-gray-800 dark:text-white/90 line-clamp-1">
+              {story.title}
+            </h3>
+            <Badge size="sm" color="info">
+              {story.media.length} {story.media.length === 1 ? "item" : "items"}
+            </Badge>
+          </div>
+
+          <div className="mt-2">
+            <Badge size="sm" color={statusBadgeColor(story.status)}>
+              {statusLabel(story.status)}
+            </Badge>
+          </div>
+
+          {/* Media type pills */}
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {story.media.map((m, i) => (
+              <span
+                key={i}
+                className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+                  m.mediaType === "VIDEO"
+                    ? "bg-purple-100 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400"
+                    : "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400"
+                }`}
+              >
+                {m.mediaType === "VIDEO" ? (
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="23 7 16 12 23 17 23 7" />
+                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                  </svg>
+                ) : (
+                  <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <polyline points="21 15 16 10 5 21" />
+                  </svg>
+                )}
+                {m.mediaType === "VIDEO" ? "Video" : "Image"} {i + 1}
+              </span>
+            ))}
+          </div>
+        </div>
+      </button>
+
+      {/* Delete Story Button */}
+      <button
+        onClick={() => onDelete(story.id)}
+        className="absolute top-3 left-3 flex h-8 w-8 items-center justify-center rounded-full bg-red-500/80 text-white opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-all backdrop-blur-sm shadow-sm"
+        title="Delete Story"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          <line x1="10" y1="11" x2="10" y2="17"></line>
+          <line x1="14" y1="11" x2="14" y2="17"></line>
+        </svg>
+      </button>
+    </div>
   );
 }
 
@@ -305,13 +366,11 @@ export default function Stories() {
   const [statusFilter, setStatusFilter] = useState<StoryStatus | "ALL">("ALL");
   const { isOpen, openModal, closeModal } = useModal();
 
-  useEffect(() => {
-    const controller = new AbortController();
+  const fetchStories = useCallback((signal?: AbortSignal) => {
     setLoading(true);
     setError(null);
-
     storiesService
-      .getAll("EN", controller.signal)
+      .getAll("EN", signal)
       .then((res) => setStories(res.data))
       .catch((err: unknown) => {
         if (err instanceof Error && err.name === "AbortError") return;
@@ -322,9 +381,13 @@ export default function Stories() {
         setError(message);
       })
       .finally(() => setLoading(false));
-
-    return () => controller.abort();
   }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchStories(controller.signal);
+    return () => controller.abort();
+  }, [fetchStories]);
 
   const handleCardClick = (story: Story) => {
     setSelectedStory(story);
@@ -334,6 +397,42 @@ export default function Stories() {
   const handleClose = () => {
     closeModal();
     setSelectedStory(null);
+  };
+
+  const handleDeleteStory = async (storyId: string) => {
+    if (!window.confirm("Are you sure you want to delete this entire story?")) {
+      return;
+    }
+
+    try {
+      await storiesService.deleteStory(storyId);
+      setStories((prev) => prev.filter((s) => s.id !== storyId));
+      if (selectedStory?.id === storyId) {
+        handleClose();
+      }
+    } catch (err: unknown) {
+      alert(err instanceof ApiRequestError ? err.message : "Failed to delete story.");
+    }
+  };
+
+  const handleDeleteMedia = async (mediaId: string) => {
+    if (!selectedStory) return;
+    if (!window.confirm("Are you sure you want to delete this media item?")) {
+      return;
+    }
+
+    try {
+      await storiesService.deleteMedia(selectedStory.id, mediaId);
+      // Refresh selected story to get updated media list and presigned URLs
+      const updatedStory = await storiesService.getById(selectedStory.id, "EN");
+      setSelectedStory(updatedStory.data);
+      // Also update it in the list
+      setStories((prev) =>
+        prev.map((s) => (s.id === selectedStory.id ? updatedStory.data : s))
+      );
+    } catch (err: unknown) {
+      alert(err instanceof ApiRequestError ? err.message : "Failed to delete media.");
+    }
   };
 
   const filtered = stories.filter((s) => {
@@ -560,7 +659,12 @@ export default function Stories() {
       {!loading && !error && filtered.length > 0 && (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((story) => (
-            <StoryCard key={story.id} story={story} onClick={handleCardClick} />
+            <StoryCard
+              key={story.id}
+              story={story}
+              onClick={handleCardClick}
+              onDelete={handleDeleteStory}
+            />
           ))}
         </div>
       )}
@@ -587,7 +691,11 @@ export default function Stories() {
                 {statusLabel(selectedStory.status)}
               </Badge>
             </div>
-            <MediaSlider media={selectedStory.media} initialIndex={0} />
+            <MediaSlider
+              media={selectedStory.media}
+              initialIndex={0}
+              onDeleteMedia={handleDeleteMedia}
+            />
           </div>
         )}
       </Modal>

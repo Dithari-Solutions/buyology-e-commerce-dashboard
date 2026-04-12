@@ -1,6 +1,7 @@
 export type MediaType = "IMAGE" | "VIDEO";
 
 export interface StoryMedia {
+  id: string;
   mediaType: MediaType;
   orderIndex: number;
   thumbnailUrl: string | null;

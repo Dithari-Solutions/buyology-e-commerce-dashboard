@@ -97,4 +97,22 @@ export const storiesService = {
 
     return response.json() as Promise<ApiResponse<Story>>;
   },
+
+  /**
+   * Delete entire story.
+   * Removes story record and all files (thumbnail + media) from database and S3.
+   */
+  deleteStory(storyId: string): Promise<ApiResponse<void>> {
+    return apiClient.delete<ApiResponse<void>>(`${BASE}/${storyId}`);
+  },
+
+  /**
+   * Delete specific media from a story.
+   * Removes media record and its corresponding file from S3.
+   */
+  deleteMedia(storyId: string, mediaId: string): Promise<ApiResponse<void>> {
+    return apiClient.delete<ApiResponse<void>>(
+      `${BASE}/${storyId}/media/${mediaId}`
+    );
+  },
 };
