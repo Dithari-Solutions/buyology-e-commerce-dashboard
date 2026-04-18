@@ -129,7 +129,7 @@ export default function OrderDetail() {
             </div>
             <div className="p-6">
               <div className="space-y-4">
-                {order.items.map((item) => (
+                {order.items?.map((item) => (
                   <div key={item.id} className="flex items-center gap-4 border-b border-gray-50 pb-4 last:border-0 last:pb-0 dark:border-gray-800">
                     <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
                       {item.productImage ? (
@@ -275,7 +275,7 @@ export default function OrderDetail() {
           <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
             <h3 className="mb-4 font-semibold text-gray-800 dark:text-white/90">Tracking History</h3>
             <div className="relative space-y-6 before:absolute before:left-[11px] before:top-2 before:h-[calc(100%-16px)] before:w-0.5 before:bg-gray-100 dark:before:bg-gray-800">
-              {order.trackingHistory.map((event, idx) => (
+              {order.trackingHistory?.map((event, idx) => (
                 <div key={idx} className="relative pl-8">
                   <div className={`absolute left-0 top-1.5 h-6 w-6 rounded-full border-4 border-white dark:border-gray-900 bg-gray-200 dark:bg-gray-700 ${idx === 0 ? "bg-brand-500" : ""}`} />
                   <p className="text-sm font-semibold text-gray-800 dark:text-white/90">{event.status}</p>
