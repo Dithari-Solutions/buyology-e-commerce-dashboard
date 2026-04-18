@@ -114,7 +114,7 @@ export default function OrderDetail() {
             <p className="text-sm text-gray-500 dark:text-gray-400">Placed on {formatDate(order.createdAt)}</p>
           </div>
         </div>
-        <Badge size="lg" color={statusColor(order.status)}>
+        <Badge size="md" color={statusColor(order.status)}>
           {order.status}
         </Badge>
       </div>
