@@ -81,3 +81,10 @@ export type {
   AssignAdminRequest,
   UpdateAdminRequest,
 } from "./store.types";
+export type {
+  OrderStatus,
+  TrackingEvent,
+  OrderItem,
+  OrderAdminResponse,
+  OrderListResponse,
+} from "./order.types";

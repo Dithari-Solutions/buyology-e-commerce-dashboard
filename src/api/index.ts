@@ -14,6 +14,7 @@ export { storesService } from "./services/stores.service";
 export { storeProductsService } from "./services/storeProducts.service";
 export { usersService } from "./services/users.service";
 export { couriersService } from "./services/couriers.service";
+export { ordersService } from "./services/orders.service";
 export { rolesService } from "./services/roles.service";
 export type {
   AssignProductToStoreRequest,

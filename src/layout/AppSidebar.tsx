@@ -7,6 +7,7 @@ import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
 import TwoWheelerOutlinedIcon from '@mui/icons-material/TwoWheelerOutlined';
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 
 // Assume these icons are imported from an icon library
 import {
@@ -87,6 +88,11 @@ const navItems: NavItem[] = [
       { name: "New Store", path: "/stores/new", pro: false },
       { name: "Countries", path: "/countries", pro: false },
     ],
+  },
+  {
+    name: "Orders",
+    icon: <ShoppingCartOutlinedIcon />,
+    path: "/orders",
   },
   {
     name: "Couriers",
