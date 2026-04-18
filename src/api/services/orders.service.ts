@@ -20,7 +20,7 @@ export const ordersService = {
       sort?: string;
     } = {},
     signal?: AbortSignal
-  ): Promise<OrderListResponse> {
+  ): Promise<ApiResponse<OrderListResponse>> {
     const { page = 0, size = 20, status, storeId, search, sort } = params;
     const query = new URLSearchParams({
       page: String(page),
@@ -31,7 +31,7 @@ export const ordersService = {
     if (search) query.set("search", search);
     if (sort) query.set("sort", sort);
 
-    return apiClient.get<OrderListResponse>(`${BASE}?${query}`, { signal });
+    return apiClient.get<ApiResponse<OrderListResponse>>(`${BASE}?${query}`, { signal });
   },
 
   // GET /api/admin/orders/{id}/with-proof

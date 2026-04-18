@@ -1,6 +1,7 @@
 export type OrderStatus =
   | "PAID"
   | "PENDING"
+  | "PENDING_PAYMENT"
   | "PROCESSING"
   | "PICKED_UP"
   | "DELIVERED"
@@ -30,16 +31,20 @@ export interface OrderItem {
 
 export interface OrderAdminResponse {
   id: string;
-  orderNumber: string;
+  orderNumber?: string;
   status: OrderStatus;
   storeId: string;
   storeName?: string;
-  customerId: string;
-  customerName: string;
-  customerEmail: string;
+  userId: string;
+  
+  // Recipient info from API
+  recipientFirstName?: string;
+  recipientLastName?: string;
+  customerEmail?: string;
   customerPhone?: string;
   
   // Express/Courier specific
+  carrierName?: string;
   courierName?: string;
   courierPhone?: string;
   pickupProofImageUrl?: string;
@@ -49,15 +54,21 @@ export interface OrderAdminResponse {
   deliveredTo?: string;
   deliveryProofTakenAt?: string;
   
-  trackingHistory: TrackingEvent[];
-  items: OrderItem[];
+  trackingHistory?: TrackingEvent[];
+  items?: OrderItem[];
   
   totalAmount: number;
   currency: string;
+  deliveryMethod?: string;
+  city?: string;
+  country?: string;
+  countryCode?: string;
   shippingAddress?: string;
   billingAddress?: string;
   paymentMethod?: string;
   
+  paidAt?: string;
+  deliveredAt?: string;
   createdAt: string;
   updatedAt: string;
 }

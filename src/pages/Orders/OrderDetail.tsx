@@ -33,6 +33,7 @@ function statusColor(status: OrderStatus): BadgeColor {
       return "info";
     case "PAID":
     case "PENDING":
+    case "PENDING_PAYMENT":
       return "warning";
     default:
       return "light";
@@ -256,16 +257,26 @@ export default function OrderDetail() {
             <div className="space-y-4">
               <div>
                 <p className="text-xs text-gray-400 uppercase mb-1">Name</p>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{order.customerName}</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {order.recipientFirstName} {order.recipientLastName}
+                </p>
               </div>
               <div>
                 <p className="text-xs text-gray-400 uppercase mb-1">Email</p>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{order.customerEmail}</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{order.customerEmail || "No Email Provided"}</p>
               </div>
-              {order.shippingAddress && (
+              {(order.shippingAddress || order.city) && (
                 <div>
                   <p className="text-xs text-gray-400 uppercase mb-1">Shipping Address</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{order.shippingAddress}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {order.shippingAddress || `${order.city || ""}, ${order.country || ""}`}
+                  </p>
+                </div>
+              )}
+              {order.deliveryMethod && (
+                <div>
+                  <p className="text-xs text-gray-400 uppercase mb-1">Delivery Method</p>
+                  <Badge size="sm" color="info">{order.deliveryMethod}</Badge>
                 </div>
               )}
             </div>

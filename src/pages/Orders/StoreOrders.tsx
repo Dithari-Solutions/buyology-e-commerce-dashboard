@@ -32,6 +32,7 @@ function statusColor(status: OrderStatus): BadgeColor {
       return "info";
     case "PAID":
     case "PENDING":
+    case "PENDING_PAYMENT":
       return "warning";
     default:
       return "light";
@@ -66,7 +67,7 @@ export default function StoreOrders() {
     setError(null);
     ordersService
       .getAll({ storeId }, signal)
-      .then((res) => setOrders(Array.isArray(res.content) ? res.content : []))
+      .then((res) => setOrders(Array.isArray(res.data?.content) ? res.data.content : []))
       .catch((err: unknown) => {
         if (err instanceof Error && err.name === "AbortError") return;
         setError(err instanceof ApiRequestError ? err.message : "Failed to load orders.");
@@ -144,8 +145,10 @@ export default function StoreOrders() {
                       </span>
                     </td>
                     <td className="px-4 py-4">
-                      <div className="text-sm font-medium text-gray-800 dark:text-white/90">{order.customerName}</div>
-                      <div className="text-xs text-gray-400">{order.customerEmail}</div>
+                      <div className="text-sm font-medium text-gray-800 dark:text-white/90">
+                        {order.recipientFirstName} {order.recipientLastName}
+                      </div>
+                      <div className="text-xs text-gray-400">{order.customerEmail || "No Email"}</div>
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-600 dark:text-gray-300">
                       {formatDate(order.createdAt)}
