@@ -64,7 +64,7 @@ export default function Orders() {
     setError(null);
     storesService
       .getAll(signal)
-      .then((res) => setStores(res.data))
+      .then((res) => setStores(Array.isArray(res.data) ? res.data : []))
       .catch((err: unknown) => {
         if (err instanceof Error && err.name === "AbortError") return;
         setError(err instanceof ApiRequestError ? err.message : "Failed to load stores.");
@@ -78,14 +78,16 @@ export default function Orders() {
     return () => controller.abort();
   }, [fetchStores]);
 
-  const filtered = stores.filter((s) => {
-    const term = search.toLowerCase();
-    return (
-      s.name.toLowerCase().includes(term) ||
-      s.slug.toLowerCase().includes(term) ||
-      s.countryName.toLowerCase().includes(term)
-    );
-  });
+  const filtered = Array.isArray(stores) 
+    ? stores.filter((s) => {
+        const term = search.toLowerCase();
+        return (
+          s.name.toLowerCase().includes(term) ||
+          s.slug.toLowerCase().includes(term) ||
+          s.countryName.toLowerCase().includes(term)
+        );
+      })
+    : [];
 
   return (
     <>
@@ -99,7 +101,7 @@ export default function Orders() {
         <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
           Select Store to View Orders
           {!loading && (
-            <span className="ml-2 text-sm font-normal text-gray-400">({filtered.length})</span>
+            <span className="ml-2 text-sm font-normal text-gray-400">({filtered?.length || 0})</span>
           )}
         </h2>
 

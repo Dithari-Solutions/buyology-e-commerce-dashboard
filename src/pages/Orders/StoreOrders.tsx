@@ -66,7 +66,7 @@ export default function StoreOrders() {
     setError(null);
     ordersService
       .getAll({ storeId }, signal)
-      .then((res) => setOrders(res.content))
+      .then((res) => setOrders(Array.isArray(res.content) ? res.content : []))
       .catch((err: unknown) => {
         if (err instanceof Error && err.name === "AbortError") return;
         setError(err instanceof ApiRequestError ? err.message : "Failed to load orders.");
@@ -105,7 +105,7 @@ export default function StoreOrders() {
         <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
           Orders List
           {!loading && (
-            <span className="ml-2 text-sm font-normal text-gray-400">({orders.length})</span>
+            <span className="ml-2 text-sm font-normal text-gray-400">({orders?.length || 0})</span>
           )}
         </h2>
       </div>
@@ -132,7 +132,7 @@ export default function StoreOrders() {
               </thead>
               <tbody>
                 {loading && Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)}
-                {!loading && orders.map((order) => (
+                {!loading && orders?.map((order) => (
                   <tr
                     key={order.id}
                     onClick={() => navigate(`/orders/${storeId}/${order.id}`)}
@@ -168,7 +168,7 @@ export default function StoreOrders() {
               </tbody>
             </table>
           </div>
-          {!loading && orders.length === 0 && (
+          {!loading && (!orders || orders.length === 0) && (
             <div className="flex flex-col items-center justify-center py-20 text-center text-gray-500">
               No orders found for this store.
             </div>
