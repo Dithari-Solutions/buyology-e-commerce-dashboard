@@ -49,6 +49,10 @@ import CourierMap from "./pages/Couriers/CourierMap";
 import Orders from "./pages/Orders/Orders";
 import StoreOrders from "./pages/Orders/StoreOrders";
 import OrderDetail from "./pages/Orders/OrderDetail";
+import GamesPage from "./pages/Games/GamesPage";
+import PromoCodePage from "./pages/PromoCode/PromoCodePage";
+import NewsletterPage from "./pages/Newsletter/NewsletterPage";
+import B2BInquiriesPage from "./pages/B2BInquiries/B2BInquiriesPage";
 
 export default function App() {
   return (
@@ -107,6 +111,18 @@ export default function App() {
               {/* Reviews & Q&A */}
               <Route path="/reviews" element={<Reviews />} />
               <Route path="/questions" element={<Questions />} />
+
+              {/* Games */}
+              <Route path="/games" element={<GamesPage />} />
+
+              {/* Promo Codes */}
+              <Route path="/promo-codes" element={<PromoCodePage />} />
+
+              {/* Newsletter & News */}
+              <Route path="/newsletter" element={<NewsletterPage />} />
+
+              {/* B2B Inquiries */}
+              <Route path="/b2b-inquiries" element={<B2BInquiriesPage />} />
 
               {/* Others Page */}
               <Route path="/profile" element={<UserProfiles />} />
