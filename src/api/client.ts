@@ -4,7 +4,6 @@ import { ApiError, ApiRequestError } from "./types/api.types";
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 interface RequestOptions extends Omit<RequestInit, "method" | "body"> {
-  signal?: AbortSignal;
 }
 
 interface RequestWithBodyOptions extends RequestOptions {
@@ -122,8 +121,12 @@ class HttpClient {
     return `${this.baseUrl}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
   }
 
-  private buildHeaders(extra?: HeadersInit): Headers {
-    const headers = new Headers({ "Content-Type": "application/json" });
+  private buildHeaders(extra?: HeadersInit, isFormData?: boolean): Headers {
+    const headers = new Headers();
+
+    if (!isFormData) {
+      headers.set("Content-Type", "application/json");
+    }
 
     // Attach the in-memory access token on every authenticated request
     if (_accessToken) {
@@ -131,7 +134,13 @@ class HttpClient {
     }
 
     if (extra) {
-      new Headers(extra).forEach((value, key) => headers.set(key, value));
+      new Headers(extra).forEach((value, key) => {
+        if (value === "undefined" || value === "null") {
+          headers.delete(key);
+        } else {
+          headers.set(key, value);
+        }
+      });
     }
 
     return headers;
@@ -143,17 +152,18 @@ class HttpClient {
     { body, headers: extraHeaders, ...rest }: RequestWithBodyOptions = {}
   ): Promise<T> {
     const url = this.buildUrl(endpoint);
+    const isFormData = body instanceof FormData;
 
     // Wrap fetch so we can call it again after a successful token refresh
     const executeFetch = () =>
       fetch(url, {
         method,
-        headers: this.buildHeaders(extraHeaders),
+        headers: this.buildHeaders(extraHeaders, isFormData),
         // credentials: "include" is required so the browser automatically
         // sends the HttpOnly refresh_token cookie on cross-origin requests.
         // The backend MUST have CORS allowCredentials=true + explicit origin.
         credentials: "include",
-        body: body !== undefined ? JSON.stringify(body) : undefined,
+        body: isFormData ? (body as FormData) : body !== undefined ? JSON.stringify(body) : undefined,
         ...rest,
       });
 

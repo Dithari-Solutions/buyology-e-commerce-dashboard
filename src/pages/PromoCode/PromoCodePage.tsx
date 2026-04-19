@@ -130,18 +130,20 @@ export default function PromoCodePage() {
               <button onClick={() => setShowCreate(false)} className="text-gray-400 hover:text-gray-600">✕</button>
             </div>
             <div className="space-y-3">
-              {[
-                { label: "Code", key: "code", type: "text", placeholder: "e.g. SUMMER20" },
-                { label: "Discount Value", key: "discountValue", type: "number", placeholder: "10" },
-                { label: "Min Order Amount", key: "minimumOrderAmount", type: "number", placeholder: "0 (optional)" },
-                { label: "Max Uses Total", key: "maxUsesTotal", type: "number", placeholder: "unlimited" },
-                { label: "Max Per Customer", key: "maxUsesPerCustomer", type: "number", placeholder: "unlimited" },
-                { label: "Description", key: "description", type: "text", placeholder: "" },
-              ].map(({ label, key, type, placeholder }) => (
+              {(
+                [
+                  { label: "Code", key: "code", type: "text", placeholder: "e.g. SUMMER20" },
+                  { label: "Discount Value", key: "discountValue", type: "number", placeholder: "10" },
+                  { label: "Min Order Amount", key: "minimumOrderAmount", type: "number", placeholder: "0 (optional)" },
+                  { label: "Max Uses Total", key: "maxUsesTotal", type: "number", placeholder: "unlimited" },
+                  { label: "Max Per Customer", key: "maxUsesPerCustomer", type: "number", placeholder: "unlimited" },
+                  { label: "Description", key: "description", type: "text", placeholder: "" },
+                ] as const
+              ).map(({ label, key, type, placeholder }) => (
                 <div key={key}>
                   <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">{label}</label>
                   <input type={type} placeholder={placeholder}
-                    value={(form as Record<string, unknown>)[key] as string ?? ""}
+                    value={String(form[key] ?? "")}
                     onChange={(e) => setForm((f) => ({ ...f, [key]: type === "number" ? Number(e.target.value) || undefined : e.target.value }))}
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
                 </div>
