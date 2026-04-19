@@ -1,4 +1,4 @@
-import { apiClient, courierApiClient, getAccessToken } from "../client";
+import { apiClient, getAccessToken } from "../client";
 import { ApiRequestError } from "../types/api.types";
 import { env } from "../../config/env";
 import type {
