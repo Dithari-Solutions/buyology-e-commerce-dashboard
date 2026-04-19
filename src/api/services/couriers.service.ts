@@ -257,6 +257,6 @@ export const couriersService = {
     if (filters.vehicleType) query.set("vehicleType", filters.vehicleType);
     if (filters.isAvailable !== undefined) query.set("isAvailable", String(filters.isAvailable));
     const qs = query.toString();
-    return courierApiClient.get<CourierMapEntry[]>(`/api/v1/couriers/map${qs ? `?${qs}` : ""}`, { signal });
+    return apiClient.get<CourierMapEntry[]>(`/api/admin/couriers/map${qs ? `?${qs}` : ""}`, { signal });
   },
 };
