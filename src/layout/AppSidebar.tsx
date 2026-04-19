@@ -19,6 +19,7 @@ import {
   PageIcon,
   PieChartIcon,
   PlugInIcon,
+  ShootingStarIcon,
   UserCircleIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
@@ -45,6 +46,14 @@ const navItems: NavItem[] = [
     icon: <UserCircleIcon />,
     name: "User Profile",
     path: "/profile",
+  },
+  {
+    name: "Marketing",
+    icon: <ShootingStarIcon />,
+    subItems: [
+      { name: "Promo Codes", path: "/promo-codes", pro: false },
+      { name: "Newsletter", path: "/newsletter", pro: false },
+    ],
   },
   {
     name: "Admins",
