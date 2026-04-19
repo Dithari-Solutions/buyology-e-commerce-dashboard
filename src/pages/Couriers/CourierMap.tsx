@@ -134,6 +134,13 @@ export default function CourierMap() {
           {error && <span className="text-red-500">{error}</span>}
         </div>
 
+        {/* No-location banner */}
+        {couriers.length > 0 && withLocation === 0 && (
+          <div className="px-4 py-2 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-100 dark:border-amber-800 text-xs text-amber-700 dark:text-amber-400">
+            {couriers.length} courier{couriers.length > 1 ? "s" : ""} found but none have sent a GPS ping yet — markers will appear once the courier app reports a location.
+          </div>
+        )}
+
         {/* Map */}
         <div className="flex-1 relative">
           <MapContainer
