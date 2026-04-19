@@ -222,3 +222,4 @@ class HttpClient {
 }
 
 export const apiClient = new HttpClient(env.apiBaseUrl);
+export const courierApiClient = new HttpClient(env.courierApiBaseUrl);

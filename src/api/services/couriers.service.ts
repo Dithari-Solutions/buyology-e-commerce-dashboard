@@ -1,10 +1,11 @@
-import { apiClient, getAccessToken } from "../client";
+import { apiClient, courierApiClient, getAccessToken } from "../client";
 import { ApiRequestError } from "../types/api.types";
 import { env } from "../../config/env";
 import type {
   CourierListResponse,
   CourierSummary,
   CourierDetail,
+  CourierMapEntry,
   CreateCourierData,
   UpdateCourierData,
   UpdateCourierStatusRequest,
@@ -243,5 +244,19 @@ export const couriersService = {
 
   delete(courierId: string): Promise<void> {
     return apiClient.delete<void>(`${BASE}/${courierId}`);
+  },
+
+  // ── 8. Courier fleet map — all couriers with latest GPS ───────────────────
+
+  getForMap(
+    filters: { status?: CourierStatus; vehicleType?: VehicleType; isAvailable?: boolean } = {},
+    signal?: AbortSignal
+  ): Promise<CourierMapEntry[]> {
+    const query = new URLSearchParams();
+    if (filters.status) query.set("status", filters.status);
+    if (filters.vehicleType) query.set("vehicleType", filters.vehicleType);
+    if (filters.isAvailable !== undefined) query.set("isAvailable", String(filters.isAvailable));
+    const qs = query.toString();
+    return courierApiClient.get<CourierMapEntry[]>(`/api/v1/couriers/map${qs ? `?${qs}` : ""}`, { signal });
   },
 };

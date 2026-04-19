@@ -100,6 +100,7 @@ const navItems: NavItem[] = [
     subItems: [
       { name: "All Couriers", path: "/admin/couriers", pro: false },
       { name: "New Courier", path: "/admin/couriers/new", pro: false },
+      { name: "Fleet Map", path: "/admin/couriers/map", pro: false },
     ],
   },
   {

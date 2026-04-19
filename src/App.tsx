@@ -45,6 +45,7 @@ import Couriers from "./pages/Couriers/Couriers";
 import CourierDetail from "./pages/Couriers/CourierDetail";
 import NewCourier from "./pages/Couriers/NewCourier";
 import EditCourier from "./pages/Couriers/EditCourier";
+import CourierMap from "./pages/Couriers/CourierMap";
 import Orders from "./pages/Orders/Orders";
 import StoreOrders from "./pages/Orders/StoreOrders";
 import OrderDetail from "./pages/Orders/OrderDetail";
@@ -94,6 +95,7 @@ export default function App() {
               {/* Couriers */}
               <Route path="/admin/couriers" element={<Couriers />} />
               <Route path="/admin/couriers/new" element={<NewCourier />} />
+              <Route path="/admin/couriers/map" element={<CourierMap />} />
               <Route path="/admin/couriers/:courierId" element={<CourierDetail />} />
               <Route path="/admin/couriers/:courierId/edit" element={<EditCourier />} />
 

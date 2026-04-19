@@ -4,6 +4,7 @@
  */
 const apiBaseUrlRaw = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "";
 const courierImageBaseUrlRaw = (import.meta.env.VITE_COURIER_IMAGE_BASE_URL as string | undefined) ?? "";
+const courierApiBaseUrlRaw = (import.meta.env.VITE_COURIER_API_BASE_URL as string | undefined) ?? "";
 
 const normalizeUrl = (value: string): string => value.replace(/\/$/, "");
 
@@ -25,4 +26,5 @@ const resolveApiBaseUrl = (): string => {
 export const env = {
   apiBaseUrl: resolveApiBaseUrl(),
   courierImageBaseUrl: normalizeUrl(courierImageBaseUrlRaw || apiBaseUrlRaw || DEFAULT_API_BASE),
+  courierApiBaseUrl: normalizeUrl(courierApiBaseUrlRaw || apiBaseUrlRaw || DEFAULT_API_BASE),
 } as const;

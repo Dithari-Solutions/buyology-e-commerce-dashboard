@@ -73,6 +73,30 @@ export interface CourierDetail extends CourierSummary {
   updatedAt: string;
 }
 
+// ── Map view ──────────────────────────────────────────────────────────────────
+
+export interface CourierLocationSnapshot {
+  latitude: number;
+  longitude: number;
+  heading: number | null;
+  speed: number | null;
+  accuracyMeters: number | null;
+  recordedAt: string;
+}
+
+export interface CourierMapEntry {
+  id: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  vehicleType: VehicleType;
+  status: CourierStatus;
+  isAvailable: boolean;
+  rating: number | null;
+  profileImageUrl: string | null;
+  latestLocation: CourierLocationSnapshot | null;
+}
+
 export interface CourierListResponse {
   content: CourierSummary[];
   size: number;
