@@ -4,6 +4,7 @@ import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { couriersService, ApiRequestError } from "../../api";
 import type { VehicleType, CreateCourierRequest } from "../../types";
+import { validateFileUpload } from "../../utils/fileValidation";
 
 // ---------------------------------------------------------------------------
 // Sub-components
@@ -116,37 +117,33 @@ export default function NewCourier() {
     setFileErrors((prev) => ({ ...prev, [key]: undefined }));
   };
 
-  const validateFiles = (): boolean => {
+  const validateFiles = async (): Promise<boolean> => {
     const errs: Partial<Record<keyof FileState, string>> = {};
-    const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
-    const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
-    const validateFile = (file: File | null, name: string, required: boolean = false) => {
+    const validateFile = async (file: File | null, name: string, required: boolean = false) => {
       if (!file && required) {
         return `${name} is required.`;
       }
       if (file) {
-        if (!ALLOWED_TYPES.includes(file.type)) {
-          return `${name} must be JPEG, PNG, or WebP.`;
-        }
-        if (file.size > MAX_SIZE) {
-          return `${name} must be less than 10 MB.`;
+        const result = await validateFileUpload(file, "GENERAL");
+        if (!result.isValid) {
+          return result.message || `${name} is invalid.`;
         }
       }
       return null;
     };
 
-    const profileErr = validateFile(files.profileImage, "Profile image");
+    const profileErr = await validateFile(files.profileImage, "Profile image");
     if (profileErr) errs.profileImage = profileErr;
 
-    const regErr = validateFile(files.vehicleRegistration, "Vehicle registration");
+    const regErr = await validateFile(files.vehicleRegistration, "Vehicle registration");
     if (regErr) errs.vehicleRegistration = regErr;
 
     if (requiresLicense) {
-      const frontErr = validateFile(files.drivingLicenceFront, "Driving licence front image", true);
+      const frontErr = await validateFile(files.drivingLicenceFront, "Driving licence front image", true);
       if (frontErr) errs.drivingLicenceFront = frontErr;
 
-      const backErr = validateFile(files.drivingLicenceBack, "Driving licence back image", true);
+      const backErr = await validateFile(files.drivingLicenceBack, "Driving licence back image", true);
       if (backErr) errs.drivingLicenceBack = backErr;
     }
 
@@ -178,9 +175,11 @@ export default function NewCourier() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate() || !validateFiles()) return;
+    const isFormValid = validate();
+    const areFilesValid = await validateFiles();
+    if (!isFormValid || !areFilesValid) return;
 
     const payload: CreateCourierRequest = {
       firstName: form.firstName.trim(),

@@ -7,6 +7,7 @@ import Input from "../../components/form/input/InputField";
 import Button from "../../components/ui/button/Button";
 import { storiesService, ApiRequestError } from "../../api";
 import type { StoryStatus, CreateStoryRequest } from "../../api";
+import { validateFileUpload } from "../../utils/fileValidation";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Section wrapper (same style as NewProduct)
@@ -151,6 +152,20 @@ export default function NewStory() {
     setSubmitted(true);
 
     const errs = validate(titleAz, titleEn, titleAr, files.length);
+    
+    // Detailed file validation
+    if (files.length > 0) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const feature = i === 0 ? "STORY_THUMBNAIL" : "STORY_MEDIA";
+        const result = await validateFileUpload(file, feature);
+        if (!result.isValid) {
+          errs.files = `File #${i + 1}: ${result.message}`;
+          break;
+        }
+      }
+    }
+
     setErrors(errs);
 
     if (Object.keys(errs).length > 0) {

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { couriersService, ApiRequestError } from "../../api";
+import { validateFileUpload } from "../../utils/fileValidation";
 import type { CourierDetail, VehicleType, UpdateCourierData } from "../../types";
 
 // ---------------------------------------------------------------------------
@@ -140,36 +141,34 @@ export default function EditCourier() {
     return Object.keys(errs).length === 0;
   };
 
-  const validateFiles = (): boolean => {
+  const validateFiles = async (): Promise<boolean> => {
     const errs: Partial<Record<keyof FileState, string>> = {};
-    const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
-    const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
-    const validateFile = (file: File | null, name: string) => {
+    const validateFile = async (file: File | null, name: string) => {
       if (file) {
-        if (!ALLOWED_TYPES.includes(file.type)) {
-          return `${name} must be JPEG, PNG, or WebP.`;
-        }
-        if (file.size > MAX_SIZE) {
-          return `${name} must be less than 10 MB.`;
+        const result = await validateFileUpload(file, "GENERAL");
+        if (!result.isValid) {
+          return result.message || `${name} is invalid.`;
         }
       }
       return null;
     };
 
-    const profileErr = validateFile(files.profileImage, "Profile image");
+    const profileErr = await validateFile(files.profileImage, "Profile image");
     if (profileErr) errs.profileImage = profileErr;
 
-    const licenceErr = validateFile(files.drivingLicenceImage, "Driving licence image");
+    const licenceErr = await validateFile(files.drivingLicenceImage, "Driving licence image");
     if (licenceErr) errs.drivingLicenceImage = licenceErr;
 
     setFileErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate() || !validateFiles() || !courierId) return;
+    const isFormValid = validate();
+    const areFilesValid = await validateFiles();
+    if (!isFormValid || !areFilesValid || !courierId) return;
 
     const payload: UpdateCourierData = {
       firstName: form.firstName.trim(),

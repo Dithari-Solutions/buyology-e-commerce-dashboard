@@ -5,6 +5,7 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Badge from "../../components/ui/badge/Badge";
 import { Modal } from "../../components/ui/modal";
 import { storesService, storeProductsService, ApiRequestError } from "../../api";
+import { validateFileUpload } from "../../utils/fileValidation";
 import type { StoreProductResponse } from "../../types";
 import LocationPickerMap from "../../components/store/LocationPickerMap";
 import type { GeoResult } from "../../components/store/LocationPickerMap";
@@ -124,8 +125,18 @@ function EditStoreModal({ isOpen, onClose, store, onSaved }: EditStoreModalProps
     };
   }
 
-  function handleBannerChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleBannerChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0] ?? null;
+    if (file) {
+      const result = await validateFileUpload(file, "GENERAL");
+      if (!result.isValid) {
+        setError(result.message || "Invalid image file.");
+        setBannerFile(null);
+        setBannerPreview(null);
+        return;
+      }
+    }
+    setError(null);
     setBannerFile(file);
     setBannerPreview(file ? URL.createObjectURL(file) : null);
   }

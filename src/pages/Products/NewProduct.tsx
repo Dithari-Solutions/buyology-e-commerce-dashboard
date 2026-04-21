@@ -14,6 +14,7 @@ import {
   getGroupName,
   SPEC_CODES,
 } from "../../api";
+import { validateFileUpload } from "../../utils/fileValidation";
 import type { CreateProductRequest } from "../../api/services/products.service";
 import type { GlobalSpecGroup } from "../../api";
 import type {
@@ -731,6 +732,19 @@ export default function NewProduct() {
       descAz, descEn, descAr,
       specs, colors, files.length
     );
+
+    // Detailed file validation
+    if (files.length > 0) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const result = await validateFileUpload(file, "GENERAL");
+        if (!result.isValid) {
+          errs.media = `File #${i + 1}: ${result.message}`;
+          break;
+        }
+      }
+    }
+
     setErrors(errs);
 
     if (Object.keys(errs).length > 0) {

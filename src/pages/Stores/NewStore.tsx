@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { storesService, ApiRequestError } from "../../api";
+import { validateFileUpload } from "../../utils/fileValidation";
 import type { Country, StoreStatus, DayOfWeek } from "../../types";
 import LocationPickerMap from "../../components/store/LocationPickerMap";
 import type { GeoResult } from "../../components/store/LocationPickerMap";
@@ -140,8 +141,18 @@ export default function NewStore() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  function handleBannerChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleBannerChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0] ?? null;
+    if (file) {
+      const result = await validateFileUpload(file, "GENERAL");
+      if (!result.isValid) {
+        setError(result.message || "Invalid image file.");
+        setBannerFile(null);
+        setBannerPreview(null);
+        return;
+      }
+    }
+    setError(null);
     setBannerFile(file);
     setBannerPreview(file ? URL.createObjectURL(file) : null);
   }
