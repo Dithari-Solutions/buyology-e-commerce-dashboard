@@ -8,6 +8,7 @@ import Button from "../../components/ui/button/Button";
 import {
   productsService,
   brandsService,
+  categoriesService,
   specsService,
   ApiRequestError,
   getOptionValue,
@@ -24,6 +25,7 @@ import type {
   AvailabilityStatus,
 } from "../../types/product.types";
 import type { Brand } from "../../types/brand.types";
+import type { Category } from "../../types/category.types";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Constants
@@ -357,7 +359,7 @@ function validate(
 ): FormErrors {
   const e: FormErrors = {};
 
-  if (!categoryId.trim()) e.categoryId = "Category ID is required";
+  if (!categoryId.trim()) e.categoryId = "Category is required";
 
   if (!titleAz.trim()) e.titleAz = "Required";
   if (!titleEn.trim()) e.titleEn = "Required";
@@ -418,6 +420,9 @@ export default function NewProduct() {
   // ── Brands (fetched from API) ─────────────────────────────────────────────
   const [brands, setBrands] = useState<Brand[]>([]);
 
+  // ── Categories (fetched from API) ─────────────────────────────────────────
+  const [categories, setCategories] = useState<Category[]>([]);
+
   // ── Global spec library ───────────────────────────────────────────────────
   const [globalSpecGroups, setGlobalSpecGroups] = useState<GlobalSpecGroup[]>([]);
   const [specLibraryLoaded, setSpecLibraryLoaded] = useState(false);
@@ -472,6 +477,11 @@ export default function NewProduct() {
     brandsService.getAll(ctrl.signal)
       .then((res) => setBrands(res.data.filter((b) => b.status === "ACTIVE")))
       .catch(() => {});
+    
+    categoriesService.getAll("EN", ctrl.signal)
+      .then((res) => setCategories(res.data.filter((c) => c.status === "ACTIVE")))
+      .catch(() => {});
+
     return () => ctrl.abort();
   }, []);
 
@@ -1027,14 +1037,20 @@ export default function NewProduct() {
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               <div>
                 <Label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Category ID <span className="text-red-500">*</span>
+                  Category <span className="text-red-500">*</span>
                 </Label>
-                <Input
-                  placeholder="3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                <Select
                   value={categoryId}
-                  onChange={(e) => setCategoryId(e.target.value)}
-                  error={submitted && !!errors.categoryId}
-                />
+                  onChange={setCategoryId}
+                  className={submitted && !!errors.categoryId ? "border-red-400" : ""}
+                >
+                  <option value="">Select category</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </Select>
                 <FieldError msg={submitted ? errors.categoryId : undefined} />
               </div>
 
