@@ -17,7 +17,6 @@ export interface CreateProductSpecOption {
   valueEn?: string;
   valueAr?: string;
   unit?: string;
-  additionalPrice: number;
 }
 
 export interface CreateProductSpec {

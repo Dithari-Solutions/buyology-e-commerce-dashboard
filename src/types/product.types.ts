@@ -76,7 +76,6 @@ export interface ProductSpecOption {
   id: string;
   value: string;
   unit?: string;
-  additionalPrice: number;
 }
 
 export interface ProductSpec {

@@ -65,7 +65,6 @@ type SpecOptionState = {
   valueEn: string;
   valueAr: string;
   unit: string;
-  additionalPrice: number;
 };
 
 type SpecState = {
@@ -108,7 +107,7 @@ const defaultSpec = (): SpecState => ({
   nameAz: "",
   nameEn: "",
   nameAr: "",
-  options: [{ localKey: "", mode: "manual", valueAz: "", valueEn: "", valueAr: "", unit: "", additionalPrice: 0 }],
+  options: [{ localKey: "", mode: "manual", valueAz: "", valueEn: "", valueAr: "", unit: "" }],
 });
 
 const defaultVariant = (): VariantState => ({
@@ -382,7 +381,6 @@ function validate(
         s.options.some((o) => {
           if (!o.localKey.trim()) return true;
           if (!o.globalOptionId && (!o.valueAz.trim() || !o.valueEn.trim() || !o.valueAr.trim())) return true;
-          if (o.additionalPrice < 0) return true;
           return false;
         })
       );
@@ -603,7 +601,7 @@ export default function NewProduct() {
               ...s,
               options: [
                 ...s.options,
-                { localKey: "", mode: "manual" as SpecOptionMode, valueAz: "", valueEn: "", valueAr: "", unit: "", additionalPrice: 0 },
+                { localKey: "", mode: "manual" as SpecOptionMode, valueAz: "", valueEn: "", valueAr: "", unit: "" },
               ],
             }
           : s
@@ -619,7 +617,7 @@ export default function NewProduct() {
     );
   }
 
-  function updateSpecOption(si: number, oi: number, key: string, value: string | number) {
+  function updateSpecOption(si: number, oi: number, key: string, value: string) {
     setSpecs((prev) =>
       prev.map((s, i) => {
         if (i !== si) return s;
@@ -790,8 +788,8 @@ export default function NewProduct() {
         specs: specs.map((s) => {
           const mappedOptions = s.options.map((o) =>
             o.mode === "library" && o.globalOptionId
-              ? { localKey: o.localKey, globalOptionId: o.globalOptionId, additionalPrice: Number(o.additionalPrice) || 0 }
-              : { localKey: o.localKey, valueAz: o.valueAz, valueEn: o.valueEn, valueAr: o.valueAr, unit: o.unit || undefined, additionalPrice: Number(o.additionalPrice) || 0 }
+              ? { localKey: o.localKey, globalOptionId: o.globalOptionId }
+              : { localKey: o.localKey, valueAz: o.valueAz, valueEn: o.valueEn, valueAr: o.valueAr, unit: o.unit || undefined }
           );
           if (s.groupMode === "library") {
             return { globalSpecGroupId: s.globalSpecGroupId, options: mappedOptions };
@@ -1395,7 +1393,7 @@ export default function NewProduct() {
                           </div>
 
                           {opt.mode === "library" ? (
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 gap-3">
                               <div>
                                 <Label className="mb-1 block text-xs text-gray-400">Local Key</Label>
                                 <Input
@@ -1404,20 +1402,9 @@ export default function NewProduct() {
                                   onChange={(e) => updateSpecOption(si, oi, "localKey", e.target.value)}
                                 />
                               </div>
-                              <div>
-                                <Label className="mb-1 block text-xs text-gray-400">+Price</Label>
-                                <Input
-                                  type="number"
-                                  placeholder="0"
-                                  value={opt.additionalPrice}
-                                  onChange={(e) => updateSpecOption(si, oi, "additionalPrice", parseFloat(e.target.value) || 0)}
-                                  min="0"
-                                  step={0.01}
-                                />
-                              </div>
                             </div>
                           ) : (
-                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-6">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-5">
                               <div>
                                 <Label className="mb-1 block text-xs text-gray-400">Local Key</Label>
                                 <Input
@@ -1460,17 +1447,6 @@ export default function NewProduct() {
                                     <option key={u} value={u}>{u || "—"}</option>
                                   ))}
                                 </Select>
-                              </div>
-                              <div>
-                                <Label className="mb-1 block text-xs text-gray-400">+Price</Label>
-                                <Input
-                                  type="number"
-                                  placeholder="0"
-                                  value={opt.additionalPrice}
-                                  onChange={(e) => updateSpecOption(si, oi, "additionalPrice", parseFloat(e.target.value) || 0)}
-                                  min="0"
-                                  step={0.01}
-                                />
                               </div>
                             </div>
                           )}

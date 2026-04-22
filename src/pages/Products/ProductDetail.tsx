@@ -378,16 +378,6 @@ export default function ProductDetail() {
                               </span>
                             )}
                           </span>
-                          {opt.additionalPrice > 0 && (
-                            <span className="text-xs text-orange-500 dark:text-orange-400 font-medium">
-                              +{formatPrice(opt.additionalPrice)}
-                            </span>
-                          )}
-                          {opt.additionalPrice === 0 && (
-                            <span className="text-xs text-gray-400 dark:text-gray-500">
-                              base
-                            </span>
-                          )}
                         </div>
                       ))}
                     </div>
