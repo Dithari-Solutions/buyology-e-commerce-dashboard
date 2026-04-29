@@ -4,7 +4,7 @@ import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { suppliersService } from "../../api/services/suppliers.service";
 import { categoriesService } from "../../api/services/categories.service";
-import type { Category } from "../../api/services/categories.service";
+import type { Category } from "../../types/category.types";
 
 interface AssignedStore {
   id: string;

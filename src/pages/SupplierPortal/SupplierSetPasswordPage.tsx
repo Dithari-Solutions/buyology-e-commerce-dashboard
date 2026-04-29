@@ -1,15 +1,20 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { apiClient, setAccessToken } from "../../api/client";
+import type { ApiResponse } from "../../api/types/api.types";
+
+interface TokenInfo {
+  supplierEmail: string;
+  businessName: string;
+}
 
 export default function SupplierSetPasswordPage() {
-  const [params] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { setUser } = useAuth();
 
-  const token = params.get("token") ?? "";
+  const token = searchParams.get("token") ?? "";
 
-  const [tokenInfo, setTokenInfo] = useState<{ supplierEmail: string; businessName: string } | null>(null);
+  const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);
   const [tokenError, setTokenError] = useState("");
   const [password, setPassword] = useState("");
   const [confirmedPassword, setConfirmedPassword] = useState("");
@@ -20,8 +25,8 @@ export default function SupplierSetPasswordPage() {
   useEffect(() => {
     if (!token) { setTokenError("No setup token provided."); setValidating(false); return; }
     apiClient
-      .get(`/api/supplier/auth/validate-token?token=${encodeURIComponent(token)}`)
-      .then((r) => setTokenInfo(r.data?.data))
+      .get<ApiResponse<TokenInfo>>(`/api/supplier/auth/validate-token?token=${encodeURIComponent(token)}`)
+      .then((r) => setTokenInfo(r.data ?? null))
       .catch(() => setTokenError("This setup link is invalid or has already been used."))
       .finally(() => setValidating(false));
   }, [token]);
@@ -35,18 +40,17 @@ export default function SupplierSetPasswordPage() {
     setError("");
     setLoading(true);
     try {
-      const res = await apiClient.post("/api/supplier/auth/set-password", {
+      const res = await apiClient.post<ApiResponse<{ accessToken: string }>>("/api/supplier/auth/set-password", {
         token,
         password,
         confirmedPassword,
       });
-      const data = res.data?.data;
-      if (data?.accessToken) {
-        setAccessToken(data.accessToken);
+      if (res.data?.accessToken) {
+        setAccessToken(res.data.accessToken);
       }
       navigate("/supplier/my-products");
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      const msg = (err as { message?: string })?.message;
       setError(msg || "Failed to set password. Please try again.");
     } finally {
       setLoading(false);
