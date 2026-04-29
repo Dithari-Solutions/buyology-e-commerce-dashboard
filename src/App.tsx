@@ -53,6 +53,12 @@ import GamesPage from "./pages/Games/GamesPage";
 import PromoCodePage from "./pages/PromoCode/PromoCodePage";
 import NewsletterPage from "./pages/Newsletter/NewsletterPage";
 import B2BInquiriesPage from "./pages/B2BInquiries/B2BInquiriesPage";
+import SuppliersPage from "./pages/Suppliers/SuppliersPage";
+import SupplierProductsPage from "./pages/Suppliers/SupplierProductsPage";
+import SupplierSetPasswordPage from "./pages/SupplierPortal/SupplierSetPasswordPage";
+import MyProductsPage from "./pages/SupplierPortal/MyProductsPage";
+import NewSupplierProductPage from "./pages/SupplierPortal/NewSupplierProductPage";
+import SupplierAnalyticsPage from "./pages/SupplierPortal/SupplierAnalyticsPage";
 
 export default function App() {
   return (
@@ -124,6 +130,15 @@ export default function App() {
               {/* B2B Inquiries */}
               <Route path="/b2b-inquiries" element={<B2BInquiriesPage />} />
 
+              {/* Supplier Management (admin) */}
+              <Route path="/suppliers" element={<SuppliersPage />} />
+              <Route path="/supplier-products" element={<SupplierProductsPage />} />
+
+              {/* Supplier Portal (supplier role) */}
+              <Route path="/supplier/my-products" element={<MyProductsPage />} />
+              <Route path="/supplier/new-product" element={<NewSupplierProductPage />} />
+              <Route path="/supplier/analytics" element={<SupplierAnalyticsPage />} />
+
               {/* Others Page */}
               <Route path="/profile" element={<UserProfiles />} />
               <Route path="/calendar" element={<Calendar />} />
@@ -152,6 +167,7 @@ export default function App() {
           {/* ── Public auth routes ─────────────────────────────────────────── */}
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/supplier/set-password" element={<SupplierSetPasswordPage />} />
 
           {/* Fallback Route */}
           <Route path="*" element={<NotFound />} />

@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router";
 import PeopleIcon from '@mui/icons-material/People';
+import HandshakeOutlinedIcon from '@mui/icons-material/HandshakeOutlined';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import { useCallback, useEffect, useRef, useState } from "react";
 import VideoCameraBackIcon from '@mui/icons-material/VideoCameraBack';
@@ -126,6 +127,23 @@ const navItems: NavItem[] = [
     subItems: [
       { name: "Blank Page", path: "/blank", pro: false },
       { name: "404 Error", path: "/error-404", pro: false },
+    ],
+  },
+  {
+    name: "Suppliers",
+    icon: <HandshakeOutlinedIcon />,
+    subItems: [
+      { name: "Applications", path: "/suppliers", pro: false },
+      { name: "Products Review", path: "/supplier-products", pro: false },
+    ],
+  },
+  {
+    name: "My Supplier Portal",
+    icon: <HandshakeOutlinedIcon />,
+    subItems: [
+      { name: "My Products", path: "/supplier/my-products", pro: false },
+      { name: "Add Product", path: "/supplier/new-product", pro: false },
+      { name: "Analytics", path: "/supplier/analytics", pro: false },
     ],
   },
 ];
