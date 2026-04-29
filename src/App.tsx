@@ -53,6 +53,7 @@ import GamesPage from "./pages/Games/GamesPage";
 import PromoCodePage from "./pages/PromoCode/PromoCodePage";
 import NewsletterPage from "./pages/Newsletter/NewsletterPage";
 import B2BInquiriesPage from "./pages/B2BInquiries/B2BInquiriesPage";
+import B2BMembershipPage from "./pages/B2BMembership/B2BMembershipPage";
 import SuppliersPage from "./pages/Suppliers/SuppliersPage";
 import SupplierProductsPage from "./pages/Suppliers/SupplierProductsPage";
 import SupplierSetPasswordPage from "./pages/SupplierPortal/SupplierSetPasswordPage";
@@ -129,6 +130,9 @@ export default function App() {
 
               {/* B2B Inquiries */}
               <Route path="/b2b-inquiries" element={<B2BInquiriesPage />} />
+
+              {/* B2B Membership */}
+              <Route path="/b2b-membership" element={<B2BMembershipPage />} />
 
               {/* Supplier Management (admin) */}
               <Route path="/suppliers" element={<SuppliersPage />} />
