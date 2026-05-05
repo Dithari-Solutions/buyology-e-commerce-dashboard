@@ -1,10 +1,29 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Badge from "../../components/ui/badge/Badge";
 import { ordersService, ApiRequestError } from "../../api";
 import type { OrderAdminResponse, OrderStatus } from "../../types";
+
+// Status transitions allowed from each current status (must mirror backend validateTransition)
+const NEXT_STATUSES: Partial<Record<OrderStatus, OrderStatus[]>> = {
+  PAID:        ["PACKAGING", "CANCELLED"],
+  PACKAGING:   ["IN_COURIER", "CANCELLED"],
+  IN_COURIER:  ["IN_TRANSIT", "CANCELLED", "FAILED"],
+  IN_TRANSIT:  ["DELIVERED", "FAILED", "CANCELLED"],
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  PENDING_PAYMENT: "Awaiting payment",
+  PAID: "Paid",
+  PACKAGING: "Packaging your order",
+  IN_COURIER: "Handed to courier",
+  IN_TRANSIT: "On the way",
+  DELIVERED: "Delivered",
+  CANCELLED: "Cancelled",
+  FAILED: "Failed",
+};
 
 function formatDate(iso: string): string {
   if (!iso) return "—";
@@ -24,12 +43,17 @@ function statusColor(status: OrderStatus): BadgeColor {
     case "DELIVERED":
       return "success";
     case "CANCELLED":
+    case "FAILED":
     case "REFUNDED":
     case "EXPIRED":
       return "error";
+    case "PACKAGING":
+    case "IN_COURIER":
+    case "IN_TRANSIT":
     case "PICKED_UP":
     case "SHIPPED":
     case "PROCESSING":
+    case "COURIER_ASSIGNED":
       return "info";
     case "PAID":
     case "PENDING":
@@ -46,6 +70,12 @@ export default function OrderDetail() {
   const [order, setOrder] = useState<OrderAdminResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [busy, setBusy] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [cancellationReason, setCancellationReason] = useState("");
+  const pickupInputRef = useRef<HTMLInputElement>(null);
+  const dropoffInputRef = useRef<HTMLInputElement>(null);
 
   const fetchOrder = useCallback((signal?: AbortSignal) => {
     if (!orderId) return;
@@ -66,6 +96,42 @@ export default function OrderDetail() {
     fetchOrder(controller.signal);
     return () => controller.abort();
   }, [fetchOrder]);
+
+  const handleStatusChange = useCallback(async (next: OrderStatus) => {
+    if (!orderId) return;
+    if (next === "CANCELLED" && !cancellationReason.trim()) {
+      setActionError("Please provide a cancellation reason.");
+      return;
+    }
+    setBusy(`status:${next}`);
+    setActionError(null);
+    try {
+      const res = await ordersService.updateStatus(orderId, {
+        status: next,
+        cancellationReason: next === "CANCELLED" ? cancellationReason.trim() : undefined,
+      });
+      setOrder(res.data);
+      setCancellationReason("");
+    } catch (err) {
+      setActionError(err instanceof ApiRequestError ? err.message : "Failed to update status.");
+    } finally {
+      setBusy(null);
+    }
+  }, [orderId, cancellationReason]);
+
+  const handleProofUpload = useCallback(async (type: "PICKUP" | "DROPOFF", file: File) => {
+    if (!orderId) return;
+    setBusy(`upload:${type}`);
+    setActionError(null);
+    try {
+      const res = await ordersService.uploadProof(orderId, type, file);
+      setOrder(res.data);
+    } catch (err) {
+      setActionError(err instanceof ApiRequestError ? err.message : "Failed to upload image.");
+    } finally {
+      setBusy(null);
+    }
+  }, [orderId]);
 
   if (loading) {
     return (
@@ -231,6 +297,97 @@ export default function OrderDetail() {
 
         {/* Sidebar Info */}
         <div className="space-y-6">
+          {/* Status Management */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+            <h3 className="mb-4 font-semibold text-gray-800 dark:text-white/90">Update Status</h3>
+            <p className="mb-3 text-xs text-gray-500">
+              Current: <span className="font-medium">{STATUS_LABELS[order.status] ?? order.status}</span>
+            </p>
+            {(NEXT_STATUSES[order.status] ?? []).length === 0 && (
+              <p className="text-xs text-gray-400">This order is in a final state. No further actions.</p>
+            )}
+            <div className="flex flex-wrap gap-2">
+              {(NEXT_STATUSES[order.status] ?? []).map((next) => (
+                <button
+                  key={next}
+                  type="button"
+                  onClick={() => handleStatusChange(next)}
+                  disabled={busy !== null}
+                  className={`rounded-lg px-3 py-2 text-xs font-medium transition-colors disabled:opacity-50 ${
+                    next === "CANCELLED" || next === "FAILED"
+                      ? "bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-300"
+                      : "bg-brand-50 text-brand-600 hover:bg-brand-100 dark:bg-brand-500/10 dark:text-brand-300"
+                  }`}
+                >
+                  {busy === `status:${next}` ? "Updating…" : STATUS_LABELS[next] ?? next}
+                </button>
+              ))}
+            </div>
+            {(NEXT_STATUSES[order.status] ?? []).includes("CANCELLED") && (
+              <textarea
+                value={cancellationReason}
+                onChange={(e) => setCancellationReason(e.target.value)}
+                placeholder="Cancellation reason (required when cancelling)"
+                rows={2}
+                className="mt-3 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
+              />
+            )}
+            {order.cancellationReason && (
+              <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700 dark:bg-red-500/10 dark:text-red-300">
+                <span className="font-semibold">Cancellation reason:</span> {order.cancellationReason}
+              </p>
+            )}
+            {actionError && (
+              <p className="mt-3 text-xs text-red-500">{actionError}</p>
+            )}
+          </div>
+
+          {/* Proof uploads */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+            <h3 className="mb-4 font-semibold text-gray-800 dark:text-white/90">Upload Proof Photos</h3>
+            <div className="space-y-3">
+              <input
+                ref={pickupInputRef}
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handleProofUpload("PICKUP", f);
+                  e.target.value = "";
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => pickupInputRef.current?.click()}
+                disabled={busy !== null}
+                className="w-full rounded-lg border border-dashed border-gray-300 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.03]"
+              >
+                {busy === "upload:PICKUP" ? "Uploading…" : order.pickupProofImageUrl ? "Replace pickup photo" : "Upload pickup photo"}
+              </button>
+
+              <input
+                ref={dropoffInputRef}
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handleProofUpload("DROPOFF", f);
+                  e.target.value = "";
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => dropoffInputRef.current?.click()}
+                disabled={busy !== null}
+                className="w-full rounded-lg border border-dashed border-gray-300 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.03]"
+              >
+                {busy === "upload:DROPOFF" ? "Uploading…" : order.deliveryProofImageUrl ? "Replace drop-off photo" : "Upload drop-off photo"}
+              </button>
+            </div>
+          </div>
+
           {/* Status & Courier */}
           <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
             <h3 className="mb-4 font-semibold text-gray-800 dark:text-white/90">Fulfillment Info</h3>

@@ -5,6 +5,13 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Badge from "../../components/ui/badge/Badge";
 import { ordersService, ApiRequestError } from "../../api";
 import type { OrderAdminResponse, OrderStatus } from "../../types";
+import { ORDER_STATUS_BUCKETS, type OrderBucket } from "../../types/order.types";
+
+const BUCKET_LABELS: Record<OrderBucket, string> = {
+  pending: "Pending",
+  active: "Active",
+  done: "Done",
+};
 
 function formatDate(iso: string): string {
   return new Intl.DateTimeFormat("en-US", {
@@ -23,12 +30,17 @@ function statusColor(status: OrderStatus): BadgeColor {
     case "DELIVERED":
       return "success";
     case "CANCELLED":
+    case "FAILED":
     case "REFUNDED":
     case "EXPIRED":
       return "error";
+    case "PACKAGING":
+    case "IN_COURIER":
+    case "IN_TRANSIT":
     case "PICKED_UP":
     case "SHIPPED":
     case "PROCESSING":
+    case "COURIER_ASSIGNED":
       return "info";
     case "PAID":
     case "PENDING":
@@ -60,13 +72,22 @@ export default function StoreOrders() {
   const [orders, setOrders] = useState<OrderAdminResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [bucket, setBucket] = useState<OrderBucket>("pending");
+
+  const bucketStatuses = ORDER_STATUS_BUCKETS[bucket];
+  const filtered = orders.filter((o) => bucketStatuses.includes(o.status));
+  const counts = {
+    pending: orders.filter((o) => ORDER_STATUS_BUCKETS.pending.includes(o.status)).length,
+    active: orders.filter((o) => ORDER_STATUS_BUCKETS.active.includes(o.status)).length,
+    done: orders.filter((o) => ORDER_STATUS_BUCKETS.done.includes(o.status)).length,
+  };
 
   const fetchOrders = useCallback((signal?: AbortSignal) => {
     if (!storeId) return;
     setLoading(true);
     setError(null);
     ordersService
-      .getAll({ storeId }, signal)
+      .getAll({ storeId, size: 200 }, signal)
       .then((res) => setOrders(Array.isArray(res.data?.content) ? res.data.content : []))
       .catch((err: unknown) => {
         if (err instanceof Error && err.name === "AbortError") return;
@@ -102,13 +123,31 @@ export default function StoreOrders() {
         </button>
       </div>
 
-      <div className="mb-5">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
           Orders List
           {!loading && (
-            <span className="ml-2 text-sm font-normal text-gray-400">({orders?.length || 0})</span>
+            <span className="ml-2 text-sm font-normal text-gray-400">({filtered.length})</span>
           )}
         </h2>
+
+        <div className="inline-flex rounded-xl border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-white/[0.03]">
+          {(Object.keys(BUCKET_LABELS) as OrderBucket[]).map((b) => (
+            <button
+              key={b}
+              type="button"
+              onClick={() => setBucket(b)}
+              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                bucket === b
+                  ? "bg-brand-500 text-white"
+                  : "text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/[0.03]"
+              }`}
+            >
+              {BUCKET_LABELS[b]}
+              <span className="ml-1.5 opacity-70">({counts[b]})</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {error && (
@@ -133,7 +172,7 @@ export default function StoreOrders() {
               </thead>
               <tbody>
                 {loading && Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)}
-                {!loading && orders?.map((order) => (
+                {!loading && filtered.map((order) => (
                   <tr
                     key={order.id}
                     onClick={() => navigate(`/orders/${storeId}/${order.id}`)}
@@ -171,9 +210,9 @@ export default function StoreOrders() {
               </tbody>
             </table>
           </div>
-          {!loading && (!orders || orders.length === 0) && (
+          {!loading && filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 text-center text-gray-500">
-              No orders found for this store.
+              No {BUCKET_LABELS[bucket].toLowerCase()} orders for this store.
             </div>
           )}
         </div>

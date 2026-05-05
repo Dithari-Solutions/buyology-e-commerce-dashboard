@@ -4,6 +4,7 @@ import MonthlySalesChart from "../../components/ecommerce/MonthlySalesChart";
 import StatisticsChart from "../../components/ecommerce/StatisticsChart";
 import MonthlyTarget from "../../components/ecommerce/MonthlyTarget";
 import RecentOrders from "../../components/ecommerce/RecentOrders";
+import ActivePendingOrders from "../../components/ecommerce/ActivePendingOrders";
 import Badge from "../../components/ui/badge/Badge";
 import {
   ArrowUpIcon,
@@ -273,6 +274,9 @@ export default function Home() {
             <MetricCard key={m.label} {...m} />
           ))}
         </div>
+
+        {/* Pending & Active Orders */}
+        <ActivePendingOrders />
 
         {/* Quick Links */}
         <QuickLinks />

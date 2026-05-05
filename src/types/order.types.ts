@@ -1,14 +1,30 @@
 export type OrderStatus =
-  | "PAID"
-  | "PENDING"
+  // New admin-managed flow
   | "PENDING_PAYMENT"
-  | "PROCESSING"
-  | "PICKED_UP"
+  | "PAID"
+  | "PACKAGING"
+  | "IN_COURIER"
+  | "IN_TRANSIT"
   | "DELIVERED"
   | "CANCELLED"
+  | "FAILED"
+  // Legacy values (kept for historical orders)
+  | "PENDING"
+  | "PROCESSING"
+  | "COURIER_ASSIGNED"
+  | "PICKED_UP"
+  | "SHIPPED"
   | "REFUNDED"
-  | "EXPIRED"
-  | "SHIPPED";
+  | "EXPIRED";
+
+export const ORDER_STATUS_BUCKETS = {
+  pending: ["PENDING_PAYMENT", "PAID"] as OrderStatus[],
+  active: ["PACKAGING", "IN_COURIER", "IN_TRANSIT",
+           "PROCESSING", "COURIER_ASSIGNED", "PICKED_UP", "SHIPPED"] as OrderStatus[],
+  done: ["DELIVERED", "CANCELLED", "FAILED", "REFUNDED", "EXPIRED"] as OrderStatus[],
+};
+
+export type OrderBucket = keyof typeof ORDER_STATUS_BUCKETS;
 
 export interface TrackingEvent {
   status: OrderStatus;
@@ -53,6 +69,7 @@ export interface OrderAdminResponse {
   deliveryProofSignatureUrl?: string;
   deliveredTo?: string;
   deliveryProofTakenAt?: string;
+  cancellationReason?: string;
   
   trackingHistory?: TrackingEvent[];
   items?: OrderItem[];

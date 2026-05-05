@@ -49,12 +49,13 @@ async function authFetch<T>(method: string, endpoint: string, body?: unknown): P
 
 export const authService = {
   /**
-   * POST /auth/signin
+   * POST /auth/admin/signin
+   * Admin-only endpoint — backend rejects (403) any account whose userType is not ADMIN,
+   * preventing customer credentials from logging into the admin dashboard.
    * Returns accessToken in body; backend sets HttpOnly refresh_token cookie.
-   * Only store `accessToken` — never touch `refreshToken` from the body.
    */
   signIn: (data: SignInRequest) =>
-    authFetch<ApiResponse<SignInData>>("POST", "/auth/signin", data),
+    authFetch<ApiResponse<SignInData>>("POST", "/auth/admin/signin", data),
 
   /**
    * POST /auth/refresh
