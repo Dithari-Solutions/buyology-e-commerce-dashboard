@@ -54,12 +54,16 @@ import PromoCodePage from "./pages/PromoCode/PromoCodePage";
 import NewsletterPage from "./pages/Newsletter/NewsletterPage";
 import B2BInquiriesPage from "./pages/B2BInquiries/B2BInquiriesPage";
 import B2BMembershipPage from "./pages/B2BMembership/B2BMembershipPage";
+import CreditManagementPage from "./pages/B2BMembership/CreditManagementPage";
+import B2BCountriesPage from "./pages/B2BMembership/B2BCountriesPage";
 import SuppliersPage from "./pages/Suppliers/SuppliersPage";
 import SupplierProductsPage from "./pages/Suppliers/SupplierProductsPage";
 import SupplierSetPasswordPage from "./pages/SupplierPortal/SupplierSetPasswordPage";
 import MyProductsPage from "./pages/SupplierPortal/MyProductsPage";
 import NewSupplierProductPage from "./pages/SupplierPortal/NewSupplierProductPage";
 import SupplierAnalyticsPage from "./pages/SupplierPortal/SupplierAnalyticsPage";
+import SupplierAccountPage from "./pages/SupplierPortal/SupplierAccountPage";
+import SupplierReviewsPage from "./pages/SupplierPortal/SupplierReviewsPage";
 
 export default function App() {
   return (
@@ -133,6 +137,8 @@ export default function App() {
 
               {/* B2B Membership */}
               <Route path="/b2b-membership" element={<B2BMembershipPage />} />
+              <Route path="/b2b-credit" element={<CreditManagementPage />} />
+              <Route path="/b2b-countries" element={<B2BCountriesPage />} />
 
               {/* Supplier Management (admin) */}
               <Route path="/suppliers" element={<SuppliersPage />} />
@@ -142,6 +148,8 @@ export default function App() {
               <Route path="/supplier/my-products" element={<MyProductsPage />} />
               <Route path="/supplier/new-product" element={<NewSupplierProductPage />} />
               <Route path="/supplier/analytics" element={<SupplierAnalyticsPage />} />
+              <Route path="/supplier/account" element={<SupplierAccountPage />} />
+              <Route path="/supplier/reviews" element={<SupplierReviewsPage />} />
 
               {/* Others Page */}
               <Route path="/profile" element={<UserProfiles />} />

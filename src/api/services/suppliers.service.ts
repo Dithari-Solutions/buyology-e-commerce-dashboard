@@ -142,4 +142,73 @@ export const suppliersService = {
     const qs = buildQuery({ fromDate, toDate });
     return apiClient.get<ApiResponse<unknown>>(`/api/supplier/analytics/stats${qs}`);
   },
+
+  // ── Admin: supplier lifecycle ─────────────────────────────────────────────
+  freezeSupplier(id: string): Promise<ApiResponse<string>> {
+    return apiClient.post<ApiResponse<string>>(`/api/admin/suppliers/${id}/freeze`);
+  },
+  unfreezeSupplier(id: string): Promise<ApiResponse<string>> {
+    return apiClient.post<ApiResponse<string>>(`/api/admin/suppliers/${id}/unfreeze`);
+  },
+  trashSupplier(id: string): Promise<ApiResponse<string>> {
+    return apiClient.delete<ApiResponse<string>>(`/api/admin/suppliers/${id}`);
+  },
+  restoreSupplier(id: string): Promise<ApiResponse<string>> {
+    return apiClient.post<ApiResponse<string>>(`/api/admin/suppliers/${id}/restore`);
+  },
+
+  // ── Supplier portal: self-service ─────────────────────────────────────────
+  freezeMyAccount(): Promise<ApiResponse<string>> {
+    return apiClient.post<ApiResponse<string>>(`/api/supplier/account/freeze`);
+  },
+  unfreezeMyAccount(): Promise<ApiResponse<string>> {
+    return apiClient.post<ApiResponse<string>>(`/api/supplier/account/unfreeze`);
+  },
+  deleteMyAccount(): Promise<ApiResponse<string>> {
+    return apiClient.delete<ApiResponse<string>>(`/api/supplier/account`);
+  },
+
+  // ── Supplier portal: product draft/trash ──────────────────────────────────
+  publishProduct(id: string): Promise<ApiResponse<string>> {
+    return apiClient.patch<ApiResponse<string>>(`/api/supplier/products/${id}/publish`);
+  },
+  draftProduct(id: string): Promise<ApiResponse<string>> {
+    return apiClient.patch<ApiResponse<string>>(`/api/supplier/products/${id}/draft`);
+  },
+  softDeleteProduct(id: string): Promise<ApiResponse<void>> {
+    return apiClient.delete<ApiResponse<void>>(`/api/supplier/products/${id}`);
+  },
+  listMyTrash(params?: { page?: number; size?: number }): Promise<ApiResponse<PageResponse<SupplierProduct>>> {
+    const qs = buildQuery({ page: params?.page, size: params?.size });
+    return apiClient.get<ApiResponse<PageResponse<SupplierProduct>>>(`/api/supplier/products/trash${qs}`);
+  },
+  restoreMyProduct(id: string): Promise<ApiResponse<string>> {
+    return apiClient.post<ApiResponse<string>>(`/api/supplier/products/${id}/restore`);
+  },
+
+  // ── Supplier portal: reviews ──────────────────────────────────────────────
+  listMyReviews(params?: {
+    productId?: string;
+    page?: number;
+    size?: number;
+  }): Promise<ApiResponse<PageResponse<unknown>>> {
+    const qs = buildQuery({
+      productId: params?.productId,
+      page: params?.page,
+      size: params?.size,
+    });
+    return apiClient.get<ApiResponse<PageResponse<unknown>>>(`/api/supplier/reviews${qs}`);
+  },
+  getReviewsSummary(): Promise<
+    ApiResponse<{ totalReviews: number; averageRating: number; productCount: number }>
+  > {
+    return apiClient.get<
+      ApiResponse<{ totalReviews: number; averageRating: number; productCount: number }>
+    >(`/api/supplier/reviews/summary`);
+  },
+  getProductReviewsSummary(productId: string): Promise<ApiResponse<unknown>> {
+    return apiClient.get<ApiResponse<unknown>>(
+      `/api/supplier/products/${productId}/reviews/summary`,
+    );
+  },
 };

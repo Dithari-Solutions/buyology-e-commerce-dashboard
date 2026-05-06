@@ -177,6 +177,10 @@ export default function B2BMembershipPage() {
           <MembershipsTable
             memberships={memberships}
             onOpen={openMemberDetail}
+            onRefresh={async () => {
+              const mems = await b2bMembershipService.listMemberships();
+              setMemberships(mems.data ?? []);
+            }}
           />
         )}
       </div>
@@ -479,10 +483,27 @@ function ApplicationsTable({
 function MembershipsTable({
   memberships,
   onOpen,
+  onRefresh,
 }: {
   memberships: MembershipCard[];
   onOpen: (m: MembershipCard) => void;
+  onRefresh?: () => void;
 }) {
+  const runLifecycle = async (
+    id: string,
+    op: "freeze" | "unfreeze" | "trash" | "restore",
+  ) => {
+    if (op === "trash" && !confirm("Move membership to trash? It will be purged after 30 days.")) return;
+    try {
+      if (op === "freeze") await b2bMembershipService.freezeMembership(id);
+      else if (op === "unfreeze") await b2bMembershipService.unfreezeMembership(id);
+      else if (op === "trash") await b2bMembershipService.trashMembership(id);
+      else if (op === "restore") await b2bMembershipService.restoreMembership(id);
+      onRefresh?.();
+    } catch (e: unknown) {
+      alert((e as Error).message ?? "Action failed");
+    }
+  };
   if (memberships.length === 0) {
     return (
       <div className="rounded-xl border-2 border-dashed border-gray-200 p-8 text-center dark:border-gray-700">
@@ -518,18 +539,58 @@ function MembershipsTable({
               </td>
               <td className="py-3 pr-4">
                 <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                  m.status === "ACTIVE" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                  m.status === "ACTIVE"
+                    ? "bg-green-100 text-green-700"
+                    : m.status === "SUSPENDED"
+                    ? "bg-yellow-100 text-yellow-700"
+                    : m.status === "TRASHED"
+                    ? "bg-gray-200 text-gray-700"
+                    : "bg-red-100 text-red-700"
                 }`}>
                   {m.status}
                 </span>
               </td>
               <td className="py-3">
-                <button
-                  onClick={() => onOpen(m)}
-                  className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-                >
-                  Manage
-                </button>
+                <div className="flex flex-wrap gap-1">
+                  <button
+                    onClick={() => onOpen(m)}
+                    className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                  >
+                    Manage
+                  </button>
+                  {m.status === "ACTIVE" && (
+                    <button
+                      onClick={() => runLifecycle(m.id, "freeze")}
+                      className="rounded-lg bg-yellow-100 px-3 py-1.5 text-xs text-yellow-700 hover:bg-yellow-200"
+                    >
+                      Freeze
+                    </button>
+                  )}
+                  {m.status === "SUSPENDED" && (
+                    <button
+                      onClick={() => runLifecycle(m.id, "unfreeze")}
+                      className="rounded-lg bg-blue-100 px-3 py-1.5 text-xs text-blue-700 hover:bg-blue-200"
+                    >
+                      Unfreeze
+                    </button>
+                  )}
+                  {m.status !== "TRASHED" && (
+                    <button
+                      onClick={() => runLifecycle(m.id, "trash")}
+                      className="rounded-lg bg-red-100 px-3 py-1.5 text-xs text-red-700 hover:bg-red-200"
+                    >
+                      Trash
+                    </button>
+                  )}
+                  {m.status === "TRASHED" && (
+                    <button
+                      onClick={() => runLifecycle(m.id, "restore")}
+                      className="rounded-lg bg-green-100 px-3 py-1.5 text-xs text-green-700 hover:bg-green-200"
+                    >
+                      Restore
+                    </button>
+                  )}
+                </div>
               </td>
             </tr>
           ))}
