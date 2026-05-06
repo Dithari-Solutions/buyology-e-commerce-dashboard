@@ -25,7 +25,12 @@ async function authFetch<T>(method: string, endpoint: string, body?: unknown): P
 
   const response = await fetch(url, {
     method,
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      // Identifies this client to the backend so the JWT audience claim is
+      // set to "dashboard" — required for ADMIN/SUPPLIER users to sign in here.
+      "X-Client-Type": "dashboard",
+    },
     // REQUIRED: tells the browser to send the HttpOnly refresh_token cookie
     // and accept Set-Cookie headers from the backend.
     // The backend MUST have CORS allowCredentials=true + explicit allowedOrigin.
