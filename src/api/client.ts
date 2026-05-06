@@ -47,6 +47,51 @@ export function getUserIdFromToken(): string | null {
   }
 }
 
+interface JwtPayload {
+  sub?: string;
+  uid?: string;
+  aud?: string;
+  roles?: string[];
+  permissions?: string[];
+}
+
+function decodeJwtPayload(): JwtPayload | null {
+  if (!_accessToken) return null;
+  try {
+    const payloadB64 = _accessToken.split(".")[1];
+    const json = atob(payloadB64.replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(json) as JwtPayload;
+  } catch {
+    return null;
+  }
+}
+
+/** Returns the role names assigned to the current user, e.g. ["ADMIN", "SUPPLIER"]. */
+export function getRolesFromToken(): string[] {
+  return decodeJwtPayload()?.roles ?? [];
+}
+
+/** Returns the permission codes granted to the current user. */
+export function getPermissionsFromToken(): string[] {
+  return decodeJwtPayload()?.permissions ?? [];
+}
+
+/** True if the user has the given role (case-insensitive). */
+export function hasRole(role: string): boolean {
+  const target = role.toUpperCase();
+  return getRolesFromToken().some((r) => r.toUpperCase() === target);
+}
+
+/** True if the user has any of the given roles (case-insensitive). */
+export function hasAnyRole(...roles: string[]): boolean {
+  return roles.some((r) => hasRole(r));
+}
+
+/** True if the user has the given permission code, e.g. "supplier:product:read". */
+export function hasPermission(code: string): boolean {
+  return getPermissionsFromToken().includes(code);
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Refresh & session-expiry hooks
 //
@@ -127,6 +172,10 @@ class HttpClient {
     if (!isFormData) {
       headers.set("Content-Type", "application/json");
     }
+
+    // Identify this client to the backend so the JWT audience claim is set
+    // to "dashboard" — required for SUPPLIER-role users to log in here.
+    headers.set("X-Client-Type", "dashboard");
 
     // Attach the in-memory access token on every authenticated request
     if (_accessToken) {

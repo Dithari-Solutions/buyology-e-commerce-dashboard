@@ -8,6 +8,8 @@ import {
 import { useNavigate } from "react-router";
 import { authService } from "../api/services/auth.service";
 import {
+  hasAnyRole,
+  hasRole,
   registerRefreshFn,
   registerSessionExpiredHandler,
   setAccessToken,
@@ -79,7 +81,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const res = await authService.signIn(credentials);
       setAccessToken(res.data.accessToken);
       setIsAuthenticated(true);
-      navigate("/", { replace: true });
+      // Admin-or-other roles land on the dashboard home. Pure SUPPLIER users
+      // (no admin/superadmin role) land on their portal.
+      const isPureSupplier = hasRole("SUPPLIER") && !hasAnyRole("ADMIN", "SUPERADMIN", "CUSTOMER_SUPPORT");
+      navigate(isPureSupplier ? "/supplier/my-products" : "/", { replace: true });
     },
     [navigate]
   );
