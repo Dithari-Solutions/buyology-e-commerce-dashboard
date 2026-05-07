@@ -51,6 +51,8 @@ export interface MembershipCard {
   deletedAt?: string;
   createdAt: string;
   qrCodePlaceholder?: string;
+  /** True when the member has set a sign-in password. */
+  passwordSet?: boolean;
 }
 
 export interface WalletInfo {
@@ -161,6 +163,10 @@ export const b2bMembershipService = {
   },
   restoreMembership(id: string): Promise<ApiResponse<string>> {
     return apiClient.post(`/api/admin/membership/memberships/${id}/restore`);
+  },
+  /** Re-send the set-password email to a member who hasn't completed setup. */
+  resendSetupEmail(id: string): Promise<ApiResponse<string>> {
+    return apiClient.post(`/api/admin/membership/memberships/${id}/resend-setup`);
   },
 
   // ── Admin: credit usages + payback config ────────────────────────────────

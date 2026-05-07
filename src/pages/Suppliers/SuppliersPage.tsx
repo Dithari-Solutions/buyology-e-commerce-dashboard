@@ -26,6 +26,28 @@ export default function SuppliersPage() {
   const [showRejectInput, setShowRejectInput] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState("");
+  const [resendBusy, setResendBusy] = useState(false);
+  const [resendMessage, setResendMessage] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+
+  async function handleResendSetup(supplierId: string) {
+    setResendBusy(true);
+    setResendMessage(null);
+    try {
+      await suppliersService.resendSupplierSetup(supplierId);
+      setResendMessage({ kind: "ok", text: "Set-password email re-sent." });
+      setApplications((prev) =>
+        prev.map((a) => (a.supplierId === supplierId ? { ...a, passwordSet: false } : a)),
+      );
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { message?: string } }; message?: string };
+      setResendMessage({
+        kind: "err",
+        text: err?.response?.data?.message ?? err?.message ?? "Failed to send email.",
+      });
+    } finally {
+      setResendBusy(false);
+    }
+  }
 
   useEffect(() => {
     const ac = new AbortController();
@@ -45,6 +67,7 @@ export default function SuppliersPage() {
     setRejectReason("");
     setShowRejectInput(false);
     setError("");
+    setResendMessage(null);
   }
 
   function toggleStore(id: string) {
@@ -302,6 +325,26 @@ export default function SuppliersPage() {
               <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
                 <p className="text-xs text-gray-500 dark:text-gray-400">Rejection reason:</p>
                 <p className="text-sm text-red-600 mt-1">{selected.rejectionReason}</p>
+              </div>
+            )}
+
+            {selected.status === "APPROVED" && selected.supplierId && selected.passwordSet === false && (
+              <div className="border-t border-gray-100 dark:border-gray-800 pt-4 space-y-2">
+                <p className="text-xs font-medium text-amber-900 dark:text-amber-300">
+                  This supplier hasn&apos;t set their sign-in password yet.
+                </p>
+                <button
+                  onClick={() => handleResendSetup(selected.supplierId!)}
+                  disabled={resendBusy}
+                  className="w-full rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-60"
+                >
+                  {resendBusy ? "Sending…" : "Send set-password email"}
+                </button>
+                {resendMessage && (
+                  <p className={`text-xs ${resendMessage.kind === "ok" ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}>
+                    {resendMessage.text}
+                  </p>
+                )}
               </div>
             )}
 

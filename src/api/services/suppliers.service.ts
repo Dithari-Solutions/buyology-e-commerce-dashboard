@@ -29,6 +29,8 @@ export interface SupplierApplication {
   status: "PENDING" | "APPROVED" | "REJECTED";
   rejectionReason?: string;
   createdAt: string;
+  /** Null when application not yet approved; true/false once a Supplier exists. */
+  passwordSet?: boolean | null;
 }
 
 export interface SupplierProduct {
@@ -187,6 +189,10 @@ export const suppliersService = {
   },
   restoreSupplier(id: string): Promise<ApiResponse<string>> {
     return apiClient.post<ApiResponse<string>>(`/api/admin/suppliers/${id}/restore`);
+  },
+  /** Re-send the set-password email to a supplier who hasn't completed setup. */
+  resendSupplierSetup(supplierId: string): Promise<ApiResponse<string>> {
+    return apiClient.post<ApiResponse<string>>(`/api/admin/suppliers/${supplierId}/resend-setup`);
   },
 
   // ── Supplier portal: self-service ─────────────────────────────────────────

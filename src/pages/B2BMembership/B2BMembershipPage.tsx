@@ -43,6 +43,26 @@ export default function B2BMembershipPage() {
   const [walletProcessing, setWalletProcessing] = useState(false);
   const [walletError, setWalletError] = useState("");
 
+  const [resendBusy, setResendBusy] = useState(false);
+  const [resendMessage, setResendMessage] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+
+  const handleResendSetup = async (id: string) => {
+    setResendBusy(true);
+    setResendMessage(null);
+    try {
+      await b2bMembershipService.resendSetupEmail(id);
+      setResendMessage({ kind: "ok", text: "Set-password email re-sent." });
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { message?: string } }; message?: string };
+      setResendMessage({
+        kind: "err",
+        text: err?.response?.data?.message ?? err?.message ?? "Failed to send email.",
+      });
+    } finally {
+      setResendBusy(false);
+    }
+  };
+
   useEffect(() => {
     const ac = new AbortController();
     setLoading(true);
@@ -68,6 +88,7 @@ export default function B2BMembershipPage() {
 
   const openMemberDetail = async (member: MembershipCard) => {
     setSelectedMember(member);
+    setResendMessage(null);
     setTransactions([]);
     setTxLoading(true);
     try {
@@ -316,6 +337,27 @@ export default function B2BMembershipPage() {
               </span>
             </div>
           </div>
+
+          {/* Set-password email — only when this member hasn't completed setup */}
+          {selectedMember.passwordSet === false && (
+            <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
+              <p className="text-xs font-medium text-amber-900 dark:text-amber-200">
+                This member hasn&apos;t set their sign-in password yet.
+              </p>
+              <button
+                onClick={() => handleResendSetup(selectedMember.id)}
+                disabled={resendBusy}
+                className="mt-2 rounded-md bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-700 disabled:opacity-60"
+              >
+                {resendBusy ? "Sending…" : "Send set-password email"}
+              </button>
+              {resendMessage && (
+                <p className={`mt-2 text-xs ${resendMessage.kind === "ok" ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}>
+                  {resendMessage.text}
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Wallet actions */}
           <div className="mb-4 flex gap-2">
