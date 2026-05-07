@@ -61,7 +61,6 @@ import SuppliersPage from "./pages/Suppliers/SuppliersPage";
 import SupplierProductsPage from "./pages/Suppliers/SupplierProductsPage";
 import SupplierSetPasswordPage from "./pages/SupplierPortal/SupplierSetPasswordPage";
 import MyProductsPage from "./pages/SupplierPortal/MyProductsPage";
-import NewSupplierProductPage from "./pages/SupplierPortal/NewSupplierProductPage";
 import NewSupplierFullProductPage from "./pages/SupplierPortal/NewSupplierFullProductPage";
 import SupplierAnalyticsPage from "./pages/SupplierPortal/SupplierAnalyticsPage";
 import SupplierAccountPage from "./pages/SupplierPortal/SupplierAccountPage";
@@ -149,8 +148,7 @@ export default function App() {
 
               {/* Supplier Portal (supplier role) */}
               <Route path="/supplier/my-products" element={<MyProductsPage />} />
-              <Route path="/supplier/new-product" element={<NewSupplierProductPage />} />
-              <Route path="/supplier/new-product-full" element={<NewSupplierFullProductPage />} />
+              <Route path="/supplier/new-product" element={<NewSupplierFullProductPage />} />
               <Route path="/supplier/analytics" element={<SupplierAnalyticsPage />} />
               <Route path="/supplier/account" element={<SupplierAccountPage />} />
               <Route path="/supplier/reviews" element={<SupplierReviewsPage />} />
