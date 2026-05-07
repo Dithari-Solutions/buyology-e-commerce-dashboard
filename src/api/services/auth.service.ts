@@ -76,4 +76,26 @@ export const authService = {
    */
   logout: () =>
     authFetch<void>("POST", "/auth/logout"),
+
+  /**
+   * POST /auth/admin/signup
+   * Step 1 of admin creation. Validates input and emails a 6-digit OTP to the
+   * new admin's address. Must be followed by adminVerifyOtp within ~5 minutes.
+   */
+  adminSignup: (data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    repeatedPassword: string;
+  }) => authFetch<ApiResponse<string>>("POST", "/auth/admin/signup", data),
+
+  /**
+   * POST /auth/admin/verify-otp
+   * Step 2 of admin creation. Verifies the OTP and creates the ADMIN account.
+   * Returns accessToken — but on this flow we usually don't auto-login the
+   * creator's session, we just confirm the new admin exists.
+   */
+  adminVerifyOtp: (data: { email: string; otpCode: string }) =>
+    authFetch<ApiResponse<SignInData>>("POST", "/auth/admin/verify-otp", data),
 };

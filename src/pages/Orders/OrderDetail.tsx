@@ -233,6 +233,12 @@ export default function OrderDetail() {
                   <span>Subtotal</span>
                   <span>{order.currency} {order.totalAmount.toFixed(2)}</span>
                 </div>
+                {order.creditApplied != null && order.creditApplied > 0 && (
+                  <div className="flex justify-between text-sm text-purple-700 dark:text-purple-400">
+                    <span>B2B credit applied</span>
+                    <span>− {order.creditCurrency ?? order.currency} {order.creditApplied.toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-base font-bold text-gray-800 dark:text-white/90 pt-2">
                   <span>Total</span>
                   <span>{order.currency} {order.totalAmount.toFixed(2)}</span>

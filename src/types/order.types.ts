@@ -76,6 +76,9 @@ export interface OrderAdminResponse {
   
   totalAmount: number;
   currency: string;
+  /** B2B credit applied to this order, in {@link creditCurrency}. */
+  creditApplied?: number | null;
+  creditCurrency?: string | null;
   deliveryMethod?: string;
   city?: string;
   country?: string;

@@ -3,6 +3,8 @@ import type { ApiResponse } from "../types/api.types";
 
 export interface SupplierApplication {
   id: string;
+  /** Set once approved — id of the linked Supplier entity. */
+  supplierId?: string | null;
   fullName: string;
   businessName?: string;
   sellerType: string;
@@ -143,6 +145,23 @@ export const suppliersService = {
     return apiClient.get<ApiResponse<unknown>>(`/api/supplier/analytics/stats${qs}`);
   },
 
+  // ── Admin: supplier store assignments ─────────────────────────────────────
+  listAssignedStores(supplierId: string): Promise<ApiResponse<Array<{ id: string; name: string }>>> {
+    return apiClient.get<ApiResponse<Array<{ id: string; name: string }>>>(
+      `/api/admin/suppliers/${supplierId}/stores`,
+    );
+  },
+  assignStore(supplierId: string, storeId: string): Promise<ApiResponse<string>> {
+    return apiClient.post<ApiResponse<string>>(
+      `/api/admin/suppliers/${supplierId}/stores/${storeId}`,
+    );
+  },
+  unassignStore(supplierId: string, storeId: string): Promise<ApiResponse<string>> {
+    return apiClient.delete<ApiResponse<string>>(
+      `/api/admin/suppliers/${supplierId}/stores/${storeId}`,
+    );
+  },
+
   // ── Admin: supplier lifecycle ─────────────────────────────────────────────
   freezeSupplier(id: string): Promise<ApiResponse<string>> {
     return apiClient.post<ApiResponse<string>>(`/api/admin/suppliers/${id}/freeze`);
@@ -184,6 +203,16 @@ export const suppliersService = {
   },
   restoreMyProduct(id: string): Promise<ApiResponse<string>> {
     return apiClient.post<ApiResponse<string>>(`/api/supplier/products/${id}/restore`);
+  },
+
+  // ── Supplier portal: product image upload (PNG/WebP, bg removed) ──────────
+  uploadProductImages(productId: string, files: File[]): Promise<ApiResponse<{ uploaded: number; urls: string[] }>> {
+    const form = new FormData();
+    for (const f of files) form.append("files", f);
+    return apiClient.post<ApiResponse<{ uploaded: number; urls: string[] }>>(
+      `/api/supplier/products/${productId}/images`,
+      form,
+    );
   },
 
   // ── Supplier portal: reviews ──────────────────────────────────────────────

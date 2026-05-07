@@ -4,6 +4,7 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { suppliersService, type SupplierApplication } from "../../api/services/suppliers.service";
 import { storesService } from "../../api/services/stores.service";
 import type { Store } from "../../types/store.types";
+import SupplierStoresModal from "./SupplierStoresModal";
 
 const STATUS_COLORS: Record<string, string> = {
   PENDING: "bg-yellow-100 text-yellow-700",
@@ -18,6 +19,7 @@ export default function SuppliersPage() {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<(typeof TABS)[number]>("ALL");
   const [selected, setSelected] = useState<SupplierApplication | null>(null);
+  const [storesFor, setStoresFor] = useState<string | null>(null);
   const [stores, setStores] = useState<Store[]>([]);
   const [selectedStoreIds, setSelectedStoreIds] = useState<string[]>([]);
   const [rejectReason, setRejectReason] = useState("");
@@ -302,8 +304,27 @@ export default function SuppliersPage() {
                 <p className="text-sm text-red-600 mt-1">{selected.rejectionReason}</p>
               </div>
             )}
+
+            {selected.status === "APPROVED" && selected.supplierId && (
+              <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
+                <button
+                  onClick={() => setStoresFor(selected.supplierId!)}
+                  className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+                >
+                  Manage assigned stores
+                </button>
+              </div>
+            )}
           </div>
         </div>
+      )}
+
+      {storesFor && (
+        <SupplierStoresModal
+          supplierId={storesFor}
+          supplierName={selected?.businessName ?? selected?.fullName}
+          onClose={() => setStoresFor(null)}
+        />
       )}
     </>
   );
