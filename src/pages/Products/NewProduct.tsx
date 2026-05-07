@@ -399,9 +399,31 @@ function validate(
 // Page
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default function NewProduct() {
+interface NewProductProps {
+  /** When true, submit goes to /api/supplier/products/full and a store/price picker is required. */
+  supplierMode?: boolean;
+}
+
+export default function NewProduct({ supplierMode = false }: NewProductProps = {}) {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Supplier-mode extras
+  const [supplierStores, setSupplierStores] = useState<Array<{ id: string; name: string }>>([]);
+  const [supplierStoreId, setSupplierStoreId] = useState<string>("");
+  const [supplierStorePrice, setSupplierStorePrice] = useState<string>("");
+  useEffect(() => {
+    if (!supplierMode) return;
+    // Reuse the supplier listAssignedStores via the supplier portal endpoint that
+    // returns the supplier's own assigned stores.
+    import("../../api/services/suppliers.service").then(({ suppliersService }) =>
+      suppliersService.getAssignedStores().then((res) => {
+        const list = (res.data ?? []) as Array<{ id: string; name: string }>;
+        setSupplierStores(list);
+        if (list.length > 0) setSupplierStoreId(list[0].id);
+      }),
+    ).catch(() => {});
+  }, [supplierMode]);
 
   // ── Basic fields ──────────────────────────────────────────────────────────
   const [status, setStatus] = useState<ProductStatus>("ACTIVE");
@@ -813,8 +835,22 @@ export default function NewProduct() {
         })),
       };
 
-      await productsService.create(payload, files);
-      navigate("/products");
+      if (supplierMode) {
+        if (!supplierStoreId) {
+          setApiError("Please pick a store this product is listed under.");
+          return;
+        }
+        const priceNum = parseFloat(supplierStorePrice);
+        if (!Number.isFinite(priceNum) || priceNum <= 0) {
+          setApiError("Please enter a valid store price.");
+          return;
+        }
+        await productsService.createAsSupplier(payload, files, supplierStoreId, priceNum);
+        navigate("/supplier/my-products");
+      } else {
+        await productsService.create(payload, files);
+        navigate("/products");
+      }
     } catch (err) {
       const message =
         err instanceof ApiRequestError
@@ -1012,6 +1048,55 @@ export default function NewProduct() {
               </ul>
             </div>
           </div>
+        )}
+
+        {/* ── Supplier-only: store + price + bg-removed notice ─────────────── */}
+        {supplierMode && (
+          <Section title="Supplier listing" hasError={false}>
+            <div className="mb-4 rounded-xl border border-yellow-300 bg-yellow-50 px-4 py-3 text-xs text-yellow-900">
+              <strong>Image requirement:</strong> Product images must be PNG or WebP with the
+              background <strong>removed</strong> (transparent). Max 5 MB per image, max 8 images.
+              Non-transparent images will be rejected on upload. After submitting, your product
+              goes into <strong>PENDING REVIEW</strong> — it stays hidden until an admin approves
+              and you publish it from <em>My Products</em>.
+            </div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">
+                  Store *
+                </label>
+                <select
+                  value={supplierStoreId}
+                  onChange={(e) => setSupplierStoreId(e.target.value)}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900"
+                >
+                  {supplierStores.length === 0 && <option value="">No stores assigned</option>}
+                  {supplierStores.map((s) => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </select>
+                {supplierStores.length === 0 && (
+                  <p className="mt-1 text-xs text-red-600">
+                    You haven&apos;t been assigned to any stores yet. Contact an admin.
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">
+                  Store price *
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min={0}
+                  value={supplierStorePrice}
+                  onChange={(e) => setSupplierStorePrice(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900"
+                />
+              </div>
+            </div>
+          </Section>
         )}
 
         {/* ── Basic Info ───────────────────────────────────────────────────── */}

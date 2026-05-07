@@ -154,4 +154,57 @@ export const productsService = {
 
     return response.json() as Promise<ApiResponse<Product>>;
   },
+
+  /**
+   * Supplier-portal counterpart to {@link create}. POSTs to
+   * {@code /api/supplier/products/full} so the resulting product is auto-stamped
+   * supplierId/PENDING_REVIEW/INACTIVE on the server. Uses the SAME
+   * {@link CreateProductRequest} payload as admin (translations, specs,
+   * variants, accessories) plus extra {@code storeId} + {@code storePrice}
+   * parts identifying the store where the product is listed.
+   */
+  async createAsSupplier(
+    data: CreateProductRequest,
+    files: File[],
+    storeId: string,
+    storePrice: number,
+    signal?: AbortSignal,
+  ): Promise<ApiResponse<Product>> {
+    const formData = new FormData();
+    formData.append(
+      "request",
+      new Blob([JSON.stringify(data)], { type: "application/json" }),
+    );
+    files.forEach((file) => formData.append("files", file));
+    formData.append("storeId", storeId);
+    formData.append("storePrice", String(storePrice));
+
+    const token = getAccessToken();
+    const headers: HeadersInit = token
+      ? { Authorization: `Bearer ${token}`, "X-Client-Type": "dashboard" }
+      : { "X-Client-Type": "dashboard" };
+
+    const response = await fetch(`${env.apiBaseUrl}/api/supplier/products/full`, {
+      method: "POST",
+      headers,
+      credentials: "include",
+      body: formData,
+      signal,
+    });
+
+    if (!response.ok) {
+      let payload: { statusCode: number; message: string };
+      try {
+        payload = await response.json();
+      } catch {
+        payload = {
+          statusCode: response.status,
+          message: response.statusText || "Failed to submit product.",
+        };
+      }
+      throw new ApiRequestError(payload);
+    }
+
+    return response.json() as Promise<ApiResponse<Product>>;
+  },
 };

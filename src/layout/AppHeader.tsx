@@ -4,6 +4,8 @@ import { useSidebar } from "../context/SidebarContext";
 import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
 import NotificationDropdown from "../components/header/NotificationDropdown";
 import UserDropdown from "../components/header/UserDropdown";
+import LanguageToggler from "../components/header/LanguageToggler";
+import { hasAnyRole, hasRole } from "../api/client";
 
 const MenuIcon = () => (
   <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -109,6 +111,10 @@ const AppHeader: React.FC = () => {
           <div className="hidden items-center gap-2 lg:flex">
             {/* Divider */}
             <span className="mx-1 h-5 w-px bg-gray-200 dark:bg-gray-700" />
+            {/* Suppliers (without higher admin roles) get a language toggler. */}
+            {hasRole("SUPPLIER") && !hasAnyRole("ADMIN", "SUPERADMIN", "CUSTOMER_SUPPORT") && (
+              <LanguageToggler />
+            )}
             <ThemeToggleButton />
             <NotificationDropdown />
           </div>
@@ -147,6 +153,9 @@ const AppHeader: React.FC = () => {
             />
           </div>
           <div className="flex items-center gap-2">
+            {hasRole("SUPPLIER") && !hasAnyRole("ADMIN", "SUPERADMIN", "CUSTOMER_SUPPORT") && (
+              <LanguageToggler />
+            )}
             <ThemeToggleButton />
             <NotificationDropdown />
           </div>

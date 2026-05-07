@@ -106,6 +106,19 @@ export const suppliersService = {
     return apiClient.get<ApiResponse<unknown[]>>("/api/supplier/stores");
   },
 
+  getCurrentSupplier(): Promise<ApiResponse<{
+    id: string;
+    businessName: string;
+    contactEmail: string;
+    contactPhone?: string;
+    status: string;
+    frozenAt?: string | null;
+    deletedAt?: string | null;
+    createdAt: string;
+  }>> {
+    return apiClient.get("/api/supplier/me");
+  },
+
   getMyProducts(params?: {
     page?: number;
     size?: number;

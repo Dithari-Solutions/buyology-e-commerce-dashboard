@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/common/ProtectedRoute";
+import { I18nProvider } from "./i18n/I18nProvider";
 import SignIn from "./pages/AuthPages/SignIn";
 import SignUp from "./pages/AuthPages/SignUp";
 import NotFound from "./pages/OtherPage/NotFound";
@@ -61,6 +62,7 @@ import SupplierProductsPage from "./pages/Suppliers/SupplierProductsPage";
 import SupplierSetPasswordPage from "./pages/SupplierPortal/SupplierSetPasswordPage";
 import MyProductsPage from "./pages/SupplierPortal/MyProductsPage";
 import NewSupplierProductPage from "./pages/SupplierPortal/NewSupplierProductPage";
+import NewSupplierFullProductPage from "./pages/SupplierPortal/NewSupplierFullProductPage";
 import SupplierAnalyticsPage from "./pages/SupplierPortal/SupplierAnalyticsPage";
 import SupplierAccountPage from "./pages/SupplierPortal/SupplierAccountPage";
 import SupplierReviewsPage from "./pages/SupplierPortal/SupplierReviewsPage";
@@ -69,6 +71,7 @@ export default function App() {
   return (
     <Router>
       <ScrollToTop />
+      <I18nProvider>
       {/* AuthProvider must be inside Router so it can use useNavigate */}
       <AuthProvider>
         <Routes>
@@ -147,6 +150,7 @@ export default function App() {
               {/* Supplier Portal (supplier role) */}
               <Route path="/supplier/my-products" element={<MyProductsPage />} />
               <Route path="/supplier/new-product" element={<NewSupplierProductPage />} />
+              <Route path="/supplier/new-product-full" element={<NewSupplierFullProductPage />} />
               <Route path="/supplier/analytics" element={<SupplierAnalyticsPage />} />
               <Route path="/supplier/account" element={<SupplierAccountPage />} />
               <Route path="/supplier/reviews" element={<SupplierReviewsPage />} />
@@ -185,6 +189,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthProvider>
+      </I18nProvider>
     </Router>
   );
 }
