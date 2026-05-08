@@ -162,13 +162,16 @@ export const b2bMembershipService = {
     return apiClient.patch(`/api/admin/membership/memberships/${id}`, payload);
   },
 
-  getApplication(id: string, signal?: AbortSignal): Promise<ApiResponse<MembershipApplication>> {
+  async getApplication(id: string, signal?: AbortSignal): Promise<ApiResponse<MembershipApplication>> {
     // No dedicated single-app GET — list and pick. Backend list is small (admin-only).
-    return apiClient.get("/api/admin/membership/applications", { signal })
-      .then((res: ApiResponse<MembershipApplication[]>) => ({
-        ...res,
-        data: (res.data ?? []).find((a) => a.id === id) as MembershipApplication,
-      }));
+    const res = await apiClient.get<ApiResponse<MembershipApplication[]>>(
+      "/api/admin/membership/applications",
+      { signal },
+    );
+    return {
+      ...res,
+      data: (res.data ?? []).find((a) => a.id === id) as MembershipApplication,
+    };
   },
 
   getUserWallet(userId: string, signal?: AbortSignal): Promise<ApiResponse<WalletInfo>> {
