@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { suppliersService, type SupplierApplication } from "../../api/services/suppliers.service";
-import { storesService } from "../../api/services/stores.service";
-import type { Store } from "../../types/store.types";
-import SupplierStoresModal from "./SupplierStoresModal";
 
 const STATUS_COLORS: Record<string, string> = {
   PENDING: "bg-yellow-100 text-yellow-700",
@@ -15,108 +13,20 @@ const STATUS_COLORS: Record<string, string> = {
 const TABS = ["ALL", "PENDING", "APPROVED", "REJECTED"] as const;
 
 export default function SuppliersPage() {
+  const navigate = useNavigate();
   const [applications, setApplications] = useState<SupplierApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<(typeof TABS)[number]>("ALL");
-  const [selected, setSelected] = useState<SupplierApplication | null>(null);
-  const [storesFor, setStoresFor] = useState<string | null>(null);
-  const [stores, setStores] = useState<Store[]>([]);
-  const [selectedStoreIds, setSelectedStoreIds] = useState<string[]>([]);
-  const [rejectReason, setRejectReason] = useState("");
-  const [showRejectInput, setShowRejectInput] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [resendBusy, setResendBusy] = useState(false);
-  const [resendMessage, setResendMessage] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
-
-  async function handleResendSetup(supplierId: string) {
-    setResendBusy(true);
-    setResendMessage(null);
-    try {
-      await suppliersService.resendSupplierSetup(supplierId);
-      setResendMessage({ kind: "ok", text: "Set-password email re-sent." });
-      setApplications((prev) =>
-        prev.map((a) => (a.supplierId === supplierId ? { ...a, passwordSet: false } : a)),
-      );
-    } catch (e: unknown) {
-      const err = e as { response?: { data?: { message?: string } }; message?: string };
-      setResendMessage({
-        kind: "err",
-        text: err?.response?.data?.message ?? err?.message ?? "Failed to send email.",
-      });
-    } finally {
-      setResendBusy(false);
-    }
-  }
 
   useEffect(() => {
-    const ac = new AbortController();
+    setLoading(true);
     const params = tab !== "ALL" ? { status: tab } : undefined;
     suppliersService
       .listApplications(params)
       .then((r) => setApplications(r.data?.content ?? []))
       .catch(() => {})
       .finally(() => setLoading(false));
-    storesService.getAll(ac.signal).then((r) => setStores(r.data ?? [])).catch(() => {});
-    return () => ac.abort();
   }, [tab]);
-
-  function openDetail(app: SupplierApplication) {
-    setSelected(app);
-    setSelectedStoreIds([]);
-    setRejectReason("");
-    setShowRejectInput(false);
-    setError("");
-    setResendMessage(null);
-  }
-
-  function toggleStore(id: string) {
-    setSelectedStoreIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  }
-
-  async function handleApprove() {
-    if (!selected || selectedStoreIds.length === 0) {
-      setError("Select at least one store before approving.");
-      return;
-    }
-    setActionLoading(true);
-    setError("");
-    try {
-      await suppliersService.approveApplication(selected.id, selectedStoreIds);
-      setApplications((prev) =>
-        prev.map((a) => (a.id === selected.id ? { ...a, status: "APPROVED" } : a))
-      );
-      setSelected(null);
-    } catch {
-      setError("Failed to approve. Please try again.");
-    } finally {
-      setActionLoading(false);
-    }
-  }
-
-  async function handleReject() {
-    if (!selected || !rejectReason.trim()) {
-      setError("Rejection reason is required.");
-      return;
-    }
-    setActionLoading(true);
-    setError("");
-    try {
-      await suppliersService.rejectApplication(selected.id, rejectReason);
-      setApplications((prev) =>
-        prev.map((a) =>
-          a.id === selected.id ? { ...a, status: "REJECTED", rejectionReason: rejectReason } : a
-        )
-      );
-      setSelected(null);
-    } catch {
-      setError("Failed to reject. Please try again.");
-    } finally {
-      setActionLoading(false);
-    }
-  }
 
   const displayed = tab === "ALL" ? applications : applications.filter((a) => a.status === tab);
 
@@ -184,7 +94,7 @@ export default function SuppliersPage() {
                     </td>
                     <td className="py-3">
                       <button
-                        onClick={() => openDetail(app)}
+                        onClick={() => navigate(`/suppliers/${app.id}`)}
                         className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                       >
                         View
@@ -197,178 +107,6 @@ export default function SuppliersPage() {
           </div>
         )}
       </div>
-
-      {/* Detail drawer */}
-      {selected && (
-        <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/40 p-4">
-          <div className="h-full w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl overflow-y-auto dark:bg-gray-900">
-            <div className="mb-6 flex items-center justify-between">
-              <h3 className="text-lg font-semibold dark:text-white">Application Detail</h3>
-              <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-600 text-xl">
-                ✕
-              </button>
-            </div>
-
-            <dl className="space-y-3 text-sm mb-6">
-              {[
-                ["Full Name", selected.fullName],
-                ["Business Name", selected.businessName ?? "—"],
-                ["Seller Type", selected.sellerType?.replace(/_/g, " ") ?? "—"],
-                ["Country", selected.country ?? "—"],
-                ["City", selected.city ?? "—"],
-                ["Email", selected.email],
-                ["Phone", selected.phoneNumber ?? "—"],
-                ["Preferred Contact", selected.preferredContact],
-                ["Categories", selected.productCategories ?? "—"],
-                ["Main Brands", selected.mainBrands ?? "—"],
-                ["Product Condition", selected.productCondition ?? "—"],
-                ["Initial Listing Range", selected.initialListingRange ?? "—"],
-                ["Sells Elsewhere", selected.sellsElsewhere ?? "—"],
-                ["Provides Images", selected.canProvideImages ?? "—"],
-                ["Dispatch Time", selected.avgDispatchTime ?? "—"],
-                ["Handles Returns", selected.handlesReturns ?? "—"],
-                ["Has Trade License", selected.hasTradeLicense ?? "—"],
-                ["Website / Social", selected.websiteOrSocialLink ?? "—"],
-                ["Why Buyology", selected.whyBuyology ?? "—"],
-              ].map(([k, v]) => (
-                <div key={k as string} className="flex gap-3">
-                  <dt className="w-36 shrink-0 text-gray-500 dark:text-gray-400 text-xs">{k}</dt>
-                  <dd className="text-gray-800 dark:text-gray-200 break-words text-xs">{v}</dd>
-                </div>
-              ))}
-              {selected.tradeLicenseUrl && (
-                <div className="flex gap-3">
-                  <dt className="w-36 shrink-0 text-gray-500 dark:text-gray-400 text-xs">Trade License</dt>
-                  <dd>
-                    <a
-                      href={selected.tradeLicenseUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-xs text-blue-600 underline"
-                    >
-                      View Document ↗
-                    </a>
-                  </dd>
-                </div>
-              )}
-            </dl>
-
-            {selected.status === "PENDING" && (
-              <div className="border-t border-gray-100 dark:border-gray-800 pt-4 space-y-4">
-                {error && <p className="text-red-500 text-xs">{error}</p>}
-
-                {/* Store assignment for approval */}
-                <div>
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Assign Stores (required to approve)
-                  </p>
-                  <div className="max-h-40 overflow-y-auto space-y-1 border border-gray-200 rounded-lg p-2 dark:border-gray-700">
-                    {stores.map((s) => (
-                      <label key={s.id} className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={selectedStoreIds.includes(s.id)}
-                          onChange={() => toggleStore(s.id)}
-                          className="h-4 w-4 rounded border-gray-300 text-blue-600"
-                        />
-                        <span className="text-xs text-gray-700 dark:text-gray-300">{s.name ?? s.id}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleApprove}
-                  disabled={actionLoading}
-                  className="w-full rounded-lg bg-green-500 py-2 text-sm font-medium text-white hover:bg-green-600 disabled:opacity-50"
-                >
-                  {actionLoading ? "Processing…" : "Approve Supplier"}
-                </button>
-
-                {!showRejectInput ? (
-                  <button
-                    onClick={() => setShowRejectInput(true)}
-                    className="w-full rounded-lg border border-red-300 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
-                  >
-                    Reject Application
-                  </button>
-                ) : (
-                  <div className="space-y-2">
-                    <textarea
-                      rows={3}
-                      value={rejectReason}
-                      onChange={(e) => setRejectReason(e.target.value)}
-                      placeholder="Rejection reason…"
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    />
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => setShowRejectInput(false)}
-                        className="flex-1 rounded-lg border border-gray-300 py-2 text-xs text-gray-600"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleReject}
-                        disabled={actionLoading}
-                        className="flex-1 rounded-lg bg-red-500 py-2 text-xs font-medium text-white hover:bg-red-600 disabled:opacity-50"
-                      >
-                        {actionLoading ? "Rejecting…" : "Confirm Reject"}
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {selected.status === "REJECTED" && selected.rejectionReason && (
-              <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
-                <p className="text-xs text-gray-500 dark:text-gray-400">Rejection reason:</p>
-                <p className="text-sm text-red-600 mt-1">{selected.rejectionReason}</p>
-              </div>
-            )}
-
-            {selected.status === "APPROVED" && selected.supplierId && selected.passwordSet === false && (
-              <div className="border-t border-gray-100 dark:border-gray-800 pt-4 space-y-2">
-                <p className="text-xs font-medium text-amber-900 dark:text-amber-300">
-                  This supplier hasn&apos;t set their sign-in password yet.
-                </p>
-                <button
-                  onClick={() => handleResendSetup(selected.supplierId!)}
-                  disabled={resendBusy}
-                  className="w-full rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-60"
-                >
-                  {resendBusy ? "Sending…" : "Send set-password email"}
-                </button>
-                {resendMessage && (
-                  <p className={`text-xs ${resendMessage.kind === "ok" ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}>
-                    {resendMessage.text}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {selected.status === "APPROVED" && selected.supplierId && (
-              <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
-                <button
-                  onClick={() => setStoresFor(selected.supplierId!)}
-                  className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
-                >
-                  Manage assigned stores
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {storesFor && (
-        <SupplierStoresModal
-          supplierId={storesFor}
-          supplierName={selected?.businessName ?? selected?.fullName}
-          onClose={() => setStoresFor(null)}
-        />
-      )}
     </>
   );
 }

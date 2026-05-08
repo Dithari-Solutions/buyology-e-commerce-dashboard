@@ -62,8 +62,31 @@ export interface WalletInfo {
   currency: string;
   countryCode?: string;
   creditLimit?: number;
+  /** Minimum order total (in {@link currency}) required to pay with B2B credit. */
+  minOrderAmount?: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface MembershipDetail extends MembershipCard {
+  applicationId?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  frozenAt?: string;
+  frozenBy?: string;
+  deletedAt?: string;
+  deletedBy?: string;
+  updatedAt?: string;
+  wallet?: WalletInfo;
+  recentTransactions?: WalletTransaction[];
+  recentCreditUsages?: CreditUsage[];
+}
+
+export interface MembershipUpdateRequest {
+  companyName?: string;
+  memberName?: string;
+  tier?: "PREMIUM";
+  validUntil?: string;
 }
 
 export interface CreditUsage {
@@ -129,6 +152,23 @@ export const b2bMembershipService = {
 
   listMemberships(signal?: AbortSignal): Promise<ApiResponse<MembershipCard[]>> {
     return apiClient.get("/api/admin/membership/memberships", { signal });
+  },
+
+  getMembershipDetail(id: string, signal?: AbortSignal): Promise<ApiResponse<MembershipDetail>> {
+    return apiClient.get(`/api/admin/membership/memberships/${id}`, { signal });
+  },
+
+  updateMembership(id: string, payload: MembershipUpdateRequest): Promise<ApiResponse<MembershipCard>> {
+    return apiClient.patch(`/api/admin/membership/memberships/${id}`, payload);
+  },
+
+  getApplication(id: string, signal?: AbortSignal): Promise<ApiResponse<MembershipApplication>> {
+    // No dedicated single-app GET — list and pick. Backend list is small (admin-only).
+    return apiClient.get("/api/admin/membership/applications", { signal })
+      .then((res: ApiResponse<MembershipApplication[]>) => ({
+        ...res,
+        data: (res.data ?? []).find((a) => a.id === id) as MembershipApplication,
+      }));
   },
 
   getUserWallet(userId: string, signal?: AbortSignal): Promise<ApiResponse<WalletInfo>> {

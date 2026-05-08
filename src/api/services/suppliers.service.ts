@@ -33,6 +33,28 @@ export interface SupplierApplication {
   passwordSet?: boolean | null;
 }
 
+export interface SupplierDetail {
+  id: string;
+  applicationId: string;
+  userId: string;
+  businessName: string;
+  contactEmail: string;
+  contactPhone?: string;
+  status: "ACTIVE" | "SUSPENDED" | "TRASHED";
+  frozenAt?: string | null;
+  frozenBy?: string | null;
+  deletedAt?: string | null;
+  deletedBy?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SupplierUpdateRequest {
+  businessName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+}
+
 export interface SupplierProduct {
   id: string;
   sku: string;
@@ -71,6 +93,16 @@ export const suppliersService = {
 
   getApplication(id: string): Promise<ApiResponse<SupplierApplication>> {
     return apiClient.get<ApiResponse<SupplierApplication>>(`/api/admin/suppliers/${id}`);
+  },
+
+  /** Fetch a Supplier (post-approval entity) by supplier id. */
+  getSupplier(supplierId: string): Promise<ApiResponse<SupplierDetail>> {
+    return apiClient.get<ApiResponse<SupplierDetail>>(`/api/admin/suppliers/${supplierId}/detail`);
+  },
+
+  /** Update a supplier's profile fields (business name, contact email, contact phone). */
+  updateSupplier(supplierId: string, payload: SupplierUpdateRequest): Promise<ApiResponse<SupplierDetail>> {
+    return apiClient.patch<ApiResponse<SupplierDetail>>(`/api/admin/suppliers/${supplierId}`, payload);
   },
 
   approveApplication(id: string, storeIds: string[]): Promise<ApiResponse<unknown>> {

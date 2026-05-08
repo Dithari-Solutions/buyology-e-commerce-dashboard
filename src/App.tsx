@@ -55,9 +55,12 @@ import PromoCodePage from "./pages/PromoCode/PromoCodePage";
 import NewsletterPage from "./pages/Newsletter/NewsletterPage";
 import B2BInquiriesPage from "./pages/B2BInquiries/B2BInquiriesPage";
 import B2BMembershipPage from "./pages/B2BMembership/B2BMembershipPage";
+import B2BMemberDetailPage from "./pages/B2BMembership/B2BMemberDetailPage";
+import B2BApplicationDetailPage from "./pages/B2BMembership/B2BApplicationDetailPage";
 import CreditManagementPage from "./pages/B2BMembership/CreditManagementPage";
 import B2BCountriesPage from "./pages/B2BMembership/B2BCountriesPage";
 import SuppliersPage from "./pages/Suppliers/SuppliersPage";
+import SupplierDetailPage from "./pages/Suppliers/SupplierDetailPage";
 import SupplierProductsPage from "./pages/Suppliers/SupplierProductsPage";
 import SupplierSetPasswordPage from "./pages/SupplierPortal/SupplierSetPasswordPage";
 import MyProductsPage from "./pages/SupplierPortal/MyProductsPage";
@@ -139,11 +142,14 @@ export default function App() {
 
               {/* B2B Membership */}
               <Route path="/b2b-membership" element={<B2BMembershipPage />} />
+              <Route path="/b2b-members/:id" element={<B2BMemberDetailPage />} />
+              <Route path="/b2b-applications/:id" element={<B2BApplicationDetailPage />} />
               <Route path="/b2b-credit" element={<CreditManagementPage />} />
               <Route path="/b2b-countries" element={<B2BCountriesPage />} />
 
               {/* Supplier Management (admin) */}
               <Route path="/suppliers" element={<SuppliersPage />} />
+              <Route path="/suppliers/:id" element={<SupplierDetailPage />} />
               <Route path="/supplier-products" element={<SupplierProductsPage />} />
 
               {/* Supplier Portal (supplier role) */}
