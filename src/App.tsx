@@ -54,6 +54,7 @@ import GamesPage from "./pages/Games/GamesPage";
 import PromoCodePage from "./pages/PromoCode/PromoCodePage";
 import NewsletterPage from "./pages/Newsletter/NewsletterPage";
 import B2BInquiriesPage from "./pages/B2BInquiries/B2BInquiriesPage";
+import RefundsPage from "./pages/Refunds/RefundsPage";
 import B2BMembershipPage from "./pages/B2BMembership/B2BMembershipPage";
 import B2BMemberDetailPage from "./pages/B2BMembership/B2BMemberDetailPage";
 import B2BApplicationDetailPage from "./pages/B2BMembership/B2BApplicationDetailPage";
@@ -139,6 +140,9 @@ export default function App() {
 
               {/* B2B Inquiries */}
               <Route path="/b2b-inquiries" element={<B2BInquiriesPage />} />
+
+              {/* Refunds */}
+              <Route path="/refunds" element={<RefundsPage />} />
 
               {/* B2B Membership */}
               <Route path="/b2b-membership" element={<B2BMembershipPage />} />
