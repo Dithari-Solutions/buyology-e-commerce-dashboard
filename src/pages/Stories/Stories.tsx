@@ -293,10 +293,23 @@ function StoryCard({
             </Badge>
           </div>
 
-          <div className="mt-2">
+          <div className="mt-2 flex flex-wrap items-center gap-2">
             <Badge size="sm" color={statusBadgeColor(story.status)}>
               {statusLabel(story.status)}
             </Badge>
+            <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 dark:bg-white/[0.06] px-2 py-0.5 text-xs font-medium text-gray-700 dark:text-gray-300" title="Views">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              {story.viewCount ?? 0}
+            </span>
+            <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 dark:bg-rose-500/10 px-2 py-0.5 text-xs font-medium text-rose-600 dark:text-rose-300" title="Likes">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+              {story.likeCount ?? 0}
+            </span>
           </div>
 
           {/* Media type pills */}
@@ -461,7 +474,7 @@ export default function Stories() {
       <PageBreadcrumb pageTitle="Stories" />
 
       {/* ── Stats row ── */}
-      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         {[
           {
             label: "Total Stories",
@@ -507,6 +520,27 @@ export default function Stories() {
               </svg>
             ),
             color: "text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-500/10",
+          },
+          {
+            label: "Total Views",
+            value: stories.reduce((sum, s) => sum + (s.viewCount ?? 0), 0),
+            icon: (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            ),
+            color: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10",
+          },
+          {
+            label: "Total Likes",
+            value: stories.reduce((sum, s) => sum + (s.likeCount ?? 0), 0),
+            icon: (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+            ),
+            color: "text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10",
           },
         ].map((stat) => (
           <div

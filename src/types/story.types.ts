@@ -20,4 +20,7 @@ export interface Story {
   thumbnailUrl: string;
   status: StoryStatus;
   media: StoryMedia[];
+  viewCount: number;
+  likeCount: number;
+  likedByMe: boolean;
 }

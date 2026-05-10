@@ -55,6 +55,7 @@ import PromoCodePage from "./pages/PromoCode/PromoCodePage";
 import NewsletterPage from "./pages/Newsletter/NewsletterPage";
 import B2BInquiriesPage from "./pages/B2BInquiries/B2BInquiriesPage";
 import RefundsPage from "./pages/Refunds/RefundsPage";
+import RefundDetailPage from "./pages/Refunds/RefundDetailPage";
 import B2BMembershipPage from "./pages/B2BMembership/B2BMembershipPage";
 import B2BMemberDetailPage from "./pages/B2BMembership/B2BMemberDetailPage";
 import B2BApplicationDetailPage from "./pages/B2BMembership/B2BApplicationDetailPage";
@@ -143,6 +144,7 @@ export default function App() {
 
               {/* Refunds */}
               <Route path="/refunds" element={<RefundsPage />} />
+              <Route path="/refunds/:id" element={<RefundDetailPage />} />
 
               {/* B2B Membership */}
               <Route path="/b2b-membership" element={<B2BMembershipPage />} />
