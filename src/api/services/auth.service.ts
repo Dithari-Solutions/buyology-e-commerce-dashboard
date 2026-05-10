@@ -63,6 +63,14 @@ export const authService = {
     authFetch<ApiResponse<SignInData>>("POST", "/auth/admin/signin", data),
 
   /**
+   * POST /api/supplier/auth/signin
+   * Supplier-only endpoint. Use this when the admin endpoint rejects the
+   * account with "Supplier accounts must sign in via the supplier login."
+   */
+  supplierSignIn: (data: SignInRequest) =>
+    authFetch<ApiResponse<SignInData>>("POST", "/api/supplier/auth/signin", data),
+
+  /**
    * POST /auth/refresh
    * Browser sends the HttpOnly cookie automatically (credentials: "include").
    * Returns a fresh accessToken.

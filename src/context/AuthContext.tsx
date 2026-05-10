@@ -77,7 +77,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async (credentials: SignInRequest) => {
       // The backend sets the HttpOnly refresh_token cookie in the response.
       // We only extract and store the accessToken from the JSON body.
-      const res = await authService.signIn(credentials);
+      // Admin endpoint refuses SUPPLIER accounts; in that case retry on the
+      // supplier endpoint so suppliers and admins share one sign-in form.
+      let res;
+      try {
+        res = await authService.signIn(credentials);
+      } catch (e) {
+        const err = e as { statusCode?: number; message?: string };
+        const isSupplierRedirect =
+          err?.statusCode === 403 &&
+          typeof err.message === "string" &&
+          err.message.toLowerCase().includes("supplier");
+        if (!isSupplierRedirect) throw e;
+        res = await authService.supplierSignIn(credentials);
+      }
       setAccessToken(res.data.accessToken);
       setIsAuthenticated(true);
       navigate(landingPathForCurrentUser(), { replace: true });
