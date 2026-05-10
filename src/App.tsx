@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/common/ProtectedRoute";
+import RoleRoute from "./components/common/RoleRoute";
 import { I18nProvider } from "./i18n/I18nProvider";
 import SignIn from "./pages/AuthPages/SignIn";
 import SignUp from "./pages/AuthPages/SignUp";
@@ -83,6 +84,9 @@ export default function App() {
           {/* ProtectedRoute checks auth state; redirects to /signin if needed */}
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
+              {/* ── Admin-side routes (ADMIN/SUPERADMIN/CUSTOMER_SUPPORT/COURIER).
+                  Pure SUPPLIER users hitting any of these are bounced to their portal. */}
+              <Route element={<RoleRoute mode="admin" />}>
               <Route index path="/" element={<Home />} />
 
               {/* Stories */}
@@ -158,35 +162,44 @@ export default function App() {
               <Route path="/suppliers/:id" element={<SupplierDetailPage />} />
               <Route path="/supplier-products" element={<SupplierProductsPage />} />
 
-              {/* Supplier Portal (supplier role) */}
+              </Route>
+
+              {/* ── Supplier Portal routes. Only pure SUPPLIER users; admins are
+                  bounced to "/" (which they own). */}
+              <Route element={<RoleRoute mode="supplier" />}>
               <Route path="/supplier/my-products" element={<MyProductsPage />} />
               <Route path="/supplier/new-product" element={<NewSupplierFullProductPage />} />
               <Route path="/supplier/analytics" element={<SupplierAnalyticsPage />} />
               <Route path="/supplier/account" element={<SupplierAccountPage />} />
               <Route path="/supplier/reviews" element={<SupplierReviewsPage />} />
+              </Route>
 
-              {/* Others Page */}
+              {/* ── Pages available to any authenticated user ── */}
               <Route path="/profile" element={<UserProfiles />} />
-              <Route path="/calendar" element={<Calendar />} />
-              <Route path="/blank" element={<Blank />} />
 
-              {/* Forms */}
-              <Route path="/form-elements" element={<FormElements />} />
+              {/* ── Admin-only kitchen-sink / template pages ── */}
+              <Route element={<RoleRoute mode="admin" />}>
+                <Route path="/calendar" element={<Calendar />} />
+                <Route path="/blank" element={<Blank />} />
 
-              {/* Tables */}
-              <Route path="/basic-tables" element={<BasicTables />} />
+                {/* Forms */}
+                <Route path="/form-elements" element={<FormElements />} />
 
-              {/* Ui Elements */}
-              <Route path="/alerts" element={<Alerts />} />
-              <Route path="/avatars" element={<Avatars />} />
-              <Route path="/badge" element={<Badges />} />
-              <Route path="/buttons" element={<Buttons />} />
-              <Route path="/images" element={<Images />} />
-              <Route path="/videos" element={<Videos />} />
+                {/* Tables */}
+                <Route path="/basic-tables" element={<BasicTables />} />
 
-              {/* Charts */}
-              <Route path="/line-chart" element={<LineChart />} />
-              <Route path="/bar-chart" element={<BarChart />} />
+                {/* Ui Elements */}
+                <Route path="/alerts" element={<Alerts />} />
+                <Route path="/avatars" element={<Avatars />} />
+                <Route path="/badge" element={<Badges />} />
+                <Route path="/buttons" element={<Buttons />} />
+                <Route path="/images" element={<Images />} />
+                <Route path="/videos" element={<Videos />} />
+
+                {/* Charts */}
+                <Route path="/line-chart" element={<LineChart />} />
+                <Route path="/bar-chart" element={<BarChart />} />
+              </Route>
             </Route>
           </Route>
 

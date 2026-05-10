@@ -8,12 +8,11 @@ import {
 import { useNavigate } from "react-router";
 import { authService } from "../api/services/auth.service";
 import {
-  hasAnyRole,
-  hasRole,
   registerRefreshFn,
   registerSessionExpiredHandler,
   setAccessToken,
 } from "../api/client";
+import { landingPathForCurrentUser } from "../auth/roles";
 import type { SignInRequest } from "../types/auth.types";
 
 interface AuthContextType {
@@ -81,10 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const res = await authService.signIn(credentials);
       setAccessToken(res.data.accessToken);
       setIsAuthenticated(true);
-      // Admin-or-other roles land on the dashboard home. Pure SUPPLIER users
-      // (no admin/superadmin role) land on their portal.
-      const isPureSupplier = hasRole("SUPPLIER") && !hasAnyRole("ADMIN", "SUPERADMIN", "CUSTOMER_SUPPORT");
-      navigate(isPureSupplier ? "/supplier/my-products" : "/", { replace: true });
+      navigate(landingPathForCurrentUser(), { replace: true });
     },
     [navigate]
   );

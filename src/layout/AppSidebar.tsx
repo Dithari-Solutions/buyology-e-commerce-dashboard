@@ -26,11 +26,16 @@ import {
   UserCircleIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
+import { isPureSupplier, landingPathForCurrentUser } from "../auth/roles";
+
+type NavArea = "admin" | "supplier" | "shared";
 
 type NavItem = {
   name: string;
   icon: React.ReactNode;
   path?: string;
+  /** Which role area this item belongs to. Defaults to "admin". */
+  area?: NavArea;
   subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
 };
 
@@ -49,6 +54,7 @@ const navItems: NavItem[] = [
     icon: <UserCircleIcon />,
     name: "User Profile",
     path: "/profile",
+    area: "shared",
   },
   {
     name: "Marketing",
@@ -155,10 +161,13 @@ const navItems: NavItem[] = [
   {
     name: "My Supplier Portal",
     icon: <HandshakeOutlinedIcon />,
+    area: "supplier",
     subItems: [
       { name: "My Products", path: "/supplier/my-products", pro: false },
       { name: "Add Product", path: "/supplier/new-product", pro: false },
       { name: "Analytics", path: "/supplier/analytics", pro: false },
+      { name: "Account", path: "/supplier/account", pro: false },
+      { name: "Reviews", path: "/supplier/reviews", pro: false },
     ],
   },
 ];
@@ -198,6 +207,21 @@ const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
 
+  const supplierOnly = isPureSupplier();
+  const homePath = landingPathForCurrentUser();
+  const filterByRole = useCallback(
+    (items: NavItem[]) =>
+      items.filter((item) => {
+        const area: NavArea = item.area ?? "admin";
+        if (area === "shared") return true;
+        return supplierOnly ? area === "supplier" : area === "admin";
+      }),
+    [supplierOnly]
+  );
+  const visibleNavItems = filterByRole(navItems);
+  // Suppliers don't see the kitchen-sink/UI-kit "Others" section at all.
+  const visibleOthersItems = supplierOnly ? [] : othersItems;
+
   const [openSubmenu, setOpenSubmenu] = useState<{
     type: "main" | "others";
     index: number;
@@ -215,7 +239,7 @@ const AppSidebar: React.FC = () => {
   useEffect(() => {
     let submenuMatched = false;
     ["main", "others"].forEach((menuType) => {
-      const items = menuType === "main" ? navItems : othersItems;
+      const items = menuType === "main" ? visibleNavItems : visibleOthersItems;
       items.forEach((nav, index) => {
         if (nav.subItems) {
           nav.subItems.forEach((subItem) => {
@@ -404,7 +428,7 @@ const AppSidebar: React.FC = () => {
           !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
         }`}
       >
-        <Link to="/">
+        <Link to={homePath}>
           {isExpanded || isHovered || isMobileOpen ? (
             <>
               <img
@@ -450,24 +474,26 @@ const AppSidebar: React.FC = () => {
                   <HorizontaLDots className="size-6" />
                 )}
               </h2>
-              {renderMenuItems(navItems, "main")}
+              {renderMenuItems(visibleNavItems, "main")}
             </div>
-            <div className="">
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Others"
-                ) : (
-                  <HorizontaLDots />
-                )}
-              </h2>
-              {renderMenuItems(othersItems, "others")}
-            </div>
+            {visibleOthersItems.length > 0 && (
+              <div className="">
+                <h2
+                  className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                    !isExpanded && !isHovered
+                      ? "lg:justify-center"
+                      : "justify-start"
+                  }`}
+                >
+                  {isExpanded || isHovered || isMobileOpen ? (
+                    "Others"
+                  ) : (
+                    <HorizontaLDots />
+                  )}
+                </h2>
+                {renderMenuItems(visibleOthersItems, "others")}
+              </div>
+            )}
           </div>
         </nav>
       </div>
