@@ -173,6 +173,7 @@ const navItems: NavItem[] = [
       { name: "Analytics", path: "/supplier/analytics", pro: false },
       { name: "Account", path: "/supplier/account", pro: false },
       { name: "Reviews", path: "/supplier/reviews", pro: false },
+      { name: "Payouts", path: "/supplier/payouts", pro: false },
     ],
   },
 ];

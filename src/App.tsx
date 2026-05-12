@@ -73,6 +73,7 @@ import NewSupplierFullProductPage from "./pages/SupplierPortal/NewSupplierFullPr
 import SupplierAnalyticsPage from "./pages/SupplierPortal/SupplierAnalyticsPage";
 import SupplierAccountPage from "./pages/SupplierPortal/SupplierAccountPage";
 import SupplierReviewsPage from "./pages/SupplierPortal/SupplierReviewsPage";
+import SupplierPayoutsPage from "./pages/SupplierPortal/SupplierPayoutsPage";
 
 export default function App() {
   return (
@@ -178,6 +179,7 @@ export default function App() {
               <Route path="/supplier/analytics" element={<SupplierAnalyticsPage />} />
               <Route path="/supplier/account" element={<SupplierAccountPage />} />
               <Route path="/supplier/reviews" element={<SupplierReviewsPage />} />
+              <Route path="/supplier/payouts" element={<SupplierPayoutsPage />} />
               </Route>
 
               {/* ── Pages available to any authenticated user ── */}

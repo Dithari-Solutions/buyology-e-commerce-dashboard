@@ -31,6 +31,47 @@ export interface PayoutRequestDetail {
   orderItemIds: string[];
 }
 
+export interface PayoutEligibility {
+  eligible: boolean;
+  owedAmountAed: number;
+  nextEligibleDate: string | null;
+  reason: string;
+}
+
+export interface SupplierPayoutAccountPayload {
+  legalName: string;
+  bankName?: string | null;
+  accountHolderName?: string | null;
+  iban?: string | null;
+  swiftCode?: string | null;
+  walletProvider?: string | null;
+  walletNumber?: string | null;
+}
+
+export const supplierPayoutsService = {
+  getAccount(signal?: AbortSignal): Promise<ApiResponse<SupplierPayoutAccount>> {
+    return apiClient.get(`/api/supplier/payouts/account`, { signal });
+  },
+  upsertAccount(payload: SupplierPayoutAccountPayload): Promise<ApiResponse<SupplierPayoutAccount>> {
+    return apiClient.put(`/api/supplier/payouts/account`, payload);
+  },
+  eligibility(signal?: AbortSignal): Promise<ApiResponse<PayoutEligibility>> {
+    return apiClient.get(`/api/supplier/payouts/eligibility`, { signal });
+  },
+  submit(): Promise<ApiResponse<PayoutRequestDetail>> {
+    return apiClient.post(`/api/supplier/payouts/requests`, {});
+  },
+  history(
+    params: { page?: number; size?: number },
+    signal?: AbortSignal
+  ): Promise<ApiResponse<SpringPage<PayoutRequestDetail>>> {
+    const qs = new URLSearchParams();
+    qs.set("page", String(params.page ?? 0));
+    qs.set("size", String(params.size ?? 20));
+    return apiClient.get(`/api/supplier/payouts/requests?${qs.toString()}`, { signal });
+  },
+};
+
 export const payoutsService = {
   list(
     params: { status?: PayoutRequestStatus; page?: number; size?: number },
