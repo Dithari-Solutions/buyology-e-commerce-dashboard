@@ -118,6 +118,11 @@ const navItems: NavItem[] = [
     path: "/refunds",
   },
   {
+    name: "Payouts",
+    icon: <ReceiptLongOutlinedIcon />,
+    path: "/payouts",
+  },
+  {
     name: "Couriers",
     icon: <TwoWheelerOutlinedIcon />,
     subItems: [
