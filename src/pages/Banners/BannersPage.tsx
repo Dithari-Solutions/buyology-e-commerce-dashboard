@@ -9,6 +9,7 @@ import {
   type BannerStatus,
   type BannerTranslationFields,
 } from "../../api/services/banners.service";
+import { compressImage } from "../../utils/imageCompression";
 
 const LANGUAGES = ["EN", "AZ", "AR"] as const;
 type Lang = (typeof LANGUAGES)[number];
@@ -134,12 +135,21 @@ export default function BannersPage() {
       return;
     }
     setSaving(true);
-    setMsg("");
     try {
+      let upload: File | null = file;
+      if (upload) {
+        setMsg("Compressing image…");
+        upload = await compressImage(upload, {
+          maxWidth: 1920,
+          maxHeight: 1080,
+          quality: 0.85,
+        });
+      }
+      setMsg("Uploading…");
       if (editingId) {
-        await bannersService.update(editingId, form, file);
+        await bannersService.update(editingId, form, upload);
       } else {
-        await bannersService.create(form, file as File);
+        await bannersService.create(form, upload as File);
       }
       setShowForm(false);
       await reload();

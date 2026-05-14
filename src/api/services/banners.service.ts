@@ -1,6 +1,5 @@
-import { apiClient, getAccessToken } from "../client";
-import { ApiResponse, ApiRequestError } from "../types/api.types";
-import { env } from "../../config/env";
+import { apiClient } from "../client";
+import { ApiResponse } from "../types/api.types";
 
 const BASE = "/api/admin/banner";
 
@@ -36,12 +35,7 @@ export interface BannerAdmin {
   translation: BannerTranslationFields;
 }
 
-async function multipart<T>(
-  method: "POST" | "PUT",
-  path: string,
-  data: BannerRequest,
-  background?: File | null
-): Promise<ApiResponse<T>> {
+function buildFormData(data: BannerRequest, background?: File | null): FormData {
   const formData = new FormData();
   formData.append(
     "request",
@@ -50,33 +44,7 @@ async function multipart<T>(
   if (background) {
     formData.append("background", background);
   }
-
-  const token = getAccessToken();
-  const headers: HeadersInit = {
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-
-  const response = await fetch(`${env.apiBaseUrl}${path}`, {
-    method,
-    headers,
-    credentials: "include",
-    body: formData,
-  });
-
-  if (!response.ok) {
-    let payload: { statusCode: number; message: string };
-    try {
-      payload = await response.json();
-    } catch {
-      payload = {
-        statusCode: response.status,
-        message: response.statusText || "Banner request failed.",
-      };
-    }
-    throw new ApiRequestError(payload);
-  }
-
-  return response.json() as Promise<ApiResponse<T>>;
+  return formData;
 }
 
 export const bannersService = {
@@ -90,7 +58,22 @@ export const bannersService = {
   },
 
   create(data: BannerRequest, background: File): Promise<ApiResponse<BannerAdmin>> {
-    return multipart<BannerAdmin>("POST", `${BASE}/create`, data, background);
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 90_000);
+    console.log("[banners] create →", { data, fileName: background.name, size: background.size });
+    return apiClient
+      .post<ApiResponse<BannerAdmin>>(`${BASE}/create`, buildFormData(data, background), {
+        signal: ctrl.signal,
+      })
+      .then((r) => {
+        console.log("[banners] create ✓", r);
+        return r;
+      })
+      .catch((e) => {
+        console.error("[banners] create ✗", e);
+        throw e;
+      })
+      .finally(() => clearTimeout(t));
   },
 
   update(
@@ -98,7 +81,22 @@ export const bannersService = {
     data: BannerRequest,
     background?: File | null
   ): Promise<ApiResponse<BannerAdmin>> {
-    return multipart<BannerAdmin>("PUT", `${BASE}/${id}`, data, background);
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 90_000);
+    console.log("[banners] update →", { id, data, hasFile: !!background });
+    return apiClient
+      .put<ApiResponse<BannerAdmin>>(`${BASE}/${id}`, buildFormData(data, background), {
+        signal: ctrl.signal,
+      })
+      .then((r) => {
+        console.log("[banners] update ✓", r);
+        return r;
+      })
+      .catch((e) => {
+        console.error("[banners] update ✗", e);
+        throw e;
+      })
+      .finally(() => clearTimeout(t));
   },
 
   setStatus(id: string, status: BannerStatus): Promise<ApiResponse<void>> {
