@@ -41,7 +41,7 @@ export default function SupplierPayoutsPage() {
       ]);
       if (eligR.status === "fulfilled") setEligibility(eligR.value.data);
       if (histR.status === "fulfilled") setHistory(histR.value.data);
-      if (accR.status === "fulfilled") {
+      if (accR.status === "fulfilled" && accR.value.data) {
         const a = accR.value.data;
         setAccount(a);
         setForm({
@@ -54,7 +54,7 @@ export default function SupplierPayoutsPage() {
           walletNumber: a.walletNumber,
         });
       } else {
-        // 404 means no account yet — open the form for first-time setup
+        // No account on file yet — open the form for first-time setup
         setAccount(null);
         setEditMode(true);
       }

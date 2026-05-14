@@ -49,7 +49,7 @@ export interface SupplierPayoutAccountPayload {
 }
 
 export const supplierPayoutsService = {
-  getAccount(signal?: AbortSignal): Promise<ApiResponse<SupplierPayoutAccount>> {
+  getAccount(signal?: AbortSignal): Promise<ApiResponse<SupplierPayoutAccount | null>> {
     return apiClient.get(`/api/supplier/payouts/account`, { signal });
   },
   upsertAccount(payload: SupplierPayoutAccountPayload): Promise<ApiResponse<SupplierPayoutAccount>> {

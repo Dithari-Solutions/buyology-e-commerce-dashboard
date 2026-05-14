@@ -62,6 +62,7 @@ const navItems: NavItem[] = [
     subItems: [
       { name: "Promo Codes", path: "/promo-codes", pro: false },
       { name: "Newsletter", path: "/newsletter", pro: false },
+      { name: "Banners", path: "/banners", pro: false },
     ],
   },
   {
