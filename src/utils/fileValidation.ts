@@ -40,10 +40,16 @@ const MALICIOUS_SIGNATURES = [
 /**
  * Validates a file based on the rules in the security documentation.
  */
+const DEFAULT_MAX_SIZE_BY_FEATURE: Record<FileUploadFeature, number> = {
+  STORY_THUMBNAIL: 200 * 1024 * 1024, // 200 MB
+  STORY_MEDIA: 200 * 1024 * 1024,     // 200 MB
+  GENERAL: 50 * 1024 * 1024,          // 50 MB
+};
+
 export async function validateFileUpload(
   file: File,
   feature: FileUploadFeature = 'GENERAL',
-  maxSizeInBytes: number = 10 * 1024 * 1024 // Default 10MB
+  maxSizeInBytes: number = DEFAULT_MAX_SIZE_BY_FEATURE[feature]
 ): Promise<ValidationResult> {
   // 1. Size Check
   if (file.size > maxSizeInBytes) {
