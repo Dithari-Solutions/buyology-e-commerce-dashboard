@@ -1,4 +1,4 @@
-import { apiClient, getAccessToken, getUserIdFromToken } from "../client";
+import { apiClient, getAccessToken } from "../client";
 import { ApiResponse, ApiRequestError } from "../types/api.types";
 import { env } from "../../config/env";
 
@@ -52,9 +52,7 @@ async function multipart<T>(
   }
 
   const token = getAccessToken();
-  const userId = getUserIdFromToken();
   const headers: HeadersInit = {
-    ...(userId ? { "X-User-Id": userId } : {}),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 
