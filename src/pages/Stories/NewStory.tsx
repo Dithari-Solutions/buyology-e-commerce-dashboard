@@ -8,6 +8,7 @@ import Button from "../../components/ui/button/Button";
 import { storiesService, ApiRequestError } from "../../api";
 import type { StoryStatus, CreateStoryRequest } from "../../api";
 import { validateFileUpload } from "../../utils/fileValidation";
+import { compressImage } from "../../utils/imageCompression";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Section wrapper (same style as NewProduct)
@@ -190,7 +191,14 @@ export default function NewStory() {
         status,
       };
 
-      const [thumbnail, ...mediaFiles] = files;
+      const compressIfImage = (f: File) =>
+        f.type.startsWith("image/")
+          ? compressImage(f, { maxWidth: 2160, maxHeight: 2160, quality: 0.88 })
+          : Promise.resolve(f);
+
+      const [rawThumbnail, ...rawMedia] = files;
+      const thumbnail = await compressIfImage(rawThumbnail);
+      const mediaFiles = await Promise.all(rawMedia.map(compressIfImage));
       await storiesService.create(payload, thumbnail, mediaFiles);
       navigate("/stories");
     } catch (err) {

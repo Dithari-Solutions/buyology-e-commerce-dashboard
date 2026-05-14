@@ -1,7 +1,6 @@
-import { apiClient, getAccessToken } from "../client";
-import { ApiResponse, ApiRequestError } from "../types/api.types";
+import { apiClient } from "../client";
+import { ApiResponse } from "../types/api.types";
 import { Story } from "../../types/story.types";
-import { env } from "../../config/env";
 
 const BASE = "/api/admin/story";
 
@@ -21,10 +20,6 @@ export interface CreateStoryRequest {
 }
 
 export const storiesService = {
-  /**
-   * Fetch all stories with their media.
-   * @param language - Content language (defaults to "EN")
-   */
   getAll(
     language: StoryLanguage = "EN",
     signal?: AbortSignal
@@ -35,9 +30,6 @@ export const storiesService = {
     );
   },
 
-  /**
-   * Fetch a single story by ID.
-   */
   getById(
     id: string,
     language: StoryLanguage = "EN",
@@ -49,11 +41,7 @@ export const storiesService = {
     );
   },
 
-  /**
-   * Create a new story with a thumbnail and optional media files.
-   * First file is the thumbnail; remaining files are mediaFiles.
-   */
-  async create(
+  create(
     data: CreateStoryRequest,
     thumbnail: File,
     mediaFiles: File[],
@@ -67,47 +55,15 @@ export const storiesService = {
     formData.append("thumbnail", thumbnail);
     mediaFiles.forEach((file) => formData.append("mediaFiles", file));
 
-    const token = getAccessToken();
-    const headers: HeadersInit = {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    };
-
-    const response = await fetch(`${env.apiBaseUrl}${BASE}/create`, {
-      method: "POST",
-      headers,
-      credentials: "include",
-      body: formData,
+    return apiClient.post<ApiResponse<Story>>(`${BASE}/create`, formData, {
       signal,
     });
-
-    if (!response.ok) {
-      let payload: { statusCode: number; message: string };
-      try {
-        payload = await response.json();
-      } catch {
-        payload = {
-          statusCode: response.status,
-          message: response.statusText || "Failed to create story.",
-        };
-      }
-      throw new ApiRequestError(payload);
-    }
-
-    return response.json() as Promise<ApiResponse<Story>>;
   },
 
-  /**
-   * Delete entire story.
-   * Removes story record and all files (thumbnail + media) from database and S3.
-   */
   deleteStory(storyId: string): Promise<ApiResponse<void>> {
     return apiClient.delete<ApiResponse<void>>(`${BASE}/${storyId}`);
   },
 
-  /**
-   * Delete specific media from a story.
-   * Removes media record and its corresponding file from S3.
-   */
   deleteMedia(storyId: string, mediaId: string): Promise<ApiResponse<void>> {
     return apiClient.delete<ApiResponse<void>>(
       `${BASE}/${storyId}/media/${mediaId}`
