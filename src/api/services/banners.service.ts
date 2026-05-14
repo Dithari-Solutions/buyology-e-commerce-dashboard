@@ -5,6 +5,7 @@ import { env } from "../../config/env";
 const BASE = "/api/admin/banner";
 
 export type BannerStatus = "ACTIVE" | "INACTIVE";
+export type BannerPlatform = "WEB" | "MOBILE";
 
 export interface BannerTranslationFields {
   textAz?: string;
@@ -20,6 +21,7 @@ export interface BannerRequest {
   buttonUrl?: string;
   sortOrder?: number;
   status?: BannerStatus;
+  platform: BannerPlatform;
 }
 
 export interface BannerAdmin {
@@ -28,6 +30,7 @@ export interface BannerAdmin {
   buttonUrl?: string | null;
   sortOrder: number;
   status: BannerStatus;
+  platform: BannerPlatform;
   createdAt: string;
   updatedAt: string;
   translation: BannerTranslationFields;
@@ -79,8 +82,9 @@ async function multipart<T>(
 }
 
 export const bannersService = {
-  list(signal?: AbortSignal): Promise<ApiResponse<BannerAdmin[]>> {
-    return apiClient.get<ApiResponse<BannerAdmin[]>>(BASE, { signal });
+  list(platform?: BannerPlatform, signal?: AbortSignal): Promise<ApiResponse<BannerAdmin[]>> {
+    const qs = platform ? `?platform=${platform}` : "";
+    return apiClient.get<ApiResponse<BannerAdmin[]>>(`${BASE}${qs}`, { signal });
   },
 
   getById(id: string, signal?: AbortSignal): Promise<ApiResponse<BannerAdmin>> {

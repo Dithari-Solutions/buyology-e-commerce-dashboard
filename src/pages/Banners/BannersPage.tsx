@@ -4,6 +4,7 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import {
   bannersService,
   type BannerAdmin,
+  type BannerPlatform,
   type BannerRequest,
   type BannerStatus,
   type BannerTranslationFields,
@@ -21,11 +22,12 @@ const emptyTranslation = (): BannerTranslationFields => ({
   buttonLabelAr: "",
 });
 
-const emptyForm = (): BannerRequest => ({
+const emptyForm = (platform: BannerPlatform = "WEB"): BannerRequest => ({
   translation: emptyTranslation(),
   buttonUrl: "",
   sortOrder: 0,
   status: "ACTIVE",
+  platform,
 });
 
 const isValidButtonUrl = (url: string) => {
@@ -36,9 +38,10 @@ const isValidButtonUrl = (url: string) => {
 export default function BannersPage() {
   const [banners, setBanners] = useState<BannerAdmin[]>([]);
   const [loading, setLoading] = useState(true);
+  const [platformFilter, setPlatformFilter] = useState<BannerPlatform>("WEB");
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState<BannerRequest>(emptyForm());
+  const [form, setForm] = useState<BannerRequest>(emptyForm("WEB"));
   const [tab, setTab] = useState<Lang>("EN");
   const [file, setFile] = useState<File | null>(null);
   const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
@@ -57,10 +60,10 @@ export default function BannersPage() {
     };
   }, [file]);
 
-  const reload = async () => {
+  const reload = async (platform: BannerPlatform = platformFilter) => {
     setLoading(true);
     try {
-      const r = await bannersService.list();
+      const r = await bannersService.list(platform);
       setBanners(r.data ?? []);
     } finally {
       setLoading(false);
@@ -68,12 +71,13 @@ export default function BannersPage() {
   };
 
   useEffect(() => {
-    reload().catch(() => {});
-  }, []);
+    reload(platformFilter).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [platformFilter]);
 
   const startCreate = () => {
     setEditingId(null);
-    setForm(emptyForm());
+    setForm(emptyForm(platformFilter));
     setFile(null);
     setExistingImageUrl(null);
     setTab("EN");
@@ -88,6 +92,7 @@ export default function BannersPage() {
       buttonUrl: b.buttonUrl ?? "",
       sortOrder: b.sortOrder,
       status: b.status,
+      platform: b.platform,
     });
     setFile(null);
     setExistingImageUrl(b.backgroundImageUrl);
@@ -174,14 +179,31 @@ export default function BannersPage() {
       <PageBreadcrumb pageTitle="Banners" />
 
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-white">Promo Banners</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-4">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-white">Promo Banners</h2>
+            <div className="inline-flex rounded-lg border border-gray-200 p-0.5 dark:border-gray-700">
+              {(["WEB", "MOBILE"] as BannerPlatform[]).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setPlatformFilter(p)}
+                  className={`px-3 py-1 text-xs font-semibold rounded-md ${
+                    platformFilter === p
+                      ? "bg-brand-500 text-white"
+                      : "text-gray-600 dark:text-gray-300"
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
           {!showForm && (
             <button
               onClick={startCreate}
               className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600"
             >
-              + Add banner
+              + Add {platformFilter.toLowerCase()} banner
             </button>
           )}
         </div>
@@ -330,6 +352,32 @@ export default function BannersPage() {
               </div>
             </div>
 
+            {/* Platform selector */}
+            <div className="mt-4">
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Platform
+              </label>
+              <div className="flex gap-2">
+                {(["WEB", "MOBILE"] as BannerPlatform[]).map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, platform: p }))}
+                    className={`rounded-lg border px-4 py-2 text-sm font-semibold ${
+                      form.platform === p
+                        ? "border-brand-500 bg-brand-500 text-white"
+                        : "border-gray-300 text-gray-600 dark:border-gray-700 dark:text-gray-300"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                Choose which client surface this banner appears on. Web and mobile each pull only their own banners.
+              </p>
+            </div>
+
             <div className="mt-6 flex gap-2">
               <button
                 onClick={submit}
@@ -380,7 +428,12 @@ export default function BannersPage() {
                         }}
                       />
                     </td>
-                    <td className="max-w-xs truncate px-4 py-3">{b.translation.textEn || "—"}</td>
+                    <td className="max-w-xs truncate px-4 py-3">
+                      <div>{b.translation.textEn || "—"}</div>
+                      <span className="mt-1 inline-block rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                        {b.platform}
+                      </span>
+                    </td>
                     <td className="px-4 py-3">
                       {b.buttonUrl ? (
                         <span className="text-xs text-gray-500 dark:text-gray-400">
