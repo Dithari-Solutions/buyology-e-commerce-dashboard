@@ -1,4 +1,4 @@
-import { apiClient, getAccessToken, getUserIdFromToken } from "../client";
+import { apiClient, getAccessToken } from "../client";
 import { ApiResponse, ApiRequestError } from "../types/api.types";
 import { Story } from "../../types/story.types";
 import { env } from "../../config/env";
@@ -68,9 +68,7 @@ export const storiesService = {
     mediaFiles.forEach((file) => formData.append("mediaFiles", file));
 
     const token = getAccessToken();
-    const userId = getUserIdFromToken();
     const headers: HeadersInit = {
-      ...(userId ? { "X-User-Id": userId } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
 
