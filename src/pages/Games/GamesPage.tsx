@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import { gamesService, type QuizQuestion, type CreateQuizRequest } from "../../api/services/games.service";
+import { gamesService, type QuizQuestion, type CreateQuizRequest, type DailyGameConfig } from "../../api/services/games.service";
 
 const LANGUAGES = ["EN", "AZ", "AR"] as const;
 
@@ -14,6 +14,13 @@ const emptyTranslation = (lang: string) => ({
   optionD: "",
 });
 
+const emptyForm = (): CreateQuizRequest => ({
+  correctOptionIndex: 0,
+  points: 10,
+  active: true,
+  translations: LANGUAGES.map((l) => emptyTranslation(l)),
+});
+
 export default function GamesPage() {
   const [quizzes, setQuizzes] = useState<QuizQuestion[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,23 +28,23 @@ export default function GamesPage() {
   const [configType, setConfigType] = useState<"QUIZ" | "MINI_GAME">("QUIZ");
   const [configSaving, setConfigSaving] = useState(false);
   const [configMsg, setConfigMsg] = useState("");
-  const [showCreateQuiz, setShowCreateQuiz] = useState(false);
+  const [todayConfig, setTodayConfig] = useState<DailyGameConfig | null>(null);
+  const [showQuizModal, setShowQuizModal] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [quizLang, setQuizLang] = useState<"EN" | "AZ" | "AR">("EN");
-  const [quizForm, setQuizForm] = useState<CreateQuizRequest>({
-    correctOptionIndex: 0,
-    points: 10,
-    active: true,
-    translations: LANGUAGES.map((l) => emptyTranslation(l)),
-  });
+  const [quizForm, setQuizForm] = useState<CreateQuizRequest>(emptyForm());
   const [quizSaving, setQuizSaving] = useState(false);
   const [quizMsg, setQuizMsg] = useState("");
 
   useEffect(() => {
     const ac = new AbortController();
-    gamesService.getAllQuizQuestions(ac.signal)
-      .then((r) => setQuizzes(r.data ?? []))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    Promise.all([
+      gamesService.getAllQuizQuestions(ac.signal).then((r) => setQuizzes(r.data ?? [])).catch(() => {}),
+      gamesService.getDailyGameConfig(undefined, ac.signal).then((r) => {
+        setTodayConfig(r.data ?? null);
+        if (r.data) setConfigType(r.data.gameType);
+      }).catch(() => {}),
+    ]).finally(() => setLoading(false));
     return () => ac.abort();
   }, []);
 
@@ -45,7 +52,8 @@ export default function GamesPage() {
     setConfigSaving(true);
     setConfigMsg("");
     try {
-      await gamesService.configureDailyGame({ gameDate: configDate, gameType: configType });
+      const res = await gamesService.configureDailyGame({ gameDate: configDate, gameType: configType });
+      if (configDate === new Date().toISOString().slice(0, 10)) setTodayConfig(res.data ?? null);
       setConfigMsg("✓ Game configured for " + configDate);
     } catch {
       setConfigMsg("✗ Failed to save configuration");
@@ -63,19 +71,60 @@ export default function GamesPage() {
     }));
   };
 
-  const handleCreateQuiz = async () => {
+  const openCreate = () => {
+    setEditingId(null);
+    setQuizForm(emptyForm());
+    setQuizLang("EN");
+    setQuizMsg("");
+    setShowQuizModal(true);
+  };
+
+  const openEdit = (q: QuizQuestion) => {
+    setEditingId(q.id);
+    setQuizForm({
+      correctOptionIndex: q.correctOptionIndex,
+      points: q.points,
+      active: q.active,
+      translations: LANGUAGES.map((l) => {
+        const existing = q.translations.find((t) => t.language === l);
+        return existing ?? emptyTranslation(l);
+      }),
+    });
+    setQuizLang("EN");
+    setQuizMsg("");
+    setShowQuizModal(true);
+  };
+
+  const handleSaveQuiz = async () => {
     setQuizSaving(true);
     setQuizMsg("");
     try {
-      const created = await gamesService.createQuizQuestion(quizForm);
-      setQuizzes((q) => [...q, created.data as QuizQuestion]);
-      setShowCreateQuiz(false);
-      setQuizMsg("✓ Quiz question created");
-      setQuizForm({ correctOptionIndex: 0, points: 10, active: true, translations: LANGUAGES.map((l) => emptyTranslation(l)) });
+      if (editingId) {
+        const res = await gamesService.updateQuizQuestion(editingId, quizForm);
+        setQuizzes((qs) => qs.map((q) => (q.id === editingId ? (res.data as QuizQuestion) : q)));
+        setQuizMsg("✓ Quiz question updated");
+      } else {
+        const created = await gamesService.createQuizQuestion(quizForm);
+        setQuizzes((qs) => [...qs, created.data as QuizQuestion]);
+        setQuizMsg("✓ Quiz question created");
+      }
+      setShowQuizModal(false);
+      setEditingId(null);
+      setQuizForm(emptyForm());
     } catch {
-      setQuizMsg("✗ Failed to create quiz question");
+      setQuizMsg("✗ Failed to save quiz question");
     } finally {
       setQuizSaving(false);
+    }
+  };
+
+  const handleDeleteQuiz = async (id: string) => {
+    if (!window.confirm("Delete this quiz question? This cannot be undone.")) return;
+    try {
+      await gamesService.deleteQuizQuestion(id);
+      setQuizzes((qs) => qs.filter((q) => q.id !== id));
+    } catch {
+      window.alert("Failed to delete quiz question");
     }
   };
 
@@ -87,6 +136,16 @@ export default function GamesPage() {
       <PageBreadcrumb pageTitle="Games" />
 
       <div className="space-y-6">
+        {/* Today indicator */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Today's active game:{" "}
+            <span className="font-semibold text-gray-900 dark:text-white">
+              {todayConfig ? (todayConfig.gameType === "QUIZ" ? "Quiz" : "Mini Game") : "Not configured (defaults to Mini Game)"}
+            </span>
+          </p>
+        </div>
+
         {/* Daily game config */}
         <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
           <h2 className="mb-4 text-lg font-semibold text-gray-800 dark:text-white">Daily Game Configuration</h2>
@@ -118,7 +177,7 @@ export default function GamesPage() {
             <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
               Quiz Questions ({quizzes.length})
             </h2>
-            <button onClick={() => setShowCreateQuiz(true)}
+            <button onClick={openCreate}
               className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600">
               + New Question
             </button>
@@ -138,7 +197,8 @@ export default function GamesPage() {
                     <th className="pb-3 pr-4">Question (EN)</th>
                     <th className="pb-3 pr-4">Points</th>
                     <th className="pb-3 pr-4">Correct</th>
-                    <th className="pb-3">Status</th>
+                    <th className="pb-3 pr-4">Status</th>
+                    <th className="pb-3">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -153,10 +213,22 @@ export default function GamesPage() {
                         <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">
                           Option {["A", "B", "C", "D"][q.correctOptionIndex]}
                         </td>
-                        <td className="py-3">
+                        <td className="py-3 pr-4">
                           <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${q.active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
                             {q.active ? "Active" : "Inactive"}
                           </span>
+                        </td>
+                        <td className="py-3">
+                          <div className="flex gap-2">
+                            <button onClick={() => openEdit(q)}
+                              className="rounded-md border border-gray-300 px-2.5 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800">
+                              Edit
+                            </button>
+                            <button onClick={() => handleDeleteQuiz(q.id)}
+                              className="rounded-md border border-red-300 px-2.5 py-1 text-xs text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950">
+                              Delete
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -167,13 +239,15 @@ export default function GamesPage() {
           )}
         </div>
 
-        {/* Create quiz modal */}
-        {showCreateQuiz && (
+        {/* Create/edit quiz modal */}
+        {showQuizModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
             <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900 overflow-y-auto max-h-[90vh]">
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Create Quiz Question</h3>
-                <button onClick={() => setShowCreateQuiz(false)} className="text-gray-400 hover:text-gray-600">✕</button>
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+                  {editingId ? "Edit Quiz Question" : "Create Quiz Question"}
+                </h3>
+                <button onClick={() => setShowQuizModal(false)} className="text-gray-400 hover:text-gray-600">✕</button>
               </div>
 
               <div className="mb-4 flex gap-2">
@@ -204,7 +278,7 @@ export default function GamesPage() {
                 </div>
               )}
 
-              <div className="mb-4 flex gap-4">
+              <div className="mb-4 flex gap-4 items-end flex-wrap">
                 <div>
                   <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Correct Answer</label>
                   <select value={quizForm.correctOptionIndex}
@@ -219,16 +293,21 @@ export default function GamesPage() {
                     onChange={(e) => setQuizForm((f) => ({ ...f, points: Number(e.target.value) }))}
                     className="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
                 </div>
+                <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                  <input type="checkbox" checked={quizForm.active}
+                    onChange={(e) => setQuizForm((f) => ({ ...f, active: e.target.checked }))} />
+                  Active
+                </label>
               </div>
 
               {quizMsg && <p className="mb-3 text-sm text-red-500">{quizMsg}</p>}
 
               <div className="flex gap-3">
-                <button onClick={handleCreateQuiz} disabled={quizSaving}
+                <button onClick={handleSaveQuiz} disabled={quizSaving}
                   className="flex-1 rounded-lg bg-brand-500 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50">
-                  {quizSaving ? "Saving..." : "Create Question"}
+                  {quizSaving ? "Saving..." : editingId ? "Save Changes" : "Create Question"}
                 </button>
-                <button onClick={() => setShowCreateQuiz(false)}
+                <button onClick={() => setShowQuizModal(false)}
                   className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300">
                   Cancel
                 </button>
