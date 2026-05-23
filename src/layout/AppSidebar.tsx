@@ -11,6 +11,7 @@ import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
 import TwoWheelerOutlinedIcon from '@mui/icons-material/TwoWheelerOutlined';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
+import SportsEsportsOutlinedIcon from '@mui/icons-material/SportsEsportsOutlined';
 
 // Assume these icons are imported from an icon library
 import {
@@ -122,6 +123,11 @@ const navItems: NavItem[] = [
     name: "Payouts",
     icon: <ReceiptLongOutlinedIcon />,
     path: "/payouts",
+  },
+  {
+    name: "Games",
+    icon: <SportsEsportsOutlinedIcon />,
+    path: "/games",
   },
   {
     name: "Couriers",
