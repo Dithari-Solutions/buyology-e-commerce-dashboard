@@ -5,7 +5,7 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Badge from "../../components/ui/badge/Badge";
 import { productsService, ApiRequestError } from "../../api";
 import type { Product, ProductStatus, AvailabilityStatus } from "../../types";
-import { env } from "../../config/env";
+import { getImageUrl } from "../../utils/imageUrl";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -76,7 +76,7 @@ function ProductRow({
           <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 text-gray-400">
             {primaryMedia ? (
               <img
-                src={`${env.apiBaseUrl}${primaryMedia.url}`}
+                src={getImageUrl(primaryMedia.thumbnailUrl ?? primaryMedia.url)}
                 alt={product.title}
                 className="h-10 w-10 object-cover"
               />

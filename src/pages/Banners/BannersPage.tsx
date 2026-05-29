@@ -10,6 +10,7 @@ import {
   type BannerTranslationFields,
 } from "../../api/services/banners.service";
 import { compressImage } from "../../utils/imageCompression";
+import { getImageUrl } from "../../utils/imageUrl";
 
 const LANGUAGES = ["EN", "AZ", "AR"] as const;
 type Lang = (typeof LANGUAGES)[number];
@@ -50,9 +51,14 @@ export default function BannersPage() {
   const [msg, setMsg] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Drag-and-drop reordering state
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
+  const [reordering, setReordering] = useState(false);
+
   const previewUrl = useMemo(() => {
     if (file) return URL.createObjectURL(file);
-    return existingImageUrl;
+    return existingImageUrl ? getImageUrl(existingImageUrl) : null;
   }, [file, existingImageUrl]);
 
   useEffect(() => {
@@ -65,7 +71,9 @@ export default function BannersPage() {
     setLoading(true);
     try {
       const r = await bannersService.list(platform);
-      setBanners(r.data ?? []);
+      setBanners(
+        (r.data ?? []).slice().sort((a, b) => a.sortOrder - b.sortOrder)
+      );
     } finally {
       setLoading(false);
     }
@@ -177,6 +185,42 @@ export default function BannersPage() {
   const setOrder = async (b: BannerAdmin, value: number) => {
     await bannersService.setSortOrder(b.id, value);
     reload();
+  };
+
+  // Move the dragged banner to the dropped banner's position and persist the
+  // new sequential sortOrder for every banner whose position changed.
+  const reorder = async (fromId: string | null, toId: string) => {
+    if (!fromId || fromId === toId) return;
+    const ordered = [...banners];
+    const fromIdx = ordered.findIndex((b) => b.id === fromId);
+    const toIdx = ordered.findIndex((b) => b.id === toId);
+    if (fromIdx < 0 || toIdx < 0) return;
+
+    const previous = banners;
+    const [moved] = ordered.splice(fromIdx, 1);
+    ordered.splice(toIdx, 0, moved);
+    const updated = ordered.map((b, i) => ({ ...b, sortOrder: i }));
+    setBanners(updated); // optimistic
+
+    const changed = updated.filter((b) => {
+      const orig = previous.find((o) => o.id === b.id);
+      return orig && orig.sortOrder !== b.sortOrder;
+    });
+    if (changed.length === 0) return;
+
+    setReordering(true);
+    setMsg("Saving order…");
+    try {
+      await Promise.all(
+        changed.map((b) => bannersService.setSortOrder(b.id, b.sortOrder))
+      );
+      setMsg("✓ Order updated");
+    } catch {
+      setMsg("✗ Failed to save order");
+      setBanners(previous); // revert on failure
+    } finally {
+      setReordering(false);
+    }
   };
 
   const tabField = (key: keyof BannerTranslationFields) => key as keyof BannerTranslationFields;
@@ -415,6 +459,7 @@ export default function BannersPage() {
             <table className="w-full text-left text-sm">
               <thead className="border-b border-gray-200 text-xs uppercase text-gray-500 dark:border-gray-800 dark:text-gray-400">
                 <tr>
+                  <th className="w-10 px-2 py-3"></th>
                   <th className="px-4 py-3">Preview</th>
                   <th className="px-4 py-3">Text (EN)</th>
                   <th className="px-4 py-3">Button</th>
@@ -425,13 +470,54 @@ export default function BannersPage() {
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
                 {banners.map((b) => (
-                  <tr key={b.id} className="text-gray-800 dark:text-white">
+                  <tr
+                    key={b.id}
+                    onDragOver={(e) => {
+                      if (!dragId) return;
+                      e.preventDefault();
+                      if (overId !== b.id) setOverId(b.id);
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      reorder(dragId, b.id);
+                      setDragId(null);
+                      setOverId(null);
+                    }}
+                    className={`text-gray-800 transition-colors dark:text-white ${
+                      dragId === b.id ? "opacity-40" : ""
+                    } ${
+                      overId === b.id && dragId !== b.id
+                        ? "bg-brand-50 dark:bg-brand-500/10"
+                        : ""
+                    }`}
+                  >
+                    <td className="px-2 py-3">
+                      <div
+                        draggable={!reordering}
+                        onDragStart={() => setDragId(b.id)}
+                        onDragEnd={() => {
+                          setDragId(null);
+                          setOverId(null);
+                        }}
+                        title="Drag to reorder"
+                        className="flex cursor-grab items-center justify-center text-gray-400 hover:text-brand-500 active:cursor-grabbing"
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                          <circle cx="9" cy="6" r="1.6" />
+                          <circle cx="15" cy="6" r="1.6" />
+                          <circle cx="9" cy="12" r="1.6" />
+                          <circle cx="15" cy="12" r="1.6" />
+                          <circle cx="9" cy="18" r="1.6" />
+                          <circle cx="15" cy="18" r="1.6" />
+                        </svg>
+                      </div>
+                    </td>
                     <td className="px-4 py-3">
                       <div
                         className="h-12 w-24 rounded-md bg-gray-200 dark:bg-gray-700"
                         style={{
                           backgroundImage: b.backgroundImageUrl
-                            ? `url(${b.backgroundImageUrl})`
+                            ? `url(${getImageUrl(b.backgroundImageUrl)})`
                             : undefined,
                           backgroundSize: "cover",
                           backgroundPosition: "center",

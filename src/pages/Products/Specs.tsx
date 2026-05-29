@@ -190,15 +190,45 @@ function SpecGroupRow({
   group,
   onOptionDeleted,
   onOptionAdded,
+  onOptionsReordered,
 }: {
   group: GlobalSpecGroup;
   onOptionDeleted: (groupId: string, optionId: string) => void;
   onOptionAdded: (groupId: string, opt: GlobalSpecOption) => void;
+  onOptionsReordered: (groupId: string, options: GlobalSpecOption[]) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [addingOption, setAddingOption] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [reordering, setReordering] = useState(false);
+
+  // Options sorted by their configured display order.
+  const sortedOptions = [...group.options].sort(
+    (a, b) => a.displayOrder - b.displayOrder
+  );
+
+  async function moveOption(index: number, dir: -1 | 1) {
+    const target = index + dir;
+    if (target < 0 || target >= sortedOptions.length) return;
+    const next = [...sortedOptions];
+    [next[index], next[target]] = [next[target], next[index]];
+    setReordering(true);
+    setDeleteError(null);
+    try {
+      const res = await specsService.reorderOptions(
+        group.id,
+        next.map((o) => o.id)
+      );
+      onOptionsReordered(group.id, res.data);
+    } catch (err) {
+      setDeleteError(
+        err instanceof ApiRequestError ? err.message : "Failed to reorder options."
+      );
+    } finally {
+      setReordering(false);
+    }
+  }
 
   async function handleDeleteOption(optionId: string) {
     setDeletingId(optionId);
@@ -276,7 +306,7 @@ function SpecGroupRow({
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-white/[0.02]">
-                    {["Value EN", "Value AZ", "Value AR", "Unit", ""].map((h) => (
+                    {["Order", "Value EN", "Value AZ", "Value AR", "Unit", ""].map((h) => (
                       <th key={h} className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-gray-400">
                         {h}
                       </th>
@@ -284,8 +314,38 @@ function SpecGroupRow({
                   </tr>
                 </thead>
                 <tbody>
-                  {group.options.map((opt) => (
+                  {sortedOptions.map((opt, index) => (
                     <tr key={opt.id} className="border-b border-gray-100 dark:border-gray-800 last:border-0">
+                      {/* Display order controls */}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <span className="w-5 text-center text-xs font-semibold text-gray-500 dark:text-gray-400">
+                            {index + 1}
+                          </span>
+                          <div className="flex flex-col">
+                            <button
+                              onClick={() => moveOption(index, -1)}
+                              disabled={reordering || index === 0}
+                              title="Move up"
+                              className="flex h-4 w-5 items-center justify-center rounded text-gray-400 hover:bg-[#402F75]/10 hover:text-[#402F75] disabled:opacity-30 disabled:hover:bg-transparent dark:hover:text-[#FBBB14] transition-colors"
+                            >
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                                <path d="M18 15l-6-6-6 6" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => moveOption(index, 1)}
+                              disabled={reordering || index === sortedOptions.length - 1}
+                              title="Move down"
+                              className="flex h-4 w-5 items-center justify-center rounded text-gray-400 hover:bg-[#402F75]/10 hover:text-[#402F75] disabled:opacity-30 disabled:hover:bg-transparent dark:hover:text-[#FBBB14] transition-colors"
+                            >
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                                <path d="M6 9l6 6 6-6" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      </td>
                       <td className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">{getOptionValue(opt, "EN")}</td>
                       <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{getOptionValue(opt, "AZ")}</td>
                       <td className="px-4 py-3 text-gray-500 dark:text-gray-400" dir="rtl">{getOptionValue(opt, "AR")}</td>
@@ -660,6 +720,12 @@ export default function Specs() {
     );
   }
 
+  function handleOptionsReordered(groupId: string, options: GlobalSpecOption[]) {
+    setGroups((prev) =>
+      prev.map((g) => (g.id === groupId ? { ...g, options } : g))
+    );
+  }
+
   const totalOptions = groups.reduce((sum, g) => sum + g.options.length, 0);
 
   return (
@@ -778,6 +844,7 @@ export default function Specs() {
                 group={group}
                 onOptionDeleted={handleOptionDeleted}
                 onOptionAdded={handleOptionAdded}
+                onOptionsReordered={handleOptionsReordered}
               />
             ))
           )}

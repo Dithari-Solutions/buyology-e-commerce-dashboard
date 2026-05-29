@@ -3,7 +3,7 @@ import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { productsService, ApiRequestError } from "../../api";
 import type { Product } from "../../types";
-import { env } from "../../config/env";
+import { getImageUrl } from "../../utils/imageUrl";
 
 function formatDate(iso: string): string {
   return new Intl.DateTimeFormat("en-US", {
@@ -61,7 +61,7 @@ function TrashRow({ product }: { product: Product }) {
           <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 text-gray-400">
             {primaryMedia ? (
               <img
-                src={`${env.apiBaseUrl}${primaryMedia.url}`}
+                src={getImageUrl(primaryMedia.thumbnailUrl ?? primaryMedia.url)}
                 alt={product.title}
                 className="h-10 w-10 object-cover"
               />

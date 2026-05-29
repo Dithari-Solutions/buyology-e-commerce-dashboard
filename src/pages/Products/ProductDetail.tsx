@@ -4,7 +4,7 @@ import PageMeta from "../../components/common/PageMeta";
 import Badge from "../../components/ui/badge/Badge";
 import { productsService, ApiRequestError } from "../../api";
 import type { Product, ProductMedia, ProductStatus } from "../../types";
-import { env } from "../../config/env";
+import { getImageUrl } from "../../utils/imageUrl";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -229,14 +229,14 @@ export default function ProductDetail() {
                 {selectedMedia?.mediaType === "VIDEO" ? (
                   <video
                     key={selectedMedia.id}
-                    src={`${env.apiBaseUrl}${selectedMedia.url}`}
+                    src={getImageUrl(selectedMedia.url)}
                     controls
                     className="max-h-[480px] max-w-full object-contain"
                   />
                 ) : selectedMedia ? (
                   <img
                     key={selectedMedia.id}
-                    src={`${env.apiBaseUrl}${selectedMedia.url}`}
+                    src={getImageUrl(selectedMedia.url)}
                     alt={product.title}
                     className="max-h-[480px] max-w-full object-contain"
                   />
@@ -266,7 +266,7 @@ export default function ProductDetail() {
                           </div>
                         ) : (
                           <img
-                            src={`${env.apiBaseUrl}${m.thumbnailUrl ?? m.url}`}
+                            src={getImageUrl(m.thumbnailUrl ?? m.url)}
                             alt={`Media ${m.orderIndex + 1}`}
                             className="h-full w-full object-cover"
                           />

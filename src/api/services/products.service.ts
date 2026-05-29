@@ -98,6 +98,28 @@ export const productsService = {
   },
 
   /**
+   * Activate / deactivate a product (admin). Status must be ACTIVE or INACTIVE.
+   */
+  setStatus(
+    id: string,
+    status: "ACTIVE" | "INACTIVE",
+    signal?: AbortSignal
+  ): Promise<ApiResponse<void>> {
+    return apiClient.patch<ApiResponse<void>>(
+      `${BASE}/${id}/status?status=${status}`,
+      undefined,
+      { signal }
+    );
+  },
+
+  /**
+   * Soft-delete a product — moves it to trash.
+   */
+  remove(id: string, signal?: AbortSignal): Promise<ApiResponse<void>> {
+    return apiClient.delete<ApiResponse<void>>(`${BASE}/${id}`, { signal });
+  },
+
+  /**
    * Fetch all trashed (soft-deleted) products.
    */
   getTrash(

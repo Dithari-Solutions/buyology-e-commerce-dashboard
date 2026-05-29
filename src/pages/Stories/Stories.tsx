@@ -5,7 +5,7 @@ import Badge from "../../components/ui/badge/Badge";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
 import { storiesService, ApiRequestError } from "../../api";
-import { env } from "../../config/env";
+import { getImageUrl } from "../../utils/imageUrl";
 import type { Story, StoryMedia } from "../../types";
 import { StoryStatus } from "../../types";
 
@@ -13,8 +13,8 @@ import { StoryStatus } from "../../types";
 // Helpers
 // ---------------------------------------------------------------------------
 
-function mediaUrl(path: string): string {
-  return `${env.apiBaseUrl}${path}`;
+function mediaUrl(path: string | null | undefined): string {
+  return getImageUrl(path);
 }
 
 type BadgeColor = "success" | "warning" | "error" | "light";

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Badge from "../../components/ui/badge/Badge";
@@ -27,6 +27,41 @@ type BadgeColor = "success" | "error" | "warning" | "info" | "light";
 
 function statusColor(status: CategoryStatus): BadgeColor {
   return status === "ACTIVE" ? "success" : "error";
+}
+
+interface CategoryRow {
+  category: Category;
+  depth: number;
+  /** True for the last child within its sibling group — used to cap the tree line. */
+  isLast: boolean;
+}
+
+/**
+ * Flattens categories into a depth-first ordered list so each root is
+ * immediately followed by its descendants. Categories whose parent is missing
+ * from the current (filtered) set are promoted to the root level so nothing
+ * silently disappears while searching.
+ */
+function buildTreeOrder(items: Category[]): CategoryRow[] {
+  const ids = new Set(items.map((c) => c.id));
+  const byParent = new Map<string | null, Category[]>();
+  for (const c of items) {
+    const key = c.parentId && ids.has(c.parentId) ? c.parentId : null;
+    const bucket = byParent.get(key);
+    if (bucket) bucket.push(c);
+    else byParent.set(key, [c]);
+  }
+
+  const rows: CategoryRow[] = [];
+  const visit = (parentKey: string | null, depth: number) => {
+    const children = byParent.get(parentKey) ?? [];
+    children.forEach((c, i) => {
+      rows.push({ category: c, depth, isLast: i === children.length - 1 });
+      visit(c.id, depth + 1);
+    });
+  };
+  visit(null, 0);
+  return rows;
 }
 
 // ---------------------------------------------------------------------------
@@ -438,6 +473,8 @@ export default function Categories() {
     return matchesSearch && matchesStatus;
   });
 
+  const treeRows = useMemo(() => buildTreeOrder(filtered), [filtered]);
+
   const activeCount = categories.filter((c) => c.status === "ACTIVE").length;
   const inactiveCount = categories.filter((c) => c.status === "INACTIVE").length;
   const rootCount = categories.filter((c) => c.parentId === null).length;
@@ -738,24 +775,58 @@ export default function Categories() {
                   Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)}
 
                 {!loading &&
-                  filtered.map((category) => {
+                  treeRows.map(({ category, depth, isLast }) => {
                     const parent = category.parentId
                       ? categoryById.get(category.parentId)
                       : null;
+                    const isRoot = depth === 0;
 
                     return (
                       <tr
                         key={category.id}
-                        className="border-b border-gray-100 dark:border-gray-800 transition-colors hover:bg-brand-50/50 dark:hover:bg-white/[0.02]"
+                        className={`transition-colors hover:bg-brand-50/50 dark:hover:bg-white/[0.02] ${
+                          isRoot
+                            ? "border-t-2 border-gray-200 dark:border-gray-700 bg-gray-50/60 dark:bg-white/[0.02]"
+                            : "border-b border-gray-100 dark:border-gray-800"
+                        }`}
                       >
-                        {/* Name */}
+                        {/* Name (indented to show hierarchy) */}
                         <td className="px-5 py-4">
-                          <p className="text-sm font-semibold text-gray-800 dark:text-white/90">
-                            {category.name}
-                          </p>
-                          <p className="mt-0.5 text-xs text-gray-400 dark:text-gray-500 truncate max-w-[200px]">
-                            {category.description}
-                          </p>
+                          <div
+                            className="flex items-center gap-2"
+                            style={{ paddingLeft: `${depth * 24}px` }}
+                          >
+                            {depth > 0 && (
+                              // Tree connector line linking a child to its parent
+                              <span
+                                className="flex-shrink-0 font-mono text-gray-300 dark:text-gray-600 select-none"
+                                aria-hidden="true"
+                              >
+                                {isLast ? "└─" : "├─"}
+                              </span>
+                            )}
+                            {isRoot && (
+                              <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-brand-50 text-brand-500 dark:bg-brand-500/10 dark:text-brand-400">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <path d="M3 3h6l2 3H21v13H3z" />
+                                </svg>
+                              </span>
+                            )}
+                            <div className="min-w-0">
+                              <p
+                                className={`truncate ${
+                                  isRoot
+                                    ? "text-sm font-bold text-gray-800 dark:text-white"
+                                    : "text-sm font-medium text-gray-600 dark:text-gray-300"
+                                }`}
+                              >
+                                {category.name}
+                              </p>
+                              <p className="mt-0.5 text-xs text-gray-400 dark:text-gray-500 truncate max-w-[200px]">
+                                {category.description}
+                              </p>
+                            </div>
+                          </div>
                         </td>
 
                         {/* Parent */}
@@ -765,7 +836,7 @@ export default function Categories() {
                               {parent.name}
                             </span>
                           ) : (
-                            <span className="inline-flex items-center rounded-full bg-indigo-50 dark:bg-indigo-500/10 px-2.5 py-0.5 text-xs font-medium text-indigo-600 dark:text-indigo-400">
+                            <span className="inline-flex items-center rounded-full bg-brand-50 dark:bg-brand-500/10 px-2.5 py-0.5 text-xs font-semibold text-brand-600 dark:text-brand-400">
                               Root
                             </span>
                           )}

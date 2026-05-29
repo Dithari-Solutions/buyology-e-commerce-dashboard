@@ -18,6 +18,7 @@ export interface SpecOptionTranslation {
 export interface GlobalSpecOption {
   id: string;
   unit: string | null;
+  displayOrder: number;
   translations: SpecOptionTranslation[];
 }
 
@@ -41,6 +42,7 @@ export interface CreateGlobalSpecOptionInput {
   valueEn: string;
   valueAr: string;
   unit?: string;
+  displayOrder?: number;
 }
 
 export interface CreateGlobalSpecGroupRequest {
@@ -106,6 +108,22 @@ export const specsService = {
   ): Promise<ApiResponse<null>> {
     return apiClient.delete<ApiResponse<null>>(
       `${BASE}/options/${optionId}`,
+      { signal }
+    );
+  },
+
+  /**
+   * Reorder a spec group's options (admin). The position of each id in
+   * `optionIds` becomes its display order.
+   */
+  reorderOptions(
+    groupId: string,
+    optionIds: string[],
+    signal?: AbortSignal
+  ): Promise<ApiResponse<GlobalSpecOption[]>> {
+    return apiClient.put<ApiResponse<GlobalSpecOption[]>>(
+      `${BASE}/${groupId}/options/reorder`,
+      { optionIds },
       { signal }
     );
   },
