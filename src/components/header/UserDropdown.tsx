@@ -1,11 +1,79 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { useAuth } from "../../context/AuthContext";
+import { getUserIdFromToken, hasRole } from "../../api/client";
+import { usersService } from "../../api/services/users.service";
+import { suppliersService } from "../../api/services/suppliers.service";
+
+interface CurrentUser {
+  name: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+}
+
+/** First letter of first + last name (falls back to first two letters of a single name). */
+function initialsFor(user: CurrentUser | null): string {
+  if (!user) return "";
+  const first = user.firstName?.trim();
+  const last = user.lastName?.trim();
+  if (first && last) return (first[0] + last[0]).toUpperCase();
+  const source = (first || last || user.name || "").trim();
+  if (!source) return "";
+  const parts = source.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return source.slice(0, 2).toUpperCase();
+}
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState<CurrentUser | null>(null);
   const { signOut } = useAuth();
+
+  useEffect(() => {
+    let cancelled = false;
+    const authCredId = getUserIdFromToken();
+
+    // Admins/staff resolve through the admin users endpoint; pure suppliers fall
+    // back to their supplier record (the admin endpoint 403s for them).
+    if (authCredId) {
+      usersService
+        .getById(authCredId)
+        .then((res) => {
+          if (cancelled) return;
+          const d = res.data;
+          if (!d) return;
+          const name = [d.firstName, d.lastName].filter(Boolean).join(" ").trim();
+          setUser({
+            name: name || d.email || "User",
+            firstName: d.firstName ?? undefined,
+            lastName: d.lastName ?? undefined,
+            email: d.email ?? undefined,
+          });
+        })
+        .catch(() => {
+          if (cancelled || !hasRole("SUPPLIER")) return;
+          suppliersService
+            .getCurrentSupplier()
+            .then((res) => {
+              if (cancelled || !res.data) return;
+              setUser({
+                name: res.data.businessName,
+                firstName: res.data.businessName,
+                email: res.data.contactEmail,
+              });
+            })
+            .catch(() => {});
+        });
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const initials = initialsFor(user);
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -20,11 +88,13 @@ export default function UserDropdown() {
         onClick={toggleDropdown}
         className="flex items-center text-gray-700 dropdown-toggle dark:text-gray-400"
       >
-        <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
-          <img src="/images/user/owner.jpg" alt="User" />
+        <span className="mr-3 flex h-11 w-11 items-center justify-center rounded-full bg-brand-500 text-sm font-semibold uppercase text-white ring-2 ring-buyology-yellow-300/70 dark:ring-buyology-yellow-400/30">
+          {initials || "?"}
         </span>
 
-        <span className="block mr-1 font-medium text-theme-sm">Musharof</span>
+        <span className="block mr-1 font-medium text-theme-sm">
+          {user?.firstName || user?.name || "User"}
+        </span>
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
@@ -50,13 +120,18 @@ export default function UserDropdown() {
         onClose={closeDropdown}
         className="absolute right-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
       >
-        <div>
-          <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-            Musharof Chowdhury
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-500 text-sm font-semibold uppercase text-white">
+            {initials || "?"}
           </span>
-          <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-            randomuser@pimjo.com
-          </span>
+          <div className="min-w-0">
+            <span className="block truncate font-medium text-gray-700 text-theme-sm dark:text-gray-300">
+              {user?.name || "User"}
+            </span>
+            <span className="mt-0.5 block truncate text-theme-xs text-gray-500 dark:text-gray-400">
+              {user?.email || "—"}
+            </span>
+          </div>
         </div>
 
         <ul className="flex flex-col gap-1 pt-4 pb-3 border-b border-gray-200 dark:border-gray-800">
