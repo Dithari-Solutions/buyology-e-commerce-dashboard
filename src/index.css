@@ -137,6 +137,29 @@ layer(base);
 
   --color-theme-purple-500: #7a5af8;
 
+  /* Buyology brand palette — purple (primary) + yellow (accent) */
+  --color-buyology-25: #faf7ff;
+  --color-buyology-50: #f4effe;
+  --color-buyology-100: #ebe3fd;
+  --color-buyology-200: #d9cbfb;
+  --color-buyology-300: #bda4f7;
+  --color-buyology-400: #9b72f1;
+  --color-buyology-500: #7c3aed;
+  --color-buyology-600: #6d28d9;
+  --color-buyology-700: #5b21b6;
+  --color-buyology-800: #4c1d95;
+  --color-buyology-900: #3b0d6e;
+  --color-buyology-950: #25064a;
+
+  --color-buyology-yellow-25: #fffdf2;
+  --color-buyology-yellow-50: #fefce8;
+  --color-buyology-yellow-100: #fef9c3;
+  --color-buyology-yellow-200: #fef08a;
+  --color-buyology-yellow-300: #fde047;
+  --color-buyology-yellow-400: #facc15;
+  --color-buyology-yellow-500: #eab308;
+  --color-buyology-yellow-600: #ca8a04;
+
   --shadow-theme-md: 0px 4px 8px -2px rgba(16, 24, 40, 0.1),
     0px 2px 4px -2px rgba(16, 24, 40, 0.06);
   --shadow-theme-lg: 0px 12px 16px -4px rgba(16, 24, 40, 0.08),
@@ -195,7 +218,7 @@ layer(base);
 }
 
 @utility menu-item-active {
-  @apply bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400;
+  @apply bg-buyology-50 text-buyology-600 ring-1 ring-buyology-yellow-300/70 dark:bg-buyology-500/[0.15] dark:text-buyology-300 dark:ring-buyology-yellow-400/30;
 }
 
 @utility menu-item-inactive {
@@ -207,7 +230,7 @@ layer(base);
 }
 
 @utility menu-item-icon-active {
-  @apply text-brand-500 dark:text-brand-400;
+  @apply text-buyology-600 dark:text-buyology-300;
 }
 
 @utility menu-item-icon-size {
@@ -225,7 +248,7 @@ layer(base);
 }
 
 @utility menu-item-arrow-active {
-  @apply rotate-180 text-brand-500 dark:text-brand-400;
+  @apply rotate-180 text-buyology-600 dark:text-buyology-300;
 }
 
 @utility menu-item-arrow-inactive {
@@ -237,7 +260,7 @@ layer(base);
 }
 
 @utility menu-dropdown-item-active {
-  @apply bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400;
+  @apply bg-buyology-50 text-buyology-600 dark:bg-buyology-500/[0.15] dark:text-buyology-300;
 }
 
 @utility menu-dropdown-item-inactive {
@@ -245,15 +268,15 @@ layer(base);
 }
 
 @utility menu-dropdown-badge {
-  @apply block rounded-full px-2.5 py-0.5 text-xs font-medium uppercase text-brand-500 dark:text-brand-400;
+  @apply block rounded-full px-2.5 py-0.5 text-xs font-medium uppercase text-buyology-700 dark:text-buyology-yellow-300;
 }
 
 @utility menu-dropdown-badge-active {
-  @apply bg-brand-100 dark:bg-brand-500/20;
+  @apply bg-buyology-yellow-200 text-buyology-800 dark:bg-buyology-yellow-400/20;
 }
 
 @utility menu-dropdown-badge-inactive {
-  @apply bg-brand-50 group-hover:bg-brand-100 dark:bg-brand-500/15 dark:group-hover:bg-brand-500/20;
+  @apply bg-buyology-100 group-hover:bg-buyology-yellow-200 dark:bg-buyology-500/15 dark:group-hover:bg-buyology-500/25;
 }
 @utility no-scrollbar {
   /* Chrome, Safari and Opera */
