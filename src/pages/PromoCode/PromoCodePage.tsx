@@ -103,7 +103,7 @@ export default function PromoCodePage() {
                     </td>
                     <td className="py-3 flex gap-2">
                       <button onClick={() => setShowSend(p.id)}
-                        className="rounded-lg bg-blue-50 px-2 py-1 text-xs text-blue-600 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400">
+                        className="rounded-lg bg-brand-50 px-2 py-1 text-xs text-brand-600 hover:bg-brand-100 dark:bg-brand-900/20 dark:text-brand-400">
                         Send
                       </button>
                       {p.isActive && (

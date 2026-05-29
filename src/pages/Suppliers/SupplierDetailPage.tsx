@@ -246,7 +246,7 @@ export default function SupplierDetailPage() {
 
             {app.tradeLicenseUrl && (
               <p className="mt-3 text-xs">
-                <a href={app.tradeLicenseUrl} target="_blank" rel="noreferrer" className="text-blue-600 underline">
+                <a href={app.tradeLicenseUrl} target="_blank" rel="noreferrer" className="text-brand-600 underline">
                   View trade license document ↗
                 </a>
               </p>
@@ -365,7 +365,7 @@ export default function SupplierDetailPage() {
                           className={`rounded-md px-3 py-1 text-xs font-medium disabled:opacity-50 ${
                             isAssigned
                               ? "border border-red-300 text-red-700 hover:bg-red-50"
-                              : "bg-blue-600 text-white hover:bg-blue-700"
+                              : "bg-brand-600 text-white hover:bg-brand-700"
                           }`}
                         >
                           {storeBusy === s.id ? "…" : isAssigned ? "Remove" : "Assign"}
@@ -396,7 +396,7 @@ export default function SupplierDetailPage() {
                           onChange={() => setSelectedStoreIds((prev) =>
                             prev.includes(s.id) ? prev.filter((x) => x !== s.id) : [...prev, s.id]
                           )}
-                          className="h-4 w-4 rounded border-gray-300 text-blue-600"
+                          className="h-4 w-4 rounded border-gray-300 text-brand-600"
                         />
                         <span className="text-xs text-gray-700 dark:text-gray-300">{s.name ?? s.id}</span>
                       </label>
@@ -448,7 +448,7 @@ export default function SupplierDetailPage() {
                   </button>
                 )}
                 {supplier.status === "SUSPENDED" && (
-                  <button onClick={() => runLifecycle("unfreeze")} className="rounded-lg bg-blue-100 px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-200">
+                  <button onClick={() => runLifecycle("unfreeze")} className="rounded-lg bg-brand-100 px-3 py-2 text-xs font-medium text-brand-700 hover:bg-brand-200">
                     Unfreeze
                   </button>
                 )}

@@ -9,7 +9,7 @@ import {
 
 const STATUS_COLORS: Record<CreditUsageStatus, string> = {
   OUTSTANDING: "bg-yellow-100 text-yellow-700",
-  PARTIAL: "bg-blue-100 text-blue-700",
+  PARTIAL: "bg-brand-100 text-brand-700",
   PAID: "bg-green-100 text-green-700",
   OVERDUE: "bg-red-100 text-red-700",
 };
@@ -110,7 +110,7 @@ export default function CreditManagementPage() {
             <button
               onClick={saveConfig}
               disabled={savingConfig || paybackDays === savedDays}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+              className="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
             >
               {savingConfig ? "Saving…" : "Save"}
             </button>
@@ -182,7 +182,7 @@ export default function CreditManagementPage() {
                             setExtendDays("");
                             setNewDueAt("");
                           }}
-                          className="text-xs text-blue-600 hover:underline"
+                          className="text-xs text-brand-600 hover:underline"
                         >
                           Change deadline
                         </button>
@@ -240,7 +240,7 @@ export default function CreditManagementPage() {
               <button
                 onClick={saveDeadline}
                 disabled={savingDeadline || (!extendDays && !newDueAt)}
-                className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white disabled:opacity-50"
+                className="rounded-md bg-brand-600 px-4 py-2 text-sm text-white disabled:opacity-50"
               >
                 {savingDeadline ? "Saving…" : "Save"}
               </button>

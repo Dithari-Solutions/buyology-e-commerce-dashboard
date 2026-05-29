@@ -13,7 +13,7 @@ const STATUS_COLORS: Record<ApplicationStatus, string> = {
   PENDING: "bg-yellow-100 text-yellow-700",
   APPROVED: "bg-green-100 text-green-700",
   REJECTED: "bg-red-100 text-red-700",
-  UNDER_REVIEW: "bg-blue-100 text-blue-700",
+  UNDER_REVIEW: "bg-brand-100 text-brand-700",
 };
 
 type TabKey = "applications" | "memberships";
@@ -236,7 +236,7 @@ function MembershipsTable({
                   {m.status === "SUSPENDED" && (
                     <button
                       onClick={() => runLifecycle(m.id, "unfreeze")}
-                      className="rounded-lg bg-blue-100 px-3 py-1.5 text-xs text-blue-700 hover:bg-blue-200"
+                      className="rounded-lg bg-brand-100 px-3 py-1.5 text-xs text-brand-700 hover:bg-brand-200"
                     >
                       Unfreeze
                     </button>

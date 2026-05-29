@@ -90,7 +90,7 @@ export default function SupplierProductsPage() {
               onClick={() => setTab(t)}
               className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${
                 tab === t
-                  ? "bg-blue-600 text-white"
+                  ? "bg-brand-600 text-white"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400"
               }`}
             >

@@ -40,7 +40,7 @@ export default function MyProductsPage() {
                 onClick={() => setTab(t)}
                 className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${
                   tab === t
-                    ? "bg-blue-600 text-white"
+                    ? "bg-brand-600 text-white"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400"
                 }`}
               >
@@ -50,7 +50,7 @@ export default function MyProductsPage() {
           </div>
           <Link
             to="/supplier/new-product"
-            className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700"
+            className="rounded-lg bg-brand-600 px-4 py-2 text-xs font-medium text-white hover:bg-brand-700"
           >
             + Add Product
           </Link>
@@ -63,7 +63,7 @@ export default function MyProductsPage() {
             <p className="text-gray-500 dark:text-gray-400 mb-3">No products yet.</p>
             <Link
               to="/supplier/new-product"
-              className="inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              className="inline-block rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
             >
               Submit your first product
             </Link>

@@ -243,7 +243,7 @@ export default function B2BMemberDetailPage() {
                 </button>
               )}
               {member.status === "SUSPENDED" && (
-                <button onClick={() => runLifecycle("unfreeze")} className="rounded-lg bg-blue-100 px-3 py-1.5 text-xs text-blue-700 hover:bg-blue-200">
+                <button onClick={() => runLifecycle("unfreeze")} className="rounded-lg bg-brand-100 px-3 py-1.5 text-xs text-brand-700 hover:bg-brand-200">
                   Unfreeze
                 </button>
               )}
@@ -299,7 +299,7 @@ export default function B2BMemberDetailPage() {
             <div className="mt-4 grid grid-cols-3 gap-2">
               <button onClick={() => { setWalletModal("credit"); setWalletAmount(""); setWalletDesc(""); setWalletError(""); }} className="rounded-lg bg-green-50 py-2 text-xs font-medium text-green-700 hover:bg-green-100">+ Add</button>
               <button onClick={() => { setWalletModal("deduct"); setWalletAmount(""); setWalletDesc(""); setWalletError(""); }} className="rounded-lg bg-red-50 py-2 text-xs font-medium text-red-700 hover:bg-red-100">− Deduct</button>
-              <button onClick={() => { setWalletModal("adjust"); setWalletAmount(""); setWalletDesc(""); setWalletError(""); }} className="rounded-lg bg-blue-50 py-2 text-xs font-medium text-blue-700 hover:bg-blue-100">± Adjust</button>
+              <button onClick={() => { setWalletModal("adjust"); setWalletAmount(""); setWalletDesc(""); setWalletError(""); }} className="rounded-lg bg-brand-50 py-2 text-xs font-medium text-brand-700 hover:bg-brand-100">± Adjust</button>
             </div>
           </section>
 
@@ -371,7 +371,7 @@ function TransactionList({ items }: { items: WalletTransaction[] }) {
           <div>
             <span className={`text-xs font-bold ${
               tx.type === "CREDIT" || tx.type === "REFUND" ? "text-green-600"
-              : tx.type === "DEBIT" ? "text-red-600" : "text-blue-600"
+              : tx.type === "DEBIT" ? "text-red-600" : "text-brand-600"
             }`}>{tx.type}</span>
             <p className="text-xs text-gray-500">{tx.description ?? "—"}</p>
             <p className="text-[10px] text-gray-400">{new Date(tx.createdAt).toLocaleString()}</p>
@@ -409,7 +409,7 @@ function CreditUsageList({ items }: { items: CreditUsage[] }) {
               <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                 u.status === "PAID" ? "bg-green-100 text-green-700"
                 : u.status === "OUTSTANDING" ? "bg-yellow-100 text-yellow-700"
-                : u.status === "PARTIAL" ? "bg-blue-100 text-blue-700"
+                : u.status === "PARTIAL" ? "bg-brand-100 text-brand-700"
                 : "bg-red-100 text-red-700"
               }`}>
                 {u.status}

@@ -106,7 +106,7 @@ export default function B2BCountriesPage() {
           <button
             type="submit"
             disabled={saving}
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white disabled:opacity-50"
+            className="rounded-md bg-brand-600 px-4 py-2 text-sm text-white disabled:opacity-50"
           >
             {saving ? "Saving…" : "Save"}
           </button>
@@ -145,7 +145,7 @@ export default function B2BCountriesPage() {
                     )}
                   </td>
                   <td className="px-3 py-2 text-right">
-                    <button onClick={() => toggle(c)} className="mr-3 text-xs text-blue-600 hover:underline">
+                    <button onClick={() => toggle(c)} className="mr-3 text-xs text-brand-600 hover:underline">
                       {c.enabled ? "Disable" : "Enable"}
                     </button>
                     <button onClick={() => remove(c.id)} className="text-xs text-red-600 hover:underline">

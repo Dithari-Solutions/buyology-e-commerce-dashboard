@@ -39,7 +39,7 @@ function DeletionCountdown({ deletedAt }: { deletedAt: string }) {
 function productTypeColor(type: string): string {
   switch (type) {
     case "SIMPLE":
-      return "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400";
+      return "bg-brand-100 text-brand-700 dark:bg-brand-500/10 dark:text-brand-400";
     case "DIY":
       return "bg-purple-100 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400";
     case "ACCESSORY":

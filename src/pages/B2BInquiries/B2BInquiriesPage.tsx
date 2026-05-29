@@ -4,7 +4,7 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { b2bService, type B2bInquiry } from "../../api/services/b2b.service";
 
 const STATUS_COLORS: Record<B2bInquiry["status"], string> = {
-  NEW: "bg-blue-100 text-blue-700",
+  NEW: "bg-brand-100 text-brand-700",
   REVIEWED: "bg-yellow-100 text-yellow-700",
   RESPONDED: "bg-green-100 text-green-700",
 };
@@ -55,7 +55,7 @@ export default function B2BInquiriesPage() {
           <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
             B2B Inquiries
             {newCount > 0 && (
-              <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
+              <span className="ml-2 rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">
                 {newCount} new
               </span>
             )}

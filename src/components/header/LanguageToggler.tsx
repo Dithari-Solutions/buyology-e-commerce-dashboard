@@ -42,7 +42,7 @@ export default function LanguageToggler() {
                 setOpen(false);
               }}
               className={`block w-full px-3 py-2 text-left text-xs hover:bg-gray-50 dark:hover:bg-gray-700 ${
-                code === lang ? "font-semibold text-blue-600" : "text-gray-700 dark:text-gray-200"
+                code === lang ? "font-semibold text-brand-600" : "text-gray-700 dark:text-gray-200"
               }`}
             >
               <span className="mr-2 uppercase text-gray-500">{code}</span>

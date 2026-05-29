@@ -443,30 +443,28 @@ const AppSidebar: React.FC = () => {
       >
         <Link to={homePath}>
           {isExpanded || isHovered || isMobileOpen ? (
-            <>
+            <div className="flex items-center gap-3">
               <img
-                className="dark:hidden rounded-full"
+                className="rounded-full"
                 src="/logo.png"
                 alt="Logo"
                 width={90}
                 height={40}
               />
-              <img
-                className="hidden dark:block rounded-full"
-                src="/logo.png"
-                alt="Logo"
-                width={90}
-                height={40}
-              />
-            </>
+              <span className="text-xl font-bold tracking-tight text-brand-500 dark:text-white">
+                Buyology
+              </span>
+            </div>
           ) : (
-            <img
+            <div>
+              <img
             className=" rounded-full"
               src="/logo.png"
               alt="Logo"
               width={32}
               height={32}
             />
+            </div>
           )}
         </Link>
       </div>

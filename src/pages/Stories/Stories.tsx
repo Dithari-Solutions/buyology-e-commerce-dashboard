@@ -320,7 +320,7 @@ function StoryCard({
                 className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
                   m.mediaType === "VIDEO"
                     ? "bg-purple-100 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400"
-                    : "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400"
+                    : "bg-brand-100 text-brand-700 dark:bg-brand-500/10 dark:text-brand-400"
                 }`}
               >
                 {m.mediaType === "VIDEO" ? (

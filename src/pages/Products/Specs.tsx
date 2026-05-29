@@ -723,11 +723,11 @@ export default function Specs() {
       )}
 
       {/* Code convention info */}
-      <div className="mb-5 rounded-xl border border-blue-200 dark:border-blue-700/30 bg-blue-50 dark:bg-blue-500/5 px-5 py-3">
-        <p className="text-xs text-blue-700 dark:text-blue-400">
+      <div className="mb-5 rounded-xl border border-brand-200 dark:border-brand-700/30 bg-brand-50 dark:bg-brand-500/5 px-5 py-3">
+        <p className="text-xs text-brand-700 dark:text-brand-400">
           <strong>Valid spec codes:</strong>{" "}
           {SPEC_CODES.map((c) => (
-            <code key={c} className="mx-1 rounded bg-blue-100 dark:bg-blue-500/20 px-1.5 py-0.5 font-mono">
+            <code key={c} className="mx-1 rounded bg-brand-100 dark:bg-brand-500/20 px-1.5 py-0.5 font-mono">
               {c}
             </code>
           ))}

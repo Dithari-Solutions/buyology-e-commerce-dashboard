@@ -12,7 +12,7 @@ const STATUS_COLORS: Record<ApplicationStatus, string> = {
   PENDING: "bg-yellow-100 text-yellow-700",
   APPROVED: "bg-green-100 text-green-700",
   REJECTED: "bg-red-100 text-red-700",
-  UNDER_REVIEW: "bg-blue-100 text-blue-700",
+  UNDER_REVIEW: "bg-brand-100 text-brand-700",
 };
 
 export default function B2BApplicationDetailPage() {
@@ -131,7 +131,7 @@ export default function B2BApplicationDetailPage() {
                   Reject
                 </button>
                 {app.status !== "UNDER_REVIEW" && (
-                  <button onClick={() => setActionType("UNDER_REVIEW")} className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600">
+                  <button onClick={() => setActionType("UNDER_REVIEW")} className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600">
                     Mark under review
                   </button>
                 )}

@@ -98,7 +98,7 @@ export default function SupplierStoresModal({ supplierId, supplierName, onClose 
                     className={`rounded-md px-3 py-1.5 text-xs font-medium disabled:opacity-50 ${
                       isAssigned
                         ? "border border-red-300 bg-white text-red-700 hover:bg-red-50"
-                        : "bg-blue-600 text-white hover:bg-blue-700"
+                        : "bg-brand-600 text-white hover:bg-brand-700"
                     }`}
                   >
                     {busy === s.id ? "…" : isAssigned ? "Remove" : "Assign"}

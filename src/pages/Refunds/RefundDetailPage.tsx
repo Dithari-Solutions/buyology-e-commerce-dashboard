@@ -11,10 +11,10 @@ import {
 
 const STATUS_COLORS: Record<RefundRequestStatus, string> = {
   PENDING_REVIEW: "bg-yellow-100 text-yellow-700",
-  APPROVED: "bg-blue-100 text-blue-700",
-  DROPOFF_SELECTED: "bg-blue-100 text-blue-700",
-  COURIER_REQUESTED: "bg-blue-100 text-blue-700",
-  RECEIVED: "bg-blue-100 text-blue-700",
+  APPROVED: "bg-brand-100 text-brand-700",
+  DROPOFF_SELECTED: "bg-brand-100 text-brand-700",
+  COURIER_REQUESTED: "bg-brand-100 text-brand-700",
+  RECEIVED: "bg-brand-100 text-brand-700",
   REJECTED: "bg-red-100 text-red-700",
   PAID: "bg-green-100 text-green-700",
   FAILED: "bg-red-100 text-red-700",
