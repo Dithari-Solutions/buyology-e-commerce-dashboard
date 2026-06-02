@@ -2,7 +2,7 @@ import { apiClient } from "../client";
 import type { ApiResponse } from "../types/api.types";
 
 export type RevenuePeriod = "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY";
-export type RevenueExportFormat = "CSV" | "XLSX";
+export type RevenueExportFormat = "CSV" | "XLSX" | "PDF";
 export type RevenueExportType = "PLATFORM" | "SUPPLIER_ALL" | "SUPPLIER";
 
 export interface RevenueBucketRow {
@@ -66,6 +66,7 @@ export interface RevenueFilter {
   period?: RevenuePeriod;
   from?: string;
   to?: string;
+  storeId?: string;
 }
 
 function buildQuery(params: Record<string, string | number | undefined | null>): string {
@@ -92,7 +93,7 @@ export function downloadExport(record: RevenueExportRecord | null | undefined): 
 export const revenueService = {
   // ── Admin: view ───────────────────────────────────────────────────────────
   getPlatformRevenue(filter: RevenueFilter = {}): Promise<ApiResponse<RevenueReportResponse>> {
-    const qs = buildQuery({ period: filter.period, from: filter.from, to: filter.to });
+    const qs = buildQuery({ period: filter.period, from: filter.from, to: filter.to, storeId: filter.storeId });
     return apiClient.get<ApiResponse<RevenueReportResponse>>(`/api/admin/revenue/platform${qs}`);
   },
 
@@ -113,6 +114,7 @@ export const revenueService = {
     period?: RevenuePeriod;
     from?: string;
     to?: string;
+    storeId?: string;
   }): Promise<ApiResponse<RevenueExportRecord>> {
     const qs = buildQuery({
       type: params.type,
@@ -120,6 +122,7 @@ export const revenueService = {
       period: params.period,
       from: params.from,
       to: params.to,
+      storeId: params.storeId,
     });
     return apiClient.post<ApiResponse<RevenueExportRecord>>(`/api/admin/revenue/exports${qs}`);
   },

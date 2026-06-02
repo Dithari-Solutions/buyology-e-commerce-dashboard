@@ -100,6 +100,13 @@ export default function SupplierAnalyticsPage() {
           >
             {exporting === "CSV" ? "Exporting…" : "Export CSV"}
           </button>
+          <button
+            onClick={() => handleExport("PDF")}
+            disabled={exporting !== null}
+            className="rounded-lg border border-gray-300 px-4 py-2 text-xs font-medium text-gray-700 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200"
+          >
+            {exporting === "PDF" ? "Exporting…" : "Export PDF"}
+          </button>
         </RevenueFilterBar>
 
         {loading ? (

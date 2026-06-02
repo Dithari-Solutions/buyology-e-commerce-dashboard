@@ -10,24 +10,39 @@ import {
   type RevenueReportResponse,
 } from "../../api/services/revenue.service";
 import { fmtMoney, fmtPeriodLabel, RevenueFilterBar } from "./revenueUi";
+import { storesService } from "../../api/services/stores.service";
 
 export default function RevenuesPage() {
   const canExport = isSuperAdmin();
   const [period, setPeriod] = useState<RevenuePeriod>("MONTHLY");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
+  const [storeId, setStoreId] = useState("");
+  const [stores, setStores] = useState<{ id: string; name: string }[]>([]);
   const [report, setReport] = useState<RevenueReportResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState<RevenueExportFormat | null>(null);
 
   useEffect(() => {
+    storesService
+      .getAll()
+      .then((r) => setStores((r.data ?? []).map((s) => ({ id: s.id, name: s.name }))))
+      .catch(() => setStores([]));
+  }, []);
+
+  useEffect(() => {
     setLoading(true);
     revenueService
-      .getPlatformRevenue({ period, from: from || undefined, to: to || undefined })
+      .getPlatformRevenue({
+        period,
+        from: from || undefined,
+        to: to || undefined,
+        storeId: storeId || undefined,
+      })
       .then((r) => setReport(r.data ?? null))
       .catch(() => setReport(null))
       .finally(() => setLoading(false));
-  }, [period, from, to]);
+  }, [period, from, to, storeId]);
 
   async function handleExport(format: RevenueExportFormat) {
     try {
@@ -38,6 +53,7 @@ export default function RevenuesPage() {
         period,
         from: from || undefined,
         to: to || undefined,
+        storeId: storeId || undefined,
       });
       downloadExport(res.data);
     } catch {
@@ -81,6 +97,22 @@ export default function RevenuesPage() {
       </div>
 
       <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+        {/* Store filter */}
+        <div className="mb-3">
+          <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Store</label>
+          <select
+            value={storeId}
+            onChange={(e) => setStoreId(e.target.value)}
+            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+          >
+            <option value="">All stores</option>
+            {stores.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+        </div>
         <RevenueFilterBar
           period={period}
           onPeriodChange={setPeriod}
@@ -104,6 +136,13 @@ export default function RevenuesPage() {
                 className="rounded-lg border border-gray-300 px-4 py-2 text-xs font-medium text-gray-700 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200"
               >
                 {exporting === "CSV" ? "Exporting…" : "Export CSV"}
+              </button>
+              <button
+                onClick={() => handleExport("PDF")}
+                disabled={exporting !== null}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-xs font-medium text-gray-700 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200"
+              >
+                {exporting === "PDF" ? "Exporting…" : "Export PDF"}
               </button>
             </>
           )}
