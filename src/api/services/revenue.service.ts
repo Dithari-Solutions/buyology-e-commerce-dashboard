@@ -9,6 +9,8 @@ export interface RevenueBucketRow {
   period: string;
   orders: number;
   revenue: number;
+  refunded: number;
+  net: number;
 }
 
 export interface RevenueReportResponse {
@@ -17,6 +19,8 @@ export interface RevenueReportResponse {
   to: string;
   scopeLabel: string;
   totalRevenue: number;
+  totalRefunded: number;
+  netRevenue: number;
   totalOrders: number;
   buckets: RevenueBucketRow[];
 }
@@ -26,6 +30,8 @@ export interface SupplierRevenueRow {
   businessName: string;
   orders: number;
   revenue: number;
+  refunded: number;
+  net: number;
 }
 
 export interface SupplierRevenueOverviewResponse {
@@ -33,6 +39,8 @@ export interface SupplierRevenueOverviewResponse {
   from: string;
   to: string;
   totalRevenue: number;
+  totalRefunded: number;
+  netRevenue: number;
   totalOrders: number;
   suppliers: SupplierRevenueRow[];
 }

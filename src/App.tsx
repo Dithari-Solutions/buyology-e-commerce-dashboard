@@ -51,6 +51,7 @@ import CourierMap from "./pages/Couriers/CourierMap";
 import Orders from "./pages/Orders/Orders";
 import StoreOrders from "./pages/Orders/StoreOrders";
 import OrderDetail from "./pages/Orders/OrderDetail";
+import AllOrdersPage from "./pages/Orders/AllOrdersPage";
 import GamesPage from "./pages/Games/GamesPage";
 import PromoCodePage from "./pages/PromoCode/PromoCodePage";
 import NewsletterPage from "./pages/Newsletter/NewsletterPage";
@@ -75,6 +76,7 @@ import SupplierSetPasswordPage from "./pages/SupplierPortal/SupplierSetPasswordP
 import MyProductsPage from "./pages/SupplierPortal/MyProductsPage";
 import NewSupplierFullProductPage from "./pages/SupplierPortal/NewSupplierFullProductPage";
 import SupplierAnalyticsPage from "./pages/SupplierPortal/SupplierAnalyticsPage";
+import SupplierOrdersPage from "./pages/SupplierPortal/SupplierOrdersPage";
 import SupplierAccountPage from "./pages/SupplierPortal/SupplierAccountPage";
 import SupplierReviewsPage from "./pages/SupplierPortal/SupplierReviewsPage";
 import SupplierPayoutsPage from "./pages/SupplierPortal/SupplierPayoutsPage";
@@ -134,6 +136,7 @@ export default function App() {
 
               {/* Orders */}
               <Route path="/orders" element={<Orders />} />
+              <Route path="/orders/all" element={<AllOrdersPage />} />
               <Route path="/orders/:storeId" element={<StoreOrders />} />
               <Route path="/orders/:storeId/:orderId" element={<OrderDetail />} />
 
@@ -187,6 +190,7 @@ export default function App() {
                   bounced to "/" (which they own). */}
               <Route element={<RoleRoute mode="supplier" />}>
               <Route path="/supplier/my-products" element={<MyProductsPage />} />
+              <Route path="/supplier/orders" element={<SupplierOrdersPage />} />
               <Route path="/supplier/new-product" element={<NewSupplierFullProductPage />} />
               <Route path="/supplier/analytics" element={<SupplierAnalyticsPage />} />
               <Route path="/supplier/account" element={<SupplierAccountPage />} />

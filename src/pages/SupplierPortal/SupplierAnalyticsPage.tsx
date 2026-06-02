@@ -115,7 +115,9 @@ export default function SupplierAnalyticsPage() {
                 <tr className="border-b border-gray-100 dark:border-gray-800 text-left text-xs uppercase text-gray-500">
                   <th className="pb-3 pr-4">Period</th>
                   <th className="pb-3 pr-4">Orders</th>
-                  <th className="pb-3">Revenue</th>
+                  <th className="pb-3 pr-4">Gross</th>
+                  <th className="pb-3 pr-4">Refunds</th>
+                  <th className="pb-3">Net</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -127,7 +129,11 @@ export default function SupplierAnalyticsPage() {
                     <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">
                       {Number(row.orders).toLocaleString()}
                     </td>
-                    <td className="py-3 text-gray-600 dark:text-gray-400">{fmtMoney(row.revenue)}</td>
+                    <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">{fmtMoney(row.revenue)}</td>
+                    <td className="py-3 pr-4 text-red-500">
+                      {Number(row.refunded) > 0 ? `-${fmtMoney(row.refunded)}` : fmtMoney(0)}
+                    </td>
+                    <td className="py-3 font-medium text-gray-800 dark:text-gray-200">{fmtMoney(row.net)}</td>
                   </tr>
                 ))}
               </tbody>

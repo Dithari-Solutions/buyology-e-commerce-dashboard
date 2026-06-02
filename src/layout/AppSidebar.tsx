@@ -126,7 +126,10 @@ const navItems: NavItem[] = [
   {
     name: "Orders",
     icon: <ShoppingCartOutlinedIcon />,
-    path: "/orders",
+    subItems: [
+      { name: "By Store", path: "/orders", pro: false },
+      { name: "All Orders", path: "/orders/all", superAdminOnly: true },
+    ],
   },
   {
     name: "Refunds",
@@ -190,6 +193,7 @@ const navItems: NavItem[] = [
     area: "supplier",
     subItems: [
       { name: "My Products", path: "/supplier/my-products", pro: false },
+      { name: "Orders", path: "/supplier/orders", pro: false },
       { name: "Add Product", path: "/supplier/new-product", pro: false },
       { name: "Analytics", path: "/supplier/analytics", pro: false },
       { name: "Account", path: "/supplier/account", pro: false },

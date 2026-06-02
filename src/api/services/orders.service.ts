@@ -16,22 +16,35 @@ export const ordersService = {
       size?: number;
       status?: OrderStatus;
       storeId?: string;
+      supplierId?: string;
       search?: string;
       sort?: string;
     } = {},
     signal?: AbortSignal
   ): Promise<ApiResponse<OrderListResponse>> {
-    const { page = 0, size = 20, status, storeId, search, sort } = params;
+    const { page = 0, size = 20, status, storeId, supplierId, search, sort } = params;
     const query = new URLSearchParams({
       page: String(page),
       size: String(size),
     });
     if (status) query.set("status", status);
     if (storeId) query.set("storeId", storeId);
+    if (supplierId) query.set("supplierId", supplierId);
     if (search) query.set("search", search);
     if (sort) query.set("sort", sort);
 
     return apiClient.get<ApiResponse<OrderListResponse>>(`${BASE}?${query}`, { signal });
+  },
+
+  // GET /api/supplier/orders — orders containing the current supplier's items
+  getMine(
+    params: { page?: number; size?: number; status?: OrderStatus } = {},
+    signal?: AbortSignal
+  ): Promise<ApiResponse<OrderListResponse>> {
+    const { page = 0, size = 20, status } = params;
+    const query = new URLSearchParams({ page: String(page), size: String(size) });
+    if (status) query.set("status", status);
+    return apiClient.get<ApiResponse<OrderListResponse>>(`/api/supplier/orders?${query}`, { signal });
   },
 
   // GET /api/admin/orders/{id}/with-proof
