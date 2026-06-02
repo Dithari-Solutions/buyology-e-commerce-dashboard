@@ -27,9 +27,18 @@ import {
   UserCircleIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
-import { isPureSupplier, landingPathForCurrentUser } from "../auth/roles";
+import { isPureSupplier, isSuperAdmin, landingPathForCurrentUser } from "../auth/roles";
 
 type NavArea = "admin" | "supplier" | "shared";
+
+type NavSubItem = {
+  name: string;
+  path: string;
+  pro?: boolean;
+  new?: boolean;
+  /** When true, only visible to SUPERADMIN. */
+  superAdminOnly?: boolean;
+};
 
 type NavItem = {
   name: string;
@@ -37,14 +46,19 @@ type NavItem = {
   path?: string;
   /** Which role area this item belongs to. Defaults to "admin". */
   area?: NavArea;
-  subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
+  subItems?: NavSubItem[];
 };
 
 const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    subItems: [{ name: "Ecommerce", path: "/", pro: false }],
+    subItems: [
+      { name: "Ecommerce", path: "/", pro: false },
+      { name: "Revenues", path: "/revenue", pro: false },
+      { name: "Supplier Revenues", path: "/supplier-revenue", pro: false },
+      { name: "Revenue Exports", path: "/revenue-exports", pro: false, superAdminOnly: true },
+    ],
   },
   {
     icon: <CalenderIcon />,
@@ -221,15 +235,23 @@ const AppSidebar: React.FC = () => {
   const location = useLocation();
 
   const supplierOnly = isPureSupplier();
+  const superAdmin = isSuperAdmin();
   const homePath = landingPathForCurrentUser();
   const filterByRole = useCallback(
     (items: NavItem[]) =>
-      items.filter((item) => {
-        const area: NavArea = item.area ?? "admin";
-        if (area === "shared") return true;
-        return supplierOnly ? area === "supplier" : area === "admin";
-      }),
-    [supplierOnly]
+      items
+        .filter((item) => {
+          const area: NavArea = item.area ?? "admin";
+          if (area === "shared") return true;
+          return supplierOnly ? area === "supplier" : area === "admin";
+        })
+        // Drop sub-items gated to SUPERADMIN when the user isn't one.
+        .map((item) =>
+          item.subItems
+            ? { ...item, subItems: item.subItems.filter((s) => !s.superAdminOnly || superAdmin) }
+            : item
+        ),
+    [supplierOnly, superAdmin]
   );
   const visibleNavItems = filterByRole(navItems);
   // Suppliers don't see the kitchen-sink/UI-kit "Others" section at all.

@@ -17,6 +17,11 @@ export function isPureSupplier(): boolean {
   return hasRole("SUPPLIER") && !isAdminUser();
 }
 
+/** Highest-privilege admin role — may export revenue tables and view export history. */
+export function isSuperAdmin(): boolean {
+  return hasRole("SUPERADMIN");
+}
+
 /** Where a freshly-authenticated user should land based on their roles. */
 export function landingPathForCurrentUser(): string {
   return isPureSupplier() ? "/supplier/my-products" : "/";

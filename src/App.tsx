@@ -68,6 +68,9 @@ import B2BCountriesPage from "./pages/B2BMembership/B2BCountriesPage";
 import SuppliersPage from "./pages/Suppliers/SuppliersPage";
 import SupplierDetailPage from "./pages/Suppliers/SupplierDetailPage";
 import SupplierProductsPage from "./pages/Suppliers/SupplierProductsPage";
+import RevenuesPage from "./pages/Revenue/RevenuesPage";
+import SupplierRevenuesPage from "./pages/Revenue/SupplierRevenuesPage";
+import RevenueExportsPage from "./pages/Revenue/RevenueExportsPage";
 import SupplierSetPasswordPage from "./pages/SupplierPortal/SupplierSetPasswordPage";
 import MyProductsPage from "./pages/SupplierPortal/MyProductsPage";
 import NewSupplierFullProductPage from "./pages/SupplierPortal/NewSupplierFullProductPage";
@@ -167,6 +170,11 @@ export default function App() {
               <Route path="/b2b-applications/:id" element={<B2BApplicationDetailPage />} />
               <Route path="/b2b-credit" element={<CreditManagementPage />} />
               <Route path="/b2b-countries" element={<B2BCountriesPage />} />
+
+              {/* Revenue (admin). Export buttons + history are SUPERADMIN-gated in-page. */}
+              <Route path="/revenue" element={<RevenuesPage />} />
+              <Route path="/supplier-revenue" element={<SupplierRevenuesPage />} />
+              <Route path="/revenue-exports" element={<RevenueExportsPage />} />
 
               {/* Supplier Management (admin) */}
               <Route path="/suppliers" element={<SuppliersPage />} />
