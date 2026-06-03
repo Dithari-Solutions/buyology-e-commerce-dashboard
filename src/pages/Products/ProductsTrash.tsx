@@ -49,9 +49,33 @@ function productTypeColor(type: string): string {
   }
 }
 
-function TrashRow({ product }: { product: Product }) {
+function TrashRow({
+  product,
+  onRestored,
+  onError,
+}: {
+  product: Product;
+  onRestored: (id: string) => void;
+  onError: (message: string) => void;
+}) {
   const primaryMedia =
     product.media.find((m) => m.isPrimary) ?? product.media[0] ?? null;
+
+  const [restoring, setRestoring] = useState(false);
+
+  async function handleRestore() {
+    setRestoring(true);
+    onError("");
+    try {
+      await productsService.restore(product.id);
+      onRestored(product.id);
+    } catch (err) {
+      onError(
+        err instanceof ApiRequestError ? err.message : "Failed to restore product."
+      );
+      setRestoring(false);
+    }
+  }
 
   return (
     <tr className="border-b border-gray-100 dark:border-gray-800">
@@ -118,6 +142,28 @@ function TrashRow({ product }: { product: Product }) {
       <td className="px-4 py-4 text-xs text-gray-500 dark:text-gray-400">
         {formatDate(product.createdAt)}
       </td>
+
+      {/* Actions */}
+      <td className="px-4 py-4 pr-5 text-right">
+        <button
+          onClick={handleRestore}
+          disabled={restoring}
+          className="inline-flex items-center gap-1.5 rounded-xl border border-brand-200 dark:border-brand-800/50 bg-brand-50 dark:bg-brand-500/10 px-3 py-1.5 text-xs font-medium text-brand-600 dark:text-brand-400 hover:bg-brand-100 dark:hover:bg-brand-500/20 transition-colors disabled:opacity-60"
+        >
+          {restoring ? (
+            <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+            </svg>
+          ) : (
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 7v6h6" />
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L3 7" />
+            </svg>
+          )}
+          {restoring ? "Restoring…" : "Restore"}
+        </button>
+      </td>
     </tr>
   );
 }
@@ -134,7 +180,7 @@ function SkeletonRow() {
           </div>
         </div>
       </td>
-      {[1, 2, 3, 4].map((i) => (
+      {[1, 2, 3, 4, 5].map((i) => (
         <td key={i} className="px-4 py-4">
           <div className="h-3 w-16 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" />
         </td>
@@ -148,6 +194,11 @@ export default function ProductsTrash() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  function handleRestored(id: string) {
+    setProducts((prev) => prev.filter((p) => p.id !== id));
+  }
 
   useEffect(() => {
     const controller = new AbortController();
@@ -218,6 +269,19 @@ export default function ProductsTrash() {
         </div>
       </div>
 
+      {/* Action error (restore failures) */}
+      {actionError && (
+        <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 px-4 py-3">
+          <p className="text-sm text-red-600 dark:text-red-400">{actionError}</p>
+          <button
+            onClick={() => setActionError(null)}
+            className="text-xs font-medium text-red-500 hover:text-red-600 dark:text-red-400"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {/* Error state */}
       {error && (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-16 text-center">
@@ -240,11 +304,13 @@ export default function ProductsTrash() {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-white/[0.02]">
-                  {["Product", "Type", "Deleted At", "Permanent Deletion", "Created"].map(
+                  {["Product", "Type", "Deleted At", "Permanent Deletion", "Created", "Actions"].map(
                     (col) => (
                       <th
                         key={col}
-                        className="px-4 py-3.5 first:pl-5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
+                        className={`px-4 py-3.5 first:pl-5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 ${
+                          col === "Actions" ? "text-right pr-5" : "text-left"
+                        }`}
                       >
                         {col}
                       </th>
@@ -258,7 +324,12 @@ export default function ProductsTrash() {
 
                 {!loading &&
                   filtered.map((product) => (
-                    <TrashRow key={product.id} product={product} />
+                    <TrashRow
+                      key={product.id}
+                      product={product}
+                      onRestored={handleRestored}
+                      onError={(msg) => setActionError(msg || null)}
+                    />
                   ))}
               </tbody>
             </table>

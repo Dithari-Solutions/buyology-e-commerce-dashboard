@@ -10,7 +10,7 @@ export type {
   PresignUploadResponse,
 } from "./services/stories.service";
 export { productsService } from "./services/products.service";
-export type { ProductLanguage, CreateProductRequest, CreateProductSpecOption } from "./services/products.service";
+export type { ProductLanguage, CreateProductRequest, CreateProductSpecOption, UpdateProductRequest } from "./services/products.service";
 export { categoriesService } from "./services/categories.service";
 export { brandsService } from "./services/brands.service";
 export { specsService, SPEC_CODES, getGroupName, getOptionValue } from "./services/specs.service";

@@ -68,6 +68,30 @@ export interface CreateProductRequest {
   colors: CreateProductColor[];
 }
 
+export interface UpdateProductRequest {
+  categoryId?: string;
+  brandId?: string;
+  productType?: ProductType;
+  status?: "ACTIVE" | "INACTIVE";
+  isRefurbished?: boolean;
+  refurbGrade?: RefurbGrade | null;
+  availabilityStatus?: AvailabilityStatus;
+  isSuperDeal?: boolean;
+  isLimitedStock?: boolean;
+  translations?: {
+    titleAz?: string;
+    titleEn?: string;
+    titleAr?: string;
+    descriptionAz?: string;
+    descriptionEn?: string;
+    descriptionAr?: string;
+  };
+  /** IDs of existing media to delete. */
+  removeMediaIds?: string[];
+  /** ID of an existing media item to mark as primary. */
+  primaryMediaId?: string;
+}
+
 export const productsService = {
   /**
    * Fetch all products.
@@ -130,6 +154,68 @@ export const productsService = {
       `${BASE}/trash?lang=${language}`,
       { signal }
     );
+  },
+
+  /**
+   * Restore a soft-deleted product from trash back to ACTIVE.
+   */
+  restore(
+    id: string,
+    language: ProductLanguage = "EN",
+    signal?: AbortSignal
+  ): Promise<ApiResponse<Product>> {
+    return apiClient.put<ApiResponse<Product>>(
+      `${BASE}/${id}/restore?lang=${language}`,
+      undefined,
+      { signal }
+    );
+  },
+
+  /**
+   * Partially update a product (all fields optional) and edit its media.
+   * Uses multipart/form-data: `request` (JSON patch) + `files` (new media to
+   * append). PATCH /api/admin/product/{id}.
+   */
+  async update(
+    id: string,
+    data: UpdateProductRequest,
+    newFiles: File[],
+    signal?: AbortSignal
+  ): Promise<ApiResponse<Product>> {
+    const formData = new FormData();
+    formData.append(
+      "request",
+      new Blob([JSON.stringify(data)], { type: "application/json" })
+    );
+    newFiles.forEach((file) => formData.append("files", file));
+
+    const token = getAccessToken();
+    const headers: HeadersInit = token
+      ? { Authorization: `Bearer ${token}` }
+      : {};
+
+    const response = await fetch(`${env.apiBaseUrl}${BASE}/${id}`, {
+      method: "PATCH",
+      headers,
+      credentials: "include",
+      body: formData,
+      signal,
+    });
+
+    if (!response.ok) {
+      let payload: { statusCode: number; message: string };
+      try {
+        payload = await response.json();
+      } catch {
+        payload = {
+          statusCode: response.status,
+          message: response.statusText || "Failed to update product.",
+        };
+      }
+      throw new ApiRequestError(payload);
+    }
+
+    return response.json() as Promise<ApiResponse<Product>>;
   },
 
   /**

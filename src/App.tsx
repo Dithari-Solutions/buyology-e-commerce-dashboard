@@ -26,6 +26,7 @@ import Stories from "./pages/Stories/Stories";
 import NewStory from "./pages/Stories/NewStory";
 import Products from "./pages/Products/Products";
 import ProductDetail from "./pages/Products/ProductDetail";
+import EditProduct from "./pages/Products/EditProduct";
 import NewProduct from "./pages/Products/NewProduct";
 import ProductsTrash from "./pages/Products/ProductsTrash";
 import Categories from "./pages/Products/Categories";
@@ -105,6 +106,7 @@ export default function App() {
               {/* Products */}
               <Route path="/products" element={<Products />} />
               <Route path="/products/:id" element={<ProductDetail />} />
+              <Route path="/products/:id/edit" element={<EditProduct />} />
               <Route path="/new-product" element={<NewProduct />} />
               <Route path="/products/trash" element={<ProductsTrash />} />
               <Route path="/categories" element={<Categories />} />
