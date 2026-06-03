@@ -41,9 +41,12 @@ const MALICIOUS_SIGNATURES = [
  * Validates a file based on the rules in the security documentation.
  */
 const DEFAULT_MAX_SIZE_BY_FEATURE: Record<FileUploadFeature, number> = {
-  STORY_THUMBNAIL: 200 * 1024 * 1024, // 200 MB
-  STORY_MEDIA: 200 * 1024 * 1024,     // 200 MB
-  GENERAL: 50 * 1024 * 1024,          // 50 MB
+  STORY_THUMBNAIL: 200 * 1024 * 1024,  // 200 MB
+  // Story media is uploaded directly to storage via presigned URLs (it does
+  // not pass through the API server or the CDN edge limit), so large videos
+  // are allowed.
+  STORY_MEDIA: 1024 * 1024 * 1024,     // 1 GB
+  GENERAL: 50 * 1024 * 1024,           // 50 MB
 };
 
 export async function validateFileUpload(

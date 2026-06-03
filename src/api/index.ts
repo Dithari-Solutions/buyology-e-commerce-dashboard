@@ -1,7 +1,14 @@
 export { apiClient, setAccessToken, getAccessToken, getUserIdFromToken } from "./client";
 export { authService } from "./services/auth.service";
-export { storiesService } from "./services/stories.service";
-export type { StoryLanguage, StoryStatus, CreateStoryRequest } from "./services/stories.service";
+export { storiesService, uploadToPresignedUrl } from "./services/stories.service";
+export type {
+  StoryLanguage,
+  StoryStatus,
+  CreateStoryRequest,
+  CreateStoryDirectRequest,
+  CreateStoryMediaItem,
+  PresignUploadResponse,
+} from "./services/stories.service";
 export { productsService } from "./services/products.service";
 export type { ProductLanguage, CreateProductRequest, CreateProductSpecOption } from "./services/products.service";
 export { categoriesService } from "./services/categories.service";

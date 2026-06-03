@@ -19,6 +19,43 @@ export interface CreateStoryRequest {
   status: StoryStatus;
 }
 
+export interface PresignUploadResponse {
+  uploadUrl: string;
+  key: string;
+}
+
+export interface CreateStoryMediaItem {
+  key: string;
+  contentType: string;
+  orderIndex: number;
+}
+
+export interface CreateStoryDirectRequest extends CreateStoryRequest {
+  thumbnailKey: string;
+  media: CreateStoryMediaItem[];
+}
+
+/**
+ * Uploads a file straight to storage using a presigned PUT URL. This bypasses
+ * the API server and the CDN/edge body-size limit, so large videos work.
+ * The Content-Type MUST match what the URL was signed with.
+ */
+export async function uploadToPresignedUrl(
+  uploadUrl: string,
+  file: File,
+  signal?: AbortSignal
+): Promise<void> {
+  const res = await fetch(uploadUrl, {
+    method: "PUT",
+    body: file,
+    headers: { "Content-Type": file.type },
+    signal,
+  });
+  if (!res.ok) {
+    throw new Error(`Upload failed (${res.status})`);
+  }
+}
+
 export const storiesService = {
   getAll(
     language: StoryLanguage = "EN",
@@ -56,6 +93,27 @@ export const storiesService = {
     mediaFiles.forEach((file) => formData.append("mediaFiles", file));
 
     return apiClient.post<ApiResponse<Story>>(`${BASE}/create`, formData, {
+      signal,
+    });
+  },
+
+  presignUpload(
+    filename: string,
+    contentType: string,
+    signal?: AbortSignal
+  ): Promise<ApiResponse<PresignUploadResponse>> {
+    return apiClient.post<ApiResponse<PresignUploadResponse>>(
+      `${BASE}/presign-upload`,
+      { filename, contentType },
+      { signal }
+    );
+  },
+
+  createDirect(
+    data: CreateStoryDirectRequest,
+    signal?: AbortSignal
+  ): Promise<ApiResponse<Story>> {
+    return apiClient.post<ApiResponse<Story>>(`${BASE}/create-direct`, data, {
       signal,
     });
   },

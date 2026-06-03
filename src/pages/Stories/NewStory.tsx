@@ -5,8 +5,8 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Label from "../../components/form/Label";
 import Input from "../../components/form/input/InputField";
 import Button from "../../components/ui/button/Button";
-import { storiesService, ApiRequestError } from "../../api";
-import type { StoryStatus, CreateStoryRequest } from "../../api";
+import { storiesService, uploadToPresignedUrl, ApiRequestError } from "../../api";
+import type { StoryStatus, CreateStoryMediaItem } from "../../api";
 import { validateFileUpload } from "../../utils/fileValidation";
 import { compressImage } from "../../utils/imageCompression";
 
@@ -119,6 +119,7 @@ export default function NewStory() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
 
   // ── Section refs for scroll-to-error ────────────────────────────────────
   const translationsRef = useRef<HTMLDivElement>(null);
@@ -179,16 +180,13 @@ export default function NewStory() {
 
     setIsSubmitting(true);
     try {
-      const payload: CreateStoryRequest = {
-        translation: {
-          titleAz,
-          titleEn,
-          titleAr,
-          ...(descAz ? { descriptionAz: descAz } : {}),
-          ...(descEn ? { descriptionEn: descEn } : {}),
-          ...(descAr ? { descriptionAr: descAr } : {}),
-        },
-        status,
+      const translation = {
+        titleAz,
+        titleEn,
+        titleAr,
+        ...(descAz ? { descriptionAz: descAz } : {}),
+        ...(descEn ? { descriptionEn: descEn } : {}),
+        ...(descAr ? { descriptionAr: descAr } : {}),
       };
 
       const compressIfImage = (f: File) =>
@@ -199,7 +197,34 @@ export default function NewStory() {
       const [rawThumbnail, ...rawMedia] = files;
       const thumbnail = await compressIfImage(rawThumbnail);
       const mediaFiles = await Promise.all(rawMedia.map(compressIfImage));
-      await storiesService.create(payload, thumbnail, mediaFiles);
+
+      // Upload every file straight to storage via presigned URLs. This bypasses
+      // the API server and the CDN/edge body-size limit, so large videos work.
+      const totalUploads = 1 + mediaFiles.length;
+
+      setUploadStatus(`Uploading thumbnail (1/${totalUploads})…`);
+      const thumbPresign = await storiesService.presignUpload(
+        thumbnail.name,
+        thumbnail.type
+      );
+      await uploadToPresignedUrl(thumbPresign.data.uploadUrl, thumbnail);
+
+      const media: CreateStoryMediaItem[] = [];
+      for (let i = 0; i < mediaFiles.length; i++) {
+        const f = mediaFiles[i];
+        setUploadStatus(`Uploading media (${i + 2}/${totalUploads})…`);
+        const presign = await storiesService.presignUpload(f.name, f.type);
+        await uploadToPresignedUrl(presign.data.uploadUrl, f);
+        media.push({ key: presign.data.key, contentType: f.type, orderIndex: i });
+      }
+
+      setUploadStatus("Creating story…");
+      await storiesService.createDirect({
+        translation,
+        status,
+        thumbnailKey: thumbPresign.data.key,
+        media,
+      });
       navigate("/stories");
     } catch (err) {
       const message =
@@ -209,6 +234,7 @@ export default function NewStory() {
       setApiError(message);
     } finally {
       setIsSubmitting(false);
+      setUploadStatus(null);
     }
   }
 
@@ -477,7 +503,7 @@ export default function NewStory() {
             Cancel
           </Button>
           <Button disabled={isSubmitting}>
-            {isSubmitting ? "Creating…" : "Create Story"}
+            {isSubmitting ? uploadStatus ?? "Creating…" : "Create Story"}
           </Button>
         </div>
       </form>
