@@ -9,7 +9,7 @@ import {
   type RevenuePeriod,
   type RevenueReportResponse,
 } from "../../api/services/revenue.service";
-import { fmtMoney, fmtPeriodLabel, RevenueFilterBar } from "../Revenue/revenueUi";
+import { fmtMoney, fmtPeriodLabel, OrdersBreakdownTable, RevenueFilterBar } from "../Revenue/revenueUi";
 
 export default function SupplierAnalyticsPage() {
   const [summary, setSummary] = useState<{ totalOrders: number; totalRevenue: number } | null>(null);
@@ -111,41 +111,47 @@ export default function SupplierAnalyticsPage() {
 
         {loading ? (
           <p className="text-sm text-gray-500">Loading…</p>
-        ) : !report || report.buckets.length === 0 ? (
+        ) : !report || (report.buckets.length === 0 && report.orders.length === 0) ? (
           <div className="rounded-xl border-2 border-dashed border-gray-200 p-8 text-center dark:border-gray-700">
             <p className="text-gray-500 dark:text-gray-400">No data for the selected period.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-100 dark:border-gray-800 text-left text-xs uppercase text-gray-500">
-                  <th className="pb-3 pr-4">Period</th>
-                  <th className="pb-3 pr-4">Orders</th>
-                  <th className="pb-3 pr-4">Gross</th>
-                  <th className="pb-3 pr-4">Refunds</th>
-                  <th className="pb-3">Net</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                {report.buckets.map((row) => (
-                  <tr key={row.period}>
-                    <td className="py-3 pr-4 text-gray-800 dark:text-gray-200 text-xs">
-                      {fmtPeriodLabel(period, row.period)}
-                    </td>
-                    <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">
-                      {Number(row.orders).toLocaleString()}
-                    </td>
-                    <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">{fmtMoney(row.revenue)}</td>
-                    <td className="py-3 pr-4 text-red-500">
-                      {Number(row.refunded) > 0 ? `-${fmtMoney(row.refunded)}` : fmtMoney(0)}
-                    </td>
-                    <td className="py-3 font-medium text-gray-800 dark:text-gray-200">{fmtMoney(row.net)}</td>
+          <>
+            <h4 className="mb-2 text-xs font-semibold uppercase text-gray-500">Summary by period</h4>
+            <div className="overflow-x-auto mb-8">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-100 dark:border-gray-800 text-left text-xs uppercase text-gray-500">
+                    <th className="pb-3 pr-4">Period</th>
+                    <th className="pb-3 pr-4">Orders</th>
+                    <th className="pb-3 pr-4">Gross</th>
+                    <th className="pb-3 pr-4">Refunds</th>
+                    <th className="pb-3">Net</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                  {report.buckets.map((row) => (
+                    <tr key={row.period}>
+                      <td className="py-3 pr-4 text-gray-800 dark:text-gray-200 text-xs">
+                        {fmtPeriodLabel(period, row.period)}
+                      </td>
+                      <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">
+                        {Number(row.orders).toLocaleString()}
+                      </td>
+                      <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">{fmtMoney(row.revenue)}</td>
+                      <td className="py-3 pr-4 text-red-500">
+                        {Number(row.refunded) > 0 ? `-${fmtMoney(row.refunded)}` : fmtMoney(0)}
+                      </td>
+                      <td className="py-3 font-medium text-gray-800 dark:text-gray-200">{fmtMoney(row.net)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <h4 className="mb-2 text-xs font-semibold uppercase text-gray-500">Orders ({report.orders.length})</h4>
+            <OrdersBreakdownTable orders={report.orders} />
+          </>
         )}
       </div>
     </>

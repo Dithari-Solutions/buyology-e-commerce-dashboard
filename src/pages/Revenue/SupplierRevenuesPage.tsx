@@ -10,7 +10,7 @@ import {
   type RevenueReportResponse,
   type SupplierRevenueOverviewResponse,
 } from "../../api/services/revenue.service";
-import { fmtMoney, fmtPeriodLabel, RevenueFilterBar } from "./revenueUi";
+import { fmtMoney, fmtPeriodLabel, OrdersBreakdownTable, RevenueFilterBar } from "./revenueUi";
 
 export default function SupplierRevenuesPage() {
   const canExport = isSuperAdmin();
@@ -197,39 +197,44 @@ export default function SupplierRevenuesPage() {
           </div>
           {detailLoading ? (
             <p className="text-sm text-gray-500">Loading…</p>
-          ) : !detail || detail.buckets.length === 0 ? (
+          ) : !detail || (detail.buckets.length === 0 && detail.orders.length === 0) ? (
             <p className="text-sm text-gray-500">No data for the selected period.</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100 dark:border-gray-800 text-left text-xs uppercase text-gray-500">
-                    <th className="pb-3 pr-4">Period</th>
-                    <th className="pb-3 pr-4">Orders</th>
-                    <th className="pb-3 pr-4">Gross</th>
-                    <th className="pb-3 pr-4">Refunds</th>
-                    <th className="pb-3">Net</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                  {detail.buckets.map((row) => (
-                    <tr key={row.period}>
-                      <td className="py-3 pr-4 text-gray-800 dark:text-gray-200 text-xs">
-                        {fmtPeriodLabel(period, row.period)}
-                      </td>
-                      <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">
-                        {Number(row.orders).toLocaleString()}
-                      </td>
-                      <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">{fmtMoney(row.revenue)}</td>
-                      <td className="py-3 pr-4 text-red-500">
-                        {Number(row.refunded) > 0 ? `-${fmtMoney(row.refunded)}` : fmtMoney(0)}
-                      </td>
-                      <td className="py-3 font-medium text-gray-800 dark:text-gray-200">{fmtMoney(row.net)}</td>
+            <>
+              <h4 className="mb-2 text-xs font-semibold uppercase text-gray-500">Summary by period</h4>
+              <div className="overflow-x-auto mb-6">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-100 dark:border-gray-800 text-left text-xs uppercase text-gray-500">
+                      <th className="pb-3 pr-4">Period</th>
+                      <th className="pb-3 pr-4">Orders</th>
+                      <th className="pb-3 pr-4">Gross</th>
+                      <th className="pb-3 pr-4">Refunds</th>
+                      <th className="pb-3">Net</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                    {detail.buckets.map((row) => (
+                      <tr key={row.period}>
+                        <td className="py-3 pr-4 text-gray-800 dark:text-gray-200 text-xs">
+                          {fmtPeriodLabel(period, row.period)}
+                        </td>
+                        <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">
+                          {Number(row.orders).toLocaleString()}
+                        </td>
+                        <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">{fmtMoney(row.revenue)}</td>
+                        <td className="py-3 pr-4 text-red-500">
+                          {Number(row.refunded) > 0 ? `-${fmtMoney(row.refunded)}` : fmtMoney(0)}
+                        </td>
+                        <td className="py-3 font-medium text-gray-800 dark:text-gray-200">{fmtMoney(row.net)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <h4 className="mb-2 text-xs font-semibold uppercase text-gray-500">Orders ({detail.orders.length})</h4>
+              <OrdersBreakdownTable orders={detail.orders} />
+            </>
           )}
         </div>
       )}

@@ -13,6 +13,14 @@ export interface RevenueBucketRow {
   net: number;
 }
 
+export interface RevenueOrderRow {
+  orderId: string;
+  createdAt: string;
+  gross: number;
+  refunded: number;
+  net: number;
+}
+
 export interface RevenueReportResponse {
   period: RevenuePeriod;
   from: string;
@@ -23,6 +31,7 @@ export interface RevenueReportResponse {
   netRevenue: number;
   totalOrders: number;
   buckets: RevenueBucketRow[];
+  orders: RevenueOrderRow[];
 }
 
 export interface SupplierRevenueRow {
@@ -77,13 +86,15 @@ function buildQuery(params: Record<string, string | number | undefined | null>):
   return qs ? `?${qs}` : "";
 }
 
-/** Open a presigned download URL so the browser saves the file. */
+/**
+ * Trigger a browser download of an export. The presigned URL is returned with
+ * Content-Disposition: attachment, so a plain anchor click downloads the file
+ * in place (no new tab, so it isn't blocked by pop-up blockers after the await).
+ */
 export function downloadExport(record: RevenueExportRecord | null | undefined): void {
   if (!record?.downloadUrl) return;
   const a = document.createElement("a");
   a.href = record.downloadUrl;
-  a.target = "_blank";
-  a.rel = "noopener";
   a.download = record.fileName;
   document.body.appendChild(a);
   a.click();
