@@ -35,6 +35,37 @@ function resolveContentType(file: File): string {
   return EXTENSION_MIME_TYPES[ext] ?? "application/octet-stream";
 }
 
+function resolveFilename(file: File, fallback: string): string {
+  const name = (file.name ?? "").trim();
+  return name || fallback;
+}
+
+// Builds the presign request fields for a file, guaranteeing both are non-blank.
+// The backend rejects blank filename/contentType with a 400, so we resolve sane
+// values here and fail loudly (naming the file) if something is still empty.
+function presignFieldsFor(file: File, fallbackName: string): {
+  filename: string;
+  contentType: string;
+} {
+  const filename = resolveFilename(file, fallbackName);
+  const contentType = resolveContentType(file);
+  if (!filename || !contentType) {
+    // eslint-disable-next-line no-console
+    console.error("Invalid presign fields", {
+      filename,
+      contentType,
+      rawName: file.name,
+      rawType: file.type,
+      size: file.size,
+    });
+    throw new Error(
+      `Cannot upload "${file.name || "(unnamed file)"}": ` +
+        `${!filename ? "file name" : "file type"} could not be determined.`
+    );
+  }
+  return { filename, contentType };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Section wrapper (same style as NewProduct)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -228,25 +259,32 @@ export default function NewStory() {
       const totalUploads = 1 + mediaFiles.length;
 
       setUploadStatus(`Uploading thumbnail (1/${totalUploads})…`);
-      const thumbContentType = resolveContentType(thumbnail);
+      const thumbFields = presignFieldsFor(thumbnail, "thumbnail");
       const thumbPresign = await storiesService.presignUpload(
-        thumbnail.name,
-        thumbContentType
+        thumbFields.filename,
+        thumbFields.contentType
       );
       await uploadToPresignedUrl(
         thumbPresign.data.uploadUrl,
         thumbnail,
-        thumbContentType
+        thumbFields.contentType
       );
 
       const media: CreateStoryMediaItem[] = [];
       for (let i = 0; i < mediaFiles.length; i++) {
         const f = mediaFiles[i];
-        const contentType = resolveContentType(f);
+        const fields = presignFieldsFor(f, `media-${i + 1}`);
         setUploadStatus(`Uploading media (${i + 2}/${totalUploads})…`);
-        const presign = await storiesService.presignUpload(f.name, contentType);
-        await uploadToPresignedUrl(presign.data.uploadUrl, f, contentType);
-        media.push({ key: presign.data.key, contentType, orderIndex: i });
+        const presign = await storiesService.presignUpload(
+          fields.filename,
+          fields.contentType
+        );
+        await uploadToPresignedUrl(presign.data.uploadUrl, f, fields.contentType);
+        media.push({
+          key: presign.data.key,
+          contentType: fields.contentType,
+          orderIndex: i,
+        });
       }
 
       setUploadStatus("Creating story…");
