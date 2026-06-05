@@ -43,12 +43,16 @@ export interface CreateStoryDirectRequest extends CreateStoryRequest {
 export async function uploadToPresignedUrl(
   uploadUrl: string,
   file: File,
+  contentType?: string,
   signal?: AbortSignal
 ): Promise<void> {
+  // The Content-Type must match what the presigned URL was signed with, otherwise
+  // S3 rejects the PUT with a signature mismatch. file.type can be empty, so the
+  // caller passes the same resolved content type used to request the presign.
   const res = await fetch(uploadUrl, {
     method: "PUT",
     body: file,
-    headers: { "Content-Type": file.type },
+    headers: { "Content-Type": contentType || file.type },
     signal,
   });
   if (!res.ok) {

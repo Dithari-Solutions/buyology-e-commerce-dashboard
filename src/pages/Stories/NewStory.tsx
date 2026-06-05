@@ -10,6 +10,31 @@ import type { StoryStatus, CreateStoryMediaItem } from "../../api";
 import { validateFileUpload } from "../../utils/fileValidation";
 import { compressImage } from "../../utils/imageCompression";
 
+// Browsers leave File.type empty for some formats (e.g. .mov/.mkv), which makes
+// the backend reject the presign request with "contentType is required". Fall
+// back to a type derived from the file extension so uploads always have one.
+const EXTENSION_MIME_TYPES: Record<string, string> = {
+  mov: "video/quicktime",
+  mkv: "video/x-matroska",
+  mp4: "video/mp4",
+  webm: "video/webm",
+  avi: "video/x-msvideo",
+  m4v: "video/x-m4v",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  gif: "image/gif",
+  webp: "image/webp",
+  heic: "image/heic",
+  heif: "image/heif",
+};
+
+function resolveContentType(file: File): string {
+  if (file.type) return file.type;
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+  return EXTENSION_MIME_TYPES[ext] ?? "application/octet-stream";
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Section wrapper (same style as NewProduct)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -203,19 +228,25 @@ export default function NewStory() {
       const totalUploads = 1 + mediaFiles.length;
 
       setUploadStatus(`Uploading thumbnail (1/${totalUploads})…`);
+      const thumbContentType = resolveContentType(thumbnail);
       const thumbPresign = await storiesService.presignUpload(
         thumbnail.name,
-        thumbnail.type
+        thumbContentType
       );
-      await uploadToPresignedUrl(thumbPresign.data.uploadUrl, thumbnail);
+      await uploadToPresignedUrl(
+        thumbPresign.data.uploadUrl,
+        thumbnail,
+        thumbContentType
+      );
 
       const media: CreateStoryMediaItem[] = [];
       for (let i = 0; i < mediaFiles.length; i++) {
         const f = mediaFiles[i];
+        const contentType = resolveContentType(f);
         setUploadStatus(`Uploading media (${i + 2}/${totalUploads})…`);
-        const presign = await storiesService.presignUpload(f.name, f.type);
-        await uploadToPresignedUrl(presign.data.uploadUrl, f);
-        media.push({ key: presign.data.key, contentType: f.type, orderIndex: i });
+        const presign = await storiesService.presignUpload(f.name, contentType);
+        await uploadToPresignedUrl(presign.data.uploadUrl, f, contentType);
+        media.push({ key: presign.data.key, contentType, orderIndex: i });
       }
 
       setUploadStatus("Creating story…");
