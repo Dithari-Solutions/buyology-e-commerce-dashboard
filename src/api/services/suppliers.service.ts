@@ -73,6 +73,22 @@ export interface PageResponse<T> {
   size: number;
 }
 
+export type SupplierProductChangeAction = "EDIT" | "DELETE" | "RESTORE";
+export type SupplierProductChangeStatus = "PENDING" | "APPROVED" | "REJECTED";
+
+export interface SupplierProductChange {
+  id: string;
+  productId: string;
+  supplierId: string;
+  action: SupplierProductChangeAction;
+  status: SupplierProductChangeStatus;
+  payload?: string | null;
+  rejectionReason?: string | null;
+  requestedAt: string;
+  reviewedAt?: string | null;
+  reviewedBy?: string | null;
+}
+
 function buildQuery(params: Record<string, string | number | undefined | null>): string {
   const qs = Object.entries(params)
     .filter(([, v]) => v !== undefined && v !== null && v !== "")
@@ -166,6 +182,18 @@ export const suppliersService = {
     return apiClient.get<ApiResponse<PageResponse<SupplierProduct>>>(`/api/supplier/products${qs}`);
   },
 
+  /** Full detail of one of the supplier's own products (mirrors admin product detail). */
+  getMyProductById(
+    id: string,
+    language = "EN",
+    signal?: AbortSignal,
+  ): Promise<ApiResponse<import("../../types/product.types").Product>> {
+    return apiClient.get<ApiResponse<import("../../types/product.types").Product>>(
+      `/api/supplier/products/${id}?lang=${language}`,
+      { signal },
+    );
+  },
+
   submitProduct(data: {
     categoryId: string;
     storeId: string;
@@ -254,6 +282,51 @@ export const suppliersService = {
   },
   restoreMyProduct(id: string): Promise<ApiResponse<string>> {
     return apiClient.post<ApiResponse<string>>(`/api/supplier/products/${id}/restore`);
+  },
+
+  // ── Supplier portal: product change requests (superadmin-approved) ──────────
+  // Note: softDeleteProduct() and restoreMyProduct() above now FILE a change
+  // request (superadmin must approve) instead of acting immediately.
+  requestEditProduct(
+    id: string,
+    payload: import("./products.service").UpdateProductRequest,
+  ): Promise<ApiResponse<SupplierProductChange>> {
+    return apiClient.patch<ApiResponse<SupplierProductChange>>(
+      `/api/supplier/products/${id}/request-edit`,
+      payload,
+    );
+  },
+  listMyChangeRequests(params?: {
+    page?: number;
+    size?: number;
+  }): Promise<ApiResponse<PageResponse<SupplierProductChange>>> {
+    const qs = buildQuery({ page: params?.page, size: params?.size });
+    return apiClient.get<ApiResponse<PageResponse<SupplierProductChange>>>(
+      `/api/supplier/product-changes${qs}`,
+    );
+  },
+
+  // ── Admin (superadmin): review supplier change requests ────────────────────
+  listProductChanges(params?: {
+    status?: SupplierProductChangeStatus;
+    page?: number;
+    size?: number;
+  }): Promise<ApiResponse<PageResponse<SupplierProductChange>>> {
+    const qs = buildQuery({ status: params?.status, page: params?.page, size: params?.size });
+    return apiClient.get<ApiResponse<PageResponse<SupplierProductChange>>>(
+      `/api/admin/supplier-product-changes${qs}`,
+    );
+  },
+  approveProductChange(id: string): Promise<ApiResponse<SupplierProductChange>> {
+    return apiClient.post<ApiResponse<SupplierProductChange>>(
+      `/api/admin/supplier-product-changes/${id}/approve`,
+    );
+  },
+  rejectProductChange(id: string, reason: string): Promise<ApiResponse<SupplierProductChange>> {
+    return apiClient.post<ApiResponse<SupplierProductChange>>(
+      `/api/admin/supplier-product-changes/${id}/reject`,
+      { reason },
+    );
   },
 
   // ── Supplier portal: product image upload (PNG/WebP, bg removed) ──────────

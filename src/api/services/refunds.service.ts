@@ -85,6 +85,21 @@ export const refundsService = {
   getById(id: string, signal?: AbortSignal): Promise<ApiResponse<RefundRequestDetail>> {
     return apiClient.get(`/api/admin/refunds/${id}`, { signal });
   },
+
+  // ── Supplier (read-only) ─────────────────────────────────────────────────────
+  listForSupplier(
+    params: { status?: RefundRequestStatus; page?: number; size?: number },
+    signal?: AbortSignal
+  ): Promise<ApiResponse<SpringPage<RefundRequestDetail>>> {
+    const qs = new URLSearchParams();
+    if (params.status) qs.set("status", params.status);
+    qs.set("page", String(params.page ?? 0));
+    qs.set("size", String(params.size ?? 20));
+    return apiClient.get(`/api/supplier/refunds?${qs.toString()}`, { signal });
+  },
+  getForSupplierById(id: string, signal?: AbortSignal): Promise<ApiResponse<RefundRequestDetail>> {
+    return apiClient.get(`/api/supplier/refunds/${id}`, { signal });
+  },
   approve(id: string, adminNote?: string): Promise<ApiResponse<RefundRequestDetail>> {
     return apiClient.post(`/api/admin/refunds/${id}/approve`, { adminNote });
   },

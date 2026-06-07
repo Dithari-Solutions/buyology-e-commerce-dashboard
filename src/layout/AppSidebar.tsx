@@ -153,6 +153,7 @@ const navItems: NavItem[] = [
       { name: "All Couriers", path: "/admin/couriers", pro: false },
       { name: "New Courier", path: "/admin/couriers/new", pro: false },
       { name: "Fleet Map", path: "/admin/couriers/map", pro: false },
+      { name: "Store Couriers", path: "/admin/courier-profiles", pro: false },
     ],
   },
   {
@@ -185,6 +186,7 @@ const navItems: NavItem[] = [
     subItems: [
       { name: "Applications", path: "/suppliers", pro: false },
       { name: "Products Review", path: "/supplier-products", pro: false },
+      { name: "Change Requests", path: "/supplier-product-changes", pro: false, superAdminOnly: true },
     ],
   },
   {
@@ -199,6 +201,8 @@ const navItems: NavItem[] = [
       { name: "Account", path: "/supplier/account", pro: false },
       { name: "Reviews", path: "/supplier/reviews", pro: false },
       { name: "Payouts", path: "/supplier/payouts", pro: false },
+      { name: "Refunds", path: "/supplier/refunds", pro: false },
+      { name: "Trash", path: "/supplier/trash", pro: false },
     ],
   },
 ];

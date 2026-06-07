@@ -70,6 +70,8 @@ export default function AssignProduct() {
   // Selected product
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [search, setSearch] = useState("");
+  // Whether the product dropdown is open (focus-driven; browse-all when empty).
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   // Main form
   const [storePrice, setStorePrice] = useState("");
@@ -107,6 +109,7 @@ export default function AssignProduct() {
   function handleSelectProduct(product: Product) {
     setSelectedProduct(product);
     setSearch(product.title);
+    setPickerOpen(false);
     setVariantRows(
       product.variants.map((v: ProductVariant) => ({
         variantId: v.id,
@@ -194,16 +197,19 @@ export default function AssignProduct() {
             1. Select Global Product
           </h2>
 
-          {/* Search input */}
+          {/* Search input — focus to browse all products, type to filter */}
           <div>
-            <label className={labelCls}>Search by name or SKU</label>
+            <label className={labelCls}>Browse all products, or search by name / SKU</label>
             <input
               type="text"
               className={inputCls}
-              placeholder="e.g. HP ProBook or DTDX-482931"
+              placeholder="Click to browse all products, or type a name / SKU…"
               value={search}
+              onFocus={() => setPickerOpen(true)}
+              onBlur={() => setTimeout(() => setPickerOpen(false), 150)}
               onChange={(e) => {
                 setSearch(e.target.value);
+                setPickerOpen(true);
                 if (selectedProduct && e.target.value !== selectedProduct.title) {
                   setSelectedProduct(null);
                   setVariantRows([]);
@@ -212,8 +218,8 @@ export default function AssignProduct() {
             />
           </div>
 
-          {/* Product list */}
-          {!selectedProduct && search.length > 0 && (
+          {/* Product dropdown — lists ALL products on focus, filtered as you type */}
+          {!selectedProduct && pickerOpen && (
             <div className="rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden divide-y divide-gray-50 dark:divide-gray-700/50 max-h-60 overflow-y-auto">
               {loadingProducts ? (
                 <div className="flex items-center justify-center gap-2 py-6 text-gray-400">
@@ -225,19 +231,22 @@ export default function AssignProduct() {
               ) : filteredProducts.length === 0 ? (
                 <p className="py-4 text-center text-sm text-gray-400">No products found.</p>
               ) : (
-                filteredProducts.slice(0, 20).map((p) => (
+                filteredProducts.slice(0, 50).map((p) => (
                   <button
                     key={p.id}
                     type="button"
+                    onMouseDown={(e) => e.preventDefault()} /* keep input focus so onBlur doesn't pre-empt the click */
                     onClick={() => handleSelectProduct(p)}
-                    className="w-full flex items-center justify-between px-4 py-3 text-left bg-white dark:bg-gray-800 hover:bg-brand-50 dark:hover:bg-brand-500/10 transition-colors"
+                    className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left bg-white dark:bg-gray-800 hover:bg-brand-50 dark:hover:bg-brand-500/10 transition-colors"
                   >
-                    <div>
-                      <p className="text-sm font-medium text-gray-800 dark:text-white">{p.title}</p>
-                      <p className="text-xs font-mono text-gray-400">{p.sku}</p>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-gray-800 dark:text-white truncate">{p.title}</p>
+                      <p className="text-xs font-mono text-gray-400">
+                        {p.sku} · {p.variants.length} variant(s) · {p.productType}
+                      </p>
                     </div>
                     <span
-                      className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                      className={`shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full ${
                         p.status === "ACTIVE"
                           ? "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400"
                           : "bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400"

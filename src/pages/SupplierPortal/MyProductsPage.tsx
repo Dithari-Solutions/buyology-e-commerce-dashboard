@@ -75,15 +75,20 @@ export default function MyProductsPage() {
                 <tr className="border-b border-gray-100 dark:border-gray-800 text-left text-xs uppercase text-gray-500">
                   <th className="pb-3 pr-4">SKU</th>
                   <th className="pb-3 pr-4">Status</th>
-                  <th className="pb-3">Review Status</th>
+                  <th className="pb-3 pr-4">Review Status</th>
+                  <th className="pb-3">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                 {products.map((p) => (
                   <tr key={p.id}>
-                    <td className="py-3 pr-4 font-mono text-gray-800 dark:text-gray-200 text-xs">{p.sku}</td>
+                    <td className="py-3 pr-4 font-mono text-gray-800 dark:text-gray-200 text-xs">
+                      <Link to={`/supplier/products/${p.id}`} className="hover:text-brand-600 hover:underline">
+                        {p.sku}
+                      </Link>
+                    </td>
                     <td className="py-3 pr-4 text-gray-600 dark:text-gray-400 text-xs">{p.status}</td>
-                    <td className="py-3">
+                    <td className="py-3 pr-4">
                       <span
                         className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                           STATUS_COLORS[p.supplierStatus] ?? "bg-gray-100 text-gray-600"
@@ -94,6 +99,14 @@ export default function MyProductsPage() {
                       {p.supplierStatus === "REJECTED" && p.supplierRejectionReason && (
                         <p className="text-xs text-red-500 mt-0.5">{p.supplierRejectionReason}</p>
                       )}
+                    </td>
+                    <td className="py-3">
+                      <Link
+                        to={`/supplier/products/${p.id}`}
+                        className="inline-block rounded-lg bg-gray-100 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                      >
+                        View
+                      </Link>
                     </td>
                   </tr>
                 ))}

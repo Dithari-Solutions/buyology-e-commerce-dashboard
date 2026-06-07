@@ -65,6 +65,22 @@ export const ordersService = {
     return apiClient.patch<ApiResponse<OrderAdminResponse>>(`${BASE}/${id}/status`, body);
   },
 
+  // PATCH /api/admin/orders/{id}/courier  — assign a store courier profile
+  assignCourier(id: string, courierProfileId: string): Promise<ApiResponse<OrderAdminResponse>> {
+    return apiClient.patch<ApiResponse<OrderAdminResponse>>(`${BASE}/${id}/courier`, { courierProfileId });
+  },
+
+  // PATCH /api/supplier/orders/{id}/status  — supplier advances their own order
+  supplierUpdateStatus(
+    id: string,
+    status: OrderStatus,
+    notes?: string
+  ): Promise<ApiResponse<OrderAdminResponse>> {
+    const query = new URLSearchParams({ status });
+    if (notes) query.set("notes", notes);
+    return apiClient.patch<ApiResponse<OrderAdminResponse>>(`/api/supplier/orders/${id}/status?${query}`);
+  },
+
   // POST /api/admin/orders/{id}/proof/{type}  (multipart)
   uploadProof(
     id: string,

@@ -4,6 +4,7 @@ import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Badge from "../../components/ui/badge/Badge";
 import { ordersService, ApiRequestError } from "../../api";
+import { courierProfilesService, type CourierProfile } from "../../api/services/courierProfiles.service";
 import type { OrderAdminResponse, OrderStatus } from "../../types";
 
 // Status transitions allowed from each current status (must mirror backend validateTransition)
@@ -77,6 +78,10 @@ export default function OrderDetail() {
   const pickupInputRef = useRef<HTMLInputElement>(null);
   const dropoffInputRef = useRef<HTMLInputElement>(null);
 
+  // Courier assignment (per-store couriers)
+  const [couriers, setCouriers] = useState<CourierProfile[]>([]);
+  const [selectedCourierId, setSelectedCourierId] = useState("");
+
   const fetchOrder = useCallback((signal?: AbortSignal) => {
     if (!orderId) return;
     setLoading(true);
@@ -96,6 +101,32 @@ export default function OrderDetail() {
     fetchOrder(controller.signal);
     return () => controller.abort();
   }, [fetchOrder]);
+
+  // Load this order's store couriers for the assign-courier picker.
+  useEffect(() => {
+    if (!order?.storeId) return;
+    const ctrl = new AbortController();
+    courierProfilesService
+      .listByStore(order.storeId, true, ctrl.signal)
+      .then((r) => setCouriers(r.data ?? []))
+      .catch(() => setCouriers([]));
+    return () => ctrl.abort();
+  }, [order?.storeId]);
+
+  async function handleAssignCourier() {
+    if (!orderId || !selectedCourierId) return;
+    setBusy("assign-courier");
+    setActionError(null);
+    try {
+      const res = await ordersService.assignCourier(orderId, selectedCourierId);
+      setOrder(res.data);
+      setSelectedCourierId("");
+    } catch (err) {
+      setActionError(err instanceof ApiRequestError ? err.message : "Failed to assign courier.");
+    } finally {
+      setBusy(null);
+    }
+  }
 
   const handleStatusChange = useCallback(async (next: OrderStatus) => {
     if (!orderId) return;
@@ -411,6 +442,40 @@ export default function OrderDetail() {
                   )}
                 </div>
               )}
+
+              {/* Assign a store courier */}
+              <div>
+                <p className="text-xs text-gray-400 uppercase mb-1">
+                  {order.courierName ? "Reassign courier" : "Assign courier"}
+                </p>
+                {couriers.length === 0 ? (
+                  <p className="text-xs text-gray-400">
+                    No active couriers for this store. Add them in Store Couriers.
+                  </p>
+                ) : (
+                  <div className="flex gap-2">
+                    <select
+                      value={selectedCourierId}
+                      onChange={(e) => setSelectedCourierId(e.target.value)}
+                      className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    >
+                      <option value="">Select courier…</option>
+                      {couriers.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.firstName} {c.lastName ?? ""} · {c.phone}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={handleAssignCourier}
+                      disabled={!selectedCourierId || busy === "assign-courier"}
+                      className="rounded-lg bg-brand-600 px-3 py-2 text-xs font-medium text-white hover:bg-brand-700 disabled:opacity-50"
+                    >
+                      {busy === "assign-courier" ? "…" : "Assign"}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

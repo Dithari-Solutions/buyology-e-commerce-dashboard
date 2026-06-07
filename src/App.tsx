@@ -81,6 +81,11 @@ import SupplierOrdersPage from "./pages/SupplierPortal/SupplierOrdersPage";
 import SupplierAccountPage from "./pages/SupplierPortal/SupplierAccountPage";
 import SupplierReviewsPage from "./pages/SupplierPortal/SupplierReviewsPage";
 import SupplierPayoutsPage from "./pages/SupplierPortal/SupplierPayoutsPage";
+import SupplierProductDetailPage from "./pages/SupplierPortal/SupplierProductDetailPage";
+import SupplierRefundsPage from "./pages/SupplierPortal/SupplierRefundsPage";
+import SupplierTrashPage from "./pages/SupplierPortal/SupplierTrashPage";
+import SupplierProductChangesPage from "./pages/Suppliers/SupplierProductChangesPage";
+import CourierProfilesPage from "./pages/Couriers/CourierProfilesPage";
 
 export default function App() {
   return (
@@ -130,6 +135,7 @@ export default function App() {
               <Route path="/admin/users/:authCredentialId" element={<UserDetail />} />
 
               {/* Couriers */}
+              <Route path="/admin/courier-profiles" element={<CourierProfilesPage />} />
               <Route path="/admin/couriers" element={<Couriers />} />
               <Route path="/admin/couriers/new" element={<NewCourier />} />
               <Route path="/admin/couriers/map" element={<CourierMap />} />
@@ -185,6 +191,7 @@ export default function App() {
               <Route path="/suppliers" element={<SuppliersPage />} />
               <Route path="/suppliers/:id" element={<SupplierDetailPage />} />
               <Route path="/supplier-products" element={<SupplierProductsPage />} />
+              <Route path="/supplier-product-changes" element={<SupplierProductChangesPage />} />
 
               </Route>
 
@@ -192,6 +199,9 @@ export default function App() {
                   bounced to "/" (which they own). */}
               <Route element={<RoleRoute mode="supplier" />}>
               <Route path="/supplier/my-products" element={<MyProductsPage />} />
+              <Route path="/supplier/products/:id" element={<SupplierProductDetailPage />} />
+              <Route path="/supplier/refunds" element={<SupplierRefundsPage />} />
+              <Route path="/supplier/trash" element={<SupplierTrashPage />} />
               <Route path="/supplier/orders" element={<SupplierOrdersPage />} />
               <Route path="/supplier/new-product" element={<NewSupplierFullProductPage />} />
               <Route path="/supplier/analytics" element={<SupplierAnalyticsPage />} />
