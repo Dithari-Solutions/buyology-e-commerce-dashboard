@@ -25,6 +25,16 @@ export { usersService } from "./services/users.service";
 export { couriersService } from "./services/couriers.service";
 export { ordersService } from "./services/orders.service";
 export { rolesService } from "./services/roles.service";
+export { suppliersService } from "./services/suppliers.service";
+export type {
+  SupplierApplication,
+  SupplierDetail,
+  SupplierUpdateRequest,
+  SupplierProduct,
+  SupplierProductChange,
+  SupplierProductChangeAction,
+  SupplierProductChangeStatus,
+} from "./services/suppliers.service";
 export type {
   AssignProductToStoreRequest,
   UpdateStoreProductRequest,
