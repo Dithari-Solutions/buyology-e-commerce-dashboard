@@ -115,7 +115,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const completeMfa = useCallback(
     (accessToken: string) => {
-      setPendingMfa(null);
+      // NOTE: do NOT clear pendingMfa here. The MFA pages guard on it
+      // (redirecting to /signin when absent); clearing it in the same render as
+      // the navigation makes that guard fire and bounce the just-authenticated
+      // user back to /signin. Let the route change unmount the page instead —
+      // pendingMfa is reset on the next signIn / signOut.
       setAccessToken(accessToken);
       setIsAuthenticated(true);
       navigate(landingPathForCurrentUser(), { replace: true });
@@ -126,6 +130,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // ── Sign in ───────────────────────────────────────────────────────────────
   const signIn = useCallback(
     async (credentials: SignInRequest) => {
+      // Drop any leftover challenge from a previous (abandoned) attempt.
+      setPendingMfa(null);
       // The backend sets the HttpOnly refresh_token cookie in the response.
       // We only extract and store the accessToken from the JSON body.
       // Admin endpoint refuses SUPPLIER accounts; in that case retry on the
@@ -166,6 +172,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Always clear local state, even if the logout request fails
       setAccessToken(null);
       setIsAuthenticated(false);
+      setPendingMfa(null);
       navigate("/signin", { replace: true });
     }
   }, [navigate]);
