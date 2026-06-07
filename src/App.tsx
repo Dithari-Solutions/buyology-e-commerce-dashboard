@@ -5,6 +5,8 @@ import RoleRoute from "./components/common/RoleRoute";
 import { I18nProvider } from "./i18n/I18nProvider";
 import SignIn from "./pages/AuthPages/SignIn";
 import SignUp from "./pages/AuthPages/SignUp";
+import MfaSetup from "./pages/AuthPages/MfaSetup";
+import MfaVerify from "./pages/AuthPages/MfaVerify";
 import NotFound from "./pages/OtherPage/NotFound";
 import UserProfiles from "./pages/UserProfiles";
 import Videos from "./pages/UiElements/Videos";
@@ -242,6 +244,9 @@ export default function App() {
           {/* ── Public auth routes ─────────────────────────────────────────── */}
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
+          {/* Two-factor flow — reachable only mid-sign-in (guarded by pendingMfa). */}
+          <Route path="/mfa/setup" element={<MfaSetup />} />
+          <Route path="/mfa/verify" element={<MfaVerify />} />
           <Route path="/supplier/set-password" element={<SupplierSetPasswordPage />} />
 
           {/* Fallback Route */}

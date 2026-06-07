@@ -17,7 +17,12 @@
 import { env } from "../../config/env";
 import { ApiError, ApiRequestError } from "../types/api.types";
 import type { ApiResponse } from "../types/api.types";
-import type { SignInData, SignInRequest, RefreshData } from "../../types/auth.types";
+import type {
+  SignInData,
+  SignInRequest,
+  RefreshData,
+  MfaEnrollStartData,
+} from "../../types/auth.types";
 
 async function authFetch<T>(method: string, endpoint: string, body?: unknown): Promise<T> {
   const baseUrl = env.apiBaseUrl.replace(/\/$/, "");
@@ -106,4 +111,20 @@ export const authService = {
    */
   adminVerifyOtp: (data: { email: string; otpCode: string }) =>
     authFetch<ApiResponse<SignInData>>("POST", "/auth/admin/verify-otp", data),
+
+  // ── Two-factor (Google Authenticator) ──────────────────────────────────────
+  // The enroll/verify steps use authFetch (no access token yet) so the backend
+  // can set the HttpOnly refresh_token cookie on success.
+
+  /** POST /auth/mfa/enroll/start — exchange the enrollment ticket for a QR + secret. */
+  mfaEnrollStart: (mfaToken: string) =>
+    authFetch<ApiResponse<MfaEnrollStartData>>("POST", "/auth/mfa/enroll/start", { mfaToken }),
+
+  /** POST /auth/mfa/enroll/confirm — confirm the first code; returns a session + recovery codes. */
+  mfaEnrollConfirm: (mfaToken: string, code: string) =>
+    authFetch<ApiResponse<SignInData>>("POST", "/auth/mfa/enroll/confirm", { mfaToken, code }),
+
+  /** POST /auth/mfa/verify — verify a TOTP/recovery code at sign-in; returns a session. */
+  mfaVerify: (mfaToken: string, code: string) =>
+    authFetch<ApiResponse<SignInData>>("POST", "/auth/mfa/verify", { mfaToken, code }),
 };

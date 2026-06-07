@@ -4,6 +4,8 @@ import PageMeta from "../../components/common/PageMeta";
 import Badge from "../../components/ui/badge/Badge";
 import { usersService, ApiRequestError } from "../../api";
 import { rolesService } from "../../api/services/roles.service";
+import { mfaService } from "../../api/services/mfa.service";
+import { isSuperAdmin } from "../../auth/roles";
 import { getUserIdFromToken } from "../../api";
 import type { UserDetail } from "../../types";
 import type { Role, Permission, UserRole, UserPermissionOverride } from "../../types/roles.types";
@@ -363,6 +365,37 @@ export default function AdminDetail() {
     });
   };
 
+  // ── Two-factor reset (SUPERADMIN only) ──────────────────────────────────────
+  const [mfaResetBusy, setMfaResetBusy] = useState(false);
+
+  const resetMfa = () => {
+    if (!user) return;
+    setConfirm({
+      open: true,
+      title: "Reset two-factor authentication",
+      message:
+        "This wipes the user's Google Authenticator enrollment and recovery codes. They will be " +
+        "forced to set up 2FA again on their next sign-in. Use this for lost-device recovery.",
+      confirmLabel: "Reset 2FA",
+      confirmColor: "bg-red-500 hover:bg-red-600",
+      onConfirm: async () => {
+        setConfirm((prev) => ({ ...prev, open: false }));
+        setMfaResetBusy(true);
+        try {
+          const res = await mfaService.resetUserMfa(user.userId);
+          showToast(res.message || "Two-factor authentication reset.", "success");
+        } catch (err: unknown) {
+          showToast(
+            err instanceof ApiRequestError ? err.message : "Failed to reset 2FA.",
+            "error"
+          );
+        } finally {
+          setMfaResetBusy(false);
+        }
+      },
+    });
+  };
+
   // ── Permission override actions ────────────────────────────────────────────
   const setPermissionOverride = async (
     permissionId: string,
@@ -662,6 +695,31 @@ export default function AdminDetail() {
               </div>
             </div>
           </SectionCard>
+
+          {/* ── Two-factor (SUPERADMIN only) ───────────────────────────────── */}
+          {isSuperAdmin() && (
+            <SectionCard title="Two-Factor Authentication">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-gray-800 dark:text-white/90">
+                    Reset Google Authenticator
+                  </p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                    Removes this user's 2FA enrollment and recovery codes. They must re-enroll on
+                    their next sign-in. Use for lost-device recovery.
+                  </p>
+                </div>
+                <button
+                  onClick={resetMfa}
+                  disabled={mfaResetBusy}
+                  className="flex-shrink-0 rounded-xl bg-red-500 hover:bg-red-600 disabled:opacity-50 px-4 py-2 text-sm font-medium text-white transition-colors flex items-center gap-2"
+                >
+                  {mfaResetBusy && <Spinner />}
+                  Reset 2FA
+                </button>
+              </div>
+            </SectionCard>
+          )}
 
           {/* ── Permission Overrides ───────────────────────────────────────── */}
           <SectionCard

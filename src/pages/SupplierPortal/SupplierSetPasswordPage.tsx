@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router";
 import { apiClient } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import type { ApiResponse } from "../../api/types/api.types";
+import type { SignInData } from "../../types/auth.types";
 
 interface TokenInfo {
   supplierEmail: string;
@@ -12,7 +13,7 @@ interface TokenInfo {
 export default function SupplierSetPasswordPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { applySession } = useAuth();
+  const { applySession, consumeAuthData } = useAuth();
 
   const token = searchParams.get("token") ?? "";
 
@@ -42,11 +43,14 @@ export default function SupplierSetPasswordPage() {
     setError("");
     setLoading(true);
     try {
-      const res = await apiClient.post<ApiResponse<{ accessToken: string }>>("/api/supplier/auth/set-password", {
+      const res = await apiClient.post<ApiResponse<SignInData>>("/api/supplier/auth/set-password", {
         token,
         password,
         confirmedPassword,
       });
+      // Suppliers are privileged → the backend requires 2FA enrollment before
+      // issuing a session. If challenged, hand off to the MFA setup flow.
+      if (res.data && consumeAuthData(res.data)) return;
       if (res.data?.accessToken) {
         // Mark the session authenticated so route guards let the new supplier in.
         applySession(res.data.accessToken);

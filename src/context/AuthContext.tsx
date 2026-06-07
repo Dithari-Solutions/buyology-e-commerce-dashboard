@@ -13,7 +13,13 @@ import {
   setAccessToken,
 } from "../api/client";
 import { landingPathForCurrentUser } from "../auth/roles";
-import type { SignInRequest } from "../types/auth.types";
+import type { SignInData, SignInRequest } from "../types/auth.types";
+
+/** A pending two-factor challenge captured during sign-in, consumed by the MFA pages. */
+export interface PendingMfa {
+  mfaToken: string;
+  mode: "setup" | "verify";
+}
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -24,6 +30,16 @@ interface AuthContextType {
   /** Mark the session authenticated with a freshly issued access token (e.g. after
    *  supplier password setup) so guards see the user as logged in immediately. */
   applySession: (accessToken: string) => void;
+  /** The active 2FA challenge, if sign-in returned one. Null otherwise. */
+  pendingMfa: PendingMfa | null;
+  /**
+   * Inspect a sign-in/onboarding response. If it carries a 2FA challenge, stash
+   * the ticket, navigate to the matching MFA page, and return true. Otherwise
+   * return false so the caller can complete the login itself.
+   */
+  consumeAuthData: (data: SignInData) => boolean;
+  /** Finish a 2FA flow: store the issued token and land the user in the app. */
+  completeMfa: (accessToken: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,6 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   // Start true so ProtectedRoute shows a spinner instead of an instant redirect
   const [isLoading, setIsLoading] = useState(true);
+  const [pendingMfa, setPendingMfa] = useState<PendingMfa | null>(null);
 
   // ── Silent refresh (called on mount AND by the HttpClient interceptor) ─────
   //
@@ -75,6 +92,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     doRefresh().finally(() => setIsLoading(false));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ── 2FA challenge handling ─────────────────────────────────────────────────
+  // Privileged accounts (admin/supplier) don't get a session straight away — the
+  // backend returns a challenge with a short-lived ticket. Route to the matching
+  // MFA page and let it redeem the ticket.
+  const consumeAuthData = useCallback(
+    (data: SignInData): boolean => {
+      if (data?.mfaSetupRequired && data.mfaToken) {
+        setPendingMfa({ mfaToken: data.mfaToken, mode: "setup" });
+        navigate("/mfa/setup", { replace: true });
+        return true;
+      }
+      if (data?.mfaRequired && data.mfaToken) {
+        setPendingMfa({ mfaToken: data.mfaToken, mode: "verify" });
+        navigate("/mfa/verify", { replace: true });
+        return true;
+      }
+      return false;
+    },
+    [navigate]
+  );
+
+  const completeMfa = useCallback(
+    (accessToken: string) => {
+      setPendingMfa(null);
+      setAccessToken(accessToken);
+      setIsAuthenticated(true);
+      navigate(landingPathForCurrentUser(), { replace: true });
+    },
+    [navigate]
+  );
+
   // ── Sign in ───────────────────────────────────────────────────────────────
   const signIn = useCallback(
     async (credentials: SignInRequest) => {
@@ -94,11 +142,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!isSupplierRedirect) throw e;
         res = await authService.supplierSignIn(credentials);
       }
-      setAccessToken(res.data.accessToken);
+      // Privileged accounts are gated by 2FA — bail to the MFA flow if challenged.
+      if (consumeAuthData(res.data)) return;
+      setAccessToken(res.data.accessToken ?? null);
       setIsAuthenticated(true);
       navigate(landingPathForCurrentUser(), { replace: true });
     },
-    [navigate]
+    [navigate, consumeAuthData]
   );
 
   // ── Apply an externally obtained session (e.g. supplier set-password) ──────
@@ -121,7 +171,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [navigate]);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, signIn, signOut, applySession }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        isLoading,
+        signIn,
+        signOut,
+        applySession,
+        pendingMfa,
+        consumeAuthData,
+        completeMfa,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
