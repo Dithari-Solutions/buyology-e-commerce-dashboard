@@ -443,7 +443,8 @@ export default function OrderDetail() {
                 </div>
               )}
 
-              {/* Assign a store courier */}
+              {/* Assign a store courier — only while the order is in a fulfilment state */}
+              {(["PAID", "PACKAGING", "IN_COURIER"] as OrderStatus[]).includes(order.status) && (
               <div>
                 <p className="text-xs text-gray-400 uppercase mb-1">
                   {order.courierName ? "Reassign courier" : "Assign courier"}
@@ -476,6 +477,7 @@ export default function OrderDetail() {
                   </div>
                 )}
               </div>
+              )}
             </div>
           </div>
 

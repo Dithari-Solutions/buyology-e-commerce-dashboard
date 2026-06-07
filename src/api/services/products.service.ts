@@ -1,8 +1,6 @@
-import { apiClient, getAccessToken } from "../client";
-import { ApiRequestError } from "../types/api.types";
+import { apiClient } from "../client";
 import type { ApiResponse } from "../types/api.types";
 import type { Product, ProductStatus, ProductType, RefurbGrade, AvailabilityStatus } from "../../types/product.types";
-import { env } from "../../config/env";
 
 const BASE = "/api/admin/product";
 
@@ -189,33 +187,9 @@ export const productsService = {
     );
     newFiles.forEach((file) => formData.append("files", file));
 
-    const token = getAccessToken();
-    const headers: HeadersInit = token
-      ? { Authorization: `Bearer ${token}` }
-      : {};
-
-    const response = await fetch(`${env.apiBaseUrl}${BASE}/${id}`, {
-      method: "PATCH",
-      headers,
-      credentials: "include",
-      body: formData,
-      signal,
-    });
-
-    if (!response.ok) {
-      let payload: { statusCode: number; message: string };
-      try {
-        payload = await response.json();
-      } catch {
-        payload = {
-          statusCode: response.status,
-          message: response.statusText || "Failed to update product.",
-        };
-      }
-      throw new ApiRequestError(payload);
-    }
-
-    return response.json() as Promise<ApiResponse<Product>>;
+    // Route through apiClient so multipart submits also get silent 401-refresh+retry
+    // (so a long edit form isn't lost when the access token expires mid-edit).
+    return apiClient.patch<ApiResponse<Product>>(`${BASE}/${id}`, formData, { signal });
   },
 
   /**
@@ -234,33 +208,7 @@ export const productsService = {
     );
     files.forEach((file) => formData.append("files", file));
 
-    const token = getAccessToken();
-    const headers: HeadersInit = token
-      ? { Authorization: `Bearer ${token}` }
-      : {};
-
-    const response = await fetch(`${env.apiBaseUrl}${BASE}/create`, {
-      method: "POST",
-      headers,
-      credentials: "include",
-      body: formData,
-      signal,
-    });
-
-    if (!response.ok) {
-      let payload: { statusCode: number; message: string };
-      try {
-        payload = await response.json();
-      } catch {
-        payload = {
-          statusCode: response.status,
-          message: response.statusText || "Failed to create product.",
-        };
-      }
-      throw new ApiRequestError(payload);
-    }
-
-    return response.json() as Promise<ApiResponse<Product>>;
+    return apiClient.post<ApiResponse<Product>>(`${BASE}/create`, formData, { signal });
   },
 
   /**
@@ -287,32 +235,6 @@ export const productsService = {
     formData.append("storeId", storeId);
     formData.append("storePrice", String(storePrice));
 
-    const token = getAccessToken();
-    const headers: HeadersInit = token
-      ? { Authorization: `Bearer ${token}`, "X-Client-Type": "dashboard" }
-      : { "X-Client-Type": "dashboard" };
-
-    const response = await fetch(`${env.apiBaseUrl}/api/supplier/products/full`, {
-      method: "POST",
-      headers,
-      credentials: "include",
-      body: formData,
-      signal,
-    });
-
-    if (!response.ok) {
-      let payload: { statusCode: number; message: string };
-      try {
-        payload = await response.json();
-      } catch {
-        payload = {
-          statusCode: response.status,
-          message: response.statusText || "Failed to submit product.",
-        };
-      }
-      throw new ApiRequestError(payload);
-    }
-
-    return response.json() as Promise<ApiResponse<Product>>;
+    return apiClient.post<ApiResponse<Product>>(`/api/supplier/products/full`, formData, { signal });
   },
 };

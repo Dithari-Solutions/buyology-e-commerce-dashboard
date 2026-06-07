@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import { ApiRequestError } from "../../api/types/api.types";
 import Label from "../form/Label";
@@ -85,12 +84,6 @@ export default function SignInForm() {
                   <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Password <span className="text-red-500">*</span>
                   </Label>
-                  <Link
-                    to="/reset-password"
-                    className="text-xs font-medium text-[#402F75] hover:text-[#FBBB14] dark:text-brand-400 transition-colors"
-                  >
-                    Forgot password?
-                  </Link>
                 </div>
                 <div className="relative">
                   <Input

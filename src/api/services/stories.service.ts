@@ -122,6 +122,11 @@ export const storiesService = {
     });
   },
 
+  /** Sets a story's display order (lower shown first). Used by drag-and-drop reordering. */
+  updateDisplayOrder(storyId: string, order: number): Promise<ApiResponse<void>> {
+    return apiClient.patch<ApiResponse<void>>(`${BASE}/${storyId}/display-order?order=${order}`);
+  },
+
   deleteStory(storyId: string): Promise<ApiResponse<void>> {
     return apiClient.delete<ApiResponse<void>>(`${BASE}/${storyId}`);
   },

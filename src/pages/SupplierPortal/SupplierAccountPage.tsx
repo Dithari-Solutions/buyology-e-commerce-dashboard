@@ -2,10 +2,12 @@ import { useState } from "react";
 import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { suppliersService } from "../../api/services/suppliers.service";
+import { useAuth } from "../../context/AuthContext";
 import { useT } from "../../i18n/I18nProvider";
 
 export default function SupplierAccountPage() {
   const t = useT();
+  const { signOut } = useAuth();
   const [busy, setBusy] = useState<string | null>(null);
   const [msg, setMsg] = useState<string>("");
   const [err, setErr] = useState<string>("");
@@ -20,6 +22,11 @@ export default function SupplierAccountPage() {
       else if (action === "unfreeze") res = await suppliersService.unfreezeMyAccount();
       else res = await suppliersService.deleteMyAccount();
       setMsg(res.message ?? "Done");
+      // Freezing/deleting ends access — sign out so the user isn't left in a
+      // frozen/deleted session that will fail on the next request.
+      if (action === "freeze" || action === "delete") {
+        setTimeout(() => { signOut(); }, 1200);
+      }
     } catch (e: unknown) {
       setErr((e as Error).message ?? "Failed");
     } finally {

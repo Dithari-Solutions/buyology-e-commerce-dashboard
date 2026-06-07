@@ -377,7 +377,29 @@ export default function Stories() {
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StoryStatus | "ALL">("ALL");
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [reorderSaving, setReorderSaving] = useState(false);
   const { isOpen, openModal, closeModal } = useModal();
+
+  // Drag-to-reorder is only safe on the full, unfiltered list (card index === list index).
+  const reorderEnabled = statusFilter === "ALL" && search.trim() === "";
+
+  function handleReorderDrop(dropIndex: number) {
+    if (dragIndex === null || dragIndex === dropIndex) {
+      setDragIndex(null);
+      return;
+    }
+    const next = [...stories];
+    const [moved] = next.splice(dragIndex, 1);
+    next.splice(dropIndex, 0, moved);
+    setStories(next);
+    setDragIndex(null);
+    // Persist the new order: displayOrder = position in the list.
+    setReorderSaving(true);
+    Promise.all(next.map((s, idx) => storiesService.updateDisplayOrder(s.id, idx)))
+      .catch(() => fetchStories())
+      .finally(() => setReorderSaving(false));
+  }
 
   const fetchStories = useCallback((signal?: AbortSignal) => {
     setLoading(true);
@@ -689,16 +711,38 @@ export default function Stories() {
         </div>
       )}
 
+      {/* ── Reorder hint ── */}
+      {!loading && !error && filtered.length > 1 && (
+        <p className="mb-3 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="5 9 2 12 5 15" /><polyline points="9 5 12 2 15 5" />
+            <polyline points="15 19 12 22 9 19" /><polyline points="19 9 22 12 19 15" />
+            <line x1="2" y1="12" x2="22" y2="12" /><line x1="12" y1="2" x2="12" y2="22" />
+          </svg>
+          {reorderEnabled
+            ? <>Drag cards to set the order stories appear in the app.{reorderSaving && <span className="text-brand-500 font-medium"> Saving…</span>}</>
+            : "Clear search & status filters to drag-reorder stories."}
+        </p>
+      )}
+
       {/* ── Story grid ── */}
       {!loading && !error && filtered.length > 0 && (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filtered.map((story) => (
-            <StoryCard
+          {filtered.map((story, i) => (
+            <div
               key={story.id}
-              story={story}
-              onClick={handleCardClick}
-              onDelete={handleDeleteStory}
-            />
+              draggable={reorderEnabled}
+              onDragStart={() => reorderEnabled && setDragIndex(i)}
+              onDragOver={(e) => { if (reorderEnabled) e.preventDefault(); }}
+              onDrop={() => reorderEnabled && handleReorderDrop(i)}
+              className={`${reorderEnabled ? "cursor-move" : ""} ${dragIndex === i ? "opacity-50" : ""} transition-opacity`}
+            >
+              <StoryCard
+                story={story}
+                onClick={handleCardClick}
+                onDelete={handleDeleteStory}
+              />
+            </div>
           ))}
         </div>
       )}

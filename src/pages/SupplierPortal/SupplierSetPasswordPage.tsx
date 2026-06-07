@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
-import { apiClient, setAccessToken } from "../../api/client";
+import { apiClient } from "../../api/client";
+import { useAuth } from "../../context/AuthContext";
 import type { ApiResponse } from "../../api/types/api.types";
 
 interface TokenInfo {
@@ -11,6 +12,7 @@ interface TokenInfo {
 export default function SupplierSetPasswordPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { applySession } = useAuth();
 
   const token = searchParams.get("token") ?? "";
 
@@ -46,7 +48,8 @@ export default function SupplierSetPasswordPage() {
         confirmedPassword,
       });
       if (res.data?.accessToken) {
-        setAccessToken(res.data.accessToken);
+        // Mark the session authenticated so route guards let the new supplier in.
+        applySession(res.data.accessToken);
       }
       navigate("/supplier/my-products");
     } catch (err: unknown) {

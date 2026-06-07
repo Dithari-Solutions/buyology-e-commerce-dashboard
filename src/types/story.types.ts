@@ -23,4 +23,6 @@ export interface Story {
   viewCount: number;
   likeCount: number;
   likedByMe: boolean;
+  /** Lower is shown first in the feed. Set via drag-and-drop reordering. */
+  displayOrder?: number;
 }

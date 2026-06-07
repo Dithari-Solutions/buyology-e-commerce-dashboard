@@ -21,6 +21,9 @@ interface AuthContextType {
   isLoading: boolean;
   signIn: (data: SignInRequest) => Promise<void>;
   signOut: () => Promise<void>;
+  /** Mark the session authenticated with a freshly issued access token (e.g. after
+   *  supplier password setup) so guards see the user as logged in immediately. */
+  applySession: (accessToken: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -98,6 +101,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [navigate]
   );
 
+  // ── Apply an externally obtained session (e.g. supplier set-password) ──────
+  const applySession = useCallback((accessToken: string) => {
+    setAccessToken(accessToken);
+    setIsAuthenticated(true);
+  }, []);
+
   // ── Sign out ──────────────────────────────────────────────────────────────
   const signOut = useCallback(async () => {
     try {
@@ -112,7 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [navigate]);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, signIn, signOut }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, signIn, signOut, applySession }}>
       {children}
     </AuthContext.Provider>
   );

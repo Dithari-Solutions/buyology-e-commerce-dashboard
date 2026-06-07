@@ -10,10 +10,12 @@ const STATUS_OPTIONS: OrderStatus[] = [
 ];
 
 // Supplier fulfilment chain + the label shown for the "advance" button.
+// Supplier fulfilment steps. Courier *assignment* is done by admins (Store Couriers);
+// the supplier only advances the order's progress, so labels are status-semantic.
 const SUPPLIER_NEXT: Partial<Record<OrderStatus, { next: OrderStatus; label: string }>> = {
   PAID: { next: "PACKAGING", label: "Start packaging" },
-  PACKAGING: { next: "IN_COURIER", label: "Courier assigned" },
-  IN_COURIER: { next: "IN_TRANSIT", label: "Courier on the way" },
+  PACKAGING: { next: "IN_COURIER", label: "Hand to courier" },
+  IN_COURIER: { next: "IN_TRANSIT", label: "Mark on the way" },
   IN_TRANSIT: { next: "DELIVERED", label: "Mark delivered" },
 };
 
