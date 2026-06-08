@@ -57,6 +57,7 @@ export const SPEC_CODES = [
   "ram",
   "storage",
   "processor",
+  "gpu",
   "screen_size",
   "touchable_screen",
   "operating_system",

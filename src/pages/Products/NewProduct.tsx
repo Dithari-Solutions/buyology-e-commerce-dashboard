@@ -41,6 +41,7 @@ const SPEC_CODE_LABELS: Record<string, string> = {
   ram: "RAM",
   storage: "Storage",
   processor: "Processor",
+  gpu: "GPU",
   screen_size: "Screen Size",
   touchable_screen: "Touchable Screen",
   operating_system: "Operating System",
