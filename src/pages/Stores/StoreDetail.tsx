@@ -714,14 +714,14 @@ function ManageHoursModal({ isOpen, onClose, location }: ManageHoursModalProps) 
                   <input
                     type="time"
                     value={row.openTime.slice(0, 5)}
-                    onChange={(e) => updateRow(row.day, { openTime: e.target.value + ":00" })}
+                    onChange={(e) => updateRow(row.day, { openTime: e.target.value.slice(0, 5) + ":00" })}
                     className="flex-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-1.5 text-xs text-gray-800 dark:text-white focus:outline-none focus:border-brand-400"
                   />
                   <span className="text-xs text-gray-400">to</span>
                   <input
                     type="time"
                     value={row.closeTime.slice(0, 5)}
-                    onChange={(e) => updateRow(row.day, { closeTime: e.target.value + ":00" })}
+                    onChange={(e) => updateRow(row.day, { closeTime: e.target.value.slice(0, 5) + ":00" })}
                     className="flex-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-1.5 text-xs text-gray-800 dark:text-white focus:outline-none focus:border-brand-400"
                   />
                 </>

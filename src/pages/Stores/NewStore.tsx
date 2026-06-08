@@ -549,7 +549,7 @@ export default function NewStore() {
                   value={row.openTime.slice(0, 5)}
                   disabled={row.isClosed}
                   onChange={(e) =>
-                    setHoursRow(row.dayOfWeek, { openTime: `${e.target.value}:00` })
+                    setHoursRow(row.dayOfWeek, { openTime: `${e.target.value.slice(0, 5)}:00` })
                   }
                   className={`${inputCls} ${row.isClosed ? "opacity-40 cursor-not-allowed" : ""}`}
                 />
@@ -561,7 +561,7 @@ export default function NewStore() {
                   value={row.closeTime.slice(0, 5)}
                   disabled={row.isClosed}
                   onChange={(e) =>
-                    setHoursRow(row.dayOfWeek, { closeTime: `${e.target.value}:00` })
+                    setHoursRow(row.dayOfWeek, { closeTime: `${e.target.value.slice(0, 5)}:00` })
                   }
                   className={`${inputCls} ${row.isClosed ? "opacity-40 cursor-not-allowed" : ""}`}
                 />
