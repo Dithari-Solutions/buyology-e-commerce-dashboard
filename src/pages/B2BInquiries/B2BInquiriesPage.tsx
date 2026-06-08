@@ -40,7 +40,9 @@ export default function B2BInquiriesPage() {
       const u = updated.data as B2bInquiry;
       setInquiries((i) => i.map((x) => x.id === u.id ? u : x));
       setSelected(u);
-    } catch { } finally { setUpdating(false); }
+    } catch {
+      alert("Failed to update inquiry status. Please try again.");
+    } finally { setUpdating(false); }
   };
 
   const newCount = inquiries.filter((i) => i.status === "NEW").length;

@@ -38,7 +38,7 @@ export default function PromoCodePage() {
       setCodes((c) => [created.data as PromoCode, ...c]);
       setShowCreate(false);
       setForm({ code: "", discountType: "PERCENTAGE", discountValue: 10 });
-    } catch (e: unknown) {
+    } catch {
       setMsg("Failed to create promo code");
     } finally { setSaving(false); }
   };
@@ -55,7 +55,9 @@ export default function PromoCodePage() {
     try {
       await promoService.sendToCustomers(showSend, { sendEmail, sendPush });
       setShowSend(null);
-    } catch { } finally { setSending(false); }
+    } catch {
+      setMsg("Failed to send promo code");
+    } finally { setSending(false); }
   };
 
   return (

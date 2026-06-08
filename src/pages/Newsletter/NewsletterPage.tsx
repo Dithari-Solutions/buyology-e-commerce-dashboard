@@ -44,7 +44,9 @@ export default function NewsletterPage() {
     try {
       await newsletterService.publishArticle(id, send);
       setArticles((a) => a.map((art) => art.id === id ? { ...art, status: "PUBLISHED" as const } : art));
-    } catch { } finally { setPublishing(null); }
+    } catch {
+      alert("Failed to publish article. Please try again.");
+    } finally { setPublishing(null); }
   };
 
   return (

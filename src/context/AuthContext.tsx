@@ -13,6 +13,7 @@ import {
   setAccessToken,
 } from "../api/client";
 import { landingPathForCurrentUser } from "../auth/roles";
+import { IS_SUPPLIER_PORTAL } from "../config/portal";
 import type { SignInData, SignInRequest } from "../types/auth.types";
 
 /** A pending two-factor challenge captured during sign-in, consumed by the MFA pages. */
@@ -134,19 +135,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setPendingMfa(null);
       // The backend sets the HttpOnly refresh_token cookie in the response.
       // We only extract and store the accessToken from the JSON body.
-      // Admin endpoint refuses SUPPLIER accounts; in that case retry on the
-      // supplier endpoint so suppliers and admins share one sign-in form.
       let res;
-      try {
-        res = await authService.signIn(credentials);
-      } catch (e) {
-        const err = e as { statusCode?: number; message?: string };
-        const isSupplierRedirect =
-          err?.statusCode === 403 &&
-          typeof err.message === "string" &&
-          err.message.toLowerCase().includes("supplier");
-        if (!isSupplierRedirect) throw e;
+      if (IS_SUPPLIER_PORTAL) {
+        // Supplier portal (supplier.* host): ONLY the supplier sign-in endpoint.
+        // Admin accounts are not suppliers, so the backend refuses them here —
+        // "suppliers only" is enforced at the API boundary, not just the UI.
         res = await authService.supplierSignIn(credentials);
+      } else {
+        // Admin portal: shared form. Admin endpoint first; if it refuses a
+        // SUPPLIER account, retry the supplier endpoint.
+        try {
+          res = await authService.signIn(credentials);
+        } catch (e) {
+          const err = e as { statusCode?: number; message?: string };
+          const isSupplierRedirect =
+            err?.statusCode === 403 &&
+            typeof err.message === "string" &&
+            err.message.toLowerCase().includes("supplier");
+          if (!isSupplierRedirect) throw e;
+          res = await authService.supplierSignIn(credentials);
+        }
       }
       // Privileged accounts are gated by 2FA — bail to the MFA flow if challenged.
       if (consumeAuthData(res.data)) return;

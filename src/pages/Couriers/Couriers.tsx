@@ -188,8 +188,6 @@ export default function Couriers() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
   const [vehicleFilter, setVehicleFilter] = useState<VehicleFilter>("ALL");
 
-  console.log(couriers);
-
   const load = useCallback(
     (
       pageNum: number,

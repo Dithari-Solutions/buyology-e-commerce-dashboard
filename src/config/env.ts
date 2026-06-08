@@ -15,6 +15,15 @@ const resolveApiBaseUrl = (): string => {
     return normalizeUrl(apiBaseUrlRaw);
   }
 
+  // In a production build, a missing API URL must fail loudly — silently
+  // pointing the live admin panel at the dev backend is far worse than a
+  // hard error at startup. In dev, fall back to the dev backend for convenience.
+  if (import.meta.env.PROD) {
+    throw new Error(
+      "VITE_API_BASE_URL is not set. Refusing to start a production build without an explicit API base URL."
+    );
+  }
+
   console.warn(
     "VITE_API_BASE_URL is not set. Falling back to default backend API URL.",
     DEFAULT_API_BASE

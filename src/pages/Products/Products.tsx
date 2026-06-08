@@ -237,7 +237,6 @@ export default function Products() {
     productsService
       .getAll("EN", controller.signal)
       .then((res) => {
-        console.log(res);
         setProducts(res.data)
       })
       .catch((err: unknown) => {

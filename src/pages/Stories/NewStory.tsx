@@ -50,7 +50,6 @@ function presignFieldsFor(file: File, fallbackName: string): {
   const filename = resolveFilename(file, fallbackName);
   const contentType = resolveContentType(file);
   if (!filename || !contentType) {
-    // eslint-disable-next-line no-console
     console.error("Invalid presign fields", {
       filename,
       contentType,

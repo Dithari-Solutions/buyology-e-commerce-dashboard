@@ -234,11 +234,6 @@ export default function CourierDetail() {
 
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
 
-  console.log(
-    courier
-  );
-  
-
   useEffect(() => {
     if (!courierId) return;
     const controller = new AbortController();

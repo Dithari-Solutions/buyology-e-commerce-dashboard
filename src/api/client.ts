@@ -3,8 +3,7 @@ import { ApiError, ApiRequestError } from "./types/api.types";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
-interface RequestOptions extends Omit<RequestInit, "method" | "body"> {
-}
+type RequestOptions = Omit<RequestInit, "method" | "body">;
 
 interface RequestWithBodyOptions extends RequestOptions {
   body?: unknown;

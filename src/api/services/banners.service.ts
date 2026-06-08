@@ -60,18 +60,9 @@ export const bannersService = {
   create(data: BannerRequest, background: File): Promise<ApiResponse<BannerAdmin>> {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 90_000);
-    console.log("[banners] create →", { data, fileName: background.name, size: background.size });
     return apiClient
       .post<ApiResponse<BannerAdmin>>(`${BASE}/create`, buildFormData(data, background), {
         signal: ctrl.signal,
-      })
-      .then((r) => {
-        console.log("[banners] create ✓", r);
-        return r;
-      })
-      .catch((e) => {
-        console.error("[banners] create ✗", e);
-        throw e;
       })
       .finally(() => clearTimeout(t));
   },
@@ -83,18 +74,9 @@ export const bannersService = {
   ): Promise<ApiResponse<BannerAdmin>> {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 90_000);
-    console.log("[banners] update →", { id, data, hasFile: !!background });
     return apiClient
       .put<ApiResponse<BannerAdmin>>(`${BASE}/${id}`, buildFormData(data, background), {
         signal: ctrl.signal,
-      })
-      .then((r) => {
-        console.log("[banners] update ✓", r);
-        return r;
-      })
-      .catch((e) => {
-        console.error("[banners] update ✗", e);
-        throw e;
       })
       .finally(() => clearTimeout(t));
   },
