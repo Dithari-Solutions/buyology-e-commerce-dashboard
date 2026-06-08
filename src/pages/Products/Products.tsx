@@ -4,6 +4,7 @@ import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Badge from "../../components/ui/badge/Badge";
 import { productsService, ApiRequestError } from "../../api";
+import type { ProductStats } from "../../api/services/products.service";
 import type { Product, ProductStatus, AvailabilityStatus } from "../../types";
 import { getImageUrl } from "../../utils/imageUrl";
 
@@ -223,53 +224,63 @@ type StatusFilter = ProductStatus | "ALL";
 
 export default function Products() {
   const navigate = useNavigate();
+  const PAGE_SIZE = 20;
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
+  const [counts, setCounts] = useState<ProductStats>({ total: 0, active: 0, inactive: 0 });
 
+  // Debounce the search box before hitting the server
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search), 400);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  // Any new query/filter resets to the first page
+  useEffect(() => { setPage(0); }, [debouncedSearch, statusFilter]);
+
+  // Fetch the current page (server-side search + status filter + pagination)
   useEffect(() => {
     const controller = new AbortController();
     setLoading(true);
     setError(null);
-
     productsService
-      .getAll("EN", controller.signal)
+      .getPage(
+        { language: "EN", search: debouncedSearch, status: statusFilter, page, size: PAGE_SIZE },
+        controller.signal
+      )
       .then((res) => {
-        setProducts(res.data)
+        setProducts(res.data.content);
+        setTotalPages(Math.max(1, res.data.totalPages));
+        setTotalElements(res.data.totalElements);
       })
       .catch((err: unknown) => {
         if (err instanceof Error && err.name === "AbortError") return;
-        const message =
-          err instanceof ApiRequestError
-            ? err.message
-            : "Failed to load products.";
-        setError(message);
+        setError(err instanceof ApiRequestError ? err.message : "Failed to load products.");
       })
       .finally(() => setLoading(false));
+    return () => controller.abort();
+  }, [debouncedSearch, statusFilter, page]);
 
+  // Status counts for the stat cards (fetched once)
+  useEffect(() => {
+    const controller = new AbortController();
+    productsService.getStats(controller.signal)
+      .then((res) => setCounts(res.data))
+      .catch(() => {});
     return () => controller.abort();
   }, []);
-
-  const filtered = products.filter((p) => {
-    const term = search.toLowerCase();
-    const matchesSearch =
-      p.title.toLowerCase().includes(term) ||
-      p.sku.toLowerCase().includes(term) ||
-      p.description.toLowerCase().includes(term);
-    const matchesStatus = statusFilter === "ALL" || p.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
-  const activeCount = products.filter((p) => p.status === "ACTIVE").length;
-  const inactiveCount = products.filter((p) => p.status === "INACTIVE").length;
-  const totalVariants = products.reduce((acc, p) => acc + p.variants.length, 0);
 
   const stats = [
     {
       label: "Total Products",
-      value: products.length,
+      value: counts.total,
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
           <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
@@ -281,7 +292,7 @@ export default function Products() {
     },
     {
       label: "Active",
-      value: activeCount,
+      value: counts.active,
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
@@ -292,7 +303,7 @@ export default function Products() {
     },
     {
       label: "Inactive",
-      value: inactiveCount,
+      value: counts.inactive,
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
           <circle cx="12" cy="12" r="10" />
@@ -300,21 +311,6 @@ export default function Products() {
         </svg>
       ),
       color: "text-error-600 dark:text-error-400 bg-error-50 dark:bg-error-500/10",
-    },
-    {
-      label: "Total Variants",
-      value: totalVariants,
-      icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-          <line x1="8" y1="6" x2="21" y2="6" />
-          <line x1="8" y1="12" x2="21" y2="12" />
-          <line x1="8" y1="18" x2="21" y2="18" />
-          <line x1="3" y1="6" x2="3.01" y2="6" />
-          <line x1="3" y1="12" x2="3.01" y2="12" />
-          <line x1="3" y1="18" x2="3.01" y2="18" />
-        </svg>
-      ),
-      color: "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10",
     },
   ];
 
@@ -361,7 +357,7 @@ export default function Products() {
           All Products
           {!loading && (
             <span className="ml-2 text-sm font-normal text-gray-400">
-              ({filtered.length})
+              ({totalElements})
             </span>
           )}
         </h2>
@@ -451,7 +447,7 @@ export default function Products() {
                   Array.from({ length: 6 }).map((_, i) => <SkeletonRow key={i} />)}
 
                 {!loading &&
-                  filtered.map((product) => (
+                  products.map((product) => (
                     <ProductRow
                       key={product.id}
                       product={product}
@@ -463,7 +459,7 @@ export default function Products() {
           </div>
 
           {/* Empty state */}
-          {!loading && filtered.length === 0 && (
+          {!loading && products.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 text-center">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" className="mb-4 text-gray-300 dark:text-gray-600">
                 <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
@@ -485,6 +481,31 @@ export default function Products() {
                   Clear filters
                 </button>
               )}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {!loading && totalPages > 1 && (
+            <div className="flex items-center justify-between gap-3 border-t border-gray-100 dark:border-gray-800 px-4 py-3">
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                Page {page + 1} of {totalPages} · {totalElements} products
+              </span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  disabled={page === 0}
+                  className="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:border-brand-400 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                  disabled={page >= totalPages - 1}
+                  className="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:border-brand-400 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                >
+                  Next
+                </button>
+              </div>
             </div>
           )}
         </div>

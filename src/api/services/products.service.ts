@@ -93,10 +93,23 @@ export interface UpdateProductRequest {
   primaryMediaId?: string;
 }
 
+export interface PagedProducts {
+  content: Product[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
+
+export interface ProductStats {
+  total: number;
+  active: number;
+  inactive: number;
+}
+
 export const productsService = {
   /**
-   * Fetch all products.
-   * @param language - Content language (defaults to "EN")
+   * Fetch all products (unpaged). Prefer getPage() for large catalogs.
    */
   getAll(
     language: ProductLanguage = "EN",
@@ -106,6 +119,25 @@ export const productsService = {
       `${BASE}?lang=${language}`,
       { signal }
     );
+  },
+
+  /** Server-side paginated + searchable product list. */
+  getPage(
+    opts: { language?: ProductLanguage; search?: string; status?: string; page?: number; size?: number },
+    signal?: AbortSignal
+  ): Promise<ApiResponse<PagedProducts>> {
+    const p = new URLSearchParams();
+    p.set("lang", opts.language ?? "EN");
+    if (opts.search?.trim()) p.set("search", opts.search.trim());
+    if (opts.status && opts.status !== "ALL") p.set("status", opts.status);
+    p.set("page", String(opts.page ?? 0));
+    p.set("size", String(opts.size ?? 20));
+    return apiClient.get<ApiResponse<PagedProducts>>(`${BASE}/page?${p.toString()}`, { signal });
+  },
+
+  /** Status counts for the dashboard stat cards. */
+  getStats(signal?: AbortSignal): Promise<ApiResponse<ProductStats>> {
+    return apiClient.get<ApiResponse<ProductStats>>(`${BASE}/stats`, { signal });
   },
 
   /**
