@@ -43,6 +43,9 @@ export interface CreateProductColor {
 }
 
 export interface CreateProductRequest {
+  // Optional manual SKU. If omitted/blank, the backend auto-generates one
+  // (DTAX-/DTDX- prefix). If provided it must be globally unique.
+  sku?: string;
   categoryId: string;
   brandId: string | null;
   productType: ProductType;
