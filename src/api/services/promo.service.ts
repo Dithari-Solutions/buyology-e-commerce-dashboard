@@ -33,6 +33,15 @@ export interface SendPromoRequest {
   sendPush: boolean;
 }
 
+export interface PromoUsage {
+  userId: string;
+  customerName: string | null;
+  customerEmail: string | null;
+  orderId: string;
+  discountApplied: number;
+  usedAt: string;
+}
+
 export const promoService = {
   create(req: CreatePromoCodeRequest): Promise<ApiResponse<PromoCode>> {
     return apiClient.post("/api/admin/promo", req);
@@ -48,5 +57,8 @@ export const promoService = {
   },
   sendToCustomers(id: string, req: SendPromoRequest): Promise<ApiResponse<void>> {
     return apiClient.post(`/api/admin/promo/${id}/send`, req);
+  },
+  usages(id: string, signal?: AbortSignal): Promise<ApiResponse<PromoUsage[]>> {
+    return apiClient.get(`/api/admin/promo/${id}/usages`, { signal });
   },
 };

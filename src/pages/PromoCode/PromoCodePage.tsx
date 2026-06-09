@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import { promoService, type PromoCode, type CreatePromoCodeRequest } from "../../api/services/promo.service";
+import { promoService, type PromoCode, type CreatePromoCodeRequest, type PromoUsage } from "../../api/services/promo.service";
 
 function formatDate(iso?: string) {
   if (!iso) return "—";
@@ -21,6 +21,9 @@ export default function PromoCodePage() {
   const [sendEmail, setSendEmail] = useState(true);
   const [sendPush, setSendPush] = useState(true);
   const [sending, setSending] = useState(false);
+  const [showUsage, setShowUsage] = useState<PromoCode | null>(null);
+  const [usages, setUsages] = useState<PromoUsage[]>([]);
+  const [usageLoading, setUsageLoading] = useState(false);
 
   useEffect(() => {
     const ac = new AbortController();
@@ -47,6 +50,18 @@ export default function PromoCodePage() {
     if (!confirm("Deactivate this promo code?")) return;
     await promoService.deactivate(id);
     setCodes((c) => c.map((p) => p.id === id ? { ...p, isActive: false } : p));
+  };
+
+  const openUsage = async (p: PromoCode) => {
+    setShowUsage(p);
+    setUsageLoading(true);
+    setUsages([]);
+    try {
+      const r = await promoService.usages(p.id);
+      setUsages(r.data ?? []);
+    } catch {
+      setUsages([]);
+    } finally { setUsageLoading(false); }
   };
 
   const handleSend = async () => {
@@ -95,7 +110,14 @@ export default function PromoCodePage() {
                       {p.discountType === "PERCENTAGE" ? `${p.discountValue}%` : `${p.discountValue} off`}
                     </td>
                     <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">
-                      {p.totalUsed}{p.maxUsesTotal ? `/${p.maxUsesTotal}` : ""}
+                      {p.totalUsed > 0 ? (
+                        <button onClick={() => openUsage(p)}
+                          className="font-medium text-brand-600 hover:underline dark:text-brand-400">
+                          {p.totalUsed}{p.maxUsesTotal ? `/${p.maxUsesTotal}` : ""}
+                        </button>
+                      ) : (
+                        <span>{p.totalUsed}{p.maxUsesTotal ? `/${p.maxUsesTotal}` : ""}</span>
+                      )}
                     </td>
                     <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">{formatDate(p.expiresAt)}</td>
                     <td className="py-3 pr-4">
@@ -204,6 +226,57 @@ export default function PromoCodePage() {
               <button onClick={() => setShowSend(null)}
                 className="rounded-lg border border-gray-300 px-4 py-2 text-sm dark:border-gray-600 dark:text-gray-300">
                 Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Usage / "who used it" modal */}
+      {showUsage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-semibold dark:text-white">
+                Redemptions — <span className="font-mono">{showUsage.code}</span>
+              </h3>
+              <button onClick={() => setShowUsage(null)} className="text-gray-400 hover:text-gray-600">✕</button>
+            </div>
+            {usageLoading ? (
+              <p className="text-sm text-gray-500">Loading...</p>
+            ) : usages.length === 0 ? (
+              <p className="text-sm text-gray-500">No redemptions yet.</p>
+            ) : (
+              <div className="max-h-[60vh] overflow-y-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-100 dark:border-gray-800 text-left text-gray-500 text-xs uppercase">
+                      <th className="pb-2 pr-4">Customer</th>
+                      <th className="pb-2 pr-4">Discount</th>
+                      <th className="pb-2 pr-4">Order</th>
+                      <th className="pb-2">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                    {usages.map((u, i) => (
+                      <tr key={i}>
+                        <td className="py-2 pr-4">
+                          <div className="font-medium text-gray-800 dark:text-gray-200">{u.customerName ?? "—"}</div>
+                          <div className="text-xs text-gray-500">{u.customerEmail ?? u.userId}</div>
+                        </td>
+                        <td className="py-2 pr-4 text-gray-600 dark:text-gray-400">{u.discountApplied}</td>
+                        <td className="py-2 pr-4 font-mono text-xs text-gray-500">{u.orderId.slice(0, 8)}…</td>
+                        <td className="py-2 text-gray-600 dark:text-gray-400">{formatDate(u.usedAt)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            <div className="mt-4 flex justify-end">
+              <button onClick={() => setShowUsage(null)}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm dark:border-gray-600 dark:text-gray-300">
+                Close
               </button>
             </div>
           </div>
