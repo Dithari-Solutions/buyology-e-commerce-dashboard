@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import { promoService, type PromoCode, type CreatePromoCodeRequest, type PromoUsage } from "../../api/services/promo.service";
+import { promoService, type PromoCode, type CreatePromoCodeRequest, type PromoUsage, type IssuePersonalCodeRequest, type TokenRedemptionConfig } from "../../api/services/promo.service";
 
 function formatDate(iso?: string) {
   if (!iso) return "—";
@@ -24,6 +24,18 @@ export default function PromoCodePage() {
   const [showUsage, setShowUsage] = useState<PromoCode | null>(null);
   const [usages, setUsages] = useState<PromoUsage[]>([]);
   const [usageLoading, setUsageLoading] = useState(false);
+
+  // Item 4 — issue a personal coupon to one user.
+  const [showIssue, setShowIssue] = useState(false);
+  const [issueForm, setIssueForm] = useState<IssuePersonalCodeRequest>({
+    userId: "", discountType: "PERCENTAGE", discountValue: 10, sendEmail: true, sendPush: false,
+  });
+  const [issuing, setIssuing] = useState(false);
+
+  // Item 3 — admin-configurable token redemption.
+  const [showConfig, setShowConfig] = useState(false);
+  const [config, setConfig] = useState<TokenRedemptionConfig | null>(null);
+  const [configSaving, setConfigSaving] = useState(false);
 
   useEffect(() => {
     const ac = new AbortController();
@@ -75,6 +87,39 @@ export default function PromoCodePage() {
     } finally { setSending(false); }
   };
 
+  const handleIssue = async () => {
+    if (!issueForm.userId.trim()) { setMsg("User ID is required"); return; }
+    setIssuing(true); setMsg("");
+    try {
+      const created = await promoService.issueToUser(issueForm);
+      setCodes((c) => [created.data as PromoCode, ...c]);
+      setShowIssue(false);
+      setIssueForm({ userId: "", discountType: "PERCENTAGE", discountValue: 10, sendEmail: true, sendPush: false });
+    } catch {
+      setMsg("Failed to issue personal code");
+    } finally { setIssuing(false); }
+  };
+
+  const openConfig = async () => {
+    setShowConfig(true);
+    try {
+      const r = await promoService.getRedeemConfig();
+      if (r.data) setConfig(r.data);
+    } catch { /* keep null -> shows loading */ }
+  };
+
+  const handleSaveConfig = async () => {
+    if (!config) return;
+    setConfigSaving(true); setMsg("");
+    try {
+      const r = await promoService.updateRedeemConfig(config);
+      if (r.data) setConfig(r.data);
+      setShowConfig(false);
+    } catch {
+      setMsg("Failed to save token redemption config");
+    } finally { setConfigSaving(false); }
+  };
+
   return (
     <>
       <PageMeta title="Promo Codes | Buyology" description="Manage promotional codes" />
@@ -83,10 +128,20 @@ export default function PromoCodePage() {
       <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-800 dark:text-white">Promo Codes ({codes.length})</h2>
-          <button onClick={() => setShowCreate(true)}
-            className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600">
-            + Create Code
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={openConfig}
+              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800">
+              Token Redemption
+            </button>
+            <button onClick={() => setShowIssue(true)}
+              className="rounded-lg border border-brand-300 px-4 py-2 text-sm font-medium text-brand-600 hover:bg-brand-50 dark:border-brand-700 dark:text-brand-400">
+              Issue to User
+            </button>
+            <button onClick={() => setShowCreate(true)}
+              className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600">
+              + Create Code
+            </button>
+          </div>
         </div>
 
         {loading ? <p className="text-sm text-gray-500">Loading...</p> : (
@@ -105,7 +160,14 @@ export default function PromoCodePage() {
               <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                 {codes.map((p) => (
                   <tr key={p.id}>
-                    <td className="py-3 pr-4 font-mono font-semibold text-gray-800 dark:text-gray-200">{p.code}</td>
+                    <td className="py-3 pr-4 font-mono font-semibold text-gray-800 dark:text-gray-200">
+                      {p.code}
+                      {p.targetUserId && (
+                        <span className="ml-2 rounded-full bg-purple-100 px-2 py-0.5 align-middle text-[10px] font-medium text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                          Personal
+                        </span>
+                      )}
+                    </td>
                     <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">
                       {p.discountType === "PERCENTAGE" ? `${p.discountValue}%` : `${p.discountValue} off`}
                     </td>
@@ -279,6 +341,174 @@ export default function PromoCodePage() {
                 Close
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Issue-to-user modal (item 4) */}
+      {showIssue && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-semibold dark:text-white">Issue Personal Coupon</h3>
+              <button onClick={() => setShowIssue(false)} className="text-gray-400 hover:text-gray-600">✕</button>
+            </div>
+            <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+              Mints a unique code usable by this customer only and emails it to them.
+            </p>
+            <div className="space-y-3">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Customer User ID</label>
+                <input type="text" placeholder="paste the user's ID"
+                  value={issueForm.userId}
+                  onChange={(e) => setIssueForm((f) => ({ ...f, userId: e.target.value.trim() }))}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Discount Type</label>
+                  <select value={issueForm.discountType}
+                    onChange={(e) => setIssueForm((f) => ({ ...f, discountType: e.target.value as "PERCENTAGE" | "FIXED_AMOUNT" }))}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                    <option value="PERCENTAGE">Percentage (%)</option>
+                    <option value="FIXED_AMOUNT">Fixed Amount</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Discount Value</label>
+                  <input type="number" value={issueForm.discountValue}
+                    onChange={(e) => setIssueForm((f) => ({ ...f, discountValue: Number(e.target.value) || 0 }))}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Min Order (optional)</label>
+                  <input type="number" placeholder="0"
+                    onChange={(e) => setIssueForm((f) => ({ ...f, minimumOrderAmount: Number(e.target.value) || undefined }))}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Valid for (days)</label>
+                  <input type="number" placeholder="never expires"
+                    onChange={(e) => setIssueForm((f) => ({ ...f, validityDays: Number(e.target.value) || undefined }))}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
+                </div>
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Description (optional)</label>
+                <input type="text" placeholder="e.g. Loyalty reward"
+                  onChange={(e) => setIssueForm((f) => ({ ...f, description: e.target.value || undefined }))}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
+              </div>
+              <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <input type="checkbox" checked={issueForm.sendEmail}
+                  onChange={(e) => setIssueForm((f) => ({ ...f, sendEmail: e.target.checked }))} />
+                Email the code to the customer
+              </label>
+              <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <input type="checkbox" checked={issueForm.sendPush}
+                  onChange={(e) => setIssueForm((f) => ({ ...f, sendPush: e.target.checked }))} />
+                Also send a push notification
+              </label>
+            </div>
+            {msg && <p className="mt-2 text-sm text-red-500">{msg}</p>}
+            <div className="mt-4 flex gap-3">
+              <button onClick={handleIssue} disabled={issuing}
+                className="flex-1 rounded-lg bg-brand-500 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50">
+                {issuing ? "Issuing..." : "Issue & Notify"}
+              </button>
+              <button onClick={() => setShowIssue(false)}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm dark:border-gray-600 dark:text-gray-300">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Token redemption config modal (item 3) */}
+      {showConfig && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-semibold dark:text-white">Token Redemption Settings</h3>
+              <button onClick={() => setShowConfig(false)} className="text-gray-400 hover:text-gray-600">✕</button>
+            </div>
+            {!config ? (
+              <p className="text-sm text-gray-500">Loading...</p>
+            ) : (
+              <>
+                <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+                  Controls how customers convert game tokens into a discount coupon.
+                </p>
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <input type="checkbox" checked={config.enabled}
+                      onChange={(e) => setConfig({ ...config, enabled: e.target.checked })} />
+                    Redemption enabled
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Token Cost</label>
+                      <input type="number" value={config.tokenCost}
+                        onChange={(e) => setConfig({ ...config, tokenCost: Number(e.target.value) || 0 })}
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Discount Type</label>
+                      <select value={config.discountType}
+                        onChange={(e) => setConfig({ ...config, discountType: e.target.value as "PERCENTAGE" | "FIXED_AMOUNT" })}
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                        <option value="PERCENTAGE">Percentage (%)</option>
+                        <option value="FIXED_AMOUNT">Fixed Amount</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Discount Value</label>
+                      <input type="number" value={config.discountValue}
+                        onChange={(e) => setConfig({ ...config, discountValue: Number(e.target.value) || 0 })}
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Coupon Validity (days)</label>
+                      <input type="number" value={config.couponValidityDays}
+                        onChange={(e) => setConfig({ ...config, couponValidityDays: Number(e.target.value) || 0 })}
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Max Uses / Coupon</label>
+                      <input type="number" value={config.maxUsesPerCoupon}
+                        onChange={(e) => setConfig({ ...config, maxUsesPerCoupon: Number(e.target.value) || 1 })}
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Max Redemptions / Customer</label>
+                      <input type="number" placeholder="unlimited"
+                        value={config.maxRedemptionsPerCustomer ?? ""}
+                        onChange={(e) => setConfig({ ...config, maxRedemptionsPerCustomer: e.target.value === "" ? null : Number(e.target.value) })}
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Min Order Amount (optional)</label>
+                    <input type="number" placeholder="0"
+                      value={config.minimumOrderAmount ?? ""}
+                      onChange={(e) => setConfig({ ...config, minimumOrderAmount: e.target.value === "" ? null : Number(e.target.value) })}
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
+                  </div>
+                </div>
+                {msg && <p className="mt-2 text-sm text-red-500">{msg}</p>}
+                <div className="mt-4 flex gap-3">
+                  <button onClick={handleSaveConfig} disabled={configSaving}
+                    className="flex-1 rounded-lg bg-brand-500 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50">
+                    {configSaving ? "Saving..." : "Save Settings"}
+                  </button>
+                  <button onClick={() => setShowConfig(false)}
+                    className="rounded-lg border border-gray-300 px-4 py-2 text-sm dark:border-gray-600 dark:text-gray-300">
+                    Cancel
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

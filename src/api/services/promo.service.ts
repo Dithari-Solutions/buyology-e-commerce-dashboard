@@ -22,9 +22,33 @@ export interface PromoCode {
   maxUsesPerCustomer?: number;
   totalUsed: number;
   expiresAt?: string;
+  targetUserId?: string | null;
   isActive: boolean;
   description?: string;
   createdAt: string;
+}
+
+export interface IssuePersonalCodeRequest {
+  userId: string;
+  discountType: "PERCENTAGE" | "FIXED_AMOUNT";
+  discountValue: number;
+  minimumOrderAmount?: number;
+  validityDays?: number;
+  maxUses?: number;
+  description?: string;
+  sendEmail: boolean;
+  sendPush: boolean;
+}
+
+export interface TokenRedemptionConfig {
+  enabled: boolean;
+  tokenCost: number;
+  discountType: "PERCENTAGE" | "FIXED_AMOUNT";
+  discountValue: number;
+  minimumOrderAmount?: number | null;
+  couponValidityDays: number;
+  maxUsesPerCoupon: number;
+  maxRedemptionsPerCustomer?: number | null;
 }
 
 export interface SendPromoRequest {
@@ -60,5 +84,14 @@ export const promoService = {
   },
   usages(id: string, signal?: AbortSignal): Promise<ApiResponse<PromoUsage[]>> {
     return apiClient.get(`/api/admin/promo/${id}/usages`, { signal });
+  },
+  issueToUser(req: IssuePersonalCodeRequest): Promise<ApiResponse<PromoCode>> {
+    return apiClient.post("/api/admin/promo/issue", req);
+  },
+  getRedeemConfig(signal?: AbortSignal): Promise<ApiResponse<TokenRedemptionConfig>> {
+    return apiClient.get("/api/admin/promo/redeem-config", { signal });
+  },
+  updateRedeemConfig(req: TokenRedemptionConfig): Promise<ApiResponse<TokenRedemptionConfig>> {
+    return apiClient.put("/api/admin/promo/redeem-config", req);
   },
 };
