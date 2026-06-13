@@ -2,23 +2,27 @@ export interface CompressOptions {
   maxWidth?: number;
   maxHeight?: number;
   quality?: number;
-  mimeType?: "image/jpeg" | "image/webp";
+  mimeType?: "image/jpeg" | "image/webp" | "image/png";
 }
 
 export async function compressImage(
   file: File,
   opts: CompressOptions = {}
 ): Promise<File> {
-  const {
-    maxWidth = 1920,
-    maxHeight = 1080,
-    quality = 0.85,
-    mimeType = "image/jpeg",
-  } = opts;
+  const { maxWidth = 1920, maxHeight = 1080, quality = 0.85 } = opts;
 
   if (!file.type.startsWith("image/") || file.type === "image/svg+xml") {
     return file;
   }
+
+  // Preserve transparency. PNG/WebP can carry an alpha channel, and exporting a
+  // transparent image to JPEG fills the transparent areas with solid black. So a
+  // transparent-capable source is re-encoded as PNG (alpha-safe), never JPEG;
+  // only opaque sources (or callers that pass mimeType explicitly) become JPEG.
+  const transparentSource =
+    file.type === "image/png" || file.type === "image/webp";
+  const mimeType: NonNullable<CompressOptions["mimeType"]> =
+    opts.mimeType ?? (transparentSource ? "image/png" : "image/jpeg");
 
   const bitmap = await createImageBitmap(file);
   const ratio = Math.min(maxWidth / bitmap.width, maxHeight / bitmap.height, 1);
@@ -36,9 +40,12 @@ export async function compressImage(
   const blob: Blob | null = await new Promise((resolve) =>
     canvas.toBlob(resolve, mimeType, quality)
   );
+  // toBlob ignores quality for PNG, so a re-encoded PNG can come out larger than
+  // the original — keep the original file untouched in that case.
   if (!blob || blob.size >= file.size) return file;
 
-  const ext = mimeType === "image/webp" ? "webp" : "jpg";
+  const ext =
+    mimeType === "image/webp" ? "webp" : mimeType === "image/png" ? "png" : "jpg";
   const baseName = file.name.replace(/\.[^.]+$/, "") || "image";
   return new File([blob], `${baseName}.${ext}`, { type: mimeType });
 }
