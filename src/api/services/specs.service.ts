@@ -53,6 +53,12 @@ export interface CreateGlobalSpecGroupRequest {
   options?: CreateGlobalSpecOptionInput[];
 }
 
+export interface UpdateSpecGroupInput {
+  nameAz: string;
+  nameEn: string;
+  nameAr: string;
+}
+
 export const SPEC_CODES = [
   "ram",
   "storage",
@@ -85,6 +91,24 @@ export const specsService = {
   },
 
   /**
+   * Edit a spec group's display names (admin). The code is immutable.
+   */
+  updateGroup(
+    groupId: string,
+    data: UpdateSpecGroupInput,
+    signal?: AbortSignal
+  ): Promise<ApiResponse<GlobalSpecGroup>> {
+    return apiClient.put<ApiResponse<GlobalSpecGroup>>(`${BASE}/${groupId}`, data, { signal });
+  },
+
+  /**
+   * Delete a whole spec group + its options (admin). Existing products keep their copies.
+   */
+  deleteGroup(groupId: string, signal?: AbortSignal): Promise<ApiResponse<null>> {
+    return apiClient.delete<ApiResponse<null>>(`${BASE}/${groupId}`, { signal });
+  },
+
+  /**
    * Add an option to an existing spec group (admin).
    */
   addOption(
@@ -94,6 +118,21 @@ export const specsService = {
   ): Promise<ApiResponse<GlobalSpecOption>> {
     return apiClient.post<ApiResponse<GlobalSpecOption>>(
       `${BASE}/${groupId}/options`,
+      data,
+      { signal }
+    );
+  },
+
+  /**
+   * Edit an existing spec option's value + unit (admin).
+   */
+  updateOption(
+    optionId: string,
+    data: CreateGlobalSpecOptionInput,
+    signal?: AbortSignal
+  ): Promise<ApiResponse<GlobalSpecOption>> {
+    return apiClient.put<ApiResponse<GlobalSpecOption>>(
+      `${BASE}/options/${optionId}`,
       data,
       { signal }
     );

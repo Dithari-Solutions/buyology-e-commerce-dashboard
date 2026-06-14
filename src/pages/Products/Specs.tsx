@@ -103,17 +103,21 @@ function UnitSelect({
 
 function AddOptionForm({
   groupId,
+  editOption,
   onAdded,
+  onUpdated,
   onCancel,
 }: {
   groupId: string;
-  onAdded: (opt: GlobalSpecOption) => void;
+  editOption?: GlobalSpecOption;
+  onAdded?: (opt: GlobalSpecOption) => void;
+  onUpdated?: (opt: GlobalSpecOption) => void;
   onCancel: () => void;
 }) {
-  const [valueAz, setValueAz] = useState("");
-  const [valueEn, setValueEn] = useState("");
-  const [valueAr, setValueAr] = useState("");
-  const [unit, setUnit] = useState("");
+  const [valueAz, setValueAz] = useState(editOption ? getOptionValue(editOption, "AZ") : "");
+  const [valueEn, setValueEn] = useState(editOption ? getOptionValue(editOption, "EN") : "");
+  const [valueAr, setValueAr] = useState(editOption ? getOptionValue(editOption, "AR") : "");
+  const [unit, setUnit] = useState(editOption?.unit ?? "");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
@@ -136,11 +140,18 @@ function AddOptionForm({
         valueAr: valueAr.trim(),
         unit: unit || undefined,
       };
-      const res = await specsService.addOption(groupId, body);
-      onAdded(res.data);
+      if (editOption) {
+        const res = await specsService.updateOption(editOption.id, body);
+        onUpdated?.(res.data);
+      } else {
+        const res = await specsService.addOption(groupId, body);
+        onAdded?.(res.data);
+      }
     } catch (err) {
       setApiError(
-        err instanceof ApiRequestError ? err.message : "Failed to add option."
+        err instanceof ApiRequestError
+          ? err.message
+          : editOption ? "Failed to update option." : "Failed to add option."
       );
     } finally {
       setSubmitting(false);
@@ -175,7 +186,9 @@ function AddOptionForm({
           disabled={submitting}
           className="inline-flex items-center gap-1.5 rounded-[30px] bg-[#402F75] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#332560] disabled:opacity-50 transition-colors"
         >
-          {submitting ? "Adding…" : "Add Option"}
+          {editOption
+            ? (submitting ? "Saving…" : "Save Option")
+            : (submitting ? "Adding…" : "Add Option")}
         </button>
       </div>
     </form>
@@ -191,17 +204,75 @@ function SpecGroupRow({
   onOptionDeleted,
   onOptionAdded,
   onOptionsReordered,
+  onOptionUpdated,
+  onGroupUpdated,
+  onGroupDeleted,
 }: {
   group: GlobalSpecGroup;
   onOptionDeleted: (groupId: string, optionId: string) => void;
   onOptionAdded: (groupId: string, opt: GlobalSpecOption) => void;
   onOptionsReordered: (groupId: string, options: GlobalSpecOption[]) => void;
+  onOptionUpdated: (groupId: string, opt: GlobalSpecOption) => void;
+  onGroupUpdated: (group: GlobalSpecGroup) => void;
+  onGroupDeleted: (groupId: string) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [addingOption, setAddingOption] = useState(false);
+  const [editingOptionId, setEditingOptionId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [reordering, setReordering] = useState(false);
+
+  // Group edit / delete
+  const [editingGroup, setEditingGroup] = useState(false);
+  const [nameAz, setNameAz] = useState(getGroupName(group, "AZ"));
+  const [nameEn, setNameEn] = useState(getGroupName(group, "EN"));
+  const [nameAr, setNameAr] = useState(getGroupName(group, "AR"));
+  const [groupSaving, setGroupSaving] = useState(false);
+  const [groupDeleting, setGroupDeleting] = useState(false);
+
+  function startEditGroup() {
+    setNameAz(getGroupName(group, "AZ"));
+    setNameEn(getGroupName(group, "EN"));
+    setNameAr(getGroupName(group, "AR"));
+    setDeleteError(null);
+    setEditingGroup(true);
+  }
+
+  async function handleSaveGroup() {
+    if (!nameAz.trim() || !nameEn.trim() || !nameAr.trim()) {
+      setDeleteError("All three names are required.");
+      return;
+    }
+    setGroupSaving(true);
+    setDeleteError(null);
+    try {
+      const res = await specsService.updateGroup(group.id, {
+        nameAz: nameAz.trim(),
+        nameEn: nameEn.trim(),
+        nameAr: nameAr.trim(),
+      });
+      onGroupUpdated(res.data);
+      setEditingGroup(false);
+    } catch (err) {
+      setDeleteError(err instanceof ApiRequestError ? err.message : "Failed to update group.");
+    } finally {
+      setGroupSaving(false);
+    }
+  }
+
+  async function handleDeleteGroup() {
+    if (!confirm(`Delete spec group "${group.code}" and its options? Existing products keep their copies.`)) return;
+    setGroupDeleting(true);
+    setDeleteError(null);
+    try {
+      await specsService.deleteGroup(group.id);
+      onGroupDeleted(group.id);
+    } catch (err) {
+      setDeleteError(err instanceof ApiRequestError ? err.message : "Failed to delete group.");
+      setGroupDeleting(false);
+    }
+  }
 
   // Options sorted by their configured display order.
   const sortedOptions = [...group.options].sort(
@@ -280,21 +351,67 @@ function SpecGroupRow({
       {/* Expanded content */}
       {expanded && (
         <div className="border-t border-gray-100 dark:border-gray-800 px-5 pb-5 pt-4">
-          {/* Names */}
-          <div className="mb-4 grid grid-cols-3 gap-3 text-xs">
-            <div>
-              <span className="font-medium text-gray-500">AZ:</span>{" "}
-              <span className="text-gray-700 dark:text-gray-300">{getGroupName(group, "AZ")}</span>
+          {/* Names + group edit/delete */}
+          {editingGroup ? (
+            <div className="mb-4 rounded-xl border border-dashed border-[#402F75]/30 dark:border-[#FBBB14]/20 bg-[#402F75]/5 dark:bg-[#FBBB14]/5 p-4">
+              <div className="grid grid-cols-3 gap-3">
+                <FieldInput label="Name AZ" value={nameAz} onChange={setNameAz} placeholder="RAM" />
+                <FieldInput label="Name EN" value={nameEn} onChange={setNameEn} placeholder="RAM" />
+                <FieldInput label="Name AR" value={nameAr} onChange={setNameAr} placeholder="RAM" dir="rtl" />
+              </div>
+              <div className="mt-3 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingGroup(false)}
+                  className="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveGroup}
+                  disabled={groupSaving}
+                  className="inline-flex items-center gap-1.5 rounded-[30px] bg-[#402F75] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#332560] disabled:opacity-50 transition-colors"
+                >
+                  {groupSaving ? "Saving…" : "Save Names"}
+                </button>
+              </div>
             </div>
-            <div>
-              <span className="font-medium text-gray-500">EN:</span>{" "}
-              <span className="text-gray-700 dark:text-gray-300">{getGroupName(group, "EN")}</span>
+          ) : (
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div className="grid flex-1 grid-cols-3 gap-3 text-xs">
+                <div>
+                  <span className="font-medium text-gray-500">AZ:</span>{" "}
+                  <span className="text-gray-700 dark:text-gray-300">{getGroupName(group, "AZ")}</span>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-500">EN:</span>{" "}
+                  <span className="text-gray-700 dark:text-gray-300">{getGroupName(group, "EN")}</span>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-500">AR:</span>{" "}
+                  <span className="text-gray-700 dark:text-gray-300" dir="rtl">{getGroupName(group, "AR")}</span>
+                </div>
+              </div>
+              <div className="flex shrink-0 gap-2">
+                <button
+                  type="button"
+                  onClick={startEditGroup}
+                  className="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 hover:text-[#402F75] dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-[#FBBB14] transition-colors"
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeleteGroup}
+                  disabled={groupDeleting}
+                  className="rounded-lg border border-red-200 dark:border-red-800/40 px-3 py-1.5 text-xs font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 disabled:opacity-50 transition-colors"
+                >
+                  {groupDeleting ? "Deleting…" : "Delete"}
+                </button>
+              </div>
             </div>
-            <div>
-              <span className="font-medium text-gray-500">AR:</span>{" "}
-              <span className="text-gray-700 dark:text-gray-300" dir="rtl">{getGroupName(group, "AR")}</span>
-            </div>
-          </div>
+          )}
 
           {deleteError && (
             <p className="mb-3 text-xs text-red-500 dark:text-red-400">{deleteError}</p>
@@ -359,6 +476,17 @@ function SpecGroupRow({
                         )}
                       </td>
                       <td className="px-4 py-3">
+                        <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => { setEditingOptionId(opt.id); setAddingOption(false); }}
+                          title="Edit option"
+                          className="flex h-7 w-7 items-center justify-center rounded-full text-gray-400 hover:bg-[#402F75]/10 hover:text-[#402F75] dark:hover:bg-[#FBBB14]/10 dark:hover:text-[#FBBB14] transition-colors"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M12 20h9" />
+                            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                          </svg>
+                        </button>
                         <button
                           onClick={() => handleDeleteOption(opt.id)}
                           disabled={deletingId === opt.id}
@@ -379,6 +507,7 @@ function SpecGroupRow({
                             </svg>
                           )}
                         </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -389,8 +518,22 @@ function SpecGroupRow({
             <p className="text-xs text-gray-400 dark:text-gray-500 mb-2">No options yet.</p>
           )}
 
+          {/* Edit option form */}
+          {editingOptionId && (
+            <AddOptionForm
+              key={editingOptionId}
+              groupId={group.id}
+              editOption={sortedOptions.find((o) => o.id === editingOptionId)}
+              onUpdated={(opt) => {
+                onOptionUpdated(group.id, opt);
+                setEditingOptionId(null);
+              }}
+              onCancel={() => setEditingOptionId(null)}
+            />
+          )}
+
           {/* Add option toggle */}
-          {addingOption ? (
+          {!editingOptionId && (addingOption ? (
             <AddOptionForm
               groupId={group.id}
               onAdded={(opt) => {
@@ -411,7 +554,7 @@ function SpecGroupRow({
               </svg>
               Add Option
             </button>
-          )}
+          ))}
           <p className="mt-2 text-[11px] text-gray-400 dark:text-gray-500">
             Deleting an option won't affect products where it was already used.
           </p>
@@ -728,6 +871,24 @@ export default function Specs() {
     );
   }
 
+  function handleOptionUpdated(groupId: string, opt: GlobalSpecOption) {
+    setGroups((prev) =>
+      prev.map((g) =>
+        g.id === groupId
+          ? { ...g, options: g.options.map((o) => (o.id === opt.id ? opt : o)) }
+          : g
+      )
+    );
+  }
+
+  function handleGroupUpdated(updated: GlobalSpecGroup) {
+    setGroups((prev) => prev.map((g) => (g.id === updated.id ? updated : g)));
+  }
+
+  function handleGroupDeleted(groupId: string) {
+    setGroups((prev) => prev.filter((g) => g.id !== groupId));
+  }
+
   const totalOptions = groups.reduce((sum, g) => sum + g.options.length, 0);
 
   return (
@@ -792,15 +953,15 @@ export default function Specs() {
 
       {/* Code convention info */}
       <div className="mb-5 rounded-xl border border-brand-200 dark:border-brand-700/30 bg-brand-50 dark:bg-brand-500/5 px-5 py-3">
-        <p className="text-xs text-brand-700 dark:text-brand-400">
-          <strong>Valid spec codes:</strong>{" "}
+        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1.5 text-xs text-brand-700 dark:text-brand-400">
+          <strong>Valid spec codes:</strong>
           {specCodes.map((c) => (
-            <code key={c} className="mx-1 rounded bg-brand-100 dark:bg-brand-500/20 px-1.5 py-0.5 font-mono">
+            <code key={c} className="rounded bg-brand-100 dark:bg-brand-500/20 px-1.5 py-0.5 font-mono">
               {c}
             </code>
           ))}
-          — manage this list under <strong>Spec Codes</strong>.
-        </p>
+          <span>— manage this list under <strong>Spec Codes</strong>.</span>
+        </div>
       </div>
 
       {/* Error */}
@@ -847,6 +1008,9 @@ export default function Specs() {
                 onOptionDeleted={handleOptionDeleted}
                 onOptionAdded={handleOptionAdded}
                 onOptionsReordered={handleOptionsReordered}
+                onOptionUpdated={handleOptionUpdated}
+                onGroupUpdated={handleGroupUpdated}
+                onGroupDeleted={handleGroupDeleted}
               />
             ))
           )}
