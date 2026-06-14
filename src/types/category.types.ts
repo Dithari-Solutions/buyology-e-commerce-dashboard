@@ -14,6 +14,7 @@ export interface Category {
   id: string;
   parentId: string | null;
   status: CategoryStatus;
+  icon?: string | null;
   name: string;
   description: string;
   slug: string;
@@ -26,6 +27,7 @@ export interface CategoryDetail {
   id: string;
   parentId: string | null;
   status: CategoryStatus;
+  icon?: string | null;
   createdAt: string;
   updatedAt: string;
   translations: CategoryTranslation[];
@@ -46,11 +48,13 @@ export interface CreateCategoryTranslations {
 export interface CreateCategoryRequest {
   parentId?: string | null;
   status?: CategoryStatus;
+  icon?: string | null;
   translations: CreateCategoryTranslations;
 }
 
 export interface UpdateCategoryRequest {
   parentId?: string | null;
   status?: CategoryStatus;
+  icon?: string | null;
   translations?: Partial<CreateCategoryTranslations>;
 }

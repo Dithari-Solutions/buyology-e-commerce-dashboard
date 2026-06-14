@@ -29,6 +29,30 @@ function statusColor(status: CategoryStatus): BadgeColor {
   return status === "ACTIVE" ? "success" : "error";
 }
 
+// Predefined category icon keys (shown in the storefront Shop menu).
+const CATEGORY_ICON_KEYS = [
+  "laptop", "phone", "tablet", "watch", "audio", "gaming", "camera", "tv", "accessories", "grid",
+] as const;
+
+function CategoryGlyph({ icon }: { icon: string }) {
+  const p = {
+    width: 20, height: 20, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor",
+    strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const,
+  };
+  switch (icon) {
+    case "laptop": return (<svg {...p}><rect x="3" y="4" width="18" height="12" rx="2" /><path d="M2 20h20" /></svg>);
+    case "phone": return (<svg {...p}><rect x="7" y="2" width="10" height="20" rx="2" /><path d="M11 18h2" /></svg>);
+    case "tablet": return (<svg {...p}><rect x="5" y="2" width="14" height="20" rx="2" /><path d="M11 18h2" /></svg>);
+    case "watch": return (<svg {...p}><circle cx="12" cy="12" r="6" /><path d="M9 2h6M9 22h6" /></svg>);
+    case "audio": return (<svg {...p}><path d="M3 14v-2a9 9 0 0 1 18 0v2" /><rect x="3" y="14" width="4" height="6" rx="1" /><rect x="17" y="14" width="4" height="6" rx="1" /></svg>);
+    case "gaming": return (<svg {...p}><rect x="2" y="7" width="20" height="10" rx="5" /><path d="M7 12h2M8 11v2M15 11h.01M18 13h.01" /></svg>);
+    case "camera": return (<svg {...p}><rect x="3" y="6" width="18" height="13" rx="2" /><circle cx="12" cy="12.5" r="3.5" /><path d="M8 6l1.5-2h5L16 6" /></svg>);
+    case "tv": return (<svg {...p}><rect x="2" y="4" width="20" height="13" rx="2" /><path d="M8 21h8M12 17v4" /></svg>);
+    case "accessories": return (<svg {...p}><path d="M4 7h16M4 12h16M4 17h10" /></svg>);
+    default: return (<svg {...p}><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg>);
+  }
+}
+
 interface CategoryRow {
   category: Category;
   depth: number;
@@ -71,6 +95,7 @@ function buildTreeOrder(items: Category[]): CategoryRow[] {
 interface CategoryFormState {
   parentId: string;
   status: CategoryStatus;
+  icon: string;
   nameAz: string;
   descriptionAz: string;
   slugAz: string;
@@ -85,6 +110,7 @@ interface CategoryFormState {
 const emptyForm = (): CategoryFormState => ({
   parentId: "",
   status: "ACTIVE",
+  icon: "",
   nameAz: "",
   descriptionAz: "",
   slugAz: "",
@@ -103,6 +129,7 @@ function detailToForm(detail: CategoryDetail): CategoryFormState {
   return {
     parentId: detail.parentId ?? "",
     status: detail.status,
+    icon: detail.icon ?? "",
     nameAz: az?.name ?? "",
     descriptionAz: az?.description ?? "",
     slugAz: az?.slug ?? "",
@@ -251,6 +278,34 @@ function CategoryFormModal({
             <option value="INACTIVE">Inactive</option>
           </select>
         </div>
+      </div>
+
+      {/* Icon picker */}
+      <div className="mb-5">
+        <label className={labelCls}>Icon (shown in the storefront Shop menu)</label>
+        <div className="flex flex-wrap gap-2">
+          {CATEGORY_ICON_KEYS.map((key) => {
+            const active = form.icon === key;
+            return (
+              <button
+                type="button"
+                key={key}
+                title={key}
+                onClick={() => setForm((prev) => ({ ...prev, icon: active ? "" : key }))}
+                className={`flex h-10 w-10 items-center justify-center rounded-xl border transition-colors ${
+                  active
+                    ? "border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400"
+                    : "border-gray-200 dark:border-gray-700 text-gray-500 hover:border-brand-300 hover:text-brand-500"
+                }`}
+              >
+                <CategoryGlyph icon={key} />
+              </button>
+            );
+          })}
+        </div>
+        {form.icon && (
+          <p className="mt-1 text-xs text-gray-400">Selected: {form.icon} — click again to clear.</p>
+        )}
       </div>
 
       {/* Language tabs */}
@@ -527,12 +582,14 @@ export default function Categories() {
         await categoriesService.update(editingId, {
           parentId: form.parentId || null,
           status: form.status,
+          icon: form.icon,
           translations,
         });
       } else {
         await categoriesService.create({
           parentId: form.parentId || null,
           status: form.status,
+          icon: form.icon || null,
           translations,
         });
       }
