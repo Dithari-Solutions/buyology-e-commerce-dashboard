@@ -91,6 +91,8 @@ export interface UpdateProductRequest {
   removeMediaIds?: string[];
   /** ID of an existing media item to mark as primary. */
   primaryMediaId?: string;
+  /** Replacement specs. Present = fully replace; omit = leave untouched; [] = clear. Not allowed with variants. */
+  specs?: CreateProductSpec[];
 }
 
 export interface PagedProducts {

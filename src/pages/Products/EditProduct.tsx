@@ -8,6 +8,7 @@ import {
   ApiRequestError,
 } from "../../api";
 import type { UpdateProductRequest } from "../../api";
+import type { CreateProductSpec } from "../../api/services/products.service";
 import type {
   Product,
   ProductMedia,
@@ -20,6 +21,7 @@ import type { Brand } from "../../types/brand.types";
 import { getImageUrl } from "../../utils/imageUrl";
 import { validateFileUpload } from "../../utils/fileValidation";
 import { compressImage } from "../../utils/imageCompression";
+import { useSpecCodes } from "../../hooks/useSpecCodes";
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -30,6 +32,28 @@ function brandLabel(b: Brand): string {
 const PRODUCT_TYPES: ProductType[] = ["SIMPLE", "DIY", "ACCESSORY"];
 const AVAILABILITY: AvailabilityStatus[] = ["IN_STOCK", "OUT_OF_STOCK", "PRE_ORDER"];
 const REFURB_GRADES: RefurbGrade[] = ["A", "B", "C"];
+
+const UNIT_OPTIONS = [
+  "", "KB", "MB", "GB", "TB", "MHz", "GHz", "mAh", "Wh", "W",
+  "INCH", "MP", "Mbps", "Gbps", "G", "KG", "Hz", "RPM",
+];
+
+// Inline spec editor state (the GET response can't restore library links, so specs edit as inline by code).
+interface EditSpecOption {
+  valueAz: string;
+  valueEn: string;
+  valueAr: string;
+  unit: string;
+}
+interface EditSpec {
+  code: string;
+  nameAz: string;
+  nameEn: string;
+  nameAr: string;
+  options: EditSpecOption[];
+}
+const emptyOption = (): EditSpecOption => ({ valueAz: "", valueEn: "", valueAr: "", unit: "" });
+const emptySpec = (): EditSpec => ({ code: "", nameAz: "", nameEn: "", nameAr: "", options: [emptyOption()] });
 
 // Per-language translation form state
 interface Translations {
@@ -116,6 +140,28 @@ export default function EditProduct() {
   const [primaryMediaId, setPrimaryMediaId] = useState<string | null>(null);
   const [newFiles, setNewFiles] = useState<NewFile[]>([]);
 
+  // Specs state — editable only when the product has no variants (backend guard).
+  const { codes: specCodes, labels: specCodeLabels } = useSpecCodes();
+  const [specs, setSpecs] = useState<EditSpec[]>([]);
+  const [hasVariants, setHasVariants] = useState(false);
+
+  const addSpec = () => setSpecs((s) => [...s, emptySpec()]);
+  const removeSpec = (i: number) => setSpecs((s) => s.filter((_, idx) => idx !== i));
+  const setSpecField = (i: number, field: "code" | "nameAz" | "nameEn" | "nameAr", value: string) =>
+    setSpecs((s) => s.map((sp, idx) => (idx === i ? { ...sp, [field]: value } : sp)));
+  const setSpecCode = (i: number, code: string) =>
+    setSpecs((s) => s.map((sp, idx) => (idx === i
+      ? { ...sp, code, nameEn: sp.nameEn || (specCodeLabels[code] ?? code) }
+      : sp)));
+  const addOption = (i: number) =>
+    setSpecs((s) => s.map((sp, idx) => (idx === i ? { ...sp, options: [...sp.options, emptyOption()] } : sp)));
+  const removeOption = (i: number, j: number) =>
+    setSpecs((s) => s.map((sp, idx) => (idx === i ? { ...sp, options: sp.options.filter((_, oj) => oj !== j) } : sp)));
+  const updateOption = (i: number, j: number, field: keyof EditSpecOption, value: string) =>
+    setSpecs((s) => s.map((sp, idx) => (idx === i
+      ? { ...sp, options: sp.options.map((o, oj) => (oj === j ? { ...o, [field]: value } : o)) }
+      : sp)));
+
   // Submit state
   const [submitting, setSubmitting] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
@@ -158,6 +204,33 @@ export default function EditProduct() {
         setPrimaryMediaId(media.find((m) => m.isPrimary)?.id ?? media[0]?.id ?? null);
         setCategories(cats.data);
         setBrands(brs.data);
+
+        // Prefill the spec editor by merging the EN/AZ/AR responses (matched by group + option id),
+        // skipping the internal color_* group.
+        setHasVariants((p.variants ?? []).length > 0);
+        const azById = new Map((az.data.specs ?? []).map((g) => [g.id, g]));
+        const arById = new Map((ar.data.specs ?? []).map((g) => [g.id, g]));
+        const editSpecs: EditSpec[] = (en.data.specs ?? [])
+          .filter((g) => !g.code?.startsWith("color_"))
+          .map((g) => {
+            const azG = azById.get(g.id);
+            const arG = arById.get(g.id);
+            const azOpt = new Map((azG?.options ?? []).map((o) => [o.id, o]));
+            const arOpt = new Map((arG?.options ?? []).map((o) => [o.id, o]));
+            return {
+              code: g.code,
+              nameEn: g.name,
+              nameAz: azG?.name ?? g.name,
+              nameAr: arG?.name ?? g.name,
+              options: g.options.map((o) => ({
+                valueEn: o.value,
+                valueAz: azOpt.get(o.id)?.value ?? o.value,
+                valueAr: arOpt.get(o.id)?.value ?? o.value,
+                unit: o.unit ?? "",
+              })),
+            };
+          });
+        setSpecs(editSpecs);
       })
       .catch((err: unknown) => {
         if (err instanceof Error && err.name === "AbortError") return;
@@ -214,6 +287,22 @@ export default function EditProduct() {
       return;
     }
 
+    // Validate specs (only editable when there are no variants)
+    if (!hasVariants) {
+      for (const sp of specs) {
+        if (!sp.code.trim()) { setApiError("Each specification needs a code."); return; }
+        if (!sp.nameEn.trim() || !sp.nameAz.trim() || !sp.nameAr.trim()) {
+          setApiError(`Specification "${sp.code || "(no code)"}" needs a name in EN, AZ and AR.`); return;
+        }
+        if (sp.options.length === 0) { setApiError(`Specification "${sp.code}" needs at least one option.`); return; }
+        for (const o of sp.options) {
+          if (!o.valueEn.trim() || !o.valueAz.trim() || !o.valueAr.trim()) {
+            setApiError(`Specification "${sp.code}" has an option missing a value in EN, AZ or AR.`); return;
+          }
+        }
+      }
+    }
+
     // Validate any newly-added files (images only, like product create)
     for (let i = 0; i < newFiles.length; i++) {
       const result = await validateFileUpload(newFiles[i].file, "GENERAL");
@@ -248,6 +337,22 @@ export default function EditProduct() {
           primaryMediaId && !removeMediaIds.includes(primaryMediaId)
             ? primaryMediaId
             : undefined,
+        // Replace specs only when editable (no variants). Omitting leaves them untouched.
+        specs: hasVariants
+          ? undefined
+          : specs.map((sp, i) => ({
+              code: sp.code.trim(),
+              nameAz: sp.nameAz,
+              nameEn: sp.nameEn,
+              nameAr: sp.nameAr,
+              options: sp.options.map((o, j) => ({
+                localKey: `g${i}o${j}`,
+                valueAz: o.valueAz,
+                valueEn: o.valueEn,
+                valueAr: o.valueAr,
+                unit: o.unit || undefined,
+              })),
+            })) as CreateProductSpec[],
       };
 
       const compressIfImage = (f: File) =>
@@ -469,6 +574,84 @@ export default function EditProduct() {
                 </div>
               );
             })}
+          </Section>
+
+          {/* Specifications */}
+          <Section title="Specifications">
+            {hasVariants ? (
+              <p className="text-sm text-amber-600 dark:text-amber-400">
+                This product has variants, so its specifications are tied to the variants and can&apos;t be edited here.
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {specs.length === 0 && (
+                  <p className="text-xs text-gray-400 dark:text-gray-500">No specifications yet.</p>
+                )}
+                {specs.map((sp, i) => (
+                  <div key={i} className="rounded-xl border border-gray-200 dark:border-gray-700 p-4 space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1">
+                        <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Code</label>
+                        <select value={sp.code} onChange={(e) => setSpecCode(i, e.target.value)} className={inputClass}>
+                          <option value="">Select code…</option>
+                          {specCodes.map((c) => (
+                            <option key={c} value={c}>{c}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeSpec(i)}
+                        className="mt-7 rounded-lg border border-red-200 px-3 py-2 text-xs font-medium text-red-500 hover:bg-red-50 dark:border-red-800/40 dark:hover:bg-red-500/10"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                      <input placeholder="Name EN" value={sp.nameEn} onChange={(e) => setSpecField(i, "nameEn", e.target.value)} className={inputClass} />
+                      <input placeholder="Name AZ" value={sp.nameAz} onChange={(e) => setSpecField(i, "nameAz", e.target.value)} className={inputClass} />
+                      <input placeholder="Name AR" dir="rtl" value={sp.nameAr} onChange={(e) => setSpecField(i, "nameAr", e.target.value)} className={inputClass} />
+                    </div>
+                    <div className="space-y-2">
+                      {sp.options.map((o, j) => (
+                        <div key={j} className="flex flex-wrap items-center gap-2">
+                          <input placeholder="Value EN" value={o.valueEn} onChange={(e) => updateOption(i, j, "valueEn", e.target.value)} className={`${inputClass} min-w-[110px] flex-1`} />
+                          <input placeholder="Value AZ" value={o.valueAz} onChange={(e) => updateOption(i, j, "valueAz", e.target.value)} className={`${inputClass} min-w-[110px] flex-1`} />
+                          <input placeholder="Value AR" dir="rtl" value={o.valueAr} onChange={(e) => updateOption(i, j, "valueAr", e.target.value)} className={`${inputClass} min-w-[110px] flex-1`} />
+                          <select value={o.unit} onChange={(e) => updateOption(i, j, "unit", e.target.value)} className={`${inputClass} w-24`}>
+                            {UNIT_OPTIONS.map((u) => (
+                              <option key={u} value={u}>{u || "—"}</option>
+                            ))}
+                          </select>
+                          <button
+                            type="button"
+                            onClick={() => removeOption(i, j)}
+                            title="Delete option"
+                            className="flex h-9 w-9 items-center justify-center rounded-lg text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => addOption(i)}
+                        className="rounded-lg border border-dashed border-[#402F75]/40 px-3 py-1.5 text-xs font-medium text-[#402F75] hover:bg-[#402F75]/5 dark:border-[#FBBB14]/40 dark:text-[#FBBB14]"
+                      >
+                        + Add option
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={addSpec}
+                  className="rounded-xl border border-dashed border-[#402F75] px-4 py-2 text-sm font-medium text-[#402F75] hover:bg-[#402F75]/5 dark:border-[#FBBB14] dark:text-[#FBBB14]"
+                >
+                  + Add specification
+                </button>
+              </div>
+            )}
           </Section>
 
           {/* Media */}
