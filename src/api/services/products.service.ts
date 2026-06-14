@@ -79,6 +79,8 @@ export interface UpdateProductRequest {
   availabilityStatus?: AvailabilityStatus;
   isSuperDeal?: boolean;
   isLimitedStock?: boolean;
+  sku?: string;
+  accessoryIds?: string[];
   translations?: {
     titleAz?: string;
     titleEn?: string;

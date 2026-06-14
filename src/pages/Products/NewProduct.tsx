@@ -15,10 +15,14 @@ import {
   getGroupName,
 } from "../../api";
 import { validateFileUpload } from "../../utils/fileValidation";
+import { compressImage } from "../../utils/imageCompression";
+import { getImageUrl } from "../../utils/imageUrl";
 import { useSpecCodes } from "../../hooks/useSpecCodes";
-import type { CreateProductRequest } from "../../api/services/products.service";
+import type { CreateProductRequest, UpdateProductRequest } from "../../api/services/products.service";
 import type { GlobalSpecGroup } from "../../api";
 import type {
+  Product,
+  ProductMedia,
   ProductStatus,
   ProductType,
   RefurbGrade,
@@ -345,7 +349,9 @@ function validate(
   descAr: string,
   specs: SpecState[],
   colors: ColorState[],
-  filesCount: number
+  filesCount: number,
+  isEdit = false,
+  keptMediaCount = 0
 ): FormErrors {
   const e: FormErrors = {};
 
@@ -379,9 +385,13 @@ function validate(
     }
   }
 
-  if (colors.length === 0) e.colors = "At least one color is required";
-  if (filesCount < 3)
-    e.media = `At least 3 media files are required (${filesCount} added)`;
+  // Colors are create-only (locked in edit); media must keep at least one image.
+  if (!isEdit && colors.length === 0) e.colors = "At least one color is required";
+  const totalMedia = isEdit ? keptMediaCount + filesCount : filesCount;
+  if (totalMedia < (isEdit ? 1 : 3))
+    e.media = isEdit
+      ? "At least one image is required"
+      : `At least 3 media files are required (${filesCount} added)`;
 
   return e;
 }
@@ -393,12 +403,15 @@ function validate(
 interface NewProductProps {
   /** When true, submit goes to /api/supplier/products/full and a store/price picker is required. */
   supplierMode?: boolean;
+  /** When set, the form loads that product and submits a PATCH update instead of a create. */
+  editId?: string;
 }
 
-export default function NewProduct({ supplierMode = false }: NewProductProps = {}) {
+export default function NewProduct({ supplierMode = false, editId }: NewProductProps = {}) {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { codes: specCodes, labels: specCodeLabels } = useSpecCodes();
+  const isEdit = !!editId;
 
   // Supplier-mode extras
   const [supplierStores, setSupplierStores] = useState<Array<{ id: string; name: string }>>([]);
@@ -466,6 +479,17 @@ export default function NewProduct({ supplierMode = false }: NewProductProps = {
   const [files, setFiles] = useState<File[]>([]);
   const [filePreviews, setFilePreviews] = useState<string[]>([]);
 
+  // ── Edit-mode only ────────────────────────────────────────────────────────
+  const [loadingProduct, setLoadingProduct] = useState(isEdit);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [existingMedia, setExistingMedia] = useState<ProductMedia[]>([]);
+  const [removeMediaIds, setRemoveMediaIds] = useState<string[]>([]);
+  const [primaryMediaId, setPrimaryMediaId] = useState<string | null>(null);
+  const [hasVariants, setHasVariants] = useState(false);
+
+  const toggleRemoveMedia = (mediaId: string) =>
+    setRemoveMediaIds((prev) => (prev.includes(mediaId) ? prev.filter((x) => x !== mediaId) : [...prev, mediaId]));
+
   // ── Validation & submit state ─────────────────────────────────────────────
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -510,6 +534,78 @@ export default function NewProduct({ supplierMode = false }: NewProductProps = {
       .catch(() => {});
     return () => ctrl.abort();
   }, [specLibraryLoaded]);
+
+  // Edit mode: load the product (3 languages) and prefill the form.
+  useEffect(() => {
+    if (!isEdit || !editId) return;
+    const ctrl = new AbortController();
+    setLoadingProduct(true);
+    setLoadError(null);
+    Promise.all([
+      productsService.getById(editId, "EN", ctrl.signal),
+      productsService.getById(editId, "AZ", ctrl.signal),
+      productsService.getById(editId, "AR", ctrl.signal),
+    ])
+      .then(([en, az, ar]) => {
+        const p: Product = en.data;
+        setCategoryId(p.categoryId);
+        setBrandId(p.brandId ?? "");
+        setProductType(p.productType);
+        setStatus(p.status === "INACTIVE" ? "INACTIVE" : "ACTIVE");
+        setAvailabilityStatus(p.availabilityStatus);
+        setIsSuperDeal(p.isSuperDeal);
+        setIsLimitedStock(p.isLimitedStock);
+        setIsRefurbished(p.isRefurbished);
+        setRefurbGrade(p.refurbGrade ?? "");
+        setProductSku(p.sku ?? "");
+        setAccessoryIdsRaw((p.accessoryIds ?? []).join(", "));
+        setTitleEn(en.data.title ?? ""); setDescEn(en.data.description ?? "");
+        setTitleAz(az.data.title ?? ""); setDescAz(az.data.description ?? "");
+        setTitleAr(ar.data.title ?? ""); setDescAr(ar.data.description ?? "");
+
+        // Specs → inline SpecState[] (merge EN/AZ/AR by group+option id, skip the internal color_* group).
+        const azById = new Map((az.data.specs ?? []).map((g) => [g.id, g]));
+        const arById = new Map((ar.data.specs ?? []).map((g) => [g.id, g]));
+        const prefilledSpecs: SpecState[] = (en.data.specs ?? [])
+          .filter((g) => !g.code?.startsWith("color_"))
+          .map((g) => {
+            const azG = azById.get(g.id);
+            const arG = arById.get(g.id);
+            const azOpt = new Map((azG?.options ?? []).map((o) => [o.id, o]));
+            const arOpt = new Map((arG?.options ?? []).map((o) => [o.id, o]));
+            return {
+              groupMode: "inline" as SpecGroupMode,
+              globalSpecGroupId: "",
+              groupDisplayName: "",
+              code: g.code,
+              nameEn: g.name,
+              nameAz: azG?.name ?? g.name,
+              nameAr: arG?.name ?? g.name,
+              options: g.options.map((o, idx) => ({
+                localKey: `${g.code || "spec"}-o${idx}`,
+                mode: "manual" as SpecOptionMode,
+                valueEn: o.value,
+                valueAz: azOpt.get(o.id)?.value ?? o.value,
+                valueAr: arOpt.get(o.id)?.value ?? o.value,
+                unit: o.unit ?? "",
+              })),
+            };
+          });
+        setSpecs(prefilledSpecs.length ? prefilledSpecs : [defaultSpec()]);
+
+        const media = [...p.media].sort((a, b) => a.orderIndex - b.orderIndex);
+        setExistingMedia(media);
+        setPrimaryMediaId(media.find((m) => m.isPrimary)?.id ?? media[0]?.id ?? null);
+        setHasVariants((p.variants ?? []).length > 0);
+      })
+      .catch((err: unknown) => {
+        if (err instanceof Error && err.name === "AbortError") return;
+        setLoadError(err instanceof ApiRequestError ? err.message : "Failed to load product.");
+      })
+      .finally(() => setLoadingProduct(false));
+    return () => ctrl.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEdit, editId]);
 
   // ─────────────────────────────────────────────────────────────────────────
   // File handling
@@ -750,11 +846,13 @@ export default function NewProduct({ supplierMode = false }: NewProductProps = {
     setApiError(null);
     setSubmitted(true);
 
+    const keptMediaCount = existingMedia.filter((m) => !removeMediaIds.includes(m.id)).length;
     const errs = validate(
       categoryId,
       titleAz, titleEn, titleAr,
       descAz, descEn, descAr,
-      specs, colors, files.length
+      specs, colors, files.length,
+      isEdit, keptMediaCount
     );
 
     // Detailed file validation
@@ -830,7 +928,34 @@ export default function NewProduct({ supplierMode = false }: NewProductProps = {
         })),
       };
 
-      if (supplierMode) {
+      if (isEdit && editId) {
+        // PATCH update: reuse the spec mapping; colors/variants are not patchable.
+        const data: UpdateProductRequest = {
+          categoryId,
+          brandId: brandId || undefined,
+          productType,
+          status: status === "INACTIVE" ? "INACTIVE" : "ACTIVE",
+          availabilityStatus,
+          isSuperDeal,
+          isLimitedStock,
+          isRefurbished,
+          refurbGrade: isRefurbished ? (refurbGrade || null) : null,
+          sku: productSku.trim() || undefined,
+          accessoryIds: payload.accessoryIds,
+          translations: payload.translations,
+          removeMediaIds: removeMediaIds.length ? removeMediaIds : undefined,
+          primaryMediaId:
+            primaryMediaId && !removeMediaIds.includes(primaryMediaId) ? primaryMediaId : undefined,
+          specs: hasVariants ? undefined : payload.specs,
+        };
+        const compressIfImage = (f: File) =>
+          f.type.startsWith("image/")
+            ? compressImage(f, { maxWidth: 2160, maxHeight: 2160, quality: 0.88 })
+            : Promise.resolve(f);
+        const compressed = await Promise.all(files.map(compressIfImage));
+        await productsService.update(editId, data, compressed);
+        navigate(`/products/${editId}`);
+      } else if (supplierMode) {
         if (!supplierStoreId) {
           setApiError("Please pick a store this product is listed under.");
           return;
@@ -850,7 +975,7 @@ export default function NewProduct({ supplierMode = false }: NewProductProps = {
       const message =
         err instanceof ApiRequestError
           ? err.message
-          : "Failed to create product. Please try again.";
+          : (isEdit ? "Failed to update product. Please try again." : "Failed to create product. Please try again.");
       setApiError(message);
     } finally {
       setIsSubmitting(false);
@@ -876,14 +1001,35 @@ export default function NewProduct({ supplierMode = false }: NewProductProps = {
   // Render
   // ─────────────────────────────────────────────────────────────────────────
 
+  if (isEdit && loadingProduct) {
+    return (
+      <>
+        <PageMeta title="Edit Product | Buyology Dashboard" description="Edit a product." />
+        <PageBreadcrumb pageTitle="Edit Product" />
+        <div className="flex items-center justify-center py-24 text-sm text-gray-400">Loading product…</div>
+      </>
+    );
+  }
+  if (isEdit && loadError) {
+    return (
+      <>
+        <PageMeta title="Edit Product | Buyology Dashboard" description="Edit a product." />
+        <PageBreadcrumb pageTitle="Edit Product" />
+        <div className="rounded-2xl border border-red-200 bg-red-50 py-14 text-center text-sm font-medium text-red-600 dark:border-red-800/40 dark:bg-red-500/5 dark:text-red-400">
+          {loadError}
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <PageMeta
-        title="New Product | Buyology Dashboard"
-        description="Create a new product in the Buyology platform."
+        title={isEdit ? "Edit Product | Buyology Dashboard" : "New Product | Buyology Dashboard"}
+        description={isEdit ? "Edit a product." : "Create a new product in the Buyology platform."}
       />
 
-      <PageBreadcrumb pageTitle="New Product" />
+      <PageBreadcrumb pageTitle={isEdit ? "Edit Product" : "New Product"} />
 
       {/* ── Spec Group Picker Modal ───────────────────────────────────────── */}
       {activeGroupPicker !== null && (
@@ -1323,6 +1469,11 @@ export default function NewProduct({ supplierMode = false }: NewProductProps = {
         {/* ── Specifications ────────────────────────────────────────────────── */}
         <div ref={specsRef}>
           <Section title="Specifications" hasError={specsHasError}>
+            {isEdit && hasVariants && (
+              <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-700 dark:border-amber-800/40 dark:bg-amber-500/5 dark:text-amber-400">
+                This product has variants, so its specifications can&apos;t be changed here (the variants depend on them). Changes below won&apos;t be saved.
+              </p>
+            )}
             <div className="space-y-5">
               {specs.map((spec, si) => (
                 <div key={si} className="rounded-xl border border-gray-200 dark:border-gray-700 p-4">
@@ -1573,6 +1724,12 @@ export default function NewProduct({ supplierMode = false }: NewProductProps = {
 
         {/* ── Variants ─────────────────────────────────────────────────────── */}
         <Section title="Variants">
+          {isEdit ? (
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Variants are set when the product is created and can&apos;t be edited here.
+            </p>
+          ) : (
+          <>
           <div className="mb-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-800/40 dark:bg-amber-500/5">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 shrink-0 text-amber-500">
               <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
@@ -1643,11 +1800,19 @@ export default function NewProduct({ supplierMode = false }: NewProductProps = {
             ))}
           </div>
           <AddBtn onClick={addVariant} label="Add Variant" />
+          </>
+          )}
         </Section>
 
         {/* ── Colors ───────────────────────────────────────────────────────── */}
         <div ref={colorsRef}>
           <Section title="Colors" hasError={colorsHasError}>
+            {isEdit ? (
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Colors are set when the product is created and can&apos;t be edited here.
+              </p>
+            ) : (
+            <>
             <div className="space-y-4">
               {colors.map((c, ci) => (
                 <div key={ci} className="rounded-xl border border-gray-200 dark:border-gray-700 p-4">
@@ -1716,6 +1881,8 @@ export default function NewProduct({ supplierMode = false }: NewProductProps = {
             )}
 
             <AddBtn onClick={addColor} label="Add Color" />
+            </>
+            )}
           </Section>
         </div>
 
@@ -1730,6 +1897,53 @@ export default function NewProduct({ supplierMode = false }: NewProductProps = {
               onChange={handleFileChange}
               className="hidden"
             />
+
+            {isEdit && existingMedia.length > 0 && (
+              <div className="mb-4">
+                <Label className="mb-2 block text-xs text-gray-500">
+                  Existing media — mark to remove or set primary
+                </Label>
+                <div className="flex flex-wrap gap-3">
+                  {existingMedia.map((m) => {
+                    const markedRemove = removeMediaIds.includes(m.id);
+                    const isPrimary = primaryMediaId === m.id;
+                    return (
+                      <div
+                        key={m.id}
+                        className={`relative h-20 w-20 rounded-xl border ${
+                          markedRemove
+                            ? "border-red-400 opacity-40"
+                            : isPrimary
+                            ? "border-[#402F75]"
+                            : "border-gray-200 dark:border-gray-700"
+                        }`}
+                      >
+                        <img src={getImageUrl(m.url)} alt="" className="h-full w-full rounded-xl object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => toggleRemoveMedia(m.id)}
+                          title={markedRemove ? "Keep" : "Remove"}
+                          className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-[11px] text-white shadow"
+                        >
+                          {markedRemove ? "↺" : "✕"}
+                        </button>
+                        {!markedRemove && (
+                          <button
+                            type="button"
+                            onClick={() => setPrimaryMediaId(m.id)}
+                            className={`absolute bottom-1 left-1 rounded px-1 text-[10px] ${
+                              isPrimary ? "bg-[#402F75] text-white" : "bg-black/50 text-white"
+                            }`}
+                          >
+                            {isPrimary ? "Primary" : "Set primary"}
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <div className="flex flex-wrap gap-3">
               {filePreviews.map((src, i) => (
@@ -1817,10 +2031,10 @@ export default function NewProduct({ supplierMode = false }: NewProductProps = {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
                 </svg>
-                Creating…
+                {isEdit ? "Saving…" : "Creating…"}
               </>
             ) : (
-              "Create Product"
+              isEdit ? "Save Changes" : "Create Product"
             )}
           </button>
         </div>
