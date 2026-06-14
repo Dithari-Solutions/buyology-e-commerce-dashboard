@@ -3,7 +3,6 @@ import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import {
   specsService,
-  SPEC_CODES,
   ApiRequestError,
   getGroupName,
   getOptionValue,
@@ -14,6 +13,7 @@ import type {
   CreateGlobalSpecGroupRequest,
   CreateGlobalSpecOptionInput,
 } from "../../api";
+import { useSpecCodes } from "../../hooks/useSpecCodes";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types / helpers
@@ -432,6 +432,7 @@ function defaultOptionInput(): OptionInput {
 }
 
 function CreateGroupForm({ onCreated, onCancel }: { onCreated: (g: GlobalSpecGroup) => void; onCancel: () => void }) {
+  const { codes: specCodes } = useSpecCodes();
   const [code, setCode] = useState<string>("");
   const [nameAz, setNameAz] = useState("");
   const [nameEn, setNameEn] = useState("");
@@ -526,7 +527,7 @@ function CreateGroupForm({ onCreated, onCancel }: { onCreated: (g: GlobalSpecGro
               }`}
             >
               <option value="">Select code…</option>
-              {SPEC_CODES.map((c) => (
+              {specCodes.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
@@ -672,6 +673,7 @@ function CreateGroupForm({ onCreated, onCancel }: { onCreated: (g: GlobalSpecGro
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function Specs() {
+  const { codes: specCodes } = useSpecCodes();
   const [groups, setGroups] = useState<GlobalSpecGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -741,7 +743,7 @@ export default function Specs() {
         {[
           { label: "Spec Groups", value: groups.length },
           { label: "Total Options", value: totalOptions },
-          { label: "Valid Codes", value: SPEC_CODES.length },
+          { label: "Valid Codes", value: specCodes.length },
         ].map((s) => (
           <div
             key={s.label}
@@ -792,12 +794,12 @@ export default function Specs() {
       <div className="mb-5 rounded-xl border border-brand-200 dark:border-brand-700/30 bg-brand-50 dark:bg-brand-500/5 px-5 py-3">
         <p className="text-xs text-brand-700 dark:text-brand-400">
           <strong>Valid spec codes:</strong>{" "}
-          {SPEC_CODES.map((c) => (
+          {specCodes.map((c) => (
             <code key={c} className="mx-1 rounded bg-brand-100 dark:bg-brand-500/20 px-1.5 py-0.5 font-mono">
               {c}
             </code>
           ))}
-          — product specs must use exactly these codes to appear in storefront filters.
+          — manage this list under <strong>Spec Codes</strong>.
         </p>
       </div>
 

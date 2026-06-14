@@ -22,6 +22,7 @@ import ProductsTrash from "./pages/Products/ProductsTrash";
 import Categories from "./pages/Products/Categories";
 import Brands from "./pages/Products/Brands";
 import Specs from "./pages/Products/Specs";
+import SpecCodes from "./pages/Products/SpecCodes";
 import Reviews from "./pages/ReviewsQA/Reviews";
 import Questions from "./pages/ReviewsQA/Questions";
 import Stores from "./pages/Stores/Stores";
@@ -107,6 +108,7 @@ export default function App() {
               <Route path="/categories" element={<Categories />} />
               <Route path="/brands" element={<Brands />} />
               <Route path="/specs" element={<Specs />} />
+              <Route path="/spec-codes" element={<SpecCodes />} />
 
               {/* Stores */}
               <Route path="/stores" element={<Stores />} />

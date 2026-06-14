@@ -13,9 +13,9 @@ import {
   ApiRequestError,
   getOptionValue,
   getGroupName,
-  SPEC_CODES,
 } from "../../api";
 import { validateFileUpload } from "../../utils/fileValidation";
+import { useSpecCodes } from "../../hooks/useSpecCodes";
 import type { CreateProductRequest } from "../../api/services/products.service";
 import type { GlobalSpecGroup } from "../../api";
 import type {
@@ -37,16 +37,6 @@ const UNIT_OPTIONS = [
   "G", "KG", "Hz", "RPM",
 ] as const;
 
-const SPEC_CODE_LABELS: Record<string, string> = {
-  ram: "RAM",
-  storage: "Storage",
-  processor: "Processor",
-  gpu: "GPU",
-  screen_size: "Screen Size",
-  touchable_screen: "Touchable Screen",
-  operating_system: "Operating System",
-  keyboard_language: "Keyboard Language",
-};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Local state types
@@ -408,6 +398,7 @@ interface NewProductProps {
 export default function NewProduct({ supplierMode = false }: NewProductProps = {}) {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { codes: specCodes, labels: specCodeLabels } = useSpecCodes();
 
   // Supplier-mode extras
   const [supplierStores, setSupplierStores] = useState<Array<{ id: string; name: string }>>([]);
@@ -966,7 +957,7 @@ export default function NewProduct({ supplierMode = false }: NewProductProps = {
             >
               <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
                 <h4 className="text-sm font-semibold text-[#402F75] dark:text-[#FBBB14]">
-                  Pick Option — {spec.groupMode === "library" ? spec.groupDisplayName : (SPEC_CODE_LABELS[spec.code] ?? spec.code)}
+                  Pick Option — {spec.groupMode === "library" ? spec.groupDisplayName : (specCodeLabels[spec.code] ?? spec.code)}
                 </h4>
                 <button
                   type="button"
@@ -1417,9 +1408,9 @@ export default function NewProduct({ supplierMode = false }: NewProductProps = {
                         </Label>
                         <Select value={spec.code} onChange={(v) => updateSpecCode(si, v)}>
                           <option value="">Select code…</option>
-                          {SPEC_CODES.map((code) => (
+                          {specCodes.map((code) => (
                             <option key={code} value={code}>
-                              {SPEC_CODE_LABELS[code] ?? code} ({code})
+                              {specCodeLabels[code] ?? code} ({code})
                             </option>
                           ))}
                         </Select>
