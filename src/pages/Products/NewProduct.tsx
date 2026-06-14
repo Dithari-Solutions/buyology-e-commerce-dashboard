@@ -34,7 +34,7 @@ import type { Category } from "../../types/category.types";
 const UNIT_OPTIONS = [
   "", "KB", "MB", "GB", "TB", "MHz", "GHz",
   "mAh", "Wh", "W", "INCH", "MP", "Mbps", "Gbps",
-  "G", "KG", "Hz", "RPM",
+  "G", "KG", "HZ", "RPM",
 ] as const;
 
 

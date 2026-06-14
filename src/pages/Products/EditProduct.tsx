@@ -35,7 +35,7 @@ const REFURB_GRADES: RefurbGrade[] = ["A", "B", "C"];
 
 const UNIT_OPTIONS = [
   "", "KB", "MB", "GB", "TB", "MHz", "GHz", "mAh", "Wh", "W",
-  "INCH", "MP", "Mbps", "Gbps", "G", "KG", "Hz", "RPM",
+  "INCH", "MP", "Mbps", "Gbps", "G", "KG", "HZ", "RPM",
 ];
 
 // Inline spec editor state (the GET response can't restore library links, so specs edit as inline by code).

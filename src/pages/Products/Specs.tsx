@@ -21,7 +21,7 @@ import { useSpecCodes } from "../../hooks/useSpecCodes";
 
 const UNIT_OPTIONS = [
   "", "KB", "MB", "GB", "TB", "MHz", "GHz", "mAh", "Wh", "W",
-  "INCH", "MP", "Mbps", "Gbps", "G", "KG", "Hz", "RPM",
+  "INCH", "MP", "Mbps", "Gbps", "G", "KG", "HZ", "RPM",
 ];
 
 function FieldInput({
