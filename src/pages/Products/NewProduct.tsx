@@ -441,6 +441,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
   const [availabilityStatus, setAvailabilityStatus] = useState<AvailabilityStatus>("PRE_ORDER");
   const [isSuperDeal, setIsSuperDeal] = useState(false);
   const [isLimitedStock, setIsLimitedStock] = useState(false);
+  const [stockQuantity, setStockQuantity] = useState<string>("");
   const [categoryId, setCategoryId] = useState("");
   const [accessoryIdsRaw, setAccessoryIdsRaw] = useState("");
 
@@ -555,6 +556,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
         setAvailabilityStatus(p.availabilityStatus);
         setIsSuperDeal(p.isSuperDeal);
         setIsLimitedStock(p.isLimitedStock);
+        setStockQuantity(p.stockQuantity != null ? String(p.stockQuantity) : "");
         setIsRefurbished(p.isRefurbished);
         setRefurbGrade(p.refurbGrade ?? "");
         setProductSku(p.sku ?? "");
@@ -893,6 +895,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
         availabilityStatus,
         isSuperDeal,
         isLimitedStock,
+        stockQuantity: stockQuantity.trim() === "" ? undefined : Number(stockQuantity),
         accessoryIds: accessoryIdsRaw.split(",").map((s) => s.trim()).filter(Boolean),
         translations: {
           titleAz, titleEn, titleAr,
@@ -938,6 +941,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
           availabilityStatus,
           isSuperDeal,
           isLimitedStock,
+          stockQuantity: stockQuantity.trim() === "" ? undefined : Number(stockQuantity),
           isRefurbished,
           refurbGrade: isRefurbished ? (refurbGrade || null) : null,
           sku: productSku.trim() || undefined,
@@ -1399,6 +1403,24 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
                   Flags product as limited stock.
                 </p>
               </div>
+            </div>
+
+            <div className="pt-6">
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Stock quantity
+              </Label>
+              <input
+                type="number"
+                min={0}
+                value={stockQuantity}
+                onChange={(e) => setStockQuantity(e.target.value)}
+                placeholder="Leave empty if not tracked"
+                className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 outline-none focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+              />
+              <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                Decreases as orders are placed. When below 5, the storefront shows an
+                "almost sold out" message. Leave empty to not track stock.
+              </p>
             </div>
           </div>
         </Section>

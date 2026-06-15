@@ -115,6 +115,7 @@ export interface Product {
   availabilityStatus: AvailabilityStatus;
   isSuperDeal: boolean;
   isLimitedStock: boolean;
+  stockQuantity?: number | null;
   accessoryIds: string[];
   colors: string[];
   slug: string;

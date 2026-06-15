@@ -55,6 +55,8 @@ export interface CreateProductRequest {
   availabilityStatus: AvailabilityStatus;
   isSuperDeal: boolean;
   isLimitedStock: boolean;
+  /** Admin-managed stock count. Omit/undefined = not tracked. */
+  stockQuantity?: number;
   accessoryIds: string[];
   translations: {
     titleAz: string;
@@ -79,6 +81,8 @@ export interface UpdateProductRequest {
   availabilityStatus?: AvailabilityStatus;
   isSuperDeal?: boolean;
   isLimitedStock?: boolean;
+  /** Admin-managed stock count. Omit = leave untouched. */
+  stockQuantity?: number;
   sku?: string;
   accessoryIds?: string[];
   translations?: {
