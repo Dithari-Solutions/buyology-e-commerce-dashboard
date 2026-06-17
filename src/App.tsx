@@ -161,6 +161,7 @@ export default function App() {
 
               {/* Refunds */}
               <Route path="/refunds" element={<RefundsPage />} />
+              <Route path="/refunds/store/:storeId" element={<RefundsPage />} />
               <Route path="/refunds/:id" element={<RefundDetailPage />} />
 
               {/* Payouts */}

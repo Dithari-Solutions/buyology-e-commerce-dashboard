@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link, useParams } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { ApiRequestError } from "../../api/types/api.types";
@@ -39,11 +39,13 @@ const truncate = (s: string, n = 8) => (s.length > n ? `${s.slice(0, n)}…` : s
 
 export default function RefundsPage() {
   const [tab, setTab] = useState<Tab>("requests");
+  // When opened via "Refunds → store" (/refunds/:storeId), scope requests to that store.
+  const { storeId } = useParams<{ storeId?: string }>();
 
   return (
     <>
       <PageMeta title="Refunds | Buyology" description="Manage refund requests and settings" />
-      <PageBreadcrumb pageTitle="Refunds" />
+      <PageBreadcrumb pageTitle={storeId ? "Store Refunds" : "Refunds"} />
 
       <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="mb-4 flex items-center gap-2 border-b border-gray-100 dark:border-gray-800">
@@ -62,7 +64,7 @@ export default function RefundsPage() {
           ))}
         </div>
 
-        {tab === "requests" ? <RequestsTab /> : <SettingsTab />}
+        {tab === "requests" ? <RequestsTab storeId={storeId} /> : <SettingsTab />}
       </div>
     </>
   );
@@ -194,7 +196,7 @@ function SettingsTab() {
   );
 }
 
-function RequestsTab() {
+function RequestsTab({ storeId }: { storeId?: string }) {
   const [statusFilter, setStatusFilter] = useState<"" | RefundRequestStatus>("");
   const [page, setPage] = useState(0);
   const size = 20;
@@ -202,11 +204,14 @@ function RequestsTab() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Reset to the first page whenever the store scope changes.
+  useEffect(() => { setPage(0); }, [storeId]);
+
   useEffect(() => {
     const ac = new AbortController();
     setLoading(true);
     refundsService
-      .list({ status: statusFilter || undefined, page, size }, ac.signal)
+      .list({ status: statusFilter || undefined, storeId, page, size }, ac.signal)
       .then((r) => {
         setData(r.data);
         setError(null);
@@ -218,7 +223,7 @@ function RequestsTab() {
       })
       .finally(() => setLoading(false));
     return () => ac.abort();
-  }, [statusFilter, page]);
+  }, [statusFilter, page, storeId]);
 
   return (
     <div className="pt-2">

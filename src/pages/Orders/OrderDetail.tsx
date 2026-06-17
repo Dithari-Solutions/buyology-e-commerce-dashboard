@@ -506,7 +506,13 @@ export default function OrderDetail() {
               {order.deliveryMethod && (
                 <div>
                   <p className="text-xs text-gray-400 uppercase mb-1">Delivery Method</p>
-                  <Badge size="sm" color="info">{order.deliveryMethod}</Badge>
+                  <Badge size="sm" color={order.deliveryMethod === "EXPRESS" ? "success" : "info"}>
+                    {order.deliveryMethod === "EXPRESS"
+                      ? "Quick delivery"
+                      : order.deliveryMethod === "REGULAR"
+                        ? "Regular"
+                        : order.deliveryMethod}
+                  </Badge>
                 </div>
               )}
             </div>

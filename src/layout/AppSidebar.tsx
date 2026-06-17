@@ -127,7 +127,9 @@ const navItems: NavItem[] = [
   {
     name: "Refunds",
     icon: <ReceiptLongOutlinedIcon />,
-    path: "/refunds",
+    subItems: [
+      { name: "All Refunds", path: "/refunds" },
+    ],
   },
   {
     name: "Payouts",
@@ -219,16 +221,17 @@ const AppSidebar: React.FC = () => {
   // Inject one Orders sub-item per store (super admin only), after the static entries.
   const navItemsWithStores = useMemo<NavItem[]>(() => {
     if (!superAdmin || stores.length === 0) return navItems;
-    const storeSubs: NavSubItem[] = stores.map((s) => ({
-      name: s.name,
-      path: `/orders/${s.id}`,
-      superAdminOnly: true,
-    }));
-    return navItems.map((item) =>
-      item.name === "Orders" && item.subItems
-        ? { ...item, subItems: [...item.subItems, ...storeSubs] }
-        : item
-    );
+    const storeSubsFor = (base: string): NavSubItem[] =>
+      stores.map((s) => ({ name: s.name, path: `${base}/${s.id}`, superAdminOnly: true }));
+    return navItems.map((item) => {
+      if (item.name === "Orders" && item.subItems) {
+        return { ...item, subItems: [...item.subItems, ...storeSubsFor("/orders")] };
+      }
+      if (item.name === "Refunds" && item.subItems) {
+        return { ...item, subItems: [...item.subItems, ...storeSubsFor("/refunds/store")] };
+      }
+      return item;
+    });
   }, [superAdmin, stores]);
 
   const filterByRole = useCallback(

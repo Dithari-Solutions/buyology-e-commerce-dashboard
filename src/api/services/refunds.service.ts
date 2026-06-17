@@ -73,11 +73,12 @@ export const refundsService = {
 
   // ── Requests ───────────────────────────────────────────────────────────────
   list(
-    params: { status?: RefundRequestStatus; page?: number; size?: number },
+    params: { status?: RefundRequestStatus; storeId?: string; page?: number; size?: number },
     signal?: AbortSignal
   ): Promise<ApiResponse<SpringPage<RefundRequestDetail>>> {
     const qs = new URLSearchParams();
     if (params.status) qs.set("status", params.status);
+    if (params.storeId) qs.set("storeId", params.storeId);
     qs.set("page", String(params.page ?? 0));
     qs.set("size", String(params.size ?? 20));
     return apiClient.get(`/api/admin/refunds?${qs.toString()}`, { signal });

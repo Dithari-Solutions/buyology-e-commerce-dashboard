@@ -204,9 +204,17 @@ export default function StoreOrders() {
                       {order.currency} {order.totalAmount.toFixed(2)}
                     </td>
                     <td className="px-4 py-4">
-                      <Badge size="sm" color={statusColor(order.status)}>
-                        {order.status}
-                      </Badge>
+                      <div className="flex flex-col items-start gap-1">
+                        <Badge size="sm" color={statusColor(order.status)}>
+                          {order.status}
+                        </Badge>
+                        {order.deliveryMethod === "EXPRESS" && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-green-700 dark:bg-green-500/10 dark:text-green-400">
+                            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13H11l-1 9 8.5-11H12l1-9z" /></svg>
+                            Quick delivery
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-4 text-right">
                       <button className="text-brand-500 hover:text-brand-600 text-sm font-medium">

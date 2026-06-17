@@ -57,9 +57,17 @@ export default function OrdersTable({ orders, linkTo }: Props) {
                   )}
                 </td>
                 <td className="py-3 pr-4">
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusClasses(o.status)}`}>
-                    {o.status}
-                  </span>
+                  <div className="flex flex-col items-start gap-1">
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusClasses(o.status)}`}>
+                      {o.status}
+                    </span>
+                    {o.deliveryMethod === "EXPRESS" && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-green-700 dark:bg-green-500/10 dark:text-green-400">
+                        <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13H11l-1 9 8.5-11H12l1-9z" /></svg>
+                        Quick delivery
+                      </span>
+                    )}
+                  </div>
                 </td>
                 <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">{customer}</td>
                 <td className="py-3 pr-4 text-gray-800 dark:text-gray-200">{fmtMoney(o.totalAmount, o.currency)}</td>
