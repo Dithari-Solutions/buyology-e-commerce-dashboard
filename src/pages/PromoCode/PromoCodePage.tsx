@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { promoService, type PromoCode, type CreatePromoCodeRequest, type PromoUsage, type IssuePersonalCodeRequest, type TokenRedemptionConfig } from "../../api/services/promo.service";
+import UserSearchSelect from "../../components/users/UserSearchSelect";
 
 function formatDate(iso?: string) {
   if (!iso) return "—";
@@ -358,11 +359,11 @@ export default function PromoCodePage() {
             </p>
             <div className="space-y-3">
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Customer User ID</label>
-                <input type="text" placeholder="paste the user's ID"
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Customer</label>
+                <UserSearchSelect
                   value={issueForm.userId}
-                  onChange={(e) => setIssueForm((f) => ({ ...f, userId: e.target.value.trim() }))}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
+                  onSelect={(userId) => setIssueForm((f) => ({ ...f, userId }))}
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>

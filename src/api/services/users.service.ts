@@ -16,6 +16,17 @@ export const usersService = {
     );
   },
 
+  /** Search users by name or credential email (for the promo issue-to-user picker). */
+  search(
+    query: string,
+    page: number = 0,
+    size: number = 8,
+    signal?: AbortSignal
+  ): Promise<ApiResponse<UsersListResponse>> {
+    const qs = new URLSearchParams({ page: String(page), size: String(size), search: query });
+    return apiClient.get<ApiResponse<UsersListResponse>>(`${BASE}?${qs.toString()}`, { signal });
+  },
+
   getById(
     authCredentialId: string,
     signal?: AbortSignal

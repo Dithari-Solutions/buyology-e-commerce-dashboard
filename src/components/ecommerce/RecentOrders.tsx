@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router";
 import {
   Table,
   TableBody,
@@ -6,200 +8,198 @@ import {
   TableRow,
 } from "../ui/table";
 import Badge from "../ui/badge/Badge";
+import { ordersService } from "../../api/services/orders.service";
+import { productsService } from "../../api/services/products.service";
+import { categoriesService } from "../../api/services/categories.service";
+import type { OrderStatus } from "../../types/order.types";
 
-// Define the TypeScript interface for the table rows
-interface Product {
-  id: number; // Unique identifier for each product
-  name: string; // Product name
-  variants: string; // Number of variants (e.g., "1 Variant", "2 Variants")
-  category: string; // Category of the product
-  price: string; // Price of the product (as a string with currency symbol)
-  // status: string; // Status of the product
-  image: string; // URL or path to the product image
-  status: "Delivered" | "Pending" | "Canceled"; // Status of the product
+type BadgeColor = "success" | "warning" | "error" | "info" | "light";
+
+function statusColor(status: OrderStatus): BadgeColor {
+  switch (status) {
+    case "DELIVERED":
+    case "PAID":
+      return "success";
+    case "CANCELLED":
+    case "FAILED":
+    case "REFUNDED":
+    case "EXPIRED":
+      return "error";
+    case "PACKAGING":
+    case "IN_COURIER":
+    case "IN_TRANSIT":
+    case "PROCESSING":
+    case "COURIER_ASSIGNED":
+    case "PICKED_UP":
+    case "SHIPPED":
+      return "info";
+    case "PENDING_PAYMENT":
+    case "PENDING":
+      return "warning";
+    default:
+      return "light";
+  }
 }
 
-// Define the table data using the interface
-const tableData: Product[] = [
-  {
-    id: 1,
-    name: "MacBook Pro 13”",
-    variants: "2 Variants",
-    category: "Laptop",
-    price: "$2399.00",
-    status: "Delivered",
-    image: "/images/product/product-01.jpg", // Replace with actual image URL
-  },
-  {
-    id: 2,
-    name: "Apple Watch Ultra",
-    variants: "1 Variant",
-    category: "Watch",
-    price: "$879.00",
-    status: "Pending",
-    image: "/images/product/product-02.jpg", // Replace with actual image URL
-  },
-  {
-    id: 3,
-    name: "iPhone 15 Pro Max",
-    variants: "2 Variants",
-    category: "SmartPhone",
-    price: "$1869.00",
-    status: "Delivered",
-    image: "/images/product/product-03.jpg", // Replace with actual image URL
-  },
-  {
-    id: 4,
-    name: "iPad Pro 3rd Gen",
-    variants: "2 Variants",
-    category: "Electronics",
-    price: "$1699.00",
-    status: "Canceled",
-    image: "/images/product/product-04.jpg", // Replace with actual image URL
-  },
-  {
-    id: 5,
-    name: "AirPods Pro 2nd Gen",
-    variants: "1 Variant",
-    category: "Accessories",
-    price: "$240.00",
-    status: "Delivered",
-    image: "/images/product/product-05.jpg", // Replace with actual image URL
-  },
-];
+interface Row {
+  orderId: string;
+  storeId?: string;
+  image: string | null;
+  title: string;
+  category: string;
+  price: string;
+  country: string;
+  status: OrderStatus;
+}
+
+const HEADER_CLASS =
+  "py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400";
 
 export default function RecentOrders() {
+  const [rows, setRows] = useState<Row[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const ctrl = new AbortController();
+    (async () => {
+      try {
+        const [ordersRes, catsRes] = await Promise.all([
+          ordersService.getAll({ page: 0, size: 5 }, ctrl.signal),
+          categoriesService.getAll("EN", ctrl.signal).catch(() => null),
+        ]);
+        const orders = ordersRes.data?.content ?? [];
+        const catMap = new Map<string, string>();
+        (catsRes?.data ?? []).forEach((c) => catMap.set(c.id, c.name));
+
+        // Order items don't carry product image/title/category, so enrich the first item
+        // of each recent order from the product service (best-effort).
+        const built = await Promise.all(
+          orders.map(async (o): Promise<Row> => {
+            const item = o.items?.[0];
+            let image: string | null = null;
+            let title = item?.productName || `Order #${o.id.slice(0, 8)}`;
+            let category = "—";
+            if (item?.productId) {
+              try {
+                const p = (await productsService.getById(item.productId, "EN", ctrl.signal)).data;
+                if (p) {
+                  title = p.title || title;
+                  const primary = p.media?.find((m) => m.isPrimary) ?? p.media?.[0];
+                  image = primary?.thumbnailUrl || primary?.url || null;
+                  category = catMap.get(p.categoryId) ?? "—";
+                }
+              } catch {
+                /* keep fallbacks */
+              }
+            }
+            const amount = item?.totalPrice ?? o.totalAmount ?? 0;
+            return {
+              orderId: o.id,
+              storeId: o.storeId,
+              image,
+              title,
+              category,
+              price: `${o.currency} ${amount.toFixed(2)}`,
+              country: o.country || o.countryCode || "—",
+              status: o.status,
+            };
+          })
+        );
+        if (!ctrl.signal.aborted) setRows(built);
+      } catch {
+        /* leave empty on failure */
+      } finally {
+        if (!ctrl.signal.aborted) setLoading(false);
+      }
+    })();
+    return () => ctrl.abort();
+  }, []);
+
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
-      <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            Recent Orders
-          </h3>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
-            <svg
-              className="stroke-current fill-white dark:fill-gray-800"
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M2.29004 5.90393H17.7067"
-                stroke=""
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M17.7075 14.0961H2.29085"
-                stroke=""
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M12.0826 3.33331C13.5024 3.33331 14.6534 4.48431 14.6534 5.90414C14.6534 7.32398 13.5024 8.47498 12.0826 8.47498C10.6627 8.47498 9.51172 7.32398 9.51172 5.90415C9.51172 4.48432 10.6627 3.33331 12.0826 3.33331Z"
-                fill=""
-                stroke=""
-                strokeWidth="1.5"
-              />
-              <path
-                d="M7.91745 11.525C6.49762 11.525 5.34662 12.676 5.34662 14.0959C5.34661 15.5157 6.49762 16.6667 7.91745 16.6667C9.33728 16.6667 10.4883 15.5157 10.4883 14.0959C10.4883 12.676 9.33728 11.525 7.91745 11.525Z"
-                fill=""
-                stroke=""
-                strokeWidth="1.5"
-              />
-            </svg>
-            Filter
-          </button>
-          <button className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
-            See all
-          </button>
-        </div>
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+          Recent Orders
+        </h3>
+        <Link
+          to="/orders"
+          className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+        >
+          See all
+        </Link>
       </div>
       <div className="max-w-full overflow-x-auto">
         <Table>
-          {/* Table Header */}
           <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
             <TableRow>
-              <TableCell
-                isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Products
-              </TableCell>
-              <TableCell
-                isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Category
-              </TableCell>
-              <TableCell
-                isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Price
-              </TableCell>
-              <TableCell
-                isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Status
-              </TableCell>
+              <TableCell isHeader className={HEADER_CLASS}>Product</TableCell>
+              <TableCell isHeader className={HEADER_CLASS}>Category</TableCell>
+              <TableCell isHeader className={HEADER_CLASS}>Price</TableCell>
+              <TableCell isHeader className={HEADER_CLASS}>Country</TableCell>
+              <TableCell isHeader className={HEADER_CLASS}>Status</TableCell>
             </TableRow>
           </TableHeader>
 
-          {/* Table Body */}
-
           <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-            {tableData.map((product) => (
-              <TableRow key={product.id} className="">
-                <TableCell className="py-3">
-                  <div className="flex items-center gap-3">
-                    <div className="h-[50px] w-[50px] overflow-hidden rounded-md">
-                      <img
-                        src={product.image}
-                        className="h-[50px] w-[50px]"
-                        alt={product.name}
-                      />
+            {loading &&
+              Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={`sk-${i}`}>
+                  <TableCell className="py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-[50px] w-[50px] rounded-md bg-gray-100 dark:bg-white/5 animate-pulse" />
+                      <div className="h-3.5 w-28 rounded-full bg-gray-100 dark:bg-white/5 animate-pulse" />
                     </div>
-                    <div>
-                      <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                        {product.name}
-                      </p>
-                      <span className="text-gray-500 text-theme-xs dark:text-gray-400">
-                        {product.variants}
-                      </span>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  {product.price}
-                </TableCell>
-                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  {product.category}
-                </TableCell>
-                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  <Badge
-                    size="sm"
-                    color={
-                      product.status === "Delivered"
-                        ? "success"
-                        : product.status === "Pending"
-                        ? "warning"
-                        : "error"
-                    }
-                  >
-                    {product.status}
-                  </Badge>
+                  </TableCell>
+                  {[1, 2, 3, 4].map((c) => (
+                    <TableCell key={c} className="py-3">
+                      <div className="h-3 w-16 rounded-full bg-gray-100 dark:bg-white/5 animate-pulse" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+
+            {!loading && rows.length === 0 && (
+              <TableRow>
+                <TableCell className="py-8 text-center text-gray-500 text-theme-sm dark:text-gray-400">
+                  No recent orders
                 </TableCell>
               </TableRow>
-            ))}
+            )}
+
+            {!loading &&
+              rows.map((r) => (
+                <TableRow key={r.orderId}>
+                  <TableCell className="py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-[50px] w-[50px] overflow-hidden rounded-md bg-gray-100 dark:bg-white/5">
+                        {r.image && (
+                          <img src={r.image} className="h-[50px] w-[50px] object-cover" alt={r.title} />
+                        )}
+                      </div>
+                      <Link
+                        to={r.storeId ? `/orders/${r.storeId}/${r.orderId}` : "/orders"}
+                        className="font-medium text-gray-800 text-theme-sm hover:text-brand-500 dark:text-white/90 line-clamp-1"
+                      >
+                        {r.title}
+                      </Link>
+                    </div>
+                  </TableCell>
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                    {r.category}
+                  </TableCell>
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400 whitespace-nowrap">
+                    {r.price}
+                  </TableCell>
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                    {r.country}
+                  </TableCell>
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                    <Badge size="sm" color={statusColor(r.status)}>
+                      {r.status}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </div>
