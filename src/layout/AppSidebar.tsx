@@ -220,12 +220,14 @@ const AppSidebar: React.FC = () => {
     return () => ctrl.abort();
   }, [supplierOnly]);
 
-  // Inject one Orders/Refunds sub-item per store, after the static entries. Items are
-  // marked superAdminOnly, so filterByRole shows them to super admins only.
+  // Inject one Orders/Refunds sub-item per store, after the static entries. NOT gated to
+  // super admins — any admin who sees the Orders/Refunds dropdown gets the full store list
+  // (suppliers never see those groups, since they're area:"admin"). Gating on superAdminOnly
+  // previously hid every store whenever isSuperAdmin() read false from the JWT.
   const navItemsWithStores = useMemo<NavItem[]>(() => {
     if (stores.length === 0) return navItems;
     const storeSubsFor = (base: string): NavSubItem[] =>
-      stores.map((s) => ({ name: s.name, path: `${base}/${s.id}`, superAdminOnly: true }));
+      stores.map((s) => ({ name: s.name, path: `${base}/${s.id}` }));
     return navItems.map((item) => {
       if (item.name === "Orders" && item.subItems) {
         return { ...item, subItems: [...item.subItems, ...storeSubsFor("/orders")] };
