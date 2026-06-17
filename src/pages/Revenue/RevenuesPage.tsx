@@ -69,7 +69,7 @@ export default function RevenuesPage() {
       <PageBreadcrumb pageTitle="Revenues" />
 
       {/* Summary cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
           <p className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1">Gross Revenue</p>
           <p className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -87,6 +87,13 @@ export default function RevenuesPage() {
           <p className="text-2xl font-bold text-gray-900 dark:text-white">
             {report ? fmtMoney(report.netRevenue) : "—"}
           </p>
+        </div>
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+          <p className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1">Delivery Fees (AED)</p>
+          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+            {report ? fmtMoney(report.totalDeliveryFeeRevenue) : "—"}
+          </p>
+          <p className="mt-1 text-[11px] text-gray-400">Courier return-pickup fees</p>
         </div>
         <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
           <p className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1">Total Orders</p>
@@ -165,7 +172,8 @@ export default function RevenuesPage() {
                     <th className="pb-3 pr-4">Orders</th>
                     <th className="pb-3 pr-4">Gross</th>
                     <th className="pb-3 pr-4">Refunds</th>
-                    <th className="pb-3">Net</th>
+                    <th className="pb-3 pr-4">Net</th>
+                    <th className="pb-3">Delivery Fees</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -181,7 +189,10 @@ export default function RevenuesPage() {
                       <td className="py-3 pr-4 text-red-500">
                         {Number(row.refunded) > 0 ? `-${fmtMoney(row.refunded)}` : fmtMoney(0)}
                       </td>
-                      <td className="py-3 font-medium text-gray-800 dark:text-gray-200">{fmtMoney(row.net)}</td>
+                      <td className="py-3 pr-4 font-medium text-gray-800 dark:text-gray-200">{fmtMoney(row.net)}</td>
+                      <td className="py-3 text-emerald-600 dark:text-emerald-400">
+                        {Number(row.deliveryFeeRevenue) > 0 ? fmtMoney(row.deliveryFeeRevenue) : fmtMoney(0)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

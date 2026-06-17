@@ -11,6 +11,8 @@ export interface RevenueBucketRow {
   revenue: number;
   refunded: number;
   net: number;
+  /** Courier return-pickup fees collected in the bucket (settlement currency, AED). */
+  deliveryFeeRevenue: number;
 }
 
 export interface RevenueOrderRow {
@@ -32,6 +34,8 @@ export interface RevenueReportResponse {
   totalOrders: number;
   buckets: RevenueBucketRow[];
   orders: RevenueOrderRow[];
+  /** Total courier return-pickup (delivery) fees collected in the window (AED). */
+  totalDeliveryFeeRevenue: number;
 }
 
 export interface SupplierRevenueRow {
