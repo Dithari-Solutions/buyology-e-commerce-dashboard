@@ -5,10 +5,16 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Badge from "../../components/ui/badge/Badge";
 import { ordersService, ApiRequestError } from "../../api";
 import type { OrderAdminResponse, OrderStatus } from "../../types";
-import { ORDER_STATUS_BUCKETS, type OrderBucket } from "../../types/order.types";
+import { ORDER_STATUS_BUCKETS } from "../../types/order.types";
 
-const BUCKET_LABELS: Record<OrderBucket, string> = {
-  pending: "Pending",
+// The buckets shown in the store-orders segmented control, in display order. Waiting
+// (unpaid) and Paid are split apart so the admin sees actionable paid orders at a glance.
+const DISPLAY_BUCKETS = ["waiting", "paid", "active", "done"] as const;
+type DisplayBucket = (typeof DISPLAY_BUCKETS)[number];
+
+const BUCKET_LABELS: Record<DisplayBucket, string> = {
+  waiting: "Awaiting payment",
+  paid: "Paid",
   active: "Active",
   done: "Done",
 };
@@ -43,6 +49,7 @@ function statusColor(status: OrderStatus): BadgeColor {
     case "COURIER_ASSIGNED":
       return "info";
     case "PAID":
+      return "success";
     case "PENDING":
     case "PENDING_PAYMENT":
       return "warning";
@@ -72,12 +79,13 @@ export default function StoreOrders() {
   const [orders, setOrders] = useState<OrderAdminResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [bucket, setBucket] = useState<OrderBucket>("pending");
+  const [bucket, setBucket] = useState<DisplayBucket>("paid");
 
   const bucketStatuses = ORDER_STATUS_BUCKETS[bucket];
   const filtered = orders.filter((o) => bucketStatuses.includes(o.status));
   const counts = {
-    pending: orders.filter((o) => ORDER_STATUS_BUCKETS.pending.includes(o.status)).length,
+    waiting: orders.filter((o) => ORDER_STATUS_BUCKETS.waiting.includes(o.status)).length,
+    paid: orders.filter((o) => ORDER_STATUS_BUCKETS.paid.includes(o.status)).length,
     active: orders.filter((o) => ORDER_STATUS_BUCKETS.active.includes(o.status)).length,
     done: orders.filter((o) => ORDER_STATUS_BUCKETS.done.includes(o.status)).length,
   };
@@ -132,7 +140,7 @@ export default function StoreOrders() {
         </h2>
 
         <div className="inline-flex rounded-xl border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-white/[0.03]">
-          {(Object.keys(BUCKET_LABELS) as OrderBucket[]).map((b) => (
+          {DISPLAY_BUCKETS.map((b) => (
             <button
               key={b}
               type="button"

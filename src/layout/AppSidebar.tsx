@@ -3,7 +3,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import CardMembershipOutlinedIcon from '@mui/icons-material/CardMembershipOutlined';
 import HandshakeOutlinedIcon from '@mui/icons-material/HandshakeOutlined';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import VideoCameraBackIcon from '@mui/icons-material/VideoCameraBack';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
@@ -23,6 +23,8 @@ import {
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import { isPureSupplier, isSuperAdmin, landingPathForCurrentUser } from "../auth/roles";
+import { storesService } from "../api";
+import type { Store } from "../types";
 
 type NavArea = "admin" | "supplier" | "shared";
 
@@ -201,6 +203,34 @@ const AppSidebar: React.FC = () => {
   const supplierOnly = isPureSupplier();
   const superAdmin = isSuperAdmin();
   const homePath = landingPathForCurrentUser();
+
+  // Super admins get every store listed under the Orders dropdown for quick access.
+  const [stores, setStores] = useState<Store[]>([]);
+  useEffect(() => {
+    if (!superAdmin) return;
+    const ctrl = new AbortController();
+    storesService
+      .getAll(ctrl.signal)
+      .then((res) => setStores(Array.isArray(res.data) ? res.data : []))
+      .catch(() => {/* sidebar store shortcuts are best-effort */});
+    return () => ctrl.abort();
+  }, [superAdmin]);
+
+  // Inject one Orders sub-item per store (super admin only), after the static entries.
+  const navItemsWithStores = useMemo<NavItem[]>(() => {
+    if (!superAdmin || stores.length === 0) return navItems;
+    const storeSubs: NavSubItem[] = stores.map((s) => ({
+      name: s.name,
+      path: `/orders/${s.id}`,
+      superAdminOnly: true,
+    }));
+    return navItems.map((item) =>
+      item.name === "Orders" && item.subItems
+        ? { ...item, subItems: [...item.subItems, ...storeSubs] }
+        : item
+    );
+  }, [superAdmin, stores]);
+
   const filterByRole = useCallback(
     (items: NavItem[]) =>
       items
@@ -217,7 +247,7 @@ const AppSidebar: React.FC = () => {
         ),
     [supplierOnly, superAdmin]
   );
-  const visibleNavItems = filterByRole(navItems);
+  const visibleNavItems = filterByRole(navItemsWithStores);
   // Suppliers don't see the kitchen-sink/UI-kit "Others" section at all.
   const visibleOthersItems = supplierOnly ? [] : othersItems;
 
@@ -269,7 +299,8 @@ const AppSidebar: React.FC = () => {
         }));
       }
     }
-  }, [openSubmenu]);
+    // `stores` is included so the Orders submenu re-measures once the store list loads.
+  }, [openSubmenu, stores]);
 
   const handleSubmenuToggle = (index: number, menuType: "main" | "others") => {
     setOpenSubmenu((prevOpenSubmenu) => {

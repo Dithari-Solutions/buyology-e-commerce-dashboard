@@ -18,6 +18,11 @@ export type OrderStatus =
   | "EXPIRED";
 
 export const ORDER_STATUS_BUCKETS = {
+  // Waiting = not yet paid; Paid = payment received, ready to pack. Split out so admins
+  // can tell unpaid orders apart from paid-and-actionable ones at a glance.
+  waiting: ["PENDING_PAYMENT", "PENDING"] as OrderStatus[],
+  paid: ["PAID"] as OrderStatus[],
+  // Legacy combined pre-fulfilment bucket (waiting + paid) — kept for ActivePendingOrders.
   pending: ["PENDING_PAYMENT", "PAID"] as OrderStatus[],
   active: ["PACKAGING", "IN_COURIER", "IN_TRANSIT",
            "PROCESSING", "COURIER_ASSIGNED", "PICKED_UP", "SHIPPED"] as OrderStatus[],
