@@ -9,11 +9,12 @@ const PERIOD_LABELS: Record<RevenuePeriod, string> = {
   YEARLY: "Yearly",
 };
 
+// All revenue figures are reported in AED (the backend converts every store currency).
 export function fmtMoney(n: number): string {
-  return new Intl.NumberFormat("en-US", {
+  return `AED ${new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(Number(n ?? 0));
+  }).format(Number(n ?? 0))}`;
 }
 
 /** Render a bucket's period key into a label appropriate for the granularity. */
