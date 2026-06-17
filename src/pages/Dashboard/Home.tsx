@@ -1,14 +1,16 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
+import { usersService } from "../../api/services/users.service";
+import { ordersService } from "../../api/services/orders.service";
+import { revenueService } from "../../api/services/revenue.service";
+import { productsService } from "../../api/services/products.service";
 import MonthlySalesChart from "../../components/ecommerce/MonthlySalesChart";
 import StatisticsChart from "../../components/ecommerce/StatisticsChart";
 import MonthlyTarget from "../../components/ecommerce/MonthlyTarget";
 import RecentOrders from "../../components/ecommerce/RecentOrders";
 import ActivePendingOrders from "../../components/ecommerce/ActivePendingOrders";
-import Badge from "../../components/ui/badge/Badge";
 import {
-  ArrowUpIcon,
-  ArrowDownIcon,
   GroupIcon,
   BoxIconLine,
   DollarLineIcon,
@@ -26,47 +28,44 @@ import PostAddIcon from "@mui/icons-material/PostAdd";
 import TuneIcon from "@mui/icons-material/Tune";
 import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
 
-const metrics = [
+type MetricKey = "customers" | "orders" | "revenue" | "products";
+
+const METRIC_CARDS: {
+  key: MetricKey;
+  label: string;
+  icon: typeof GroupIcon;
+  bg: string;
+  iconBg: string;
+  iconColor: string;
+}[] = [
   {
+    key: "customers",
     label: "Total Customers",
-    value: "3,782",
-    change: "+11.01%",
-    trend: "up" as const,
     icon: GroupIcon,
-    gradient: "from-violet-500 to-purple-600",
     bg: "bg-violet-50 dark:bg-violet-900/20",
     iconBg: "bg-violet-100 dark:bg-violet-800/40",
     iconColor: "text-violet-600 dark:text-violet-300",
   },
   {
+    key: "orders",
     label: "Total Orders",
-    value: "5,359",
-    change: "-9.05%",
-    trend: "down" as const,
     icon: BoxIconLine,
-    gradient: "from-brand-500 to-cyan-500",
     bg: "bg-brand-50 dark:bg-brand-900/20",
     iconBg: "bg-brand-100 dark:bg-brand-800/40",
     iconColor: "text-brand-600 dark:text-brand-300",
   },
   {
+    key: "revenue",
     label: "Total Revenue",
-    value: "$84,260",
-    change: "+22.3%",
-    trend: "up" as const,
     icon: DollarLineIcon,
-    gradient: "from-emerald-500 to-teal-500",
     bg: "bg-emerald-50 dark:bg-emerald-900/20",
     iconBg: "bg-emerald-100 dark:bg-emerald-800/40",
     iconColor: "text-emerald-600 dark:text-emerald-300",
   },
   {
+    key: "products",
     label: "Active Products",
-    value: "1,240",
-    change: "+5.12%",
-    trend: "up" as const,
     icon: ShootingStarIcon,
-    gradient: "from-orange-500 to-amber-500",
     bg: "bg-orange-50 dark:bg-orange-900/20",
     iconBg: "bg-orange-100 dark:bg-orange-800/40",
     iconColor: "text-orange-600 dark:text-orange-300",
@@ -186,13 +185,20 @@ function WelcomeBanner() {
 function MetricCard({
   label,
   value,
-  change,
-  trend,
   icon: Icon,
   bg,
   iconBg,
   iconColor,
-}: (typeof metrics)[number]) {
+  loading,
+}: {
+  label: string;
+  value: string;
+  icon: typeof GroupIcon;
+  bg: string;
+  iconBg: string;
+  iconColor: string;
+  loading?: boolean;
+}) {
   return (
     <div
       className={`group relative overflow-hidden rounded-2xl border border-gray-100 ${bg} p-5 transition-all hover:shadow-lg dark:border-white/5 md:p-6`}
@@ -203,16 +209,16 @@ function MetricCard({
         >
           <Icon className={`size-6 ${iconColor}`} />
         </div>
-        <Badge color={trend === "up" ? "success" : "error"}>
-          {trend === "up" ? <ArrowUpIcon /> : <ArrowDownIcon />}
-          {change}
-        </Badge>
       </div>
       <div className="mt-5">
         <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
-        <h3 className="mt-1 text-2xl font-bold text-gray-800 dark:text-white/90">
-          {value}
-        </h3>
+        {loading ? (
+          <div className="mt-2 h-7 w-24 rounded-md bg-gray-200/70 dark:bg-white/10 animate-pulse" />
+        ) : (
+          <h3 className="mt-1 text-2xl font-bold text-gray-800 dark:text-white/90">
+            {value}
+          </h3>
+        )}
       </div>
       {/* Subtle hover glow */}
       <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 ring-2 ring-inset ring-indigo-400/30 transition-opacity group-hover:opacity-100" />
@@ -256,7 +262,41 @@ function QuickLinks() {
   );
 }
 
+type Stats = { customers?: number; orders?: number; revenue?: number; products?: number };
+
+const fmtCount = (n?: number) => (n == null ? "—" : n.toLocaleString());
+const fmtMoney = (n?: number) =>
+  n == null ? "—" : `AED ${n.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+
 export default function Home() {
+  const [stats, setStats] = useState<Stats>({});
+
+  useEffect(() => {
+    const ctrl = new AbortController();
+    // Each metric loads independently — one failing endpoint shouldn't blank the others.
+    usersService.getAll(0, 1, ctrl.signal)
+      .then((r) => setStats((s) => ({ ...s, customers: r.data?.totalElements })))
+      .catch(() => {});
+    ordersService.getAll({ page: 0, size: 1 }, ctrl.signal)
+      .then((r) => setStats((s) => ({ ...s, orders: r.data?.totalElements })))
+      .catch(() => {});
+    revenueService.getPlatformRevenue({})
+      .then((r) => setStats((s) => ({ ...s, revenue: r.data?.totalRevenue })))
+      .catch(() => {});
+    productsService.getStats(ctrl.signal)
+      .then((r) => setStats((s) => ({ ...s, products: r.data?.active })))
+      .catch(() => {});
+    return () => ctrl.abort();
+  }, []);
+
+  const valueFor = (key: MetricKey): string => {
+    if (key === "customers") return fmtCount(stats.customers);
+    if (key === "orders") return fmtCount(stats.orders);
+    if (key === "revenue") return fmtMoney(stats.revenue);
+    return fmtCount(stats.products);
+  };
+  const loadingFor = (key: MetricKey): boolean => stats[key] == null;
+
   return (
     <>
       <PageMeta
@@ -270,8 +310,8 @@ export default function Home() {
 
         {/* Metrics */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 md:gap-5">
-          {metrics.map((m) => (
-            <MetricCard key={m.label} {...m} />
+          {METRIC_CARDS.map(({ key, ...rest }) => (
+            <MetricCard key={key} {...rest} value={valueFor(key)} loading={loadingFor(key)} />
           ))}
         </div>
 

@@ -206,21 +206,24 @@ const AppSidebar: React.FC = () => {
   const superAdmin = isSuperAdmin();
   const homePath = landingPathForCurrentUser();
 
-  // Super admins get every store listed under the Orders dropdown for quick access.
+  // Fetch all stores for any admin (not gated on isSuperAdmin(), which reads the JWT at
+  // render-time and may be false before the token is restored — leaving the list empty).
+  // Visibility is enforced by filterByRole (the injected items are superAdminOnly).
   const [stores, setStores] = useState<Store[]>([]);
   useEffect(() => {
-    if (!superAdmin) return;
+    if (supplierOnly) return; // suppliers don't manage stores
     const ctrl = new AbortController();
     storesService
       .getAll(ctrl.signal)
       .then((res) => setStores(Array.isArray(res.data) ? res.data : []))
       .catch(() => {/* sidebar store shortcuts are best-effort */});
     return () => ctrl.abort();
-  }, [superAdmin]);
+  }, [supplierOnly]);
 
-  // Inject one Orders sub-item per store (super admin only), after the static entries.
+  // Inject one Orders/Refunds sub-item per store, after the static entries. Items are
+  // marked superAdminOnly, so filterByRole shows them to super admins only.
   const navItemsWithStores = useMemo<NavItem[]>(() => {
-    if (!superAdmin || stores.length === 0) return navItems;
+    if (stores.length === 0) return navItems;
     const storeSubsFor = (base: string): NavSubItem[] =>
       stores.map((s) => ({ name: s.name, path: `${base}/${s.id}`, superAdminOnly: true }));
     return navItems.map((item) => {
@@ -232,7 +235,7 @@ const AppSidebar: React.FC = () => {
       }
       return item;
     });
-  }, [superAdmin, stores]);
+  }, [stores]);
 
   const filterByRole = useCallback(
     (items: NavItem[]) =>
