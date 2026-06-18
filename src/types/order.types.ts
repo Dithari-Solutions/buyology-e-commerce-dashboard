@@ -89,6 +89,10 @@ export interface OrderAdminResponse {
   country?: string;
   countryCode?: string;
   shippingAddress?: string;
+  // Store pickup (deliveryMethod === "PICKUP")
+  pickupStoreId?: string | null;
+  pickupStoreName?: string | null;
+  pickupStoreAddress?: string | null;
   billingAddress?: string;
   paymentMethod?: string;
   

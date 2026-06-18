@@ -495,23 +495,37 @@ export default function OrderDetail() {
                 <p className="text-xs text-gray-400 uppercase mb-1">Email</p>
                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{order.customerEmail || "No Email Provided"}</p>
               </div>
-              {(order.shippingAddress || order.city) && (
+              {order.deliveryMethod === "PICKUP" ? (
                 <div>
-                  <p className="text-xs text-gray-400 uppercase mb-1">Shipping Address</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {order.shippingAddress || `${order.city || ""}, ${order.country || ""}`}
+                  <p className="text-xs text-gray-400 uppercase mb-1">Pickup Store</p>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {order.pickupStoreName || "Store pickup"}
                   </p>
+                  {order.pickupStoreAddress && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">{order.pickupStoreAddress}</p>
+                  )}
                 </div>
+              ) : (
+                (order.shippingAddress || order.city) && (
+                  <div>
+                    <p className="text-xs text-gray-400 uppercase mb-1">Shipping Address</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {order.shippingAddress || `${order.city || ""}, ${order.country || ""}`}
+                    </p>
+                  </div>
+                )
               )}
               {order.deliveryMethod && (
                 <div>
                   <p className="text-xs text-gray-400 uppercase mb-1">Delivery Method</p>
-                  <Badge size="sm" color={order.deliveryMethod === "EXPRESS" ? "success" : "info"}>
+                  <Badge size="sm" color={order.deliveryMethod === "EXPRESS" ? "success" : order.deliveryMethod === "PICKUP" ? "warning" : "info"}>
                     {order.deliveryMethod === "EXPRESS"
                       ? "Quick delivery"
                       : order.deliveryMethod === "REGULAR"
                         ? "Regular"
-                        : order.deliveryMethod}
+                        : order.deliveryMethod === "PICKUP"
+                          ? "Store pickup"
+                          : order.deliveryMethod}
                   </Badge>
                 </div>
               )}
