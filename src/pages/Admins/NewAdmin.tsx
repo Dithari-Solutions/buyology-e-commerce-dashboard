@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
@@ -57,6 +57,7 @@ export default function NewAdmin() {
 
   const [roles, setRoles] = useState<Role[]>([]);
   const [rolesLoading, setRolesLoading] = useState(true);
+  const [roleError, setRoleError] = useState<string | null>(null);
 
   const [form, setForm] = useState<FormState>({
     firstName: "",
@@ -69,18 +70,31 @@ export default function NewAdmin() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (!superAdmin) return;
-    const controller = new AbortController();
+  const loadRoles = useCallback(() => {
+    setRolesLoading(true);
+    setRoleError(null);
     rolesService
-      .getAllRoles(controller.signal)
-      .then((res) => setRoles(res.data ?? []))
-      .catch(() => {
-        /* non-blocking — the select will just be empty */
+      .getAllRoles()
+      .then((res) => {
+        const list = res.data ?? [];
+        setRoles(list);
+        if (list.length === 0) {
+          setRoleError("No roles are available to assign.");
+        }
+      })
+      .catch((err: unknown) => {
+        setRoleError(
+          err instanceof ApiRequestError
+            ? `Could not load roles: ${err.message}`
+            : "Could not load roles. Check your connection and that you're signed in as a Super Admin."
+        );
       })
       .finally(() => setRolesLoading(false));
-    return () => controller.abort();
-  }, [superAdmin]);
+  }, []);
+
+  useEffect(() => {
+    if (superAdmin) loadRoles();
+  }, [superAdmin, loadRoles]);
 
   const set = (key: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm((prev) => ({ ...prev, [key]: e.target.value }));
@@ -216,16 +230,30 @@ export default function NewAdmin() {
               <select
                 value={form.roleId}
                 onChange={set("roleId")}
-                disabled={rolesLoading}
+                disabled={rolesLoading || roles.length === 0}
                 className={`${selectClass} ${fieldErrors.roleId ? "border-red-400 focus:ring-red-400/20" : ""}`}
               >
-                <option value="">{rolesLoading ? "Loading roles…" : "Select a role"}</option>
+                <option value="">
+                  {rolesLoading ? "Loading roles…" : roles.length === 0 ? "No roles available" : "Select a role"}
+                </option>
                 {roles.map((r) => (
                   <option key={r.id} value={r.id}>
                     {r.name}{r.description ? ` — ${r.description}` : ""}
                   </option>
                 ))}
               </select>
+              {roleError && (
+                <p className="mt-1.5 flex items-center gap-2 text-xs text-red-500">
+                  {roleError}
+                  <button
+                    type="button"
+                    onClick={loadRoles}
+                    className="font-semibold text-brand-500 hover:text-brand-600 underline"
+                  >
+                    Retry
+                  </button>
+                </p>
+              )}
             </FormField>
           </div>
 
