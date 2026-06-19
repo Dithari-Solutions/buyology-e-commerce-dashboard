@@ -1,6 +1,15 @@
 export type UserType = "CUSTOMER" | "ADMIN";
 export type UserStatus = "ACTIVE" | "SUSPENDED";
 
+/** SUPERADMIN request to create a new admin user with one or more roles. */
+export interface CreateAdminRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  roleIds: string[];
+}
+
 export interface UserListItem {
   userId: string;
   authCredentialId: string;

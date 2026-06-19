@@ -77,6 +77,7 @@ const navItems: NavItem[] = [
     icon: <PeopleIcon />,
     subItems: [
       { name: "All Admins", path: "/admin/admins", pro: false },
+      { name: "Create Admin", path: "/admin/admins/new", pro: false, superAdminOnly: true },
     ],
   },
   {

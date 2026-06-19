@@ -1,10 +1,15 @@
 import { apiClient } from "../client";
 import type { ApiResponse } from "../types/api.types";
-import type { UsersListResponse, UserDetail } from "../../types/user.types";
+import type { UsersListResponse, UserDetail, CreateAdminRequest } from "../../types/user.types";
 
 const BASE = "/api/admin/users";
 
 export const usersService = {
+  /** SUPERADMIN: create a new admin user and assign roles. Returns the created user's detail. */
+  createAdmin(payload: CreateAdminRequest): Promise<ApiResponse<UserDetail>> {
+    return apiClient.post<ApiResponse<UserDetail>>(BASE, payload);
+  },
+
   getAll(
     page: number = 0,
     size: number = 20,

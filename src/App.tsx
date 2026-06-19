@@ -35,6 +35,7 @@ import Users from "./pages/Users/Users";
 import UserDetail from "./pages/Users/UserDetail";
 import Admins from "./pages/Admins/Admins";
 import AdminDetail from "./pages/Admins/AdminDetail";
+import NewAdmin from "./pages/Admins/NewAdmin";
 import Couriers from "./pages/Couriers/Couriers";
 import CourierDetail from "./pages/Couriers/CourierDetail";
 import NewCourier from "./pages/Couriers/NewCourier";
@@ -120,6 +121,7 @@ export default function App() {
 
               {/* Admins */}
               <Route path="/admin/admins" element={<Admins />} />
+              <Route path="/admin/admins/new" element={<NewAdmin />} />
               <Route path="/admin/admins/:authCredentialId" element={<AdminDetail />} />
 
               {/* Users */}
