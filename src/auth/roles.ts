@@ -1,9 +1,15 @@
 import { hasAnyRole, hasRole } from "../api/client";
 
+// Every role that grants admin-side dashboard access. Keep in sync with the backend
+// RoleDataInitializer. ("COURIER" is the courier-app role, kept so courier admins
+// aren't locked out of the admin area.)
 export const ADMIN_ROLES = [
   "ADMIN",
   "SUPERADMIN",
+  "STORE_ADMIN",
   "CUSTOMER_SUPPORT",
+  "COURIER_ADMIN",
+  "MARKETING",
   "COURIER",
 ] as const;
 
@@ -20,6 +26,17 @@ export function isPureSupplier(): boolean {
 /** Highest-privilege admin role — may export revenue tables and view export history. */
 export function isSuperAdmin(): boolean {
   return hasRole("SUPERADMIN");
+}
+
+/**
+ * Whether the current user may see a nav entry restricted to `allowedRoles`.
+ * SUPERADMIN sees everything; an undefined/empty list means "all admins".
+ * Note: this only governs sidebar visibility — actual access is enforced server-side.
+ */
+export function canAccessRoles(allowedRoles?: string[]): boolean {
+  if (isSuperAdmin()) return true;
+  if (!allowedRoles || allowedRoles.length === 0) return true;
+  return hasAnyRole(...allowedRoles);
 }
 
 /** Where a freshly-authenticated user should land based on their roles. */

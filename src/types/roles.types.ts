@@ -62,6 +62,9 @@ export const ROLE_PERMISSIONS: Record<string, string[]> = {
     "question:delete",
   ],
   COURIER_ADMIN: ["courier:read", "courier:create", "courier:update"],
+  // Marketing pages (promo codes, newsletter, banners, stories, games) are gated by the
+  // ADMIN role server-side rather than fine-grained permissions, so no codes are listed.
+  MARKETING: [],
   STORE_ADMIN: [
     "store:read",
     "store:update",

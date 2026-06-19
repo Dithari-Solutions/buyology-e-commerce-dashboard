@@ -22,7 +22,7 @@ import {
   UserCircleIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
-import { isPureSupplier, isSuperAdmin, landingPathForCurrentUser } from "../auth/roles";
+import { canAccessRoles, isPureSupplier, isSuperAdmin, landingPathForCurrentUser } from "../auth/roles";
 import { storesService } from "../api";
 import type { Store } from "../types";
 
@@ -35,6 +35,8 @@ type NavSubItem = {
   new?: boolean;
   /** When true, only visible to SUPERADMIN. */
   superAdminOnly?: boolean;
+  /** Role names allowed to see this sub-item. Omitted = all admins. SUPERADMIN always sees it. */
+  roles?: string[];
 };
 
 type NavItem = {
@@ -43,8 +45,21 @@ type NavItem = {
   path?: string;
   /** Which role area this item belongs to. Defaults to "admin". */
   area?: NavArea;
+  /** Role names allowed to see this whole group. Omitted = all admins. SUPERADMIN always sees it. */
+  roles?: string[];
   subItems?: NavSubItem[];
 };
+
+// ── Role-based visibility ──────────────────────────────────────────────────
+// Each admin group is tagged with the roles allowed to see it. SUPERADMIN sees
+// everything; an omitted `roles` means "all admins". These mirror the backend
+// seeded roles (STORE_ADMIN, CUSTOMER_SUPPORT, COURIER_ADMIN, MARKETING, SUPERADMIN).
+// NOTE: this controls sidebar VISIBILITY only — real access is enforced server-side.
+const STORE = "STORE_ADMIN";
+const SUPPORT = "CUSTOMER_SUPPORT";
+const COURIER = "COURIER_ADMIN";
+const MARKETING = "MARKETING";
+const SUPER = "SUPERADMIN";
 
 const navItems: NavItem[] = [
   {
@@ -52,8 +67,8 @@ const navItems: NavItem[] = [
     name: "Dashboard",
     subItems: [
       { name: "Ecommerce", path: "/", pro: false },
-      { name: "Revenues", path: "/revenue", pro: false },
-      { name: "Supplier Revenues", path: "/supplier-revenue", pro: false },
+      { name: "Revenues", path: "/revenue", pro: false, roles: [STORE] },
+      { name: "Supplier Revenues", path: "/supplier-revenue", pro: false, roles: [STORE] },
       { name: "Revenue Exports", path: "/revenue-exports", pro: false, superAdminOnly: true },
     ],
   },
@@ -66,6 +81,7 @@ const navItems: NavItem[] = [
   {
     name: "Marketing",
     icon: <ShootingStarIcon />,
+    roles: [MARKETING],
     subItems: [
       { name: "Promo Codes", path: "/promo-codes", pro: false },
       { name: "Newsletter", path: "/newsletter", pro: false },
@@ -75,6 +91,7 @@ const navItems: NavItem[] = [
   {
     name: "Admins",
     icon: <PeopleIcon />,
+    roles: [SUPER],
     subItems: [
       { name: "All Admins", path: "/admin/admins", pro: false },
       { name: "Create Admin", path: "/admin/admins/new", pro: false, superAdminOnly: true },
@@ -83,6 +100,7 @@ const navItems: NavItem[] = [
   {
     name: "Users",
     icon: <GroupOutlinedIcon />,
+    roles: [SUPPORT],
     subItems: [
       { name: "All Users", path: "/admin/users", pro: false },
     ],
@@ -90,6 +108,7 @@ const navItems: NavItem[] = [
   {
     name: "Product",
     icon: <Inventory2OutlinedIcon />,
+    roles: [STORE],
     subItems: [
       { name: "Products", path: "/products", pro: false },
       { name: "New Product", path: "/new-product", pro: false },
@@ -103,6 +122,7 @@ const navItems: NavItem[] = [
   {
     name: "Story",
     icon: <VideoCameraBackIcon />,
+    roles: [MARKETING],
     subItems: [
       { name: "Stories", path: "/stories", pro: false },
       { name: "New Story", path: "/new-story", pro: false }
@@ -111,6 +131,7 @@ const navItems: NavItem[] = [
   {
     name: "Store",
     icon: <StorefrontOutlinedIcon />,
+    roles: [STORE],
     subItems: [
       { name: "Stores", path: "/stores", pro: false },
       { name: "New Store", path: "/stores/new", pro: false },
@@ -120,6 +141,7 @@ const navItems: NavItem[] = [
   {
     name: "Orders",
     icon: <ShoppingCartOutlinedIcon />,
+    roles: [STORE, SUPPORT, COURIER],
     subItems: [
       { name: "By Store", path: "/orders", pro: false },
       { name: "All Orders", path: "/orders/all", superAdminOnly: true },
@@ -128,6 +150,7 @@ const navItems: NavItem[] = [
   {
     name: "Refunds",
     icon: <ReceiptLongOutlinedIcon />,
+    roles: [STORE, SUPPORT],
     subItems: [
       { name: "All Refunds", path: "/refunds" },
     ],
@@ -136,15 +159,18 @@ const navItems: NavItem[] = [
     name: "Payouts",
     icon: <ReceiptLongOutlinedIcon />,
     path: "/payouts",
+    roles: [STORE],
   },
   {
     name: "Games",
     icon: <SportsEsportsOutlinedIcon />,
     path: "/games",
+    roles: [MARKETING],
   },
   {
     name: "Couriers",
     icon: <TwoWheelerOutlinedIcon />,
+    roles: [COURIER],
     subItems: [
       { name: "All Couriers", path: "/admin/couriers", pro: false },
       { name: "New Courier", path: "/admin/couriers/new", pro: false },
@@ -155,6 +181,7 @@ const navItems: NavItem[] = [
   {
     name: "Reviews & Q&A",
     icon: <RateReviewOutlinedIcon />,
+    roles: [SUPPORT, STORE],
     subItems: [
       { name: "Reviews", path: "/reviews", pro: false },
       { name: "Questions", path: "/questions", pro: false },
@@ -163,6 +190,7 @@ const navItems: NavItem[] = [
   {
     name: "B2B Membership",
     icon: <CardMembershipOutlinedIcon />,
+    roles: [SUPPORT],
     subItems: [
       { name: "Applications", path: "/b2b-membership", pro: false },
       { name: "Inquiries (Legacy)", path: "/b2b-inquiries", pro: false },
@@ -171,6 +199,7 @@ const navItems: NavItem[] = [
   {
     name: "Suppliers",
     icon: <HandshakeOutlinedIcon />,
+    roles: [STORE],
     subItems: [
       { name: "Applications", path: "/suppliers", pro: false },
       { name: "Products Review", path: "/supplier-products", pro: false },
@@ -243,17 +272,27 @@ const AppSidebar: React.FC = () => {
   const filterByRole = useCallback(
     (items: NavItem[]) =>
       items
+        // 1. Area: suppliers see supplier items, admins see admin items, everyone sees shared.
         .filter((item) => {
           const area: NavArea = item.area ?? "admin";
           if (area === "shared") return true;
           return supplierOnly ? area === "supplier" : area === "admin";
         })
-        // Drop sub-items gated to SUPERADMIN when the user isn't one.
+        // 2. Group-level role gate (e.g. only STORE_ADMIN/SUPERADMIN see the Product group).
+        .filter((item) => canAccessRoles(item.roles))
+        // 3. Sub-item gate: SUPERADMIN-only entries + per-sub-item role restrictions.
         .map((item) =>
           item.subItems
-            ? { ...item, subItems: item.subItems.filter((s) => !s.superAdminOnly || superAdmin) }
+            ? {
+                ...item,
+                subItems: item.subItems.filter(
+                  (s) => (!s.superAdminOnly || superAdmin) && canAccessRoles(s.roles)
+                ),
+              }
             : item
-        ),
+        )
+        // 4. Drop a group whose sub-items were all filtered out.
+        .filter((item) => !item.subItems || item.subItems.length > 0),
     [supplierOnly, superAdmin]
   );
   const visibleNavItems = filterByRole(navItemsWithStores);
