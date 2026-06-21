@@ -441,17 +441,15 @@ const AppSidebar: React.FC = () => {
             >
               <ul className="mt-2 ml-9">
                 {nav.subItems.map((subItem, subIndex, subArr) => (
-                  <li key={subItem.name} className="relative pl-4">
-                    {/* Tree connectors: vertical trunk + horizontal branch (elbow on the last item) */}
+                  <li key={subItem.name} className="relative pl-5">
+                    {/* Tree connectors — rounded yellow branch + continuous trunk (elbow on the last item) */}
                     <span
                       aria-hidden
-                      className="absolute left-0 top-0 w-px bg-gray-200 dark:bg-white/10"
-                      style={{ height: subIndex === subArr.length - 1 ? "50%" : "100%" }}
+                      className="absolute left-0 top-0 h-1/2 w-3 rounded-bl-[12px] border-b-2 border-l-2 border-[#FBBB14]"
                     />
-                    <span
-                      aria-hidden
-                      className="absolute left-0 top-1/2 h-px w-3 -translate-y-1/2 bg-gray-200 dark:bg-white/10"
-                    />
+                    {subIndex !== subArr.length - 1 && (
+                      <span aria-hidden className="absolute left-0 top-1/2 bottom-0 w-0.5 bg-[#FBBB14]" />
+                    )}
                     <Link
                       to={subItem.path}
                       className={`menu-dropdown-item rounded-[30px] ${
