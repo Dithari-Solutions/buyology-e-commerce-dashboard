@@ -89,6 +89,9 @@ export interface OrderAdminResponse {
   country?: string;
   countryCode?: string;
   shippingAddress?: string;
+  // Exact delivery pin (for courier routing)
+  deliveryLatitude?: number | null;
+  deliveryLongitude?: number | null;
   // Store pickup (deliveryMethod === "PICKUP")
   pickupStoreId?: string | null;
   pickupStoreName?: string | null;

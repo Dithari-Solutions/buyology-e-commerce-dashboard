@@ -512,6 +512,19 @@ export default function OrderDetail() {
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                       {order.shippingAddress || `${order.city || ""}, ${order.country || ""}`}
                     </p>
+                    {order.deliveryLatitude != null && order.deliveryLongitude != null && (
+                      <a
+                        href={`https://www.google.com/maps?q=${order.deliveryLatitude},${order.deliveryLongitude}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-brand-500 hover:underline"
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" />
+                        </svg>
+                        {order.deliveryLatitude.toFixed(5)}, {order.deliveryLongitude.toFixed(5)} · Open in Maps
+                      </a>
+                    )}
                   </div>
                 )
               )}
