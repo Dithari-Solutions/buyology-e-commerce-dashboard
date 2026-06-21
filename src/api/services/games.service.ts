@@ -36,6 +36,12 @@ export interface DailyGameConfig {
   gameType: "QUIZ" | "MINI_GAME";
 }
 
+/** Admin-tunable tokens awarded per successful game/quiz. */
+export interface GameRewardConfig {
+  quizReward: number;
+  miniGameReward: number;
+}
+
 export const gamesService = {
   configureDailyGame(req: DailyGameConfigRequest): Promise<ApiResponse<DailyGameConfig>> {
     return apiClient.post("/api/admin/game/config", req);
@@ -55,5 +61,11 @@ export const gamesService = {
   },
   getAllQuizQuestions(signal?: AbortSignal): Promise<ApiResponse<QuizQuestion[]>> {
     return apiClient.get("/api/admin/game/quiz", { signal });
+  },
+  getRewardConfig(signal?: AbortSignal): Promise<ApiResponse<GameRewardConfig>> {
+    return apiClient.get("/api/admin/game/reward-config", { signal });
+  },
+  updateRewardConfig(req: GameRewardConfig): Promise<ApiResponse<GameRewardConfig>> {
+    return apiClient.put("/api/admin/game/reward-config", req);
   },
 };
