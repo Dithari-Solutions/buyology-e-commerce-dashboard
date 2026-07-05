@@ -26,6 +26,14 @@ export { couriersService } from "./services/couriers.service";
 export { ordersService } from "./services/orders.service";
 export { rolesService } from "./services/roles.service";
 export { suppliersService } from "./services/suppliers.service";
+export { b2bQuotesService } from "./services/b2b-quotes.service";
+export type {
+  B2bQuote,
+  B2bQuoteItem,
+  B2bQuoteStatus,
+  B2bQuotePriceItem,
+  B2bQuotePriceRequest,
+} from "./services/b2b-quotes.service";
 export type {
   SupplierApplication,
   SupplierDetail,

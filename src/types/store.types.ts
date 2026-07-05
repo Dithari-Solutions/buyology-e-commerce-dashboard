@@ -17,6 +17,8 @@ export interface Country {
   name: string;
   currency: string;
   isActive: boolean;
+  /** Whether the B2B (bulk/quotes) channel is enabled for this country. Super-admin controlled. */
+  b2bEnabled: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -94,6 +96,7 @@ export interface CreateCountryRequest {
   name: string;
   currency: string;
   isActive?: boolean;
+  b2bEnabled?: boolean;
 }
 
 export interface UpdateCountryRequest {
@@ -101,6 +104,7 @@ export interface UpdateCountryRequest {
   name?: string;
   currency?: string;
   isActive?: boolean;
+  b2bEnabled?: boolean;
 }
 
 export interface CreateOperatingHoursItemRequest {

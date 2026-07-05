@@ -11,6 +11,7 @@ export const ADMIN_ROLES = [
   "COURIER_ADMIN",
   "MARKETING",
   "COURIER",
+  "PROCUREMENT",
 ] as const;
 
 /** Has any role that grants admin-side dashboard access. */
@@ -26,6 +27,11 @@ export function isPureSupplier(): boolean {
 /** Highest-privilege admin role — may export revenue tables and view export history. */
 export function isSuperAdmin(): boolean {
   return hasRole("SUPERADMIN");
+}
+
+/** Procurement role — prices/rejects B2B RFQ quotes in the Procurement section. */
+export function isProcurement(): boolean {
+  return hasRole("PROCUREMENT");
 }
 
 /**

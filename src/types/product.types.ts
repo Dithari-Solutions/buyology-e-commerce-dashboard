@@ -25,6 +25,8 @@ export interface StoreProductResponse {
   discountType: DiscountType | null;
   discountValue: number | null;
   isActive: boolean;
+  b2cEnabled: boolean;
+  b2bEnabled: boolean;
   createdAt: string;
   updatedAt: string;
   variants: StoreVariantResponse[];
@@ -43,6 +45,10 @@ export interface AssignProductToStoreRequest {
   discountType?: DiscountType;
   discountValue?: number;
   isActive?: boolean;
+  /** Available in the consumer shop (B2C). Defaults to true. */
+  b2cEnabled?: boolean;
+  /** Available for B2B (bulk/quotes). Defaults to false. */
+  b2bEnabled?: boolean;
   variants?: AssignVariantInlineRequest[];
 }
 
@@ -51,6 +57,10 @@ export interface UpdateStoreProductRequest {
   discountType?: DiscountType | null;
   discountValue?: number | null;
   isActive?: boolean;
+  /** Available in the consumer shop (B2C). null = unchanged. */
+  b2cEnabled?: boolean | null;
+  /** Available for B2B (bulk/quotes). null = unchanged. */
+  b2bEnabled?: boolean | null;
 }
 
 export interface AssignVariantToStoreRequest {

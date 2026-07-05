@@ -78,6 +78,8 @@ export default function AssignProduct() {
   const [discountType, setDiscountType] = useState<DiscountType | "">("");
   const [discountValue, setDiscountValue] = useState("");
   const [isActive, setIsActive] = useState(true);
+  const [b2cEnabled, setB2cEnabled] = useState(true);
+  const [b2bEnabled, setB2bEnabled] = useState(false);
 
   // Variant rows — one per global variant, pre-populated after product selection
   const [variantRows, setVariantRows] = useState<VariantFormRow[]>([]);
@@ -122,6 +124,8 @@ export default function AssignProduct() {
     setStorePrice("");
     setDiscountType("");
     setDiscountValue("");
+    setB2cEnabled(true);
+    setB2bEnabled(false);
     setSubmitError(null);
   }
 
@@ -165,6 +169,8 @@ export default function AssignProduct() {
       productId: selectedProduct.id,
       storePrice: price,
       isActive,
+      b2cEnabled,
+      b2bEnabled,
       ...(discountType && {
         discountType: discountType as DiscountType,
         discountValue: parseFloat(discountValue) || 0,
@@ -385,6 +391,63 @@ export default function AssignProduct() {
                   }`}
                 />
               </button>
+            </div>
+
+            {/* Sales channels — B2C / B2B */}
+            <div className="border-t border-gray-100 dark:border-gray-700 pt-4 space-y-4">
+              {/* B2C toggle */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Available in consumer shop (B2C)
+                  </span>
+                  <p className="text-xs text-gray-400">Shown to regular shoppers in the storefront.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setB2cEnabled((v) => !v)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    b2cEnabled ? "bg-brand-500" : "bg-gray-300 dark:bg-gray-600"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                      b2cEnabled ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* B2B toggle */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Available for B2B (bulk/quotes)
+                  </span>
+                  <p className="text-xs text-gray-400">Listed in the B2B catalog for quote requests.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setB2bEnabled((v) => !v)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    b2bEnabled ? "bg-brand-500" : "bg-gray-300 dark:bg-gray-600"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                      b2bEnabled ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* B2B-only helper */}
+              {b2bEnabled && !b2cEnabled && (
+                <p className="rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 px-4 py-2.5 text-xs text-amber-700 dark:text-amber-400">
+                  B2B-only: this product is hidden from the consumer shop and appears only in the B2B
+                  catalog (bulk orders via quote requests).
+                </p>
+              )}
             </div>
           </div>
         )}

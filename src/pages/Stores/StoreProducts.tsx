@@ -85,6 +85,8 @@ function EditStoreProductModal({
     discountType: storeProduct.discountType ?? undefined,
     discountValue: storeProduct.discountValue ?? undefined,
     isActive: storeProduct.isActive,
+    b2cEnabled: storeProduct.b2cEnabled,
+    b2bEnabled: storeProduct.b2bEnabled,
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -95,6 +97,8 @@ function EditStoreProductModal({
       discountType: storeProduct.discountType ?? undefined,
       discountValue: storeProduct.discountValue ?? undefined,
       isActive: storeProduct.isActive,
+      b2cEnabled: storeProduct.b2cEnabled,
+      b2bEnabled: storeProduct.b2bEnabled,
     });
     setError(null);
   }, [storeProduct]);
@@ -108,6 +112,8 @@ function EditStoreProductModal({
         isActive: form.isActive,
         discountType: form.discountType ?? null,
         discountValue: form.discountType ? form.discountValue : null,
+        b2cEnabled: form.b2cEnabled,
+        b2bEnabled: form.b2bEnabled,
       };
       const res = await storeProductsService.update(storeId, storeProduct.id, payload);
       onSaved(res.data);
@@ -199,6 +205,63 @@ function EditStoreProductModal({
               }`}
             />
           </button>
+        </div>
+
+        {/* Sales channels — B2C / B2B */}
+        <div className="border-t border-gray-100 dark:border-gray-700 pt-4 space-y-4">
+          {/* B2C toggle */}
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Available in consumer shop (B2C)
+              </span>
+              <p className="text-xs text-gray-400">Shown to regular shoppers in the storefront.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setForm((f) => ({ ...f, b2cEnabled: !f.b2cEnabled }))}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                form.b2cEnabled ? "bg-brand-500" : "bg-gray-300 dark:bg-gray-600"
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                  form.b2cEnabled ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* B2B toggle */}
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Available for B2B (bulk/quotes)
+              </span>
+              <p className="text-xs text-gray-400">Listed in the B2B catalog for quote requests.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setForm((f) => ({ ...f, b2bEnabled: !f.b2bEnabled }))}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                form.b2bEnabled ? "bg-brand-500" : "bg-gray-300 dark:bg-gray-600"
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                  form.b2bEnabled ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* B2B-only helper */}
+          {form.b2bEnabled && !form.b2cEnabled && (
+            <p className="rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 px-4 py-2.5 text-xs text-amber-700 dark:text-amber-400">
+              B2B-only: this product is hidden from the consumer shop and appears only in the B2B
+              catalog (bulk orders via quote requests).
+            </p>
+          )}
         </div>
 
         {error && <p className="text-sm text-red-500">{error}</p>}
@@ -680,6 +743,9 @@ export default function StoreProducts() {
                       Status
                     </th>
                     <th className="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Channel
+                    </th>
+                    <th className="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Updated
                     </th>
                     <th className="px-4 py-3.5" />
@@ -738,6 +804,18 @@ export default function StoreProducts() {
                           <Badge color={sp.isActive ? "success" : "error"}>
                             {sp.isActive ? "Active" : "Inactive"}
                           </Badge>
+                        </td>
+
+                        {/* Channel — B2C / B2B */}
+                        <td className="px-4 py-4">
+                          <div className="flex flex-wrap gap-1.5">
+                            <Badge color={sp.b2cEnabled ? "success" : "light"}>
+                              B2C {sp.b2cEnabled ? "On" : "Off"}
+                            </Badge>
+                            <Badge color={sp.b2bEnabled ? "info" : "light"}>
+                              B2B {sp.b2bEnabled ? "On" : "Off"}
+                            </Badge>
+                          </div>
                         </td>
 
                         {/* Updated */}

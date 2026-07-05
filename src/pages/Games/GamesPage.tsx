@@ -35,6 +35,11 @@ export default function GamesPage() {
   const [quizForm, setQuizForm] = useState<CreateQuizRequest>(emptyForm());
   const [quizSaving, setQuizSaving] = useState(false);
   const [quizMsg, setQuizMsg] = useState("");
+  // Admin-tunable token rewards (#11).
+  const [quizReward, setQuizReward] = useState(10);
+  const [miniGameReward, setMiniGameReward] = useState(10);
+  const [rewardSaving, setRewardSaving] = useState(false);
+  const [rewardMsg, setRewardMsg] = useState("");
 
   useEffect(() => {
     const ac = new AbortController();
@@ -43,6 +48,12 @@ export default function GamesPage() {
       gamesService.getDailyGameConfig(undefined, ac.signal).then((r) => {
         setTodayConfig(r.data ?? null);
         if (r.data) setConfigType(r.data.gameType);
+      }).catch(() => {}),
+      gamesService.getRewardConfig(ac.signal).then((r) => {
+        if (r.data) {
+          setQuizReward(r.data.quizReward);
+          setMiniGameReward(r.data.miniGameReward);
+        }
       }).catch(() => {}),
     ]).finally(() => setLoading(false));
     return () => ac.abort();
@@ -59,6 +70,23 @@ export default function GamesPage() {
       setConfigMsg("✗ Failed to save configuration");
     } finally {
       setConfigSaving(false);
+    }
+  };
+
+  const handleRewardSave = async () => {
+    setRewardSaving(true);
+    setRewardMsg("");
+    try {
+      const res = await gamesService.updateRewardConfig({ quizReward, miniGameReward });
+      if (res.data) {
+        setQuizReward(res.data.quizReward);
+        setMiniGameReward(res.data.miniGameReward);
+      }
+      setRewardMsg("✓ Token rewards saved");
+    } catch {
+      setRewardMsg("✗ Failed to save rewards");
+    } finally {
+      setRewardSaving(false);
     }
   };
 
@@ -168,6 +196,33 @@ export default function GamesPage() {
               {configSaving ? "Saving..." : "Save Config"}
             </button>
             {configMsg && <p className="text-sm text-gray-600 dark:text-gray-400">{configMsg}</p>}
+          </div>
+        </div>
+
+        {/* Token rewards (#11) — tokens granted per successful play */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+          <h2 className="mb-1 text-lg font-semibold text-gray-800 dark:text-white">Token Rewards</h2>
+          <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+            Tokens awarded to a customer for a successful play.
+          </p>
+          <div className="flex flex-wrap items-end gap-4">
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Quiz reward</label>
+              <input type="number" min={0} value={quizReward}
+                onChange={(e) => setQuizReward(Math.max(0, Number(e.target.value)))}
+                className="w-32 rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Mini-game reward</label>
+              <input type="number" min={0} value={miniGameReward}
+                onChange={(e) => setMiniGameReward(Math.max(0, Number(e.target.value)))}
+                className="w-32 rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
+            </div>
+            <button onClick={handleRewardSave} disabled={rewardSaving}
+              className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50">
+              {rewardSaving ? "Saving..." : "Save Rewards"}
+            </button>
+            {rewardMsg && <p className="text-sm text-gray-600 dark:text-gray-400">{rewardMsg}</p>}
           </div>
         </div>
 
