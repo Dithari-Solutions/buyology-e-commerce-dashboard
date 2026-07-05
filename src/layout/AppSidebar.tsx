@@ -12,6 +12,7 @@ import TwoWheelerOutlinedIcon from '@mui/icons-material/TwoWheelerOutlined';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import SportsEsportsOutlinedIcon from '@mui/icons-material/SportsEsportsOutlined';
+import RequestQuoteOutlinedIcon from '@mui/icons-material/RequestQuoteOutlined';
 
 // Assume these icons are imported from an icon library
 import {
@@ -59,6 +60,7 @@ const STORE = "STORE_ADMIN";
 const SUPPORT = "CUSTOMER_SUPPORT";
 const COURIER = "COURIER_ADMIN";
 const MARKETING = "MARKETING";
+const PROCUREMENT = "PROCUREMENT";
 const SUPER = "SUPERADMIN";
 
 const navItems: NavItem[] = [
@@ -194,6 +196,14 @@ const navItems: NavItem[] = [
     subItems: [
       { name: "Applications", path: "/b2b-membership", pro: false },
       { name: "Inquiries (Legacy)", path: "/b2b-inquiries", pro: false },
+    ],
+  },
+  {
+    name: "Procurement",
+    icon: <RequestQuoteOutlinedIcon />,
+    roles: [PROCUREMENT],
+    subItems: [
+      { name: "Quotes", path: "/procurement/quotes", pro: false },
     ],
   },
   {

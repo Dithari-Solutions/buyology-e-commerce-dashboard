@@ -4,6 +4,7 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Badge from "../../components/ui/badge/Badge";
 import { Modal } from "../../components/ui/modal";
 import { storesService, ApiRequestError } from "../../api";
+import { isSuperAdmin } from "../../auth/roles";
 import type { Country, CreateCountryRequest, UpdateCountryRequest } from "../../types";
 
 // ---------------------------------------------------------------------------
@@ -17,6 +18,26 @@ function formatDate(iso: string): string {
     day: "numeric",
   }).format(new Date(iso));
 }
+
+// Derived tri-state market mode from the two independent channel flags.
+type MarketMode = "BOTH" | "B2C_ONLY" | "B2B_ONLY" | "INACTIVE";
+
+function marketMode(isActive: boolean, b2bEnabled: boolean): MarketMode {
+  if (isActive && b2bEnabled) return "BOTH";
+  if (isActive) return "B2C_ONLY";
+  if (b2bEnabled) return "B2B_ONLY";
+  return "INACTIVE";
+}
+
+const MARKET_MODE_META: Record<
+  MarketMode,
+  { label: string; color: "success" | "info" | "warning" | "error" }
+> = {
+  BOTH: { label: "B2C + B2B", color: "success" },
+  B2C_ONLY: { label: "B2C only", color: "info" },
+  B2B_ONLY: { label: "B2B only", color: "warning" },
+  INACTIVE: { label: "Inactive", color: "error" },
+};
 
 const inputCls =
   "w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/20 transition-all";
@@ -35,7 +56,7 @@ function SkeletonRow() {
           <div className="h-3.5 w-36 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
         </div>
       </td>
-      {[1, 2, 3, 4, 5].map((i) => (
+      {[1, 2, 3, 4, 5, 6].map((i) => (
         <td key={i} className="px-4 py-4">
           <div className="h-3 w-16 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" />
         </td>
@@ -53,6 +74,7 @@ interface CountryFormState {
   name: string;
   currency: string;
   isActive: boolean;
+  b2bEnabled: boolean;
 }
 
 const emptyForm = (): CountryFormState => ({
@@ -60,10 +82,17 @@ const emptyForm = (): CountryFormState => ({
   name: "",
   currency: "",
   isActive: true,
+  b2bEnabled: false,
 });
 
 function countryToForm(c: Country): CountryFormState {
-  return { code: c.code, name: c.name, currency: c.currency, isActive: c.isActive };
+  return {
+    code: c.code,
+    name: c.name,
+    currency: c.currency,
+    isActive: c.isActive,
+    b2bEnabled: c.b2bEnabled,
+  };
 }
 
 interface CountryFormModalProps {
@@ -74,6 +103,7 @@ interface CountryFormModalProps {
   editingId: string | null;
   saving: boolean;
   saveError: string | null;
+  canEditB2b: boolean;
 }
 
 function CountryFormModal({
@@ -84,6 +114,7 @@ function CountryFormModal({
   editingId,
   saving,
   saveError,
+  canEditB2b,
 }: CountryFormModalProps) {
   const [form, setForm] = useState<CountryFormState>(initialForm);
 
@@ -151,16 +182,51 @@ function CountryFormModal({
           </div>
         </div>
 
-        {/* isActive */}
-        <label className="flex items-center gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={form.isActive}
-            onChange={(e) => setForm((prev) => ({ ...prev, isActive: e.target.checked }))}
-            className="w-4 h-4 rounded border-gray-300 text-brand-500 focus:ring-brand-400"
-          />
-          <span className="text-sm text-gray-700 dark:text-gray-300">Active</span>
-        </label>
+        {/* Market mode — tri-state via two independent channel switches */}
+        <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <span className={labelCls + " mb-0"}>Market mode</span>
+            {(() => {
+              const meta = MARKET_MODE_META[marketMode(form.isActive, form.b2bEnabled)];
+              return <Badge size="sm" color={meta.color}>{meta.label}</Badge>;
+            })()}
+          </div>
+
+          {/* Consumer shop (B2C) */}
+          <label className="flex items-start gap-3 cursor-pointer py-1.5">
+            <input
+              type="checkbox"
+              checked={form.isActive}
+              onChange={(e) => setForm((prev) => ({ ...prev, isActive: e.target.checked }))}
+              className="mt-0.5 w-4 h-4 rounded border-gray-300 text-brand-500 focus:ring-brand-400"
+            />
+            <span>
+              <span className="block text-sm text-gray-700 dark:text-gray-300">Consumer shop (B2C)</span>
+              <span className="block text-xs text-gray-400">Storefront + region-gate for regular customers.</span>
+            </span>
+          </label>
+
+          {/* B2B (bulk / quotes) — super-admin gated */}
+          <label
+            className={`flex items-start gap-3 py-1.5 ${canEditB2b ? "cursor-pointer" : "cursor-not-allowed opacity-60"}`}
+          >
+            <input
+              type="checkbox"
+              checked={form.b2bEnabled}
+              disabled={!canEditB2b}
+              onChange={(e) => setForm((prev) => ({ ...prev, b2bEnabled: e.target.checked }))}
+              className="mt-0.5 w-4 h-4 rounded border-gray-300 text-brand-500 focus:ring-brand-400 disabled:opacity-60"
+            />
+            <span>
+              <span className="block text-sm text-gray-700 dark:text-gray-300">B2B (bulk / quotes)</span>
+              <span className="block text-xs text-gray-400">
+                {canEditB2b
+                  ? "Enables public B2B browse + request-for-quote in this region."
+                  : "Only super admins can change the B2B channel."}
+              </span>
+            </span>
+          </label>
+        </div>
       </div>
 
       {saveError && (
@@ -273,6 +339,7 @@ function DeactivateConfirmModal({
 type StatusFilter = "ALL" | "ACTIVE" | "INACTIVE";
 
 export default function Countries() {
+  const canEditB2b = isSuperAdmin();
   const [countries, setCountries] = useState<Country[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -404,6 +471,8 @@ export default function Countries() {
           currency: form.currency,
           isActive: form.isActive,
         };
+        // Only super admins may change the B2B channel; omit otherwise (null = unchanged).
+        if (canEditB2b) data.b2bEnabled = form.b2bEnabled;
         await storesService.updateCountry(editingCountry.id, data);
       } else {
         const data: CreateCountryRequest = {
@@ -412,6 +481,7 @@ export default function Countries() {
           currency: form.currency,
           isActive: form.isActive,
         };
+        if (canEditB2b) data.b2bEnabled = form.b2bEnabled;
         await storesService.createCountry(data);
       }
       setModalOpen(false);
@@ -560,7 +630,7 @@ export default function Countries() {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-white/[0.02]">
-                  {["Name", "Code", "Currency", "Status", "Created", "Actions"].map((col) => (
+                  {["Name", "Code", "Currency", "Status", "Market", "Created", "Actions"].map((col) => (
                     <th
                       key={col}
                       className="px-4 py-3.5 first:pl-5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
@@ -603,6 +673,14 @@ export default function Countries() {
                         <Badge size="sm" color={country.isActive ? "success" : "error"}>
                           {country.isActive ? "Active" : "Inactive"}
                         </Badge>
+                      </td>
+
+                      {/* Market mode */}
+                      <td className="px-4 py-4">
+                        {(() => {
+                          const meta = MARKET_MODE_META[marketMode(country.isActive, country.b2bEnabled)];
+                          return <Badge size="sm" color={meta.color}>{meta.label}</Badge>;
+                        })()}
                       </td>
 
                       {/* Created */}
@@ -695,6 +773,7 @@ export default function Countries() {
         editingId={editingCountry?.id ?? null}
         saving={saving}
         saveError={saveError}
+        canEditB2b={canEditB2b}
       />
 
       <DeactivateConfirmModal

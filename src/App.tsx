@@ -78,6 +78,8 @@ import SupplierRefundsPage from "./pages/SupplierPortal/SupplierRefundsPage";
 import SupplierTrashPage from "./pages/SupplierPortal/SupplierTrashPage";
 import SupplierProductChangesPage from "./pages/Suppliers/SupplierProductChangesPage";
 import CourierProfilesPage from "./pages/Couriers/CourierProfilesPage";
+import Quotes from "./pages/Procurement/Quotes";
+import QuoteDetail from "./pages/Procurement/QuoteDetail";
 
 export default function App() {
   return (
@@ -181,6 +183,10 @@ export default function App() {
               <Route path="/revenue" element={<RevenuesPage />} />
               <Route path="/supplier-revenue" element={<SupplierRevenuesPage />} />
               <Route path="/revenue-exports" element={<RevenueExportsPage />} />
+
+              {/* Procurement — B2B RFQ quotes (PROCUREMENT + SUPERADMIN; pages self-gate) */}
+              <Route path="/procurement/quotes" element={<Quotes />} />
+              <Route path="/procurement/quotes/:id" element={<QuoteDetail />} />
 
               {/* Supplier Management (admin) */}
               <Route path="/suppliers" element={<SuppliersPage />} />
