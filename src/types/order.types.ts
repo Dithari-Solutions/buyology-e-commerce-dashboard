@@ -61,6 +61,7 @@ export interface OrderAdminResponse {
   // Recipient info from API
   recipientFirstName?: string;
   recipientLastName?: string;
+  recipientPhone?: string;
   customerEmail?: string;
   customerPhone?: string;
   
