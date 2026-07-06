@@ -495,6 +495,12 @@ export default function OrderDetail() {
                 <p className="text-xs text-gray-400 uppercase mb-1">Email</p>
                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{order.customerEmail || "No Email Provided"}</p>
               </div>
+              <div>
+                <p className="text-xs text-gray-400 uppercase mb-1">Phone</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {order.customerPhone || order.recipientPhone || "No Phone Provided"}
+                </p>
+              </div>
               {order.deliveryMethod === "PICKUP" ? (
                 <div>
                   <p className="text-xs text-gray-400 uppercase mb-1">Pickup Store</p>
