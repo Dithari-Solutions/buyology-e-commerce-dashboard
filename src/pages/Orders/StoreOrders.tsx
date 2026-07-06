@@ -198,6 +198,9 @@ export default function StoreOrders() {
                           .join(" ") || "—"}
                       </div>
                       <div className="text-xs text-gray-400">{order.customerEmail || "No Email"}</div>
+                      <div className="text-xs text-gray-400">
+                        {order.customerPhone || order.recipientPhone || "No Phone"}
+                      </div>
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-600 dark:text-gray-300">
                       {formatDate(order.createdAt)}

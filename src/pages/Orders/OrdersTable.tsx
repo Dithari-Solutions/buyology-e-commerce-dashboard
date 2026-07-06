@@ -78,6 +78,9 @@ export default function OrdersTable({ orders, linkTo }: Props) {
                     {o.customerEmail && (
                       <span className="text-xs text-gray-400 dark:text-gray-500">{o.customerEmail}</span>
                     )}
+                    {(o.customerPhone || o.recipientPhone) && (
+                      <span className="text-xs text-gray-400 dark:text-gray-500">{o.customerPhone || o.recipientPhone}</span>
+                    )}
                   </div>
                 </td>
                 <td className="py-3 pr-4 text-gray-800 dark:text-gray-200">{fmtMoney(o.totalAmount, o.currency)}</td>
