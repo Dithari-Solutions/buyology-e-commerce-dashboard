@@ -26,6 +26,7 @@ function statusColor(status: OrderStatus): BadgeColor {
     case "EXPIRED":
       return "error";
     case "PACKAGING":
+    case "READY_FOR_PICKUP":
     case "IN_COURIER":
     case "IN_TRANSIT":
     case "PROCESSING":

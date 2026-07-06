@@ -7,18 +7,25 @@ import { ordersService, ApiRequestError } from "../../api";
 import { courierProfilesService, type CourierProfile } from "../../api/services/courierProfiles.service";
 import type { OrderAdminResponse, OrderStatus } from "../../types";
 
-// Status transitions allowed from each current status (must mirror backend validateTransition)
-const NEXT_STATUSES: Partial<Record<OrderStatus, OrderStatus[]>> = {
-  PAID:        ["PACKAGING", "CANCELLED"],
-  PACKAGING:   ["IN_COURIER", "CANCELLED"],
-  IN_COURIER:  ["IN_TRANSIT", "CANCELLED", "FAILED"],
-  IN_TRANSIT:  ["DELIVERED", "FAILED", "CANCELLED"],
-};
+// Status transitions allowed from each current status (must mirror backend validateTransition).
+// Pickup orders branch to READY_FOR_PICKUP after packaging; delivery orders go to a courier.
+function nextStatuses(order: OrderAdminResponse): OrderStatus[] {
+  const isPickup = order.deliveryMethod === "PICKUP";
+  switch (order.status) {
+    case "PAID":             return ["PACKAGING", "CANCELLED"];
+    case "PACKAGING":        return isPickup ? ["READY_FOR_PICKUP", "CANCELLED"] : ["IN_COURIER", "CANCELLED"];
+    case "READY_FOR_PICKUP": return ["DELIVERED", "CANCELLED", "FAILED"];
+    case "IN_COURIER":       return ["IN_TRANSIT", "CANCELLED", "FAILED"];
+    case "IN_TRANSIT":       return ["DELIVERED", "FAILED", "CANCELLED"];
+    default:                 return [];
+  }
+}
 
 const STATUS_LABELS: Record<string, string> = {
   PENDING_PAYMENT: "Awaiting payment",
   PAID: "Paid",
   PACKAGING: "Packaging your order",
+  READY_FOR_PICKUP: "Ready for pickup",
   IN_COURIER: "Handed to courier",
   IN_TRANSIT: "On the way",
   DELIVERED: "Delivered",
@@ -48,6 +55,7 @@ function statusColor(status: OrderStatus): BadgeColor {
     case "REFUNDED":
     case "EXPIRED":
       return "error";
+    case "READY_FOR_PICKUP":
     case "PACKAGING":
     case "IN_COURIER":
     case "IN_TRANSIT":
@@ -340,11 +348,11 @@ export default function OrderDetail() {
             <p className="mb-3 text-xs text-gray-500">
               Current: <span className="font-medium">{STATUS_LABELS[order.status] ?? order.status}</span>
             </p>
-            {(NEXT_STATUSES[order.status] ?? []).length === 0 && (
+            {nextStatuses(order).length === 0 && (
               <p className="text-xs text-gray-400">This order is in a final state. No further actions.</p>
             )}
             <div className="flex flex-wrap gap-2">
-              {(NEXT_STATUSES[order.status] ?? []).map((next) => (
+              {nextStatuses(order).map((next) => (
                 <button
                   key={next}
                   type="button"
@@ -360,7 +368,7 @@ export default function OrderDetail() {
                 </button>
               ))}
             </div>
-            {(NEXT_STATUSES[order.status] ?? []).includes("CANCELLED") && (
+            {nextStatuses(order).includes("CANCELLED") && (
               <textarea
                 value={cancellationReason}
                 onChange={(e) => setCancellationReason(e.target.value)}
@@ -488,7 +496,9 @@ export default function OrderDetail() {
               <div>
                 <p className="text-xs text-gray-400 uppercase mb-1">Name</p>
                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {order.recipientFirstName} {order.recipientLastName}
+                  {[order.customerFirstName ?? order.recipientFirstName, order.customerLastName ?? order.recipientLastName]
+                    .filter(Boolean)
+                    .join(" ") || "No Name Provided"}
                 </p>
               </div>
               <div>

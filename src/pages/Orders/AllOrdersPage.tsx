@@ -13,6 +13,7 @@ const STATUS_OPTIONS: OrderStatus[] = [
   "PENDING_PAYMENT",
   "PAID",
   "PACKAGING",
+  "READY_FOR_PICKUP",
   "IN_COURIER",
   "IN_TRANSIT",
   "DELIVERED",
