@@ -99,7 +99,9 @@ export default function ActivePendingOrders() {
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-gray-800 dark:text-white/90">
                   #{o.orderNumber || o.id.substring(0, 8)} ·{" "}
-                  {o.recipientFirstName} {o.recipientLastName}
+                  {[o.customerFirstName ?? o.recipientFirstName, o.customerLastName ?? o.recipientLastName]
+                    .filter(Boolean)
+                    .join(" ")}
                 </p>
                 <p className="mt-0.5 text-xs text-gray-500">
                   {o.currency} {o.totalAmount.toFixed(2)} · {new Date(o.createdAt).toLocaleString()}

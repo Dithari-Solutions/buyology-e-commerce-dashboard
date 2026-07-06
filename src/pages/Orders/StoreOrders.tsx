@@ -193,7 +193,9 @@ export default function StoreOrders() {
                     </td>
                     <td className="px-4 py-4">
                       <div className="text-sm font-medium text-gray-800 dark:text-white/90">
-                        {order.recipientFirstName} {order.recipientLastName}
+                        {[order.customerFirstName ?? order.recipientFirstName, order.customerLastName ?? order.recipientLastName]
+                          .filter(Boolean)
+                          .join(" ") || "—"}
                       </div>
                       <div className="text-xs text-gray-400">{order.customerEmail || "No Email"}</div>
                     </td>
