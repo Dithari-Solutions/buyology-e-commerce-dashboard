@@ -3,6 +3,7 @@ export type OrderStatus =
   | "PENDING_PAYMENT"
   | "PAID"
   | "PACKAGING"
+  | "READY_FOR_PICKUP"
   | "IN_COURIER"
   | "IN_TRANSIT"
   | "DELIVERED"
@@ -24,7 +25,7 @@ export const ORDER_STATUS_BUCKETS = {
   paid: ["PAID"] as OrderStatus[],
   // Legacy combined pre-fulfilment bucket (waiting + paid) — kept for ActivePendingOrders.
   pending: ["PENDING_PAYMENT", "PAID"] as OrderStatus[],
-  active: ["PACKAGING", "IN_COURIER", "IN_TRANSIT",
+  active: ["PACKAGING", "READY_FOR_PICKUP", "IN_COURIER", "IN_TRANSIT",
            "PROCESSING", "COURIER_ASSIGNED", "PICKED_UP", "SHIPPED"] as OrderStatus[],
   done: ["DELIVERED", "CANCELLED", "FAILED", "REFUNDED", "EXPIRED"] as OrderStatus[],
 };
@@ -62,6 +63,9 @@ export interface OrderAdminResponse {
   recipientFirstName?: string;
   recipientLastName?: string;
   recipientPhone?: string;
+  // Customer account details (who placed the order), from API
+  customerFirstName?: string;
+  customerLastName?: string;
   customerEmail?: string;
   customerPhone?: string;
   
