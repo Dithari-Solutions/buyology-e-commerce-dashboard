@@ -44,7 +44,10 @@ export default function OrdersTable({ orders, linkTo }: Props) {
           {orders.map((o) => {
             const href = linkTo ? linkTo(o) : null;
             const shortId = o.id.slice(0, 8);
-            const customer = [o.recipientFirstName, o.recipientLastName].filter(Boolean).join(" ") || "—";
+            const customer =
+              [o.customerFirstName ?? o.recipientFirstName, o.customerLastName ?? o.recipientLastName]
+                .filter(Boolean)
+                .join(" ") || "—";
             return (
               <tr key={o.id}>
                 <td className="py-3 pr-4 font-mono text-xs text-gray-800 dark:text-gray-200">
@@ -69,7 +72,14 @@ export default function OrdersTable({ orders, linkTo }: Props) {
                     )}
                   </div>
                 </td>
-                <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">{customer}</td>
+                <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">
+                  <div className="flex flex-col">
+                    <span>{customer}</span>
+                    {o.customerEmail && (
+                      <span className="text-xs text-gray-400 dark:text-gray-500">{o.customerEmail}</span>
+                    )}
+                  </div>
+                </td>
                 <td className="py-3 pr-4 text-gray-800 dark:text-gray-200">{fmtMoney(o.totalAmount, o.currency)}</td>
                 <td className="py-3 text-gray-600 dark:text-gray-400 text-xs">{fmtDate(o.createdAt)}</td>
               </tr>
