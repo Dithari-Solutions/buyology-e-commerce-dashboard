@@ -236,7 +236,21 @@ export default function OrderDetail() {
             <div className="p-6">
               <div className="space-y-4">
                 {order.items?.map((item) => (
-                  <div key={item.id} className="flex items-center gap-4 border-b border-gray-50 pb-4 last:border-0 last:pb-0 dark:border-gray-800">
+                  <div
+                    key={item.id}
+                    onClick={() => item.productId && navigate(`/products/${item.productId}`)}
+                    role={item.productId ? "button" : undefined}
+                    tabIndex={item.productId ? 0 : undefined}
+                    onKeyDown={(e) => {
+                      if (item.productId && (e.key === "Enter" || e.key === " ")) {
+                        e.preventDefault();
+                        navigate(`/products/${item.productId}`);
+                      }
+                    }}
+                    className={`flex items-center gap-4 border-b border-gray-50 pb-4 last:border-0 last:pb-0 dark:border-gray-800 -mx-2 rounded-lg px-2 transition-colors ${
+                      item.productId ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.03]" : ""
+                    }`}
+                  >
                     <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
                       {item.productImage ? (
                         <img src={item.productImage} alt={item.productName} className="h-full w-full object-cover" />
