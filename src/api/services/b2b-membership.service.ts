@@ -12,7 +12,8 @@ export interface MembershipApplication {
   companyName: string;
   tradeLicenseNumber: string;
   industryType: string;
-  numberOfEmployees: number;
+  /** Company-size range bucket, e.g. "51-200" or "10001+". */
+  numberOfEmployees: string;
   country: string;
   city: string;
   website?: string;
