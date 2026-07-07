@@ -23,8 +23,8 @@ import {
   UserCircleIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
-import { canAccessRoles, isPureSupplier, isSuperAdmin, landingPathForCurrentUser } from "../auth/roles";
-import { storesService } from "../api";
+import { canAccessRoles, isProcurement, isPureSupplier, isSuperAdmin, landingPathForCurrentUser } from "../auth/roles";
+import { storesService, b2bProductRequestsService } from "../api";
 import type { Store } from "../types";
 
 type NavArea = "admin" | "supplier" | "shared";
@@ -204,6 +204,7 @@ const navItems: NavItem[] = [
     roles: [PROCUREMENT],
     subItems: [
       { name: "Quotes", path: "/procurement/quotes", pro: false },
+      { name: "Requests", path: "/procurement/requests", pro: false },
     ],
   },
   {
@@ -259,6 +260,31 @@ const AppSidebar: React.FC = () => {
       .catch(() => {/* sidebar store shortcuts are best-effort */});
     return () => ctrl.abort();
   }, [supplierOnly]);
+
+  // Poll the count of NEW B2B product requests so the Procurement group + Requests
+  // subitem surface a red badge (dots) without a manual refresh. Only Procurement /
+  // SuperAdmin can read the admin endpoint, so skip polling for everyone else.
+  // Mirrors the NotificationDropdown 30s polling pattern.
+  const canSeeRequests = isSuperAdmin() || isProcurement();
+  const [newRequestCount, setNewRequestCount] = useState(0);
+  useEffect(() => {
+    if (!canSeeRequests) return;
+    let active = true;
+    const refresh = () => {
+      b2bProductRequestsService
+        .getNewCount()
+        .then((r) => {
+          if (active) setNewRequestCount(r.data?.newCount ?? 0);
+        })
+        .catch(() => {/* badge is best-effort */});
+    };
+    refresh();
+    const t = setInterval(refresh, 30000);
+    return () => {
+      active = false;
+      clearInterval(t);
+    };
+  }, [canSeeRequests]);
 
   // Inject one Orders/Refunds sub-item per store, after the static entries. NOT gated to
   // super admins — any admin who sees the Orders/Refunds dropdown gets the full store list
@@ -402,6 +428,19 @@ const AppSidebar: React.FC = () => {
               {(isExpanded || isHovered || isMobileOpen) && (
                 <span className="menu-item-text rounded-[30px]">{nav.name}</span>
               )}
+              {nav.name === "Procurement" && newRequestCount > 0 && (
+                <span
+                  className={`flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white ${
+                    isExpanded || isHovered || isMobileOpen
+                      ? "relative ml-2"
+                      : "absolute right-2 top-1.5"
+                  }`}
+                  title={`${newRequestCount} new product request${newRequestCount === 1 ? "" : "s"}`}
+                >
+                  {newRequestCount > 99 ? "99+" : newRequestCount}
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75 animate-ping" />
+                </span>
+              )}
               {(isExpanded || isHovered || isMobileOpen) && (
                 <ChevronDownIcon
                   className={`ml-auto w-5 h-5 transition-transform duration-200 ${
@@ -470,6 +509,14 @@ const AppSidebar: React.FC = () => {
                     >
                       {subItem.name}
                       <span className="flex items-center gap-1 ml-auto">
+                        {subItem.path === "/procurement/requests" && newRequestCount > 0 && (
+                          <span
+                            className="flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white"
+                            title={`${newRequestCount} new product request${newRequestCount === 1 ? "" : "s"}`}
+                          >
+                            {newRequestCount > 99 ? "99+" : newRequestCount}
+                          </span>
+                        )}
                         {subItem.new && (
                           <span
                             className={`ml-auto ${

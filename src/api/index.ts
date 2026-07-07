@@ -34,6 +34,12 @@ export type {
   B2bQuotePriceItem,
   B2bQuotePriceRequest,
 } from "./services/b2b-quotes.service";
+export { b2bProductRequestsService } from "./services/b2b-product-requests.service";
+export type {
+  B2bProductRequest,
+  B2bProductRequestStatus,
+  B2bProductRequestCount,
+} from "./services/b2b-product-requests.service";
 export type {
   SupplierApplication,
   SupplierDetail,
