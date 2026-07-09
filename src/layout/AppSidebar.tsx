@@ -24,7 +24,7 @@ import {
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import { canAccessRoles, isProcurement, isPureSupplier, isSuperAdmin, landingPathForCurrentUser } from "../auth/roles";
-import { storesService, b2bProductRequestsService } from "../api";
+import { storesService, b2bProductRequestsService, b2bQuotesService } from "../api";
 import type { Store } from "../types";
 
 type NavArea = "admin" | "supplier" | "shared";
@@ -261,20 +261,27 @@ const AppSidebar: React.FC = () => {
     return () => ctrl.abort();
   }, [supplierOnly]);
 
-  // Poll the count of NEW B2B product requests so the Procurement group + Requests
-  // subitem surface a red badge (dots) without a manual refresh. Only Procurement /
-  // SuperAdmin can read the admin endpoint, so skip polling for everyone else.
-  // Mirrors the NotificationDropdown 30s polling pattern.
-  const canSeeRequests = isSuperAdmin() || isProcurement();
+  // Poll the count of NEW B2B product requests + SUBMITTED quotes so the Procurement
+  // group dot and the Requests / Quotes subitems surface a red badge without a manual
+  // refresh. Only Procurement / SuperAdmin can read those admin endpoints, so skip
+  // polling for everyone else. Mirrors the NotificationDropdown 30s polling pattern.
+  const canSeeProcurement = isSuperAdmin() || isProcurement();
   const [newRequestCount, setNewRequestCount] = useState(0);
+  const [newQuoteCount, setNewQuoteCount] = useState(0);
   useEffect(() => {
-    if (!canSeeRequests) return;
+    if (!canSeeProcurement) return;
     let active = true;
     const refresh = () => {
       b2bProductRequestsService
         .getNewCount()
         .then((r) => {
           if (active) setNewRequestCount(r.data?.newCount ?? 0);
+        })
+        .catch(() => {/* badge is best-effort */});
+      b2bQuotesService
+        .getNewCount()
+        .then((r) => {
+          if (active) setNewQuoteCount(r.data?.newCount ?? 0);
         })
         .catch(() => {/* badge is best-effort */});
     };
@@ -284,7 +291,9 @@ const AppSidebar: React.FC = () => {
       active = false;
       clearInterval(t);
     };
-  }, [canSeeRequests]);
+  }, [canSeeProcurement]);
+  // Combined total drives the collapsed Procurement group badge.
+  const procurementNewCount = newRequestCount + newQuoteCount;
 
   // Inject one Orders/Refunds sub-item per store, after the static entries. NOT gated to
   // super admins — any admin who sees the Orders/Refunds dropdown gets the full store list
@@ -428,16 +437,16 @@ const AppSidebar: React.FC = () => {
               {(isExpanded || isHovered || isMobileOpen) && (
                 <span className="menu-item-text rounded-[30px]">{nav.name}</span>
               )}
-              {nav.name === "Procurement" && newRequestCount > 0 && (
+              {nav.name === "Procurement" && procurementNewCount > 0 && (
                 <span
                   className={`flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white ${
                     isExpanded || isHovered || isMobileOpen
                       ? "relative ml-2"
                       : "absolute right-2 top-1.5"
                   }`}
-                  title={`${newRequestCount} new product request${newRequestCount === 1 ? "" : "s"}`}
+                  title={`${newQuoteCount} new quote${newQuoteCount === 1 ? "" : "s"}, ${newRequestCount} new product request${newRequestCount === 1 ? "" : "s"}`}
                 >
-                  {newRequestCount > 99 ? "99+" : newRequestCount}
+                  {procurementNewCount > 99 ? "99+" : procurementNewCount}
                   <span className="absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75 animate-ping" />
                 </span>
               )}
@@ -509,6 +518,14 @@ const AppSidebar: React.FC = () => {
                     >
                       {subItem.name}
                       <span className="flex items-center gap-1 ml-auto">
+                        {subItem.path === "/procurement/quotes" && newQuoteCount > 0 && (
+                          <span
+                            className="flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white"
+                            title={`${newQuoteCount} new quote${newQuoteCount === 1 ? "" : "s"} to price`}
+                          >
+                            {newQuoteCount > 99 ? "99+" : newQuoteCount}
+                          </span>
+                        )}
                         {subItem.path === "/procurement/requests" && newRequestCount > 0 && (
                           <span
                             className="flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white"

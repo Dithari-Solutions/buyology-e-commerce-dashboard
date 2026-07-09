@@ -33,6 +33,7 @@ export type {
   B2bQuoteStatus,
   B2bQuotePriceItem,
   B2bQuotePriceRequest,
+  B2bQuoteCount,
 } from "./services/b2b-quotes.service";
 export { b2bProductRequestsService } from "./services/b2b-product-requests.service";
 export type {

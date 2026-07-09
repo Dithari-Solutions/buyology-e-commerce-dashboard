@@ -69,6 +69,12 @@ export interface B2bQuotePriceRequest {
   procurementNote?: string;
 }
 
+/** Shape returned by GET /count. */
+export interface B2bQuoteCount {
+  /** Count of SUBMITTED quotes awaiting pricing. */
+  newCount: number;
+}
+
 export const b2bQuotesService = {
   // GET /api/admin/b2b/quotes?status=  (default SUBMITTED, server-side)
   list(status?: B2bQuoteStatus, signal?: AbortSignal): Promise<ApiResponse<B2bQuote[]>> {
@@ -89,5 +95,10 @@ export const b2bQuotesService = {
   // POST /api/admin/b2b/quotes/{id}/reject  → SUBMITTED → REJECTED
   reject(id: string, reason: string): Promise<ApiResponse<B2bQuote>> {
     return apiClient.post<ApiResponse<B2bQuote>>(`${BASE}/${id}/reject`, { reason });
+  },
+
+  // GET /api/admin/b2b/quotes/count  → { newCount }  (count of SUBMITTED quotes)
+  getNewCount(signal?: AbortSignal): Promise<ApiResponse<B2bQuoteCount>> {
+    return apiClient.get<ApiResponse<B2bQuoteCount>>(`${BASE}/count`, { signal });
   },
 };
