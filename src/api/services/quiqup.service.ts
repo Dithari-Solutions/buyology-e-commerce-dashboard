@@ -70,6 +70,7 @@ async function call<T>(p: Promise<ApiResponse<T>>): Promise<Envelope<T>> {
 
 const get = <T>(path: string) => apiClient.get<ApiResponse<T>>(`${BASE}${path}`);
 const post = <T>(path: string, body?: unknown) => apiClient.post<ApiResponse<T>>(`${BASE}${path}`, body);
+const put = <T>(path: string, body?: unknown) => apiClient.put<ApiResponse<T>>(`${BASE}${path}`, body);
 const del = <T>(path: string) => apiClient.delete<ApiResponse<T>>(`${BASE}${path}`);
 
 export const quiqupService = {
@@ -80,18 +81,12 @@ export const quiqupService = {
     ),
   verify: () => call<QuiqupVerify>(post<QuiqupVerify>("/verify")),
 
-  // On-demand (point-to-point)
-  ondemandCreate: (order: unknown) => call<QuiqupResult>(post<QuiqupResult>("/ondemand/create", order)),
-  ondemandGet: (id: string) => call<QuiqupResult>(get<QuiqupResult>(`/ondemand/${encodeURIComponent(id)}`)),
-  ondemandCancel: (id: string, body?: unknown) =>
-    call<QuiqupResult>(post<QuiqupResult>(`/ondemand/${encodeURIComponent(id)}/cancel`, body)),
-  ondemandQuote: (body: unknown) => call<QuiqupResult>(post<QuiqupResult>("/ondemand/quote", body)),
-
-  // Ecommerce (scheduled)
-  ecommerceCreate: (order: unknown) => call<QuiqupResult>(post<QuiqupResult>("/ecommerce/create", order)),
-  ecommerceGet: (id: string) => call<QuiqupResult>(get<QuiqupResult>(`/ecommerce/${encodeURIComponent(id)}`)),
-  ecommerceCancel: (id: string, body?: unknown) =>
-    call<QuiqupResult>(post<QuiqupResult>(`/ecommerce/${encodeURIComponent(id)}/cancel`, body)),
+  // Unified Quiqup /orders API
+  createOrder: (order: unknown) => call<QuiqupResult>(post<QuiqupResult>("/orders", order)),
+  getOrder: (id: string) => call<QuiqupResult>(get<QuiqupResult>(`/orders/${encodeURIComponent(id)}`)),
+  markReady: (id: string) => call<QuiqupResult>(put<QuiqupResult>(`/orders/${encodeURIComponent(id)}/ready`)),
+  getLabel: (id: string) => call<QuiqupResult>(get<QuiqupResult>(`/orders/${encodeURIComponent(id)}/label`)),
+  cancelOrder: (id: string) => call<QuiqupResult>(post<QuiqupResult>("/orders/cancel", { id })),
 
   // Raw request tester
   raw: (method: string, path: string, body?: unknown) =>

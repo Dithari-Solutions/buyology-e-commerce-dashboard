@@ -65,17 +65,15 @@ function OrderFlow({
   sample,
   onCreate,
   onTrack,
+  onReady,
   onCancel,
-  onQuote,
-  quoteSample,
 }: {
   kind: string;
   sample: unknown;
   onCreate: (body: unknown) => Promise<Envelope<QuiqupResult>>;
   onTrack: (id: string) => Promise<Envelope<QuiqupResult>>;
+  onReady: (id: string) => Promise<Envelope<QuiqupResult>>;
   onCancel: (id: string) => Promise<Envelope<QuiqupResult>>;
-  onQuote?: (body: unknown) => Promise<Envelope<QuiqupResult>>;
-  quoteSample?: unknown;
 }) {
   const [bodyText, setBodyText] = useState("");
   const [orderId, setOrderId] = useState("");
@@ -121,15 +119,6 @@ function OrderFlow({
           >
             {busy === "create" ? "Creating…" : "Create order"}
           </button>
-          {onQuote && (
-            <button
-              className={btnGhost}
-              disabled={busy !== null}
-              onClick={() => run("quote", () => onQuote(quoteSample ?? {}))}
-            >
-              {busy === "quote" ? "Quoting…" : "Get quote"}
-            </button>
-          )}
         </div>
 
         <div className="mt-2 flex flex-wrap items-end gap-2">
@@ -139,11 +128,18 @@ function OrderFlow({
               className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
               value={orderId}
               onChange={(e) => setOrderId(e.target.value)}
-              placeholder="paste an id to track / cancel"
+              placeholder="paste an id to track / ready / cancel"
             />
           </label>
           <button className={btnGhost} disabled={!orderId || busy !== null} onClick={() => run("track", () => onTrack(orderId))}>
             {busy === "track" ? "…" : "Track"}
+          </button>
+          <button
+            className={`${btn} bg-green-600 text-white hover:bg-green-700`}
+            disabled={!orderId || busy !== null}
+            onClick={() => run("ready", () => onReady(orderId))}
+          >
+            {busy === "ready" ? "…" : "Ready for collection"}
           </button>
           <button
             className={`${btn} border border-red-300 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20`}
@@ -329,11 +325,10 @@ export default function QuiqupTestingPage() {
           <OrderFlow
             kind="On-demand (point-to-point)"
             sample={samples?.onDemand}
-            quoteSample={samples?.quote}
-            onCreate={(b) => q.ondemandCreate(b)}
-            onTrack={(id) => q.ondemandGet(id)}
-            onCancel={(id) => q.ondemandCancel(id)}
-            onQuote={(b) => q.ondemandQuote(b)}
+            onCreate={(b) => q.createOrder(b)}
+            onTrack={(id) => q.getOrder(id)}
+            onReady={(id) => q.markReady(id)}
+            onCancel={(id) => q.cancelOrder(id)}
           />
         )}
 
@@ -341,9 +336,10 @@ export default function QuiqupTestingPage() {
           <OrderFlow
             kind="Ecommerce (scheduled)"
             sample={samples?.ecommerce}
-            onCreate={(b) => q.ecommerceCreate(b)}
-            onTrack={(id) => q.ecommerceGet(id)}
-            onCancel={(id) => q.ecommerceCancel(id)}
+            onCreate={(b) => q.createOrder(b)}
+            onTrack={(id) => q.getOrder(id)}
+            onReady={(id) => q.markReady(id)}
+            onCancel={(id) => q.cancelOrder(id)}
           />
         )}
 
