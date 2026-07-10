@@ -81,6 +81,7 @@ import CourierProfilesPage from "./pages/Couriers/CourierProfilesPage";
 import Quotes from "./pages/Procurement/Quotes";
 import QuoteDetail from "./pages/Procurement/QuoteDetail";
 import Requests from "./pages/Procurement/Requests";
+import QuiqupTestingPage from "./pages/QuiqupTesting/QuiqupTestingPage";
 
 export default function App() {
   return (
@@ -189,6 +190,10 @@ export default function App() {
               <Route path="/procurement/quotes" element={<Quotes />} />
               <Route path="/procurement/quotes/:id" element={<QuoteDetail />} />
               <Route path="/procurement/requests" element={<Requests />} />
+
+              {/* Quiqup Testing — isolated staging delivery sandbox (SUPERADMIN; sidebar-gated).
+                  Talks only to the local quiqup-sandbox server, never the prod order APIs. */}
+              <Route path="/quiqup-testing" element={<QuiqupTestingPage />} />
 
               {/* Supplier Management (admin) */}
               <Route path="/suppliers" element={<SuppliersPage />} />

@@ -13,6 +13,7 @@ import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import SportsEsportsOutlinedIcon from '@mui/icons-material/SportsEsportsOutlined';
 import RequestQuoteOutlinedIcon from '@mui/icons-material/RequestQuoteOutlined';
+import ScienceOutlinedIcon from '@mui/icons-material/ScienceOutlined';
 
 // Assume these icons are imported from an icon library
 import {
@@ -216,6 +217,12 @@ const navItems: NavItem[] = [
       { name: "Products Review", path: "/supplier-products", pro: false },
       { name: "Change Requests", path: "/supplier-product-changes", pro: false, superAdminOnly: true },
     ],
+  },
+  {
+    name: "Quiqup Testing",
+    icon: <ScienceOutlinedIcon />,
+    path: "/quiqup-testing",
+    roles: [SUPER],
   },
   {
     name: "My Supplier Portal",
