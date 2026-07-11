@@ -14,6 +14,7 @@ import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import SportsEsportsOutlinedIcon from '@mui/icons-material/SportsEsportsOutlined';
 import RequestQuoteOutlinedIcon from '@mui/icons-material/RequestQuoteOutlined';
 import ScienceOutlinedIcon from '@mui/icons-material/ScienceOutlined';
+import WarehouseOutlinedIcon from '@mui/icons-material/WarehouseOutlined';
 
 // Assume these icons are imported from an icon library
 import {
@@ -222,6 +223,12 @@ const navItems: NavItem[] = [
     name: "Quiqup Testing",
     icon: <ScienceOutlinedIcon />,
     path: "/quiqup-testing",
+    roles: [SUPER],
+  },
+  {
+    name: "ERP",
+    icon: <WarehouseOutlinedIcon />,
+    path: "/erp",
     roles: [SUPER],
   },
   {

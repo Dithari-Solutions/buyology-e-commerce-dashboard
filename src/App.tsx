@@ -82,6 +82,7 @@ import Quotes from "./pages/Procurement/Quotes";
 import QuoteDetail from "./pages/Procurement/QuoteDetail";
 import Requests from "./pages/Procurement/Requests";
 import QuiqupTestingPage from "./pages/QuiqupTesting/QuiqupTestingPage";
+import ErpPage from "./pages/Erp/ErpPage";
 
 export default function App() {
   return (
@@ -194,6 +195,10 @@ export default function App() {
               {/* Quiqup Testing — isolated staging delivery sandbox (SUPERADMIN; sidebar-gated).
                   Talks only to the local quiqup-sandbox server, never the prod order APIs. */}
               <Route path="/quiqup-testing" element={<QuiqupTestingPage />} />
+
+              {/* ERP — ERPNext product list (SUPERADMIN; sidebar-gated). Testing stage:
+                  fetches Items live from ERPNext for display only, no DB persistence. */}
+              <Route path="/erp" element={<ErpPage />} />
 
               {/* Supplier Management (admin) */}
               <Route path="/suppliers" element={<SuppliersPage />} />
