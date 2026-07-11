@@ -114,6 +114,31 @@ export default function B2BApplicationDetailPage() {
           ))}
         </dl>
 
+        {(app.tradeLicenseFileUrl || app.vatCertificateFileUrl) && (
+          <div className="mt-4 flex flex-wrap gap-3 border-t border-gray-100 pt-4 dark:border-gray-800">
+            {app.tradeLicenseFileUrl && (
+              <a
+                href={app.tradeLicenseFileUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 rounded-lg border border-brand-500 px-4 py-2 text-sm font-medium text-brand-600 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-brand-500/10"
+              >
+                View Trade Licence ↗
+              </a>
+            )}
+            {app.vatCertificateFileUrl && (
+              <a
+                href={app.vatCertificateFileUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 rounded-lg border border-brand-500 px-4 py-2 text-sm font-medium text-brand-600 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-brand-500/10"
+              >
+                View VAT Certificate ↗
+              </a>
+            )}
+          </div>
+        )}
+
         {app.rejectionReason && (
           <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400">
             <strong>Rejection Reason:</strong> {app.rejectionReason}
