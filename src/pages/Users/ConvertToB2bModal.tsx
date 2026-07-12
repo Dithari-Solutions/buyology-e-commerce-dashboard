@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { ApiRequestError } from "../../api";
 import {
   b2bMembershipService,
-  type B2bCountry,
   type ConvertUserToB2bRequest,
   type MembershipApplication,
 } from "../../api/services/b2b-membership.service";
@@ -122,6 +121,7 @@ export default function ConvertToB2bModal({
     tradeLicenseNumber: "",
     industryType: "",
     numberOfEmployees: "",
+    country: "",
     city: "",
     website: "",
     contactFullName: [user.firstName, user.lastName].filter(Boolean).join(" "),
@@ -130,28 +130,11 @@ export default function ConvertToB2bModal({
     contactMobile: user.phoneNumber ?? "",
   });
   const [businessNeeds, setBusinessNeeds] = useState<string[]>([]);
-  const [countryCode, setCountryCode] = useState("");
   const [licenseFile, setLicenseFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [countries, setCountries] = useState<B2bCountry[]>([]);
-  const [countriesLoading, setCountriesLoading] = useState(true);
-
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    const controller = new AbortController();
-    b2bMembershipService
-      .listCountries(controller.signal)
-      .then((res) => setCountries((res.data ?? []).filter((c) => c.enabled)))
-      .catch((err: unknown) => {
-        if (err instanceof Error && err.name === "AbortError") return;
-        setError("Could not load B2B countries. Only enabled countries can be used.");
-      })
-      .finally(() => setCountriesLoading(false));
-    return () => controller.abort();
-  }, []);
 
   const set = (k: keyof typeof form, v: string) => setForm((prev) => ({ ...prev, [k]: v }));
 
@@ -180,7 +163,7 @@ export default function ConvertToB2bModal({
     if (!licenseFile) return "Please upload the trade license document.";
     if (!form.industryType) return "Industry type is required.";
     if (!form.numberOfEmployees) return "Please select the company size.";
-    if (!countryCode) return "Please select the country.";
+    if (!form.country.trim()) return "Country is required.";
     if (!form.city.trim()) return "City is required.";
     if (!form.contactFullName.trim()) return "Contact full name is required.";
     if (!form.contactDesignation.trim()) return "Contact designation is required.";
@@ -197,7 +180,6 @@ export default function ConvertToB2bModal({
       return;
     }
     if (!licenseFile) return;
-    const country = countries.find((c) => c.countryCode === countryCode);
     setError("");
     setSubmitting(true);
     try {
@@ -206,8 +188,7 @@ export default function ConvertToB2bModal({
         tradeLicenseNumber: form.tradeLicenseNumber.trim(),
         industryType: form.industryType,
         numberOfEmployees: form.numberOfEmployees,
-        country: country?.countryName ?? countryCode,
-        countryCode,
+        country: form.country.trim(),
         city: form.city.trim(),
         website: form.website.trim() || undefined,
         contactFullName: form.contactFullName.trim(),
@@ -357,30 +338,14 @@ export default function ConvertToB2bModal({
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field
-                label="Country"
-                required
-                hint="Only enabled B2B countries. Sets the member's wallet currency."
-              >
-                <select
-                  value={countryCode}
-                  onChange={(e) => setCountryCode(e.target.value)}
-                  disabled={countriesLoading || countries.length === 0}
-                  className={selectClass}
-                >
-                  <option value="">
-                    {countriesLoading
-                      ? "Loading countries…"
-                      : countries.length === 0
-                        ? "No enabled B2B countries"
-                        : "Select country"}
-                  </option>
-                  {countries.map((c) => (
-                    <option key={c.id} value={c.countryCode}>
-                      {c.countryName} ({c.currencyCode})
-                    </option>
-                  ))}
-                </select>
+              <Field label="Country" required>
+                <input
+                  value={form.country}
+                  onChange={(e) => set("country", e.target.value)}
+                  placeholder="UAE"
+                  maxLength={100}
+                  className={inputClass}
+                />
               </Field>
               <Field label="City" required>
                 <input
