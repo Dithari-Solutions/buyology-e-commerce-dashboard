@@ -142,6 +142,29 @@ export interface WalletCreditRequest {
   performedBy?: string;
 }
 
+/**
+ * Admin request to convert an existing (B2C) user into a B2B member. Mirrors the
+ * public B2B sign-up fields minus the account credentials — the user already has an
+ * account. Contact details are pre-filled from the user's profile on the dashboard.
+ */
+export interface ConvertUserToB2bRequest {
+  companyName: string;
+  tradeLicenseNumber: string;
+  industryType: string;
+  /** Company-size bucket, e.g. "51-200" (must match the backend allowlist). */
+  numberOfEmployees: string;
+  country: string;
+  /** ISO alpha-2 code of an enabled B2B country — sets the member's wallet currency. */
+  countryCode?: string;
+  city: string;
+  website?: string;
+  contactFullName: string;
+  contactDesignation: string;
+  contactEmail: string;
+  contactMobile: string;
+  businessNeeds?: string[];
+}
+
 export const b2bMembershipService = {
   listApplications(signal?: AbortSignal): Promise<ApiResponse<MembershipApplication[]>> {
     return apiClient.get("/api/admin/membership/applications", { signal });
@@ -149,6 +172,22 @@ export const b2bMembershipService = {
 
   processAction(id: string, req: ApplicationActionRequest): Promise<ApiResponse<MembershipApplication>> {
     return apiClient.post(`/api/admin/membership/applications/${id}/action`, req);
+  },
+
+  /**
+   * Convert an existing user into a B2B member. Creates a PENDING application
+   * pre-attached to the user (reviewed via the normal Applications queue). Sent as
+   * multipart/form-data: a JSON "data" part + the required "tradeLicense" file.
+   */
+  convertUser(
+    userId: string,
+    data: ConvertUserToB2bRequest,
+    tradeLicense: File,
+  ): Promise<ApiResponse<MembershipApplication>> {
+    const form = new FormData();
+    form.append("data", new Blob([JSON.stringify(data)], { type: "application/json" }));
+    form.append("tradeLicense", tradeLicense);
+    return apiClient.post(`/api/admin/membership/convert-user/${userId}`, form);
   },
 
   listMemberships(signal?: AbortSignal): Promise<ApiResponse<MembershipCard[]>> {

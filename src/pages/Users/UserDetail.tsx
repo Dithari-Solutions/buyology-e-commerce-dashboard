@@ -3,6 +3,12 @@ import { useParams, useNavigate } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import Badge from "../../components/ui/badge/Badge";
 import { usersService, ApiRequestError } from "../../api";
+import {
+  b2bMembershipService,
+  type MembershipApplication,
+  type ApplicationStatus,
+} from "../../api/services/b2b-membership.service";
+import ConvertToB2bModal from "./ConvertToB2bModal";
 import { env } from "../../config/env";
 import type { UserDetail as UserDetailType, UserStatus, UserType, CartItem } from "../../types";
 
@@ -44,6 +50,36 @@ function statusBadgeColor(status: UserStatus): BadgeColor {
 
 function typeBadgeColor(type: UserType): BadgeColor {
   return type === "ADMIN" ? "error" : "info";
+}
+
+function b2bStatusColor(status: ApplicationStatus): BadgeColor {
+  switch (status) {
+    case "APPROVED":
+      return "success";
+    case "PENDING":
+      return "warning";
+    case "UNDER_REVIEW":
+      return "info";
+    case "REJECTED":
+      return "error";
+    default:
+      return "light";
+  }
+}
+
+function b2bStatusLabel(status: ApplicationStatus): string {
+  switch (status) {
+    case "APPROVED":
+      return "B2B Member";
+    case "PENDING":
+      return "Pending review";
+    case "UNDER_REVIEW":
+      return "Under review";
+    case "REJECTED":
+      return "Rejected";
+    default:
+      return status;
+  }
 }
 
 function fullName(first: string | null, last: string | null): string {
@@ -250,6 +286,12 @@ export default function UserDetail() {
   const [actionLoading, setActionLoading] = useState(false);
   const [confirmAction, setConfirmAction] = useState<"block" | "unblock" | null>(null);
 
+  // B2B membership status for this user (derived from the applications list) + the
+  // convert modal. Best-effort: the backend is the source of truth and guards duplicates.
+  const [b2bApp, setB2bApp] = useState<MembershipApplication | null>(null);
+  const [b2bLoading, setB2bLoading] = useState(true);
+  const [convertOpen, setConvertOpen] = useState(false);
+
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const toastIdRef = useRef(0);
 
@@ -283,6 +325,27 @@ export default function UserDetail() {
     loadUser(authCredentialId, controller.signal);
     return () => controller.abort();
   }, [authCredentialId, loadUser]);
+
+  // Once the user is loaded, resolve their B2B status by userId. The admin
+  // applications list is small (admin-only) and mirrors how getApplication works.
+  const userId = user?.userId;
+  useEffect(() => {
+    if (!userId) return;
+    const controller = new AbortController();
+    setB2bLoading(true);
+    b2bMembershipService
+      .listApplications(controller.signal)
+      .then((res) => {
+        setB2bApp((res.data ?? []).find((a) => a.userId === userId) ?? null);
+      })
+      .catch((err: unknown) => {
+        if (err instanceof Error && err.name === "AbortError") return;
+        // Non-fatal — fall back to allowing conversion; the backend blocks duplicates.
+        setB2bApp(null);
+      })
+      .finally(() => setB2bLoading(false));
+    return () => controller.abort();
+  }, [userId]);
 
   async function handleBlockConfirm() {
     if (!user) return;
@@ -414,6 +477,25 @@ export default function UserDetail() {
         onConfirm={handleUnblockConfirm}
         onCancel={() => setConfirmAction(null)}
       />
+
+      {/* Convert-to-B2B modal */}
+      {convertOpen && user && (
+        <ConvertToB2bModal
+          user={{
+            userId: user.userId,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            phoneNumber: user.phoneNumber,
+          }}
+          onClose={() => setConvertOpen(false)}
+          onSuccess={(app) => {
+            setB2bApp(app);
+            setConvertOpen(false);
+            showToast("B2B application created and sent to the review queue.", "success");
+          }}
+        />
+      )}
 
       {/* Toast notifications */}
       <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 items-end">
@@ -573,6 +655,54 @@ export default function UserDetail() {
                   className="flex-shrink-0 rounded-xl border border-brand-200 dark:border-brand-800/50 bg-brand-50 dark:bg-brand-500/10 px-4 py-2 text-sm font-medium text-brand-600 dark:text-brand-400 hover:bg-brand-100 dark:hover:bg-brand-500/20 transition-colors"
                 >
                   Unblock Account
+                </button>
+              </div>
+            )}
+          </SectionCard>
+
+          {/* ── Section 2b: B2B Membership ─────────────────────────────────── */}
+          <SectionCard title="B2B Membership">
+            {b2bLoading ? (
+              <p className="text-sm text-gray-400 dark:text-gray-500">Checking B2B status…</p>
+            ) : b2bApp && b2bApp.status !== "REJECTED" ? (
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {b2bApp.companyName}
+                    </p>
+                    <Badge size="sm" color={b2bStatusColor(b2bApp.status)}>
+                      {b2bStatusLabel(b2bApp.status)}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                    {b2bApp.status === "APPROVED"
+                      ? "This user is an active B2B member."
+                      : "A B2B application for this user is in the review queue."}
+                  </p>
+                </div>
+                <button
+                  onClick={() => navigate(`/b2b-applications/${b2bApp.id}`)}
+                  className="flex-shrink-0 rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
+                  View application
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Convert to B2B</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                    {b2bApp?.status === "REJECTED"
+                      ? "A previous application was rejected. You can submit a new one with the business details."
+                      : "Turn this customer into a B2B member by adding their company details and trade license."}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setConvertOpen(true)}
+                  className="flex-shrink-0 rounded-xl border border-brand-200 dark:border-brand-800/50 bg-brand-50 dark:bg-brand-500/10 px-4 py-2 text-sm font-medium text-brand-600 dark:text-brand-400 hover:bg-brand-100 dark:hover:bg-brand-500/20 transition-colors"
+                >
+                  Convert to B2B
                 </button>
               </div>
             )}
