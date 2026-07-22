@@ -659,28 +659,17 @@ const AppSidebar: React.FC = () => {
       >
         <Link to={homePath}>
           {isExpanded || isHovered || isMobileOpen ? (
-            <div className="flex items-center gap-3">
-              <img
-                className="rounded-full"
-                src="/logo.png"
-                alt="Logo"
-                width={90}
-                height={40}
-              />
-              <span className="text-xl font-bold tracking-tight text-white">
-                Buyology
-              </span>
-            </div>
-          ) : (
-            <div>
-              <img
-            className=" rounded-full"
-              src="/logo.png"
-              alt="Logo"
-              width={32}
-              height={32}
+            // The buyology.online wordmark (white lettering + yellow mark) — the dark-mode
+            // variant, since the sidebar is purple. It already contains the name, so there
+            // is no separate text label beside it.
+            <img
+              src="/buyology-online-logo-dark-mode.png"
+              alt="Buyology Online"
+              className="h-9 w-auto"
             />
-            </div>
+          ) : (
+            // Collapsed rail: the wordmark is far too wide, so just the mark.
+            <img src="/logo-simple.png" alt="Buyology Online" className="h-8 w-auto" />
           )}
         </Link>
       </div>
