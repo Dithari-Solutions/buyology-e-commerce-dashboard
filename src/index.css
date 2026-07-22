@@ -219,19 +219,19 @@ layer(base);
 }
 
 @utility menu-item-active {
-  @apply bg-buyology-50 text-buyology-600 ring-1 ring-buyology-yellow-300/70 dark:bg-buyology-500/[0.15] dark:text-buyology-300 dark:ring-buyology-yellow-400/30;
+  @apply bg-buyology-500 text-white shadow-sm shadow-buyology-950/40;
 }
 
 @utility menu-item-inactive {
-  @apply text-gray-700 hover:bg-gray-100 group-hover:text-gray-700 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-gray-300;
+  @apply text-white/70 hover:bg-white/10 hover:text-white group-hover:text-white;
 }
 
 @utility menu-item-icon {
-  @apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400;
+  @apply text-white/60 group-hover:text-white;
 }
 
 @utility menu-item-icon-active {
-  @apply text-buyology-600 dark:text-buyology-300;
+  @apply text-white;
 }
 
 @utility menu-item-icon-size {
@@ -241,7 +241,7 @@ layer(base);
 }
 
 @utility menu-item-icon-inactive {
-  @apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300;
+  @apply text-white/60 group-hover:text-white;
 }
 
 @utility menu-item-arrow {
@@ -249,11 +249,11 @@ layer(base);
 }
 
 @utility menu-item-arrow-active {
-  @apply rotate-180 text-buyology-600 dark:text-buyology-300;
+  @apply rotate-180 text-white;
 }
 
 @utility menu-item-arrow-inactive {
-  @apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300;
+  @apply text-white/60 group-hover:text-white;
 }
 
 @utility menu-dropdown-item {
@@ -261,23 +261,23 @@ layer(base);
 }
 
 @utility menu-dropdown-item-active {
-  @apply bg-buyology-50 text-buyology-600 dark:bg-buyology-500/[0.15] dark:text-buyology-300;
+  @apply bg-white/15 text-white;
 }
 
 @utility menu-dropdown-item-inactive {
-  @apply text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5;
+  @apply text-white/60 hover:bg-white/10 hover:text-white;
 }
 
 @utility menu-dropdown-badge {
-  @apply block rounded-full px-2.5 py-0.5 text-xs font-medium uppercase text-buyology-700 dark:text-buyology-yellow-300;
+  @apply block rounded-full px-2.5 py-0.5 text-xs font-medium uppercase text-white;
 }
 
 @utility menu-dropdown-badge-active {
-  @apply bg-buyology-yellow-200 text-buyology-800 dark:bg-buyology-yellow-400/20;
+  @apply bg-buyology-yellow-400/25 text-buyology-yellow-200;
 }
 
 @utility menu-dropdown-badge-inactive {
-  @apply bg-buyology-100 group-hover:bg-buyology-yellow-200 dark:bg-buyology-500/15 dark:group-hover:bg-buyology-500/25;
+  @apply bg-white/10 group-hover:bg-white/20;
 }
 @utility no-scrollbar {
   /* Chrome, Safari and Opera */
