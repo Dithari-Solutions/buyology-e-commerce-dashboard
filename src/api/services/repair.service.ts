@@ -43,6 +43,15 @@ export interface RepairRequest {
   estimatedPrice?: number | null;
   estimatedPriceCurrency?: string | null;
   estimatedTime?: string | null;
+  /** Advisory AI estimate (Claude, from the problem photos + description). Priced in AED
+   *  for the UAE market. Never the binding quote — the team still sends that. */
+  aiEstimateMinPrice?: number | null;
+  aiEstimateMaxPrice?: number | null;
+  aiEstimateCurrency?: string | null;
+  aiEstimateConfidence?: "LOW" | "MEDIUM" | "HIGH" | null;
+  aiEstimateSummary?: string | null;
+  aiEstimateTime?: string | null;
+  aiEstimatedAt?: string | null;
   adminNote?: string | null;
   contactEmail?: string | null;
   contactPhone?: string | null;

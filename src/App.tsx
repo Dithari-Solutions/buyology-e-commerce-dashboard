@@ -82,6 +82,7 @@ import Quotes from "./pages/Procurement/Quotes";
 import QuoteDetail from "./pages/Procurement/QuoteDetail";
 import Requests from "./pages/Procurement/Requests";
 import Repair from "./pages/Repair/Repair";
+import RepairDetail from "./pages/Repair/RepairDetail";
 import QuiqupTestingPage from "./pages/QuiqupTesting/QuiqupTestingPage";
 import ErpPage from "./pages/Erp/ErpPage";
 
@@ -192,8 +193,9 @@ export default function App() {
               <Route path="/procurement/quotes" element={<Quotes />} />
               <Route path="/procurement/quotes/:id" element={<QuoteDetail />} />
               <Route path="/procurement/requests" element={<Requests />} />
-              {/* Repair — customer device-repair requests (REPAIR + SUPERADMIN; page self-gates) */}
+              {/* Repair — customer device-repair requests (REPAIR + SUPERADMIN; pages self-gate) */}
               <Route path="/repair" element={<Repair />} />
+              <Route path="/repair/:id" element={<RepairDetail />} />
 
               {/* Quiqup Testing — isolated staging delivery sandbox (SUPERADMIN; sidebar-gated).
                   Talks only to the local quiqup-sandbox server, never the prod order APIs. */}
