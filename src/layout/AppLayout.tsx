@@ -21,12 +21,16 @@ const LayoutContent: React.FC = () => {
           isExpanded || isHovered ? "lg:ml-[290px]" : "lg:ml-[90px]"
         } ${isMobileOpen ? "ml-0" : ""}`}
       >
-        {/* No overflow-hidden here: it would turn the panel into a scroll container and
-            break the sticky header. The header rounds its own top corners instead. */}
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 lg:min-h-[calc(100vh-1.5rem)] lg:rounded-[20px] lg:shadow-2xl lg:shadow-black/30">
-          <AppHeader />
-          <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
-            <Outlet />
+        {/* At lg+ the panel is a fixed-height box that clips to its rounded corners, and
+            the element *inside* it does the scrolling. That containment matters: with the
+            document scrolling instead, content slid up behind the sticky header and showed
+            through the inset gap above it. Below lg it's a normal full-height page. */}
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 lg:h-[calc(100vh-1.5rem)] lg:min-h-0 lg:overflow-hidden lg:rounded-[20px] lg:shadow-2xl lg:shadow-black/30">
+          <div className="lg:h-full lg:overflow-y-auto">
+            <AppHeader />
+            <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
+              <Outlet />
+            </div>
           </div>
         </div>
       </div>

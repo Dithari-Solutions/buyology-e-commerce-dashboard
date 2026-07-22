@@ -67,9 +67,9 @@ const AppHeader: React.FC = () => {
   }, []);
 
   return (
-    <header className="sticky top-0 z-[99999] w-full lg:top-3">
+    <header className="sticky top-0 z-[99999] w-full">
       {/* Glass bar */}
-      <div className="relative flex w-full items-center justify-between gap-3 bg-gradient-to-r from-buyology-700 via-buyology-600 to-buyology-500 px-4 py-3 lg:rounded-t-[20px] lg:px-6 lg:py-3.5">
+      <div className="relative flex w-full items-center justify-between gap-3 bg-gradient-to-r from-buyology-700 via-buyology-600 to-buyology-500 px-4 py-3 lg:px-6 lg:py-3.5">
 
         {/* Left — toggle + logo + search */}
         <div className="flex items-center gap-3">
