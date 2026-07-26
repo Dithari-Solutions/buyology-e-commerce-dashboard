@@ -58,6 +58,19 @@ export interface ErpImportResult {
   message: string;
 }
 
+/** Result of pushing a synthetic mock order to ERPNext (no Buyology order created). */
+export interface ErpMockOrderResult {
+  ok: boolean;
+  salesOrder: string | null;
+  salesInvoice: string | null;
+  salesOrderUrl: string | null;
+  salesInvoiceUrl: string | null;
+  customer: string | null;
+  itemCodes: string[] | null;
+  currency: string | null;
+  message: string;
+}
+
 /** ERPNext sync state of one Buyology order. */
 export interface ErpOrderSync {
   orderId: string;
@@ -118,4 +131,11 @@ export const erpService = {
         `/orders/${encodeURIComponent(orderId)}/sync`
       )
     ),
+
+  /**
+   * Push a synthetic mock order to ERPNext through the real order code path (Customer →
+   * Sales Order → Sales Invoice). Creates nothing in the Buyology orders table.
+   */
+  createMockOrder: (itemCodes?: string[], currency?: string) =>
+    call<ErpMockOrderResult>(post<ErpMockOrderResult>("/orders/mock", { itemCodes, currency })),
 };

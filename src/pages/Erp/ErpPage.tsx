@@ -8,6 +8,7 @@ import {
   type ErpOrderSync,
   type ErpImportPreviewRow,
   type ErpImportResult,
+  type ErpMockOrderResult,
 } from "../../api/services/erp.service";
 
 type Tab = "products" | "import" | "orders";
@@ -264,6 +265,8 @@ function OrdersTab({ enabled }: { enabled: boolean }) {
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState<string | null>(null);
+  const [mocking, setMocking] = useState(false);
+  const [mockResult, setMockResult] = useState<ErpMockOrderResult | null>(null);
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
@@ -297,8 +300,74 @@ function OrdersTab({ enabled }: { enabled: boolean }) {
     }
   };
 
+  const runMockOrder = async () => {
+    setMocking(true);
+    setErr("");
+    setMockResult(null);
+    try {
+      const res = await erpService.createMockOrder();
+      if (!res.ok || !res.data) {
+        setErr(res.error ?? "Mock order failed");
+        return;
+      }
+      setMockResult(res.data);
+    } finally {
+      setMocking(false);
+    }
+  };
+
   return (
     <>
+      {/* Mock order tester — pushes a synthetic order to ERPNext through the real code path. */}
+      <div className={`${card} mb-5`}>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h4 className="font-semibold text-gray-800 dark:text-white">Test the live ERP push</h4>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              Creates a Sales Order + Sales Invoice in ERPNext for a test customer, using the
+              exact code a real paid order runs. No Buyology order is created.
+            </p>
+          </div>
+          <button className={btnPrimary} onClick={runMockOrder} disabled={!enabled || mocking}>
+            {mocking ? "Pushing…" : "Create mock order → ERP"}
+          </button>
+        </div>
+
+        {mockResult && (
+          <div className="mt-4 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800 dark:border-green-800/60 dark:bg-green-900/20 dark:text-green-200">
+            <div className="font-medium">{mockResult.message}</div>
+            <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1">
+              <span>
+                Customer: <b>{mockResult.customer}</b>
+              </span>
+              <span>
+                Sales Order:{" "}
+                {mockResult.salesOrderUrl ? (
+                  <a className="underline" href={mockResult.salesOrderUrl} target="_blank" rel="noreferrer">
+                    {mockResult.salesOrder}
+                  </a>
+                ) : (
+                  mockResult.salesOrder
+                )}
+              </span>
+              <span>
+                Sales Invoice:{" "}
+                {mockResult.salesInvoiceUrl ? (
+                  <a className="underline" href={mockResult.salesInvoiceUrl} target="_blank" rel="noreferrer">
+                    {mockResult.salesInvoice}
+                  </a>
+                ) : (
+                  mockResult.salesInvoice
+                )}
+              </span>
+              {mockResult.itemCodes && mockResult.itemCodes.length > 0 && (
+                <span>Items: {mockResult.itemCodes.join(", ")}</span>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
       <div className="mb-5 flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
           Order sync {orders.length > 0 ? `(${orders.length})` : ""}
