@@ -639,7 +639,7 @@ const AppSidebar: React.FC = () => {
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-buyology-950 text-white h-screen transition-all duration-300 ease-in-out z-50 
+      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
         ${
           isExpanded || isMobileOpen
             ? "w-[290px]"
@@ -659,17 +659,28 @@ const AppSidebar: React.FC = () => {
       >
         <Link to={homePath}>
           {isExpanded || isHovered || isMobileOpen ? (
-            // The buyology.online wordmark (white lettering + yellow mark) — the dark-mode
-            // variant, since the sidebar is purple. It already contains the name, so there
-            // is no separate text label beside it.
-            <img
-              src="/buyology-online-logo-dark-mode.png"
-              alt="Buyology Online"
-              className="h-9 w-auto"
-            />
+            <div className="flex items-center gap-3">
+              <img
+                className="rounded-full"
+                src="/logo.png"
+                alt="Logo"
+                width={90}
+                height={40}
+              />
+              <span className="text-xl font-bold tracking-tight text-brand-500 dark:text-white">
+                Buyology
+              </span>
+            </div>
           ) : (
-            // Collapsed rail: the wordmark is far too wide, so just the mark.
-            <img src="/logo-simple.png" alt="Buyology Online" className="h-8 w-auto" />
+            <div>
+              <img
+            className=" rounded-full"
+              src="/logo.png"
+              alt="Logo"
+              width={32}
+              height={32}
+            />
+            </div>
           )}
         </Link>
       </div>
@@ -678,7 +689,7 @@ const AppSidebar: React.FC = () => {
           <div className="flex flex-col gap-4">
             <div>
               <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-white/40 ${
+                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
                   !isExpanded && !isHovered
                     ? "lg:justify-center"
                     : "justify-start"
@@ -695,7 +706,7 @@ const AppSidebar: React.FC = () => {
             {visibleOthersItems.length > 0 && (
               <div className="">
                 <h2
-                  className={`mb-4 text-xs uppercase flex leading-[20px] text-white/40 ${
+                  className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
                     !isExpanded && !isHovered
                       ? "lg:justify-center"
                       : "justify-start"
