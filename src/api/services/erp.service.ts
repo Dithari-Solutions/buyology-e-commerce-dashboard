@@ -38,6 +38,26 @@ export interface ErpConfig {
   shippingAccountHead: string | null;
 }
 
+/** One ERP item in the import preview. */
+export interface ErpImportPreviewRow {
+  itemCode: string;
+  itemName: string | null;
+  itemGroup: string | null;
+  brand: string | null;
+  standardRate: number | null;
+  image: string | null;
+  stock: number;
+  alreadyImported: boolean;
+}
+
+/** Outcome of importing one ERP item. */
+export interface ErpImportResult {
+  itemCode: string;
+  outcome: "CREATED" | "UPDATED" | "SKIPPED" | "FAILED";
+  productId: string | null;
+  message: string;
+}
+
 /** ERPNext sync state of one Buyology order. */
 export interface ErpOrderSync {
   orderId: string;
@@ -79,6 +99,14 @@ export const erpService = {
   getConfig: () => call<ErpConfig>(get<ErpConfig>("/config")),
   /** Fetch the first `limit` products live from ERPNext (default 10). No DB save. */
   getProducts: (limit = 10) => call<ErpProduct[]>(get<ErpProduct[]>(`/products?limit=${limit}`)),
+
+  /** Preview a page of ERP items (with warehouse stock + already-imported flag). */
+  getImportPreview: (limit = 20, offset = 0) =>
+    call<ErpImportPreviewRow[]>(get<ErpImportPreviewRow[]>(`/import/preview?limit=${limit}&offset=${offset}`)),
+
+  /** Import (create/update) the given ERP item codes into the general products list. */
+  importProducts: (itemCodes: string[]) =>
+    call<ErpImportResult[]>(post<ErpImportResult[]>("/import", { itemCodes })),
 
   /** Recent orders with their ERPNext Sales Order / Sales Invoice sync state. */
   getOrders: (limit = 20) => call<ErpOrderSync[]>(get<ErpOrderSync[]>(`/orders?limit=${limit}`)),
