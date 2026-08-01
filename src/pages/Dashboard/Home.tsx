@@ -34,77 +34,149 @@ const METRIC_CARDS: {
   key: MetricKey;
   label: string;
   icon: typeof GroupIcon;
-  iconClass: string;
+  bg: string;
+  iconBg: string;
+  iconColor: string;
 }[] = [
   {
     key: "customers",
     label: "Total Customers",
     icon: GroupIcon,
-    iconClass: "bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-300",
+    bg: "bg-violet-50 dark:bg-violet-900/20",
+    iconBg: "bg-violet-100 dark:bg-violet-800/40",
+    iconColor: "text-violet-600 dark:text-violet-300",
   },
   {
     key: "orders",
     label: "Total Orders",
     icon: BoxIconLine,
-    iconClass:
-      "bg-blue-light-50 text-blue-light-600 dark:bg-blue-light-500/10 dark:text-blue-light-400",
+    bg: "bg-brand-50 dark:bg-brand-900/20",
+    iconBg: "bg-brand-100 dark:bg-brand-800/40",
+    iconColor: "text-brand-600 dark:text-brand-300",
   },
   {
     key: "revenue",
     label: "Total Revenue",
     icon: DollarLineIcon,
-    iconClass:
-      "bg-success-50 text-success-600 dark:bg-success-500/10 dark:text-success-400",
+    bg: "bg-emerald-50 dark:bg-emerald-900/20",
+    iconBg: "bg-emerald-100 dark:bg-emerald-800/40",
+    iconColor: "text-emerald-600 dark:text-emerald-300",
   },
   {
     key: "products",
     label: "Active Products",
     icon: ShootingStarIcon,
-    iconClass:
-      "bg-warning-50 text-warning-600 dark:bg-warning-500/10 dark:text-warning-400",
+    bg: "bg-orange-50 dark:bg-orange-900/20",
+    iconBg: "bg-orange-100 dark:bg-orange-800/40",
+    iconColor: "text-orange-600 dark:text-orange-300",
   },
 ];
 
 const quickLinks = [
-  { label: "Products", href: "/products", Icon: InventoryIcon },
-  { label: "Add Product", href: "/new-product", Icon: AddBoxIcon },
-  { label: "Categories", href: "/categories", Icon: CategoryIcon },
-  { label: "Brands", href: "/brands", Icon: BrandingWatermarkIcon },
-  { label: "Stories", href: "/stories", Icon: AutoStoriesIcon },
-  { label: "Add Story", href: "/new-story", Icon: PostAddIcon },
-  { label: "Specs", href: "/specs", Icon: TuneIcon },
-  { label: "Trash", href: "/products/trash", Icon: DeleteSweepIcon },
+  {
+    label: "Products",
+    description: "Browse all products",
+    href: "/products",
+    Icon: InventoryIcon,
+    gradient: "from-brand-500 to-indigo-600",
+    ring: "ring-brand-200 dark:ring-brand-800",
+  },
+  {
+    label: "Add Product",
+    description: "Create a new product",
+    href: "/new-product",
+    Icon: AddBoxIcon,
+    gradient: "from-emerald-500 to-teal-600",
+    ring: "ring-emerald-200 dark:ring-emerald-800",
+  },
+  {
+    label: "Categories",
+    description: "Manage categories",
+    href: "/categories",
+    Icon: CategoryIcon,
+    gradient: "from-violet-500 to-purple-600",
+    ring: "ring-violet-200 dark:ring-violet-800",
+  },
+  {
+    label: "Brands",
+    description: "Manage brands",
+    href: "/brands",
+    Icon: BrandingWatermarkIcon,
+    gradient: "from-pink-500 to-rose-600",
+    ring: "ring-pink-200 dark:ring-pink-800",
+  },
+  {
+    label: "Stories",
+    description: "View all stories",
+    href: "/stories",
+    Icon: AutoStoriesIcon,
+    gradient: "from-amber-500 to-orange-600",
+    ring: "ring-amber-200 dark:ring-amber-800",
+  },
+  {
+    label: "Add Story",
+    description: "Publish a new story",
+    href: "/new-story",
+    Icon: PostAddIcon,
+    gradient: "from-cyan-500 to-sky-600",
+    ring: "ring-cyan-200 dark:ring-cyan-800",
+  },
+  {
+    label: "Specs",
+    description: "Product specifications",
+    href: "/specs",
+    Icon: TuneIcon,
+    gradient: "from-slate-500 to-gray-600",
+    ring: "ring-slate-200 dark:ring-slate-700",
+  },
+  {
+    label: "Trash",
+    description: "Deleted products",
+    href: "/products/trash",
+    Icon: DeleteSweepIcon,
+    gradient: "from-red-500 to-rose-600",
+    ring: "ring-red-200 dark:ring-red-800",
+  },
 ];
 
-/** Page masthead — greeting on the left, the two most-used actions on the right. */
-function PageHead() {
+function WelcomeBanner() {
   const hour = new Date().getHours();
   const greeting =
     hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-      <div>
-        <h1 className="ui-page-title">Overview</h1>
-        <p className="ui-muted mt-0.5">
-          {greeting} — here's what's happening with your store today.
-        </p>
-      </div>
-      <div className="flex items-center gap-2">
-        <Link
-          to="/new-product"
-          className="ui-btn-primary h-10"
-        >
-          <PlusIcon className="size-4" />
-          New Product
-        </Link>
-        <Link
-          to="/products"
-          className="ui-btn-outline h-10"
-        >
-          View All
-          <ArrowRightIcon className="size-4" />
-        </Link>
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-6 md:p-8">
+      {/* Decorative circles */}
+      <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-white/10" />
+      <div className="pointer-events-none absolute -bottom-8 -left-8 h-36 w-36 rounded-full bg-white/10" />
+      <div className="pointer-events-none absolute right-24 top-6 h-20 w-20 rounded-full bg-white/5" />
+
+      <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-medium text-white/70">{greeting} 👋</p>
+          <h1 className="mt-1 text-2xl font-bold text-white md:text-3xl">
+            Welcome back!
+          </h1>
+          <p className="mt-1 text-sm text-white/60">
+            Here's what's happening with your store today.
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <Link
+            to="/new-product"
+            className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-indigo-600 shadow-lg transition hover:bg-indigo-50"
+          >
+            <PlusIcon className="size-4" />
+            New Product
+          </Link>
+          <Link
+            to="/products"
+            className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20"
+          >
+            View All
+            <ArrowRightIcon className="size-4" />
+          </Link>
+        </div>
       </div>
     </div>
   );
@@ -114,58 +186,75 @@ function MetricCard({
   label,
   value,
   icon: Icon,
-  iconClass,
+  bg,
+  iconBg,
+  iconColor,
   loading,
 }: {
   label: string;
   value: string;
   icon: typeof GroupIcon;
-  iconClass: string;
+  bg: string;
+  iconBg: string;
+  iconColor: string;
   loading?: boolean;
 }) {
   return (
-    <div className="ui-card ui-card-interactive flex items-center gap-3 p-3.5">
-      <div
-        className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${iconClass}`}
-      >
-        <Icon className="size-[18px]" />
+    <div
+      className={`group relative overflow-hidden rounded-2xl border border-gray-100 ${bg} p-5 transition-all hover:shadow-lg dark:border-white/5 md:p-6`}
+    >
+      <div className="flex items-start justify-between">
+        <div
+          className={`flex h-12 w-12 items-center justify-center rounded-xl ${iconBg}`}
+        >
+          <Icon className={`size-6 ${iconColor}`} />
+        </div>
       </div>
-      <div className="min-w-0">
-        <p className="truncate text-[11px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-          {label}
-        </p>
+      <div className="mt-5">
+        <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
         {loading ? (
-          <div className="mt-1.5 h-5 w-20 animate-pulse rounded bg-gray-200/70 dark:bg-white/10" />
+          <div className="mt-2 h-7 w-24 rounded-md bg-gray-200/70 dark:bg-white/10 animate-pulse" />
         ) : (
-          <p className="mt-0.5 truncate text-xl font-semibold tracking-tight text-gray-900 dark:text-white/90">
+          <h3 className="mt-1 text-2xl font-bold text-gray-800 dark:text-white/90">
             {value}
-          </p>
+          </h3>
         )}
       </div>
+      {/* Subtle hover glow */}
+      <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 ring-2 ring-inset ring-indigo-400/30 transition-opacity group-hover:opacity-100" />
     </div>
   );
 }
 
 function QuickLinks() {
   return (
-    <div className="ui-card">
-      <div className="ui-card-head">
-        <h2 className="ui-section-title">Quick Links</h2>
-        <ListIcon className="size-4 text-gray-400" />
+    <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+      <div className="mb-5 flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+          Quick Links
+        </h2>
+        <ListIcon className="size-5 text-gray-400" />
       </div>
-      <div className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-4 lg:grid-cols-8">
-        {quickLinks.map(({ label, href, Icon }) => (
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {quickLinks.map(({ label, description, href, Icon, gradient, ring }) => (
           <Link
             key={href}
             to={href}
-            className="group flex flex-col items-center gap-2 rounded-xl border border-transparent px-2 py-3 text-center transition-all hover:-translate-y-px hover:border-gray-200 hover:bg-gray-50 hover:shadow-theme-xs dark:hover:border-gray-800 dark:hover:bg-white/[0.03]"
+            className={`group flex flex-col items-center gap-3 rounded-xl border bg-gray-50 p-4 text-center transition-all hover:-translate-y-0.5 hover:shadow-md dark:bg-white/[0.03] dark:border-white/5 ring-0 hover:ring-2 ${ring}`}
           >
-            <span className="flex size-9 items-center justify-center rounded-lg bg-gray-100 text-gray-500 transition-colors group-hover:bg-brand-50 group-hover:text-brand-600 dark:bg-white/5 dark:text-gray-400 dark:group-hover:bg-brand-500/10 dark:group-hover:text-brand-300">
-              <Icon sx={{ fontSize: 18 }} />
-            </span>
-            <span className="truncate text-xs font-medium text-gray-700 dark:text-gray-300">
-              {label}
-            </span>
+            <div
+              className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} shadow-sm`}
+            >
+              <Icon sx={{ fontSize: 22, color: "white" }} />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-800 dark:text-white/90">
+                {label}
+              </p>
+              <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                {description}
+              </p>
+            </div>
           </Link>
         ))}
       </div>
@@ -215,11 +304,12 @@ export default function Home() {
         description="Buyology e-commerce admin dashboard overview"
       />
 
-      <div className="flex flex-col gap-4">
-        <PageHead />
+      <div className="flex flex-col gap-5 md:gap-6">
+        {/* Welcome Banner */}
+        <WelcomeBanner />
 
         {/* Metrics */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 md:gap-5">
           {METRIC_CARDS.map(({ key, ...rest }) => (
             <MetricCard key={key} {...rest} value={valueFor(key)} loading={loadingFor(key)} />
           ))}
@@ -232,7 +322,7 @@ export default function Home() {
         <QuickLinks />
 
         {/* Charts row */}
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 md:gap-6 xl:grid-cols-2">
           <MonthlySalesChart />
           <MonthlyTarget />
         </div>

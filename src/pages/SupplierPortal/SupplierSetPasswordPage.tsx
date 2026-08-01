@@ -75,11 +75,11 @@ export default function SupplierSetPasswordPage() {
   if (tokenError) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div className="max-w-sm w-full bg-white rounded-xl shadow-theme-xs border border-gray-100 p-5 text-center">
-          <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-red-500 text-lg">✕</span>
+        <div className="max-w-sm w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-red-500 text-xl">✕</span>
           </div>
-          <h2 className="text-base font-semibold text-gray-900 mb-2">Link Unavailable</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">Link Unavailable</h2>
           <p className="text-sm text-gray-500">{tokenError}</p>
         </div>
       </div>
@@ -88,9 +88,9 @@ export default function SupplierSetPasswordPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-sm w-full bg-white rounded-xl shadow-theme-xs border border-gray-100 p-5">
-        <div className="text-center mb-4">
-          <h1 className="text-xl font-bold text-gray-900">Set Your Password</h1>
+      <div className="max-w-sm w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Set Your Password</h1>
           {tokenInfo && (
             <p className="text-sm text-gray-500 mt-1">
               Welcome, <span className="font-medium">{tokenInfo.businessName}</span>!

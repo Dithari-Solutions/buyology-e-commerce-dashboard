@@ -273,7 +273,7 @@ export default function LocationPickerMap({
         </div>
 
         {searchResults.length > 0 && (
-          <ul className="absolute z-[1000] left-0 right-0 mt-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-theme-md overflow-hidden">
+          <ul className="absolute z-[1000] left-0 right-0 mt-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg overflow-hidden">
             {searchResults.map((r, i) => (
               <li key={i}>
                 <button

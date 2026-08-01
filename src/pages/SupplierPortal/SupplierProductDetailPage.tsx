@@ -48,15 +48,15 @@ function productTypeColor(type: string): string {
 
 function DetailSkeleton() {
   return (
-    <div className="space-y-4 animate-pulse">
-      <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+    <div className="space-y-6 animate-pulse">
+      <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6">
         <div className="space-y-3">
           <div className="h-7 w-64 rounded-lg bg-gray-200 dark:bg-gray-700" />
           <div className="h-4 w-40 rounded-full bg-gray-100 dark:bg-gray-800" />
           <div className="h-4 w-full max-w-lg rounded bg-gray-100 dark:bg-gray-800" />
         </div>
       </div>
-      <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 h-56" />
+      <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] h-56" />
     </div>
   );
 }
@@ -175,7 +175,7 @@ export default function SupplierProductDetailPage() {
       />
 
       {/* Breadcrumb */}
-      <div className="mb-4 flex items-center gap-2 text-sm min-w-0">
+      <div className="mb-6 flex items-center gap-2 text-sm min-w-0">
         <Link
           to="/supplier/my-products"
           className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
@@ -195,13 +195,13 @@ export default function SupplierProductDetailPage() {
       {!loading && !error && product && (
         <div className="mb-4 space-y-3">
           {pendingChange && (
-            <div className="rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-2.5 text-sm text-yellow-800 dark:border-yellow-500/30 dark:bg-yellow-500/10 dark:text-yellow-400">
+            <div className="rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800 dark:border-yellow-500/30 dark:bg-yellow-500/10 dark:text-yellow-400">
               A <strong>{pendingChange.action}</strong> request is pending superadmin approval. You
               can submit a new request once it is reviewed.
             </div>
           )}
           {actionMsg && (
-            <div className={`rounded-xl px-4 py-2.5 text-sm ${actionMsg.kind === "ok" ? "bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400" : "bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400"}`}>
+            <div className={`rounded-xl px-4 py-3 text-sm ${actionMsg.kind === "ok" ? "bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400" : "bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400"}`}>
               {actionMsg.text}
             </div>
           )}
@@ -227,7 +227,7 @@ export default function SupplierProductDetailPage() {
       )}
 
       {error && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-20 text-center">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-20 text-center">
           <p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>
           <button
             onClick={() => navigate("/supplier/my-products")}
@@ -241,12 +241,12 @@ export default function SupplierProductDetailPage() {
       {loading && <DetailSkeleton />}
 
       {!loading && !error && product && (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {/* Header card */}
-          <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0 flex-1">
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
                   {product.title}
                 </h1>
                 <p className="mb-3 font-mono text-sm text-gray-400 dark:text-gray-500 tracking-wide">
@@ -276,8 +276,8 @@ export default function SupplierProductDetailPage() {
 
           {/* Media gallery */}
           {product.media.length > 0 && (
-            <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 dark:border-gray-800">
+            <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400">Media</h2>
                 <span className="text-xs text-gray-400 dark:text-gray-500">
                   {product.media.length} file{product.media.length !== 1 ? "s" : ""}
@@ -300,7 +300,7 @@ export default function SupplierProductDetailPage() {
                         onClick={() => setSelectedMedia(m)}
                         className={`relative flex-shrink-0 h-16 w-16 rounded-xl overflow-hidden border-2 transition-all ${
                           isActive
-                            ? "border-brand-500 dark:border-brand-400 shadow-theme-xs"
+                            ? "border-brand-500 dark:border-brand-400 shadow-sm"
                             : "border-gray-200 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-600"
                         }`}
                       >
@@ -327,9 +327,9 @@ export default function SupplierProductDetailPage() {
           )}
 
           {/* Product details */}
-          <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6">
             <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-400">Product Details</h2>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
               <div>
                 <p className="text-xs text-gray-400 dark:text-gray-500">Category ID</p>
                 <p className="mt-0.5 text-sm font-medium text-gray-700 dark:text-gray-200 font-mono truncate" title={product.categoryId}>
@@ -357,8 +357,8 @@ export default function SupplierProductDetailPage() {
 
           {/* Specs */}
           {product.specs.length > 0 && (
-            <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 dark:border-gray-800">
+            <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400">Specifications</h2>
                 <span className="inline-flex items-center justify-center rounded-full w-6 h-6 text-xs font-bold bg-brand-100 text-brand-700 dark:bg-brand-500/10 dark:text-brand-400">
                   {product.specs.length}
@@ -366,14 +366,14 @@ export default function SupplierProductDetailPage() {
               </div>
               <div className="divide-y divide-gray-100 dark:divide-gray-800">
                 {product.specs.map((spec) => (
-                  <div key={spec.id} className="px-4 py-2.5">
+                  <div key={spec.id} className="px-6 py-4">
                     <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                       {spec.name}
                       <span className="ml-2 font-normal normal-case text-gray-400 dark:text-gray-500">({spec.code})</span>
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {spec.options.map((opt) => (
-                        <div key={opt.id} className="flex items-center gap-1.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-1.5">
+                        <div key={opt.id} className="flex items-center gap-1.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-white/[0.03] px-3 py-1.5">
                           <span className="text-sm font-semibold text-gray-800 dark:text-white/90">
                             {opt.value}
                             {opt.unit && <span className="ml-0.5 text-xs font-normal text-gray-400 dark:text-gray-500">{opt.unit}</span>}
@@ -389,8 +389,8 @@ export default function SupplierProductDetailPage() {
 
           {/* Variants */}
           {product.variants.length > 0 && (
-            <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 dark:border-gray-800">
+            <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400">Variants</h2>
                 <span className="inline-flex items-center justify-center rounded-full w-6 h-6 text-xs font-bold bg-brand-100 text-brand-700 dark:bg-brand-500/10 dark:text-brand-400">
                   {product.variants.length}
@@ -399,16 +399,16 @@ export default function SupplierProductDetailPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-gray-50 dark:bg-gray-900">
-                      <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">SKU</th>
-                      <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Spec Options</th>
+                    <tr className="bg-gray-50 dark:bg-white/[0.02]">
+                      <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">SKU</th>
+                      <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Spec Options</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                     {product.variants.map((v) => (
                       <tr key={v.id} className="transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.02]">
-                        <td className="px-4 py-2.5 font-mono text-sm text-gray-700 dark:text-gray-300">{v.sku}</td>
-                        <td className="px-4 py-2.5 text-right text-xs text-gray-400">
+                        <td className="px-6 py-4 font-mono text-sm text-gray-700 dark:text-gray-300">{v.sku}</td>
+                        <td className="px-6 py-4 text-right text-xs text-gray-400">
                           {v.specOptionIds.length > 0 ? `${v.specOptionIds.length} spec(s)` : "—"}
                         </td>
                       </tr>
@@ -422,7 +422,7 @@ export default function SupplierProductDetailPage() {
       )}
 
       {/* Request Edit modal — submits an edit for superadmin approval */}
-      <Modal isOpen={editOpen} onClose={() => !busy && setEditOpen(false)} className="mx-4 max-w-lg w-full p-4">
+      <Modal isOpen={editOpen} onClose={() => !busy && setEditOpen(false)} className="mx-4 max-w-lg w-full p-6">
         <h3 className="mb-1 text-base font-semibold text-gray-800 dark:text-white/90">Request Product Edit</h3>
         <p className="mb-4 text-xs text-gray-500 dark:text-gray-400">
           Changes are submitted for superadmin approval and applied once approved.
@@ -468,7 +468,7 @@ export default function SupplierProductDetailPage() {
             </label>
           </div>
         </div>
-        <div className="mt-4 flex gap-3">
+        <div className="mt-5 flex gap-3">
           <button
             onClick={() => setEditOpen(false)}
             disabled={busy}

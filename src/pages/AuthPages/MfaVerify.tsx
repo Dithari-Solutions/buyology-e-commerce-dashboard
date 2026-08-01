@@ -44,8 +44,8 @@ export default function MfaVerify() {
       <PageMeta title="Two-factor verification | Buyology" description="Enter your authenticator code" />
       <AuthLayout>
         <div className="w-full max-w-[400px] z-2">
-          <div className="mb-5">
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">Two-factor authentication</h1>
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Two-factor authentication</h1>
             <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
               {useRecovery
                 ? "Enter one of your saved recovery codes."
@@ -53,11 +53,11 @@ export default function MfaVerify() {
             </p>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-theme-xs border border-gray-200 dark:border-gray-700 p-5">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
             <form onSubmit={handleSubmit}>
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {error && (
-                  <div className="px-4 py-2.5 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/20 dark:text-red-400 dark:border-red-800">
+                  <div className="px-4 py-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/20 dark:text-red-400 dark:border-red-800">
                     {error}
                   </div>
                 )}

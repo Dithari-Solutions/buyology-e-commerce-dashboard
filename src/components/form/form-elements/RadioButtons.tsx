@@ -10,7 +10,7 @@ export default function RadioButtons() {
   };
   return (
     <ComponentCard title="Radio Buttons">
-      <div className="flex flex-wrap items-center gap-5">
+      <div className="flex flex-wrap items-center gap-8">
         <Radio
           id="radio1"
           name="group1"

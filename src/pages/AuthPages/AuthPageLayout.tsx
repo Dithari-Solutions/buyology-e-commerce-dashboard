@@ -1,68 +1,42 @@
 import React from "react";
 import Logo from "../../../public/logo.png";
 
-const STATS = [
-  { value: "10K+", label: "Products" },
-  { value: "99%", label: "Uptime" },
-  { value: "500+", label: "Clients" },
-];
-
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen">
+    <div className="min-h-screen flex">
       {/* Left branding panel */}
-      {/* Base colour matches the logo tile exactly, so the cropped wordmark
-          reads as type on the panel rather than a pasted-on rectangle. */}
-      <div className="relative z-10 hidden flex-col items-center justify-center overflow-hidden bg-[#402F75] p-12 lg:flex lg:w-[46%]">
-        {/* Layered light — soft radial washes plus a faint grid, so the panel
-            has depth instead of reading as one flat block of purple. */}
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            backgroundImage:
-              "radial-gradient(110% 75% at 12% -5%, rgba(139,92,246,0.5) 0%, transparent 58%), radial-gradient(85% 65% at 100% 105%, rgba(251,187,20,0.14) 0%, transparent 62%)",
-          }}
-        />
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.04]"
-          style={{
-            backgroundImage:
-              "linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)",
-            backgroundSize: "64px 64px",
-          }}
-        />
-        <div className="pointer-events-none absolute -left-32 -top-32 size-[26rem] rounded-full bg-white/5 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-40 -right-24 size-[30rem] rounded-full bg-[#FBBB14]/10 blur-3xl" />
+      <div className="hidden lg:flex lg:w-[45%] bg-[#402F75] relative overflow-hidden flex-col items-center justify-center p-12 z-10">
+        {/* Decorative blobs */}
+        <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#FBBB14]/10 rounded-full" />
+        <div className="absolute -bottom-40 -right-20 w-[28rem] h-[28rem] bg-white/5 rounded-full" />
+        <div className="absolute top-1/2 right-0 translate-x-1/2 w-48 h-48 bg-[#FBBB14]/15 rounded-full" />
 
-        <div className="relative z-10 max-w-sm text-center">
-          {/* logo.png is a square tile with a wide wordmark inside — cropping to
-              wordmark proportions keeps the lettering legible, and the tile's
-              purple sits on the panel colour so only the type reads. */}
+        <div className="relative z-10 text-center max-w-sm">
           <img
             src={Logo}
             alt="Buyology"
-            className="mx-auto mb-6 h-12 w-[250px] object-cover"
+            className="w-24 h-24 rounded-2xl mx-auto shadow-2xl mb-8"
           />
-          <p className="text-[15px] leading-relaxed text-white/70">
+          <h1 className="text-4xl font-bold text-white mb-3 tracking-tight">
+            Buyology
+          </h1>
+          <p className="text-white/60 text-base leading-relaxed">
             Your all-in-one e-commerce dashboard for smarter business decisions.
           </p>
 
-          <div className="mt-10 grid grid-cols-3 gap-3">
-            {STATS.map(({ value, label }) => (
-              <div
-                key={label}
-                className="rounded-xl border border-white/10 bg-white/[0.06] px-3 py-3 backdrop-blur-sm"
-              >
-                <div className="text-lg font-semibold text-[#FBBB14]">
-                  {value}
-                </div>
-                <div className="mt-0.5 text-[11px] uppercase tracking-wider text-white/50">
-                  {label}
-                </div>
+          <div className="mt-12 pt-8 border-t border-white/10 grid grid-cols-3 gap-4">
+            {[
+              { value: "10K+", label: "Products" },
+              { value: "99%", label: "Uptime" },
+              { value: "500+", label: "Clients" },
+            ].map(({ value, label }) => (
+              <div key={label}>
+                <div className="text-xl font-bold text-[#FBBB14]">{value}</div>
+                <div className="text-white/50 text-xs mt-0.5">{label}</div>
               </div>
             ))}
           </div>
@@ -70,14 +44,7 @@ export default function AuthLayout({
       </div>
 
       {/* Right form panel */}
-      <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-gray-50 p-6 dark:bg-gray-950">
-        <div
-          className="pointer-events-none absolute inset-0 dark:hidden"
-          style={{
-            backgroundImage:
-              "radial-gradient(70% 55% at 50% 0%, rgba(124,58,237,0.07) 0%, transparent 70%)",
-          }}
-        />
+      <div className="flex-1 flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-6">
         {children}
       </div>
     </div>

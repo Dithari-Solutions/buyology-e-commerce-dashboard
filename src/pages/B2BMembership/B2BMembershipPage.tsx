@@ -58,7 +58,7 @@ export default function B2BMembershipPage() {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+            className={`rounded-lg px-5 py-2 text-sm font-medium transition-colors ${
               tab === t
                 ? "bg-brand-500 text-white"
                 : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700"
@@ -72,7 +72,7 @@ export default function B2BMembershipPage() {
         ))}
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
         {loading ? (
           <p className="text-sm text-gray-500">Loading...</p>
         ) : tab === "applications" ? (
@@ -101,7 +101,7 @@ function ApplicationsTable({
 }) {
   if (applications.length === 0) {
     return (
-      <div className="rounded-xl border-2 border-dashed border-gray-200 p-5 text-center dark:border-gray-700">
+      <div className="rounded-xl border-2 border-dashed border-gray-200 p-8 text-center dark:border-gray-700">
         <p className="text-gray-500 dark:text-gray-400">No applications yet.</p>
       </div>
     );
@@ -173,7 +173,7 @@ function MembershipsTable({
   };
   if (memberships.length === 0) {
     return (
-      <div className="rounded-xl border-2 border-dashed border-gray-200 p-5 text-center dark:border-gray-700">
+      <div className="rounded-xl border-2 border-dashed border-gray-200 p-8 text-center dark:border-gray-700">
         <p className="text-gray-500 dark:text-gray-400">No active members yet.</p>
       </div>
     );

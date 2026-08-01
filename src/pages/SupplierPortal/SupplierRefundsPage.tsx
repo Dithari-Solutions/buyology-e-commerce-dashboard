@@ -68,7 +68,7 @@ export default function SupplierRefundsPage() {
       <PageMeta title="Refunds | Supplier Portal" description="Refunds affecting your products" />
       <PageBreadcrumb pageTitle="Refunds" />
 
-      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
         <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
           Refund requests that involve your products. This view is read-only — refund
           approvals and payments are handled by the store administrators.
@@ -105,7 +105,7 @@ export default function SupplierRefundsPage() {
         ) : error ? (
           <p className="text-sm text-red-600">{error}</p>
         ) : !data || data.content.length === 0 ? (
-          <div className="rounded-xl border-2 border-dashed border-gray-200 p-5 text-center dark:border-gray-700">
+          <div className="rounded-xl border-2 border-dashed border-gray-200 p-8 text-center dark:border-gray-700">
             <p className="text-gray-500 dark:text-gray-400">No refunds involving your products.</p>
           </div>
         ) : (

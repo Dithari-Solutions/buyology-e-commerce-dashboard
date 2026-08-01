@@ -1,52 +1,49 @@
 import { Link } from "react-router";
-import type { ReactNode } from "react";
 
 interface BreadcrumbProps {
-  /** Page title — rendered as the page's h1. */
   pageTitle: string;
-  /** Optional one-line explanation shown under the title. */
-  description?: string;
-  /** Optional right-aligned actions (buttons, filters). Replaces the crumb trail. */
-  actions?: ReactNode;
 }
 
-/**
- * Compact page header used at the top of every page. Title, trail and any page
- * actions sit on a single row so content starts high on the screen instead of
- * after a tall masthead.
- */
-const PageBreadcrumb: React.FC<BreadcrumbProps> = ({
-  pageTitle,
-  description,
-  actions,
-}) => {
+const PageBreadcrumb: React.FC<BreadcrumbProps> = ({ pageTitle }) => {
   return (
-    <div className="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-      <div className="min-w-0">
-        <h1 className="ui-page-title truncate">{pageTitle}</h1>
-        {description && <p className="ui-muted mt-0.5">{description}</p>}
-      </div>
-
-      {actions ?? (
-        <nav aria-label="Breadcrumb">
-          <ol className="flex items-center gap-1 text-xs text-gray-400">
-            <li>
-              <Link
-                to="/"
-                className="transition-colors hover:text-gray-600 dark:hover:text-gray-300"
+    <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <h2
+        className="text-xl font-semibold text-gray-800 dark:text-white/90"
+        x-text="pageName"
+      >
+        {pageTitle}
+      </h2>
+      <nav>
+        <ol className="flex items-center gap-1.5">
+          <li>
+            <Link
+              className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400"
+              to="/"
+            >
+              Home
+              <svg
+                className="stroke-current"
+                width="17"
+                height="16"
+                viewBox="0 0 17 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                Home
-              </Link>
-            </li>
-            <li aria-hidden className="text-gray-300 dark:text-gray-600">
-              /
-            </li>
-            <li className="font-medium text-gray-600 dark:text-gray-300">
-              {pageTitle}
-            </li>
-          </ol>
-        </nav>
-      )}
+                <path
+                  d="M6.0765 12.667L10.2432 8.50033L6.0765 4.33366"
+                  stroke=""
+                  strokeWidth="1.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Link>
+          </li>
+          <li className="text-sm text-gray-800 dark:text-white/90">
+            {pageTitle}
+          </li>
+        </ol>
+      </nav>
     </div>
   );
 };

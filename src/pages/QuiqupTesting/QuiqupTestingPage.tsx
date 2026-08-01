@@ -40,9 +40,9 @@ function StatusPill({ result }: { result?: QuiqupResult | null }) {
 
 const btn =
   "inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed";
-const btnPrimary = `${btn} bg-brand-600 text-white hover:bg-brand-700`;
+const btnPrimary = `${btn} bg-brand-500 text-white hover:bg-brand-600`;
 const btnGhost = `${btn} border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-white/[0.05]`;
-const card = "rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900";
+const card = "rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]";
 const textarea =
   "w-full rounded-lg border border-gray-300 bg-white p-3 font-mono text-xs text-gray-800 focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100";
 
@@ -102,7 +102,7 @@ function OrderFlow({
   };
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="grid gap-5 lg:grid-cols-2">
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h4 className="font-semibold text-gray-800 dark:text-white">{kind} — request body</h4>
@@ -244,19 +244,19 @@ export default function QuiqupTestingPage() {
       <PageBreadcrumb pageTitle="Quiqup Testing" />
 
       {/* Isolation banner */}
-      <div className="mb-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-800/60 dark:bg-amber-900/20 dark:text-amber-200">
+      <div className="mb-5 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-800/60 dark:bg-amber-900/20 dark:text-amber-200">
         <b>Staging test module.</b> Calls only the Quiqup <b>staging</b> API and is decoupled from the
         order lifecycle — it never touches production orders or the customer website. SUPERADMIN only.
       </div>
 
       {configErr && (
-        <div className="mb-4 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800/60 dark:bg-red-900/20 dark:text-red-300">
+        <div className="mb-5 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800/60 dark:bg-red-900/20 dark:text-red-300">
           {configErr}
         </div>
       )}
 
       {config && !enabled && (
-        <div className="mb-4 rounded-xl border border-orange-300 bg-orange-50 p-4 text-sm text-orange-800 dark:border-orange-800/60 dark:bg-orange-900/20 dark:text-orange-200">
+        <div className="mb-5 rounded-xl border border-orange-300 bg-orange-50 p-4 text-sm text-orange-800 dark:border-orange-800/60 dark:bg-orange-900/20 dark:text-orange-200">
           <b>Module is disabled.</b> Set <code className="font-mono">QUIQUP_ENABLED=true</code> and{" "}
           <code className="font-mono">QUIQUP_API_KEY</code> in the backend environment and redeploy to run live calls.
           You can still review the configuration below.
@@ -264,7 +264,7 @@ export default function QuiqupTestingPage() {
       )}
 
       {/* Connection + credentials + auth */}
-      <div className={`${card} mb-4`}>
+      <div className={`${card} mb-5`}>
         <div className="grid gap-4 md:grid-cols-3">
           <div>
             <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Module</p>
@@ -306,7 +306,7 @@ export default function QuiqupTestingPage() {
 
       {/* Tabs */}
       <div className={card}>
-        <div className="mb-4 flex flex-wrap gap-2 border-b border-gray-100 pb-3 dark:border-gray-800">
+        <div className="mb-5 flex flex-wrap gap-2 border-b border-gray-100 pb-3 dark:border-gray-800">
           {tabs.map((t) => (
             <button
               key={t.id}
@@ -344,7 +344,7 @@ export default function QuiqupTestingPage() {
         )}
 
         {tab === "raw" && (
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid gap-5 lg:grid-cols-2">
             <div className="space-y-3">
               <h4 className="font-semibold text-gray-800 dark:text-white">Raw request to Quiqup staging</h4>
               <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -385,7 +385,7 @@ export default function QuiqupTestingPage() {
 
         {tab === "webhooks" && (
           <div className="space-y-4">
-            <div className="rounded-lg bg-gray-50 p-3 text-sm dark:bg-gray-900">
+            <div className="rounded-lg bg-gray-50 p-3 text-sm dark:bg-white/[0.03]">
               <p className="text-gray-600 dark:text-gray-300">Configure Quiqup's staging webhook to POST to:</p>
               <p className="mt-1 break-all font-mono text-xs text-gray-800 dark:text-gray-100">{webhookUrl}</p>
               <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">

@@ -160,7 +160,7 @@ export default function SupplierProductsPage() {
       <PageMeta title="Supplier Products Review | Buyology" description="Review supplier product submissions" />
       <PageBreadcrumb pageTitle="Supplier Products Review" />
 
-      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="mb-4 flex items-center gap-2 flex-wrap">
           {TABS.map((t) => (
             <button
@@ -180,7 +180,7 @@ export default function SupplierProductsPage() {
         {loading ? (
           <p className="text-sm text-gray-500">Loading…</p>
         ) : products.length === 0 ? (
-          <div className="rounded-xl border-2 border-dashed border-gray-200 p-5 text-center dark:border-gray-700">
+          <div className="rounded-xl border-2 border-dashed border-gray-200 p-8 text-center dark:border-gray-700">
             <p className="text-gray-500 dark:text-gray-400">No products found.</p>
           </div>
         ) : (
@@ -224,12 +224,12 @@ export default function SupplierProductsPage() {
       {selected && (
         <div className="fixed inset-0 z-50 flex items-stretch justify-end bg-black/40" onClick={closeDetail}>
           <div
-            className="h-full w-full max-w-lg overflow-y-auto bg-white p-4 shadow-theme-lg dark:bg-gray-900"
+            className="h-full w-full max-w-lg overflow-y-auto bg-white p-6 shadow-xl dark:bg-gray-900"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-base font-semibold dark:text-white">Product Details</h3>
-              <button onClick={closeDetail} className="text-gray-400 hover:text-gray-600 text-lg">
+            <div className="mb-5 flex items-center justify-between">
+              <h3 className="text-lg font-semibold dark:text-white">Product Details</h3>
+              <button onClick={closeDetail} className="text-gray-400 hover:text-gray-600 text-xl">
                 ✕
               </button>
             </div>
@@ -239,7 +239,7 @@ export default function SupplierProductsPage() {
             ) : detailError ? (
               <p className="text-sm text-red-500">{detailError}</p>
             ) : detail ? (
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {/* Media gallery */}
                 {detail.media.length > 0 && (
                   <div>
@@ -256,7 +256,7 @@ export default function SupplierProductsPage() {
                           <button
                             key={m.id}
                             onClick={() => setPreviewMedia(m)}
-                            className={`h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg border-2 transition-all ${
+                            className={`h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg border-2 transition-all ${
                               previewMedia?.id === m.id
                                 ? "border-brand-500"
                                 : "border-gray-200 dark:border-gray-700 hover:border-brand-300"
@@ -355,7 +355,7 @@ export default function SupplierProductsPage() {
             ) : null}
 
             {/* Actions */}
-            <div className="mt-4 space-y-3 border-t border-gray-100 pt-4 dark:border-gray-800">
+            <div className="mt-6 space-y-3 border-t border-gray-100 pt-4 dark:border-gray-800">
               {error && <p className="text-xs text-red-500">{error}</p>}
 
               {/* Review actions */}

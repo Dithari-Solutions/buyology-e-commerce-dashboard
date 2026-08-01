@@ -66,7 +66,7 @@ export default function AllOrdersPage() {
       <PageMeta title="All Orders | Buyology" description="Every order across the platform" />
       <PageBreadcrumb pageTitle="All Orders" />
 
-      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="mb-4 flex flex-wrap items-end gap-4">
           <div>
             <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Status</label>
@@ -109,7 +109,7 @@ export default function AllOrdersPage() {
         {loading ? (
           <p className="text-sm text-gray-500">Loading…</p>
         ) : orders.length === 0 ? (
-          <div className="rounded-xl border-2 border-dashed border-gray-200 p-5 text-center dark:border-gray-700">
+          <div className="rounded-xl border-2 border-dashed border-gray-200 p-8 text-center dark:border-gray-700">
             <p className="text-gray-500 dark:text-gray-400">No orders found.</p>
           </div>
         ) : (

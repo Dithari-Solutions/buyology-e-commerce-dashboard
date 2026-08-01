@@ -47,7 +47,7 @@ function AnswerModal({
   const [body, setBody] = useState(initialValue);
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 shadow-theme-lg">
+      <div className="w-full max-w-md rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-xl">
         <h3 className="text-base font-semibold text-gray-800 dark:text-white/90 mb-1">
           {mode === "add" ? "Add Answer" : "Edit Answer"}
         </h3>
@@ -71,7 +71,7 @@ function AnswerModal({
           <button
             onClick={() => body.trim() && onConfirm(body.trim())}
             disabled={!body.trim() || loading}
-            className="rounded-xl bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="rounded-xl bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? "Saving…" : "Save Answer"}
           </button>
@@ -101,7 +101,7 @@ function QuestionCard({
   const isLoading = actionLoading === question.id;
 
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+    <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-5">
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex flex-col gap-1">
@@ -124,7 +124,7 @@ function QuestionCard({
       </div>
 
       {/* Question body */}
-      <div className="mt-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 px-4 py-2.5">
+      <div className="mt-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 px-4 py-3">
         <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
           <span className="font-semibold text-gray-500 dark:text-gray-400 mr-1">Q:</span>
           {question.body}
@@ -133,7 +133,7 @@ function QuestionCard({
 
       {/* Answer section */}
       {question.answer && (
-        <div className={`mt-3 rounded-xl border px-4 py-2.5 ${
+        <div className={`mt-3 rounded-xl border px-4 py-3 ${
           question.answer.isActive
             ? "border-brand-200 dark:border-brand-800/30 bg-brand-50 dark:bg-brand-500/5"
             : "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/30 opacity-60"
@@ -457,17 +457,17 @@ export default function Questions() {
       <PageBreadcrumb pageTitle="Questions & Answers" />
 
       {/* Stats */}
-      <div className="mb-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="flex items-center gap-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4"
+            className="flex items-center gap-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-4"
           >
             <span className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${stat.color}`}>
               {stat.icon}
             </span>
             <div>
-              <p className="text-xl font-bold text-gray-800 dark:text-white/90 leading-none">
+              <p className="text-2xl font-bold text-gray-800 dark:text-white/90 leading-none">
                 {loading ? "—" : stat.value}
               </p>
               <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{stat.label}</p>
@@ -477,8 +477,8 @@ export default function Questions() {
       </div>
 
       {/* Toolbar */}
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-base font-semibold text-gray-800 dark:text-white/90">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
           Customer Questions
           {!loading && (
             <span className="ml-2 text-sm font-normal text-gray-400">({filtered.length})</span>
@@ -492,7 +492,7 @@ export default function Questions() {
                 onClick={() => setStatusFilter(value)}
                 className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
                   statusFilter === value
-                    ? "bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-theme-xs"
+                    ? "bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-sm"
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                 }`}
               >
@@ -539,7 +539,7 @@ export default function Questions() {
 
       {/* Error */}
       {error && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-16 text-center">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-16 text-center">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mb-3 text-red-400">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
@@ -561,7 +561,7 @@ export default function Questions() {
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 space-y-3 animate-pulse"
+              className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-5 space-y-3 animate-pulse"
             >
               <div className="flex justify-between">
                 <div className="h-4 w-32 rounded-full bg-gray-200 dark:bg-gray-700" />
@@ -577,7 +577,7 @@ export default function Questions() {
       {!loading && !error && (
         <div className="flex flex-col gap-4">
           {filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-xl border border-gray-200 dark:border-gray-800 py-20 text-center">
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-gray-800 py-20 text-center">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" className="mb-4 text-gray-300 dark:text-gray-600">
                 <circle cx="12" cy="12" r="10" />
                 <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />

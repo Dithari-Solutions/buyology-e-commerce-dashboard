@@ -24,7 +24,7 @@ export default function LanguageToggler() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
+        className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
       >
         <span className="uppercase">{lang}</span>
         <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -32,7 +32,7 @@ export default function LanguageToggler() {
         </svg>
       </button>
       {open && (
-        <div className="absolute right-0 z-50 mt-1.5 w-40 overflow-hidden rounded-lg border border-gray-200 bg-white p-1 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark">
+        <div className="absolute right-0 mt-1 w-40 overflow-hidden rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800 z-50">
           {SUPPORTED_LANGS.map((code: Lang) => (
             <button
               key={code}
@@ -41,7 +41,7 @@ export default function LanguageToggler() {
                 setLang(code);
                 setOpen(false);
               }}
-              className={`block w-full rounded-md px-2.5 py-1.5 text-left text-xs transition-colors hover:bg-gray-100 dark:hover:bg-white/5 ${
+              className={`block w-full px-3 py-2 text-left text-xs hover:bg-gray-50 dark:hover:bg-gray-700 ${
                 code === lang ? "font-semibold text-brand-600" : "text-gray-700 dark:text-gray-200"
               }`}
             >

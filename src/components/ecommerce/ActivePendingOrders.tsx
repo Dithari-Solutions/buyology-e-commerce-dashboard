@@ -53,10 +53,10 @@ export default function ActivePendingOrders() {
   const top = useMemo(() => orders.slice(0, 8), [orders]);
 
   return (
-    <div className="ui-card">
-      <div className="ui-card-head">
+    <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+      <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-gray-800">
         <div>
-          <h3 className="ui-section-title">
+          <h3 className="font-semibold text-gray-800 dark:text-white/90">
             Pending & Active Orders
           </h3>
           <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -72,20 +72,20 @@ export default function ActivePendingOrders() {
       </div>
 
       {error && (
-        <div className="px-4 py-5 text-center text-sm text-red-500">{error}</div>
+        <div className="px-6 py-8 text-center text-sm text-red-500">{error}</div>
       )}
 
       {!error && (
         <div className="divide-y divide-gray-100 dark:divide-gray-800">
           {loading && Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-3 px-4 py-2.5">
+            <div key={i} className="flex items-center gap-4 px-6 py-4">
               <div className="h-3 w-32 rounded-full bg-gray-100 animate-pulse dark:bg-gray-800" />
               <div className="ml-auto h-3 w-16 rounded-full bg-gray-100 animate-pulse dark:bg-gray-800" />
             </div>
           ))}
 
           {!loading && top.length === 0 && (
-            <div className="px-4 py-12 text-center text-sm text-gray-500">
+            <div className="px-6 py-12 text-center text-sm text-gray-500">
               No pending or active orders right now.
             </div>
           )}
@@ -94,7 +94,7 @@ export default function ActivePendingOrders() {
             <Link
               key={o.id}
               to={`/orders/${o.storeId}/${o.id}`}
-              className="flex items-center gap-4 px-4 py-2.5 transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.02]"
+              className="flex items-center gap-4 px-6 py-3.5 transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.02]"
             >
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-gray-800 dark:text-white/90">

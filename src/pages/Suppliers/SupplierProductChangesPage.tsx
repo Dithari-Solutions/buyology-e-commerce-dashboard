@@ -80,7 +80,7 @@ export default function SupplierProductChangesPage() {
       <PageMeta title="Supplier Change Requests | Buyology" description="Approve supplier product edits, deletes and restores" />
       <PageBreadcrumb pageTitle="Supplier Change Requests" />
 
-      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="mb-4 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <label className="text-xs uppercase text-gray-500">Status</label>
@@ -110,7 +110,7 @@ export default function SupplierProductChangesPage() {
         ) : error ? (
           <p className="text-sm text-red-600">{error}</p>
         ) : !data || data.content.length === 0 ? (
-          <div className="rounded-xl border-2 border-dashed border-gray-200 p-5 text-center dark:border-gray-700">
+          <div className="rounded-xl border-2 border-dashed border-gray-200 p-8 text-center dark:border-gray-700">
             <p className="text-gray-500 dark:text-gray-400">No change requests.</p>
           </div>
         ) : (

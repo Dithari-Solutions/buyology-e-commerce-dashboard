@@ -66,56 +66,57 @@ const AppHeader: React.FC = () => {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const iconButton =
-    "flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-100";
-
   return (
-    <header className="sticky top-0 z-[99999] w-full border-b border-gray-200 bg-white/85 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/85">
-      <div className="flex h-14 w-full items-center justify-between gap-3 px-4 md:px-6">
+    <header className="sticky top-0 z-[99999] w-full">
+      {/* Glass bar */}
+      <div className="relative flex w-full items-center justify-between gap-3 bg-white/80 px-4 py-3 backdrop-blur-md dark:bg-gray-900/80 lg:px-6 lg:py-3.5">
+
         {/* Left — toggle + logo + search */}
-        <div className="flex min-w-0 items-center gap-2">
+        <div className="flex items-center gap-3">
+          {/* Sidebar toggle */}
           <button
             onClick={handleToggle}
             aria-label="Toggle Sidebar"
-            className={iconButton}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 text-gray-500 transition hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-200"
           >
             {isMobileOpen ? <CloseIcon /> : <MenuIcon />}
           </button>
 
           {/* Logo — mobile only */}
           <Link to="/" className="lg:hidden">
-            <img className="h-6 dark:hidden" src="/images/logo/logo.svg" alt="Logo" />
-            <img className="hidden h-6 dark:block" src="/images/logo/logo-dark.svg" alt="Logo" />
+            <img className="h-7 dark:hidden" src="/images/logo/logo.svg" alt="Logo" />
+            <img className="hidden h-7 dark:block" src="/images/logo/logo-dark.svg" alt="Logo" />
           </Link>
 
           {/* Search — desktop only */}
           <div className="relative hidden lg:block">
-            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
               <SearchIcon />
             </span>
             <input
               ref={inputRef}
               type="text"
-              placeholder="Search…"
-              className="h-8 w-56 rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-14 text-[13px] text-gray-700 placeholder:text-gray-400 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800/60 dark:text-gray-200 dark:placeholder:text-gray-500 dark:focus:border-brand-500 dark:focus:bg-gray-800 xl:w-72"
+              placeholder="Search anything..."
+              className="h-10 w-72 rounded-full border border-gray-200 bg-gray-50 py-2 pl-10 pr-16 text-sm text-gray-700 placeholder:text-gray-400 focus:border-indigo-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-gray-700 dark:bg-gray-800/60 dark:text-gray-200 dark:placeholder:text-gray-500 dark:focus:border-indigo-600 dark:focus:bg-gray-800 xl:w-96"
             />
-            <kbd className="pointer-events-none absolute right-2 top-1/2 hidden -translate-y-1/2 items-center gap-0.5 rounded border border-gray-200 bg-white px-1.5 py-px text-[10px] font-medium text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-500 sm:flex">
-              <span>⌘</span>
-              <span>K</span>
+            <kbd className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 hidden items-center gap-0.5 rounded-md border border-gray-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-500 sm:flex">
+              <span>⌘</span><span>K</span>
             </kbd>
           </div>
         </div>
 
         {/* Right — actions + user (desktop) / dots (mobile) */}
-        <div className="flex items-center gap-1">
-          <div className="hidden items-center gap-1 lg:flex">
+        <div className="flex items-center gap-2">
+          {/* Desktop action bar */}
+          <div className="hidden items-center gap-2 lg:flex">
+            {/* Divider */}
+            <span className="mx-1 h-5 w-px bg-gray-200 dark:bg-gray-700" />
             {/* Suppliers (without higher admin roles) get a language toggler. */}
             {hasRole("SUPPLIER") && !hasAnyRole("ADMIN", "SUPERADMIN", "CUSTOMER_SUPPORT") && (
               <LanguageToggler />
             )}
             <ThemeToggleButton />
             <NotificationDropdown />
-            <span className="mx-1.5 h-5 w-px bg-gray-200 dark:bg-gray-800" />
           </div>
 
           {/* User dropdown — always visible on desktop */}
@@ -127,27 +128,31 @@ const AppHeader: React.FC = () => {
           <button
             onClick={() => setApplicationMenuOpen(!isApplicationMenuOpen)}
             aria-label="App menu"
-            className={`${iconButton} lg:hidden`}
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 transition hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
           >
             <DotsIcon />
           </button>
         </div>
       </div>
 
+      {/* Bottom gradient accent line */}
+      <div className="h-px bg-gradient-to-r from-transparent via-indigo-400/50 to-transparent dark:via-indigo-600/40" />
+
       {/* Mobile expanded menu */}
       {isApplicationMenuOpen && (
-        <div className="flex items-center justify-between gap-3 border-t border-gray-100 bg-white px-4 py-2.5 dark:border-gray-800 dark:bg-gray-900 lg:hidden">
+        <div className="flex items-center justify-between gap-4 border-t border-gray-100 bg-white/90 px-5 py-3 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/90 lg:hidden">
+          {/* Mobile search */}
           <div className="relative flex-1">
             <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
               <SearchIcon />
             </span>
             <input
               type="text"
-              placeholder="Search…"
-              className="h-8 w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 text-[13px] text-gray-700 placeholder:text-gray-400 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:placeholder:text-gray-500"
+              placeholder="Search..."
+              className="h-9 w-full rounded-full border border-gray-200 bg-gray-50 py-2 pl-9 pr-4 text-sm text-gray-700 placeholder:text-gray-400 focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:placeholder:text-gray-500"
             />
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             {hasRole("SUPPLIER") && !hasAnyRole("ADMIN", "SUPERADMIN", "CUSTOMER_SUPPORT") && (
               <LanguageToggler />
             )}

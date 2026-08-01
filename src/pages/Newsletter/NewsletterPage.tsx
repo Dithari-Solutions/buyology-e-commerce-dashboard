@@ -54,20 +54,20 @@ export default function NewsletterPage() {
       <PageMeta title="Newsletter | Buyology" description="Manage newsletter and news articles" />
       <PageBreadcrumb pageTitle="Newsletter" />
 
-      <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
           <p className="text-sm text-gray-500 dark:text-gray-400">Active Subscribers</p>
-          <p className="text-2xl font-bold text-gray-800 dark:text-white">{subscriberCount.toLocaleString()}</p>
+          <p className="text-3xl font-bold text-gray-800 dark:text-white">{subscriberCount.toLocaleString()}</p>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
           <p className="text-sm text-gray-500 dark:text-gray-400">Total Articles</p>
-          <p className="text-2xl font-bold text-gray-800 dark:text-white">{articles.length}</p>
+          <p className="text-3xl font-bold text-gray-800 dark:text-white">{articles.length}</p>
         </div>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-        <div className="border-b border-gray-100 dark:border-gray-800 px-4 pt-4">
-          <div className="flex gap-4">
+      <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="border-b border-gray-100 dark:border-gray-800 px-6 pt-4">
+          <div className="flex gap-6">
             {(["articles", "create"] as const).map((tab) => (
               <button key={tab} onClick={() => setActiveTab(tab)}
                 className={`pb-3 text-sm font-medium capitalize border-b-2 transition-colors ${activeTab === tab ? "border-brand-500 text-brand-500" : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400"}`}>
@@ -77,11 +77,11 @@ export default function NewsletterPage() {
           </div>
         </div>
 
-        <div className="p-4">
+        <div className="p-6">
           {activeTab === "articles" && (
             loading ? <p className="text-sm text-gray-500">Loading...</p> :
             articles.length === 0 ? (
-              <div className="rounded-xl border-2 border-dashed border-gray-200 p-5 text-center dark:border-gray-700">
+              <div className="rounded-xl border-2 border-dashed border-gray-200 p-8 text-center dark:border-gray-700">
                 <p className="text-gray-500 dark:text-gray-400">No articles yet. Create one!</p>
               </div>
             ) : (
@@ -105,7 +105,7 @@ export default function NewsletterPage() {
                           Publish Only
                         </button>
                         <button onClick={() => handlePublish(art.id, true)} disabled={publishing === art.id}
-                          className="rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700 disabled:opacity-50">
+                          className="rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-600 disabled:opacity-50">
                           {publishing === art.id ? "..." : "Publish & Send"}
                         </button>
                       </div>
@@ -135,7 +135,7 @@ export default function NewsletterPage() {
               </div>
               {msg && <p className="text-sm text-gray-600 dark:text-gray-400">{msg}</p>}
               <button onClick={handleCreate} disabled={saving || !form.title || !form.content}
-                className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50">
+                className="rounded-lg bg-brand-500 px-6 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50">
                 {saving ? "Saving..." : "Save as Draft"}
               </button>
             </div>

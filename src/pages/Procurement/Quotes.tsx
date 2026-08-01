@@ -53,9 +53,9 @@ export default function Quotes() {
       <PageMeta title="B2B Quotes | Buyology" description="Price and manage B2B RFQ quotes" />
       <PageBreadcrumb pageTitle="Quotes" />
 
-      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
-          <h2 className="text-base font-semibold text-gray-800 dark:text-white">B2B RFQ Quotes</h2>
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-white">B2B RFQ Quotes</h2>
           <div>
             <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Status</label>
             <select
@@ -75,7 +75,7 @@ export default function Quotes() {
         {loading ? (
           <p className="text-sm text-gray-500">Loading…</p>
         ) : quotes.length === 0 ? (
-          <div className="rounded-xl border-2 border-dashed border-gray-200 p-5 text-center dark:border-gray-700">
+          <div className="rounded-xl border-2 border-dashed border-gray-200 p-8 text-center dark:border-gray-700">
             <p className="text-gray-500 dark:text-gray-400">No quotes with status {status}.</p>
           </div>
         ) : (

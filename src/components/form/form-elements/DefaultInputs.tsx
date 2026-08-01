@@ -19,7 +19,7 @@ export default function DefaultInputs() {
 
   return (
     <ComponentCard title="Default Inputs">
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div>
           <Label htmlFor="input">Input</Label>
           <Input type="text" id="input" />
@@ -91,7 +91,7 @@ export default function DefaultInputs() {
               placeholder="Card number"
               className="pl-[62px]"
             />
-            <span className="absolute left-0 top-1/2 flex h-9 w-[46px] -translate-y-1/2 items-center justify-center border-r border-gray-200 dark:border-gray-800">
+            <span className="absolute left-0 top-1/2 flex h-11 w-[46px] -translate-y-1/2 items-center justify-center border-r border-gray-200 dark:border-gray-800">
               <svg
                 width="20"
                 height="20"

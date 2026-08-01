@@ -232,10 +232,10 @@ export default function BannersPage() {
       <PageMeta title="Banners | Buyology" description="Manage home page promo banners" />
       <PageBreadcrumb pageTitle="Banners" />
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-4">
-            <h2 className="text-base font-semibold text-gray-800 dark:text-white">Promo Banners</h2>
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-white">Promo Banners</h2>
             <div className="inline-flex rounded-lg border border-gray-200 p-0.5 dark:border-gray-700">
               {(["WEB", "MOBILE"] as BannerPlatform[]).map((p) => (
                 <button
@@ -255,7 +255,7 @@ export default function BannersPage() {
           {!showForm && (
             <button
               onClick={startCreate}
-              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+              className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600"
             >
               + Add {platformFilter.toLowerCase()} banner
             </button>
@@ -263,19 +263,19 @@ export default function BannersPage() {
         </div>
 
         {msg && (
-          <div className="rounded-lg border border-gray-200 bg-white p-3 text-sm dark:border-gray-800 dark:bg-gray-900 dark:text-white">
+          <div className="rounded-lg border border-gray-200 bg-white p-3 text-sm dark:border-gray-800 dark:bg-white/[0.03] dark:text-white">
             {msg}
           </div>
         )}
 
         {showForm && (
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
             <h3 className="mb-4 text-base font-semibold text-gray-800 dark:text-white">
               {editingId ? "Edit banner" : "New banner"}
             </h3>
 
             {/* Background image */}
-            <div className="mb-4">
+            <div className="mb-6">
               <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Background image
               </label>
@@ -432,11 +432,11 @@ export default function BannersPage() {
               </p>
             </div>
 
-            <div className="mt-4 flex gap-2">
+            <div className="mt-6 flex gap-2">
               <button
                 onClick={submit}
                 disabled={saving}
-                className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
+                className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
               >
                 {saving ? "Saving…" : editingId ? "Save changes" : "Create banner"}
               </button>
@@ -450,22 +450,22 @@ export default function BannersPage() {
           </div>
         )}
 
-        <div className="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+        <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
           {loading ? (
-            <div className="p-4 text-sm text-gray-500 dark:text-gray-400">Loading…</div>
+            <div className="p-6 text-sm text-gray-500 dark:text-gray-400">Loading…</div>
           ) : banners.length === 0 ? (
-            <div className="p-4 text-sm text-gray-500 dark:text-gray-400">No banners yet.</div>
+            <div className="p-6 text-sm text-gray-500 dark:text-gray-400">No banners yet.</div>
           ) : (
             <table className="w-full text-left text-sm">
               <thead className="border-b border-gray-200 text-xs uppercase text-gray-500 dark:border-gray-800 dark:text-gray-400">
                 <tr>
                   <th className="w-10 px-2 py-3"></th>
-                  <th className="px-4 py-2.5">Preview</th>
-                  <th className="px-4 py-2.5">Text (EN)</th>
-                  <th className="px-4 py-2.5">Button</th>
-                  <th className="px-4 py-2.5">Order</th>
-                  <th className="px-4 py-2.5">Status</th>
-                  <th className="px-4 py-2.5"></th>
+                  <th className="px-4 py-3">Preview</th>
+                  <th className="px-4 py-3">Text (EN)</th>
+                  <th className="px-4 py-3">Button</th>
+                  <th className="px-4 py-3">Order</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
@@ -512,7 +512,7 @@ export default function BannersPage() {
                         </svg>
                       </div>
                     </td>
-                    <td className="px-4 py-2.5">
+                    <td className="px-4 py-3">
                       <div
                         className="h-12 w-24 rounded-md bg-gray-200 dark:bg-gray-700"
                         style={{
@@ -524,13 +524,13 @@ export default function BannersPage() {
                         }}
                       />
                     </td>
-                    <td className="max-w-xs truncate px-4 py-2.5">
+                    <td className="max-w-xs truncate px-4 py-3">
                       <div>{b.translation.textEn || "—"}</div>
                       <span className="mt-1 inline-block rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
                         {b.platform}
                       </span>
                     </td>
-                    <td className="px-4 py-2.5">
+                    <td className="px-4 py-3">
                       {b.buttonUrl ? (
                         <span className="text-xs text-gray-500 dark:text-gray-400">
                           {b.translation.buttonLabelEn || "(no label)"} → {b.buttonUrl}
@@ -539,7 +539,7 @@ export default function BannersPage() {
                         <span className="text-xs text-gray-400">none</span>
                       )}
                     </td>
-                    <td className="px-4 py-2.5">
+                    <td className="px-4 py-3">
                       <input
                         type="number"
                         defaultValue={b.sortOrder}
@@ -550,7 +550,7 @@ export default function BannersPage() {
                         className="w-16 rounded border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-800"
                       />
                     </td>
-                    <td className="px-4 py-2.5">
+                    <td className="px-4 py-3">
                       <button
                         onClick={() => toggleStatus(b)}
                         className={`rounded-full px-2 py-1 text-xs font-medium ${
@@ -562,7 +562,7 @@ export default function BannersPage() {
                         {b.status}
                       </button>
                     </td>
-                    <td className="px-4 py-2.5 text-right">
+                    <td className="px-4 py-3 text-right">
                       <button
                         onClick={() => startEdit(b)}
                         className="mr-2 text-sm text-brand-500 hover:underline"

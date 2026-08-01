@@ -81,7 +81,7 @@ export default function CourierProfilesPage() {
       <PageMeta title="Store Couriers | Buyology" description="Manage per-store delivery couriers" />
       <PageBreadcrumb pageTitle="Store Couriers" />
 
-      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900 space-y-4">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03] space-y-5">
         <div className="flex items-center gap-2">
           <label className="text-xs uppercase text-gray-500">Store</label>
           <select value={storeId} onChange={(e) => setStoreId(e.target.value)} className={input}>
@@ -90,7 +90,7 @@ export default function CourierProfilesPage() {
         </div>
 
         {msg && (
-          <div className={`rounded-xl px-4 py-2.5 text-sm ${msg.kind === "ok" ? "bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400" : "bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400"}`}>
+          <div className={`rounded-xl px-4 py-3 text-sm ${msg.kind === "ok" ? "bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400" : "bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400"}`}>
             {msg.text}
           </div>
         )}

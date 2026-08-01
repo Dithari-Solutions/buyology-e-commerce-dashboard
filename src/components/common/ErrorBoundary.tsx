@@ -34,8 +34,8 @@ export default class ErrorBoundary extends Component<Props, State> {
     if (!this.state.hasError) return this.props.children;
 
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-gray-50 px-4 text-center dark:bg-gray-900">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-error-50 dark:bg-error-500/15">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-5 bg-gray-50 px-6 text-center dark:bg-gray-900">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-error-50 dark:bg-error-500/15">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F04438" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
@@ -43,14 +43,14 @@ export default class ErrorBoundary extends Component<Props, State> {
           </svg>
         </div>
         <div>
-          <h1 className="text-lg font-semibold text-gray-800 dark:text-white/90">Something went wrong</h1>
+          <h1 className="text-xl font-semibold text-gray-800 dark:text-white/90">Something went wrong</h1>
           <p className="mt-2 max-w-md text-sm text-gray-500 dark:text-gray-400">
             An unexpected error occurred. Try reloading the page — if it keeps happening, contact the dev team.
           </p>
         </div>
         <button
           onClick={this.handleReload}
-          className="rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700"
+          className="rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-brand-600"
         >
           Reload page
         </button>

@@ -56,8 +56,7 @@ export default function NotificationDropdown() {
   return (
     <div className="relative">
       <button
-        aria-label="Notifications"
-        className="dropdown-toggle relative flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
+        className="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full dropdown-toggle hover:text-gray-700 h-11 w-11 hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
         onClick={() => (isOpen ? closeDropdown() : openDropdown())}
       >
         <span
@@ -67,7 +66,7 @@ export default function NotificationDropdown() {
         >
           <span className="absolute inline-flex w-full h-full bg-orange-400 rounded-full opacity-75 animate-ping"></span>
         </span>
-        <svg className="fill-current" width="17" height="17" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <svg className="fill-current" width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
           <path
             fillRule="evenodd"
             clipRule="evenodd"
@@ -79,12 +78,12 @@ export default function NotificationDropdown() {
       <Dropdown
         isOpen={isOpen}
         onClose={closeDropdown}
-        className="absolute -right-[240px] mt-1.5 flex h-[420px] w-[320px] flex-col rounded-lg border border-gray-200 bg-white p-2 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark sm:w-[340px] lg:right-0"
+        className="absolute -right-[240px] mt-[17px] flex h-[480px] w-[350px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark sm:w-[361px] lg:right-0"
       >
-        <div className="mb-2 flex items-center justify-between border-b border-gray-100 px-1 pb-2 dark:border-gray-800">
-          <h5 className="ui-section-title">Notifications</h5>
+        <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100 dark:border-gray-700">
+          <h5 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Notifications</h5>
           <button onClick={closeDropdown} className="text-gray-500 transition dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
-            <svg className="fill-current" width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <svg className="fill-current" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path
                 fillRule="evenodd"
                 clipRule="evenodd"
@@ -102,14 +101,14 @@ export default function NotificationDropdown() {
               <li key={n.id}>
                 <button
                   onClick={() => handleItemClick(n)}
-                  className={`flex w-full gap-2.5 rounded-md border-b border-gray-100 p-2 text-left transition-colors hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5 ${
+                  className={`flex w-full gap-3 rounded-lg border-b border-gray-100 p-3 text-left hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5 ${
                     n.isRead ? "" : "bg-brand-50/60 dark:bg-brand-500/5"
                   }`}
                 >
                   <span className={`mt-1 h-2 w-2 shrink-0 rounded-full ${n.isRead ? "bg-transparent" : "bg-brand-500"}`} />
                   <span className="min-w-0">
-                    <span className="block text-[13px] font-medium text-gray-900 dark:text-white/90">{n.title}</span>
-                    <span className="block truncate text-xs text-gray-500 dark:text-gray-400">{n.body}</span>
+                    <span className="block text-sm font-medium text-gray-800 dark:text-white/90">{n.title}</span>
+                    <span className="block truncate text-sm text-gray-500 dark:text-gray-400">{n.body}</span>
                     <span className="mt-1 block text-xs text-gray-400">
                       {n.type} · {timeAgo(n.createdAt)}
                     </span>

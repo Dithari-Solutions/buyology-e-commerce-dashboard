@@ -9,8 +9,8 @@ import {
 
 const btn =
   "inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed";
-const btnPrimary = `${btn} bg-brand-600 text-white hover:bg-brand-700`;
-const card = "rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900";
+const btnPrimary = `${btn} bg-brand-500 text-white hover:bg-brand-600`;
+const card = "rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]";
 
 /** Strip HTML tags from an ERPNext description (Frappe stores rich text). */
 function plainText(html: string | null): string {
@@ -21,7 +21,7 @@ function plainText(html: string | null): string {
 function ProductCard({ p }: { p: ErpProduct }) {
   return (
     <div className={`${card} flex flex-col gap-3`}>
-      <div className="flex h-40 items-center justify-center overflow-hidden rounded-xl bg-gray-50 dark:bg-gray-900">
+      <div className="flex h-40 items-center justify-center overflow-hidden rounded-xl bg-gray-50 dark:bg-white/[0.02]">
         {p.image ? (
           <img
             src={p.image}
@@ -61,7 +61,7 @@ function ProductCard({ p }: { p: ErpProduct }) {
       </div>
 
       <div className="mt-auto flex items-end justify-between">
-        <span className="text-base font-semibold text-gray-900 dark:text-white">
+        <span className="text-lg font-semibold text-gray-900 dark:text-white">
           {p.standardRate != null ? p.standardRate.toLocaleString() : "—"}
         </span>
         {p.stockUom ? (
@@ -117,19 +117,19 @@ export default function ErpPage() {
       <PageMeta title="ERP | Buyology" description="ERPNext product list (testing — no DB save)" />
       <PageBreadcrumb pageTitle="ERP" />
 
-      <div className="mb-4 rounded-xl border border-blue-300 bg-blue-50 p-4 text-sm text-blue-800 dark:border-blue-800/60 dark:bg-blue-900/20 dark:text-blue-200">
+      <div className="mb-5 rounded-xl border border-blue-300 bg-blue-50 p-4 text-sm text-blue-800 dark:border-blue-800/60 dark:bg-blue-900/20 dark:text-blue-200">
         <b>ERPNext product test.</b> Products are fetched <b>live</b> from ERPNext and shown here
         only — nothing is saved to the Buyology database. SUPERADMIN only.
       </div>
 
       {configErr && (
-        <div className="mb-4 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800/60 dark:bg-red-900/20 dark:text-red-300">
+        <div className="mb-5 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800/60 dark:bg-red-900/20 dark:text-red-300">
           {configErr}
         </div>
       )}
 
       {config && !enabled && (
-        <div className="mb-4 rounded-xl border border-orange-300 bg-orange-50 p-4 text-sm text-orange-800 dark:border-orange-800/60 dark:bg-orange-900/20 dark:text-orange-200">
+        <div className="mb-5 rounded-xl border border-orange-300 bg-orange-50 p-4 text-sm text-orange-800 dark:border-orange-800/60 dark:bg-orange-900/20 dark:text-orange-200">
           <b>Module is disabled.</b> Set <code className="font-mono">ERPNEXT_ENABLED=true</code> plus{" "}
           <code className="font-mono">ERPNEXT_BASE_URL</code>,{" "}
           <code className="font-mono">ERPNEXT_API_KEY</code> and{" "}
@@ -138,7 +138,7 @@ export default function ErpPage() {
       )}
 
       {/* Connection summary */}
-      <div className={`${card} mb-4`}>
+      <div className={`${card} mb-5`}>
         <div className="grid gap-4 md:grid-cols-4">
           <div>
             <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Module</p>
@@ -167,8 +167,8 @@ export default function ErpPage() {
         </div>
       </div>
 
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-base font-semibold text-gray-800 dark:text-white">
+      <div className="mb-5 flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
           Products from ERPNext {products.length > 0 ? `(${products.length})` : ""}
         </h3>
         <button className={btnPrimary} onClick={fetchProducts} disabled={!enabled || loading}>
@@ -177,7 +177,7 @@ export default function ErpPage() {
       </div>
 
       {err && (
-        <div className="mb-4 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800/60 dark:bg-red-900/20 dark:text-red-300">
+        <div className="mb-5 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800/60 dark:bg-red-900/20 dark:text-red-300">
           {err}
         </div>
       )}
@@ -188,7 +188,7 @@ export default function ErpPage() {
         </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {products.map((p) => (
           <ProductCard key={p.name} p={p} />
         ))}

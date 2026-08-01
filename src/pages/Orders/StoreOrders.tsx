@@ -61,11 +61,11 @@ function statusColor(status: OrderStatus): BadgeColor {
 function SkeletonRow() {
   return (
     <tr className="border-b border-gray-100 dark:border-gray-800">
-      <td className="px-4 py-2.5">
+      <td className="px-5 py-4">
         <div className="h-3.5 w-32 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
       </td>
       {[1, 2, 3, 4, 5].map((i) => (
-        <td key={i} className="px-4 py-2.5">
+        <td key={i} className="px-4 py-4">
           <div className="h-3 w-20 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" />
         </td>
       ))}
@@ -118,7 +118,7 @@ export default function StoreOrders() {
       />
       <PageBreadcrumb pageTitle="Store Orders" />
 
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-5 flex items-center justify-between">
         <button
           onClick={() => navigate("/orders")}
           className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
@@ -131,15 +131,15 @@ export default function StoreOrders() {
         </button>
       </div>
 
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-base font-semibold text-gray-800 dark:text-white/90">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
           Orders List
           {!loading && (
             <span className="ml-2 text-sm font-normal text-gray-400">({filtered.length})</span>
           )}
         </h2>
 
-        <div className="inline-flex rounded-xl border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-gray-900">
+        <div className="inline-flex rounded-xl border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-white/[0.03]">
           {DISPLAY_BUCKETS.map((b) => (
             <button
               key={b}
@@ -159,23 +159,23 @@ export default function StoreOrders() {
       </div>
 
       {error && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-16 text-center">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-16 text-center">
           <p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>
         </div>
       )}
 
       {!error && (
-        <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03]">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
-                  <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Order #</th>
-                  <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Customer</th>
-                  <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Date</th>
-                  <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Total</th>
-                  <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Status</th>
-                  <th className="px-4 py-2.5 text-right text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Actions</th>
+                <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-white/[0.02]">
+                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Order #</th>
+                  <th className="px-4 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Customer</th>
+                  <th className="px-4 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Date</th>
+                  <th className="px-4 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Total</th>
+                  <th className="px-4 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Status</th>
+                  <th className="px-4 py-3.5 text-right text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -186,12 +186,12 @@ export default function StoreOrders() {
                     onClick={() => navigate(`/orders/${storeId}/${order.id}`)}
                     className="border-b border-gray-100 dark:border-gray-800 transition-colors hover:bg-brand-50/50 dark:hover:bg-white/[0.02] cursor-pointer"
                   >
-                    <td className="px-4 py-2.5">
+                    <td className="px-5 py-4">
                       <span className="text-sm font-medium text-gray-800 dark:text-white/90">
                         {order.orderNumber || order.id.substring(0, 8)}
                       </span>
                     </td>
-                    <td className="px-4 py-2.5">
+                    <td className="px-4 py-4">
                       <div className="text-sm font-medium text-gray-800 dark:text-white/90">
                         {[order.customerFirstName ?? order.recipientFirstName, order.customerLastName ?? order.recipientLastName]
                           .filter(Boolean)
@@ -202,13 +202,13 @@ export default function StoreOrders() {
                         {order.customerPhone || order.recipientPhone || "No Phone"}
                       </div>
                     </td>
-                    <td className="px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300">
+                    <td className="px-4 py-4 text-sm text-gray-600 dark:text-gray-300">
                       {formatDate(order.createdAt)}
                     </td>
-                    <td className="px-4 py-2.5 text-sm font-medium text-gray-800 dark:text-white/90">
+                    <td className="px-4 py-4 text-sm font-medium text-gray-800 dark:text-white/90">
                       {order.currency} {order.totalAmount.toFixed(2)}
                     </td>
-                    <td className="px-4 py-2.5">
+                    <td className="px-4 py-4">
                       <div className="flex flex-col items-start gap-1">
                         <Badge size="sm" color={statusColor(order.status)}>
                           {order.status}
@@ -221,7 +221,7 @@ export default function StoreOrders() {
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-2.5 text-right">
+                    <td className="px-4 py-4 text-right">
                       <button className="text-brand-500 hover:text-brand-600 text-sm font-medium">
                         Details
                       </button>

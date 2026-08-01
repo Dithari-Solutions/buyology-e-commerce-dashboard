@@ -76,7 +76,7 @@ function MediaSlider({
 
   if (media.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 dark:border-gray-800 py-20 text-gray-500 dark:text-gray-400">
+      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 py-20 text-gray-500 dark:text-gray-400">
         <svg
           width="40"
           height="40"
@@ -99,18 +99,18 @@ function MediaSlider({
   return (
     <div className="flex flex-col items-center gap-4">
       {/* Main media display */}
-      <div className="relative w-full max-h-[65vh] flex items-center justify-center bg-black/40 rounded-xl overflow-hidden group/main">
+      <div className="relative w-full max-h-[65vh] flex items-center justify-center bg-black/40 rounded-2xl overflow-hidden group/main">
         {item.mediaType === "VIDEO" ? (
           <video
             src={mediaUrl(item.url)}
             controls
-            className="max-h-[65vh] w-full object-contain rounded-xl"
+            className="max-h-[65vh] w-full object-contain rounded-2xl"
           />
         ) : (
           <img
             src={mediaUrl(item.url)}
             alt={`Media ${current + 1}`}
-            className="max-h-[65vh] w-full object-contain rounded-xl"
+            className="max-h-[65vh] w-full object-contain rounded-2xl"
           />
         )}
 
@@ -175,7 +175,7 @@ function MediaSlider({
             <button
               key={m.orderIndex}
               onClick={() => setCurrent(i)}
-              className={`relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg border-2 transition-all ${
+              className={`relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg border-2 transition-all ${
                 i === current
                   ? "border-brand-500 scale-110"
                   : "border-transparent opacity-60 hover:opacity-90"
@@ -225,7 +225,7 @@ function StoryCard({
   const videoCount = story.media.filter((m) => m.mediaType === "VIDEO").length;
 
   return (
-    <div className="group relative overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-left transition-all duration-300 hover:border-brand-300 dark:hover:border-brand-600 hover:shadow-theme-md hover:shadow-brand-500/10 hover:-translate-y-1">
+    <div className="group relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] text-left transition-all duration-300 hover:border-brand-300 dark:hover:border-brand-600 hover:shadow-lg hover:shadow-brand-500/10 hover:-translate-y-1">
       {/* Clickable area for details */}
       <button
         onClick={() => onClick(story)}
@@ -274,7 +274,7 @@ function StoryCard({
 
           {/* Play hint on hover */}
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
                 <path d="M8 5v14l11-7z" />
               </svg>
@@ -352,7 +352,7 @@ function StoryCard({
       {/* Delete Story Button */}
       <button
         onClick={() => onDelete(story.id)}
-        className="absolute top-3 left-3 flex h-8 w-8 items-center justify-center rounded-full bg-red-500/80 text-white opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-all backdrop-blur-sm shadow-theme-xs"
+        className="absolute top-3 left-3 flex h-8 w-8 items-center justify-center rounded-full bg-red-500/80 text-white opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-all backdrop-blur-sm shadow-sm"
         title="Delete Story"
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -496,7 +496,7 @@ export default function Stories() {
       <PageBreadcrumb pageTitle="Stories" />
 
       {/* ── Stats row ── */}
-      <div className="mb-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         {[
           {
             label: "Total Stories",
@@ -567,13 +567,13 @@ export default function Stories() {
         ].map((stat) => (
           <div
             key={stat.label}
-            className="flex items-center gap-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4"
+            className="flex items-center gap-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-4"
           >
             <span className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${stat.color}`}>
               {stat.icon}
             </span>
             <div>
-              <p className="text-xl font-bold text-gray-800 dark:text-white/90 leading-none">
+              <p className="text-2xl font-bold text-gray-800 dark:text-white/90 leading-none">
                 {loading ? "—" : stat.value}
               </p>
               <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{stat.label}</p>
@@ -583,8 +583,8 @@ export default function Stories() {
       </div>
 
       {/* ── Search + header ── */}
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-base font-semibold text-gray-800 dark:text-white/90">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
           All Stories
           {!loading && (
             <span className="ml-2 text-sm font-normal text-gray-400">
@@ -603,12 +603,12 @@ export default function Stories() {
                   s === "ALL" ? "All" : statusLabel(s);
                 const activeColor =
                   s === "ALL"
-                    ? "bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-theme-xs"
+                    ? "bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-sm"
                     : s === StoryStatus.ACTIVE
-                    ? "bg-white dark:bg-gray-700 text-success-600 dark:text-success-400 shadow-theme-xs"
+                    ? "bg-white dark:bg-gray-700 text-success-600 dark:text-success-400 shadow-sm"
                     : s === StoryStatus.SUSPENDED
-                    ? "bg-white dark:bg-gray-700 text-warning-600 dark:text-orange-400 shadow-theme-xs"
-                    : "bg-white dark:bg-gray-700 text-error-600 dark:text-error-400 shadow-theme-xs";
+                    ? "bg-white dark:bg-gray-700 text-warning-600 dark:text-orange-400 shadow-sm"
+                    : "bg-white dark:bg-gray-700 text-error-600 dark:text-error-400 shadow-sm";
                 return (
                   <button
                     key={s}
@@ -647,11 +647,11 @@ export default function Stories() {
 
       {/* ── Loading skeleton ── */}
       {loading && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
             <div
               key={i}
-              className="animate-pulse rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden"
+              className="animate-pulse rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] overflow-hidden"
             >
               <div className="h-52 bg-gray-200 dark:bg-gray-700" />
               <div className="p-4 space-y-3">
@@ -668,7 +668,7 @@ export default function Stories() {
 
       {/* ── Error state ── */}
       {error && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-16 text-center">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-16 text-center">
           <svg
             width="40"
             height="40"
@@ -691,7 +691,7 @@ export default function Stories() {
 
       {/* ── Empty state ── */}
       {!loading && !error && filtered.length === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 py-20 text-center">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] py-20 text-center">
           <svg
             width="48"
             height="48"
@@ -727,7 +727,7 @@ export default function Stories() {
 
       {/* ── Story grid ── */}
       {!loading && !error && filtered.length > 0 && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((story, i) => (
             <div
               key={story.id}
@@ -751,13 +751,13 @@ export default function Stories() {
       <Modal
         isOpen={isOpen}
         onClose={handleClose}
-        className="mx-4 w-full max-w-2xl p-4"
+        className="mx-4 w-full max-w-2xl p-6"
       >
         {selectedStory && (
           <div>
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                   {selectedStory.title}
                 </h3>
                 <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">

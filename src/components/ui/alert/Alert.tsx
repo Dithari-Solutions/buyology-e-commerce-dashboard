@@ -46,8 +46,8 @@ const Alert: React.FC<AlertProps> = ({
     success: (
       <svg
         className="fill-current"
-        width="18"
-        height="18"
+        width="24"
+        height="24"
         viewBox="0 0 24 24"
         xmlns="http://www.w3.org/2000/svg"
       >
@@ -61,8 +61,8 @@ const Alert: React.FC<AlertProps> = ({
     error: (
       <svg
         className="fill-current"
-        width="18"
-        height="18"
+        width="24"
+        height="24"
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -78,8 +78,8 @@ const Alert: React.FC<AlertProps> = ({
     warning: (
       <svg
         className="fill-current"
-        width="18"
-        height="18"
+        width="24"
+        height="24"
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -95,8 +95,8 @@ const Alert: React.FC<AlertProps> = ({
     info: (
       <svg
         className="fill-current"
-        width="18"
-        height="18"
+        width="24"
+        height="24"
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -113,24 +113,24 @@ const Alert: React.FC<AlertProps> = ({
 
   return (
     <div
-      className={`rounded-lg border p-3 ${variantClasses[variant].container}`}
+      className={`rounded-xl border p-4 ${variantClasses[variant].container}`}
     >
-      <div className="flex items-start gap-2.5">
+      <div className="flex items-start gap-3">
         <div className={`-mt-0.5 ${variantClasses[variant].icon}`}>
           {icons[variant]}
         </div>
 
         <div>
-          <h4 className="mb-0.5 text-[13px] font-semibold text-gray-900 dark:text-white/90">
+          <h4 className="mb-1 text-sm font-semibold text-gray-800 dark:text-white/90">
             {title}
           </h4>
 
-          <p className="text-xs text-gray-600 dark:text-gray-400">{message}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{message}</p>
 
           {showLink && (
             <Link
               to={linkHref}
-              className="mt-2 inline-block text-xs font-medium text-gray-500 underline dark:text-gray-400"
+              className="inline-block mt-3 text-sm font-medium text-gray-500 underline dark:text-gray-400"
             >
               {linkText}
             </Link>

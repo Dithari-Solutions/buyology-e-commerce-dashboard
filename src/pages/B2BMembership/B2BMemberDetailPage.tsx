@@ -133,8 +133,8 @@ export default function B2BMemberDetailPage() {
     }
   };
 
-  if (loading && !member) return <p className="p-4 text-sm text-gray-500">Loading…</p>;
-  if (error || !member) return <p className="p-4 text-sm text-red-500">{error ?? "Not found"}</p>;
+  if (loading && !member) return <p className="p-6 text-sm text-gray-500">Loading…</p>;
+  if (error || !member) return <p className="p-6 text-sm text-red-500">{error ?? "Not found"}</p>;
 
   return (
     <>
@@ -158,10 +158,10 @@ export default function B2BMemberDetailPage() {
         </div>
       )}
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3">
         {/* Profile + lifecycle */}
-        <div className="lg:col-span-2 space-y-4">
-          <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <div className="lg:col-span-2 space-y-6">
+          <section className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-base font-semibold text-gray-800 dark:text-white">Profile</h2>
               {!editing ? (
@@ -176,7 +176,7 @@ export default function B2BMemberDetailPage() {
                   <button
                     onClick={saveProfile}
                     disabled={saving}
-                    className="rounded-lg bg-brand-600 px-3 py-1.5 text-xs text-white hover:bg-brand-700 disabled:opacity-50"
+                    className="rounded-lg bg-brand-500 px-3 py-1.5 text-xs text-white hover:bg-brand-600 disabled:opacity-50"
                   >
                     {saving ? "Saving…" : "Save"}
                   </button>
@@ -234,7 +234,7 @@ export default function B2BMemberDetailPage() {
           </section>
 
           {/* Lifecycle / setup */}
-          <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+          <section className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
             <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-white">Lifecycle</h2>
             <div className="flex flex-wrap gap-2">
               {member.status === "ACTIVE" && (
@@ -275,17 +275,17 @@ export default function B2BMemberDetailPage() {
           </section>
 
           {/* Recent credit usage */}
-          <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+          <section className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
             <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-white">Credit usage</h2>
             <CreditUsageList items={member.recentCreditUsages ?? []} />
           </section>
         </div>
 
         {/* Wallet sidebar */}
-        <div className="space-y-4">
-          <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <div className="space-y-6">
+          <section className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
             <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-white">Wallet</h2>
-            <p className="text-xl font-bold text-gray-800 dark:text-white">
+            <p className="text-2xl font-bold text-gray-800 dark:text-white">
               {member.wallet?.currency ?? "—"} {(member.wallet?.balance ?? 0).toFixed(2)}
             </p>
             <p className="mt-1 text-xs text-gray-500">
@@ -303,7 +303,7 @@ export default function B2BMemberDetailPage() {
             </div>
           </section>
 
-          <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+          <section className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
             <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-white">Recent transactions</h2>
             <TransactionList items={member.recentTransactions ?? []} />
           </section>
@@ -313,7 +313,7 @@ export default function B2BMemberDetailPage() {
       {/* Wallet modal */}
       {walletModal && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-sm rounded-xl bg-white p-4 shadow-theme-lg dark:bg-gray-900">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900">
             <h3 className="mb-4 text-base font-semibold text-gray-800 dark:text-white">
               {walletModal === "credit" ? "Add Wallet Credit" : walletModal === "deduct" ? "Deduct from Wallet" : "Adjust Balance"}
             </h3>
@@ -330,7 +330,7 @@ export default function B2BMemberDetailPage() {
               </div>
               {walletError && <p className="text-xs text-red-500">{walletError}</p>}
               <div className="flex gap-2 pt-1">
-                <button onClick={handleWalletAction} disabled={walletBusy} className="flex-1 rounded-lg bg-brand-600 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50">
+                <button onClick={handleWalletAction} disabled={walletBusy} className="flex-1 rounded-lg bg-brand-500 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50">
                   {walletBusy ? "Processing..." : "Confirm"}
                 </button>
                 <button onClick={() => setWalletModal(null)} className="rounded-lg bg-gray-100 px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300">

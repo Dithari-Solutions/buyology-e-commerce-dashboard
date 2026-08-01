@@ -296,10 +296,10 @@ export default function NewStore() {
       <PageMeta title="New Store | Buyology Dashboard" description="Create a new store." />
       <PageBreadcrumb pageTitle="New Store" />
 
-      <form onSubmit={handleSubmit} className="max-w-2xl space-y-4">
+      <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
         {/* Basic Info */}
-        <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
-          <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">Basic Information</h2>
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6">
+          <h2 className="mb-5 text-base font-semibold text-gray-800 dark:text-white/90">Basic Information</h2>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
@@ -359,8 +359,8 @@ export default function NewStore() {
         </div>
 
         {/* Contact */}
-        <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
-          <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">Contact</h2>
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6">
+          <h2 className="mb-5 text-base font-semibold text-gray-800 dark:text-white/90">Contact</h2>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
@@ -387,8 +387,8 @@ export default function NewStore() {
         </div>
 
         {/* Media */}
-        <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
-          <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">Media</h2>
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6">
+          <h2 className="mb-5 text-base font-semibold text-gray-800 dark:text-white/90">Media</h2>
 
           <div>
             <label className={labelCls}>Banner Image</label>
@@ -399,7 +399,7 @@ export default function NewStore() {
                 className="mb-3 h-32 w-full rounded-xl object-cover border border-gray-200 dark:border-gray-700"
               />
             )}
-            <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/40 px-4 py-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+            <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/40 px-4 py-4 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-gray-400 flex-shrink-0">
                 <rect x="3" y="3" width="18" height="18" rx="2" />
                 <circle cx="8.5" cy="8.5" r="1.5" />
@@ -417,9 +417,9 @@ export default function NewStore() {
         </div>
 
         {/* First Location */}
-        <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6">
           <h2 className="mb-1 text-base font-semibold text-gray-800 dark:text-white/90">First Branch Location</h2>
-          <p className="mb-4 text-xs text-gray-400">
+          <p className="mb-5 text-xs text-gray-400">
             The first branch is created together with the store. More branches can be added later.
           </p>
 
@@ -508,9 +508,9 @@ export default function NewStore() {
         </div>
 
         {/* Operating Hours */}
-        <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6">
           <h2 className="mb-1 text-base font-semibold text-gray-800 dark:text-white/90">Operating Hours</h2>
-          <p className="mb-4 text-xs text-gray-400">Set the weekly schedule for the first branch.</p>
+          <p className="mb-5 text-xs text-gray-400">Set the weekly schedule for the first branch.</p>
 
           <div className="space-y-2">
             {/* Header */}
@@ -571,8 +571,8 @@ export default function NewStore() {
         </div>
 
         {/* Translations */}
-        <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
-          <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">Translations</h2>
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6">
+          <h2 className="mb-5 text-base font-semibold text-gray-800 dark:text-white/90">Translations</h2>
 
           <div className="mb-4 flex gap-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 p-1">
             {LANG_TABS.map((lang) => (
@@ -582,7 +582,7 @@ export default function NewStore() {
                 onClick={() => setLangTab(lang)}
                 className={`flex-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
                   langTab === lang
-                    ? "bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-theme-xs"
+                    ? "bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-sm"
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                 }`}
               >
@@ -617,7 +617,7 @@ export default function NewStore() {
 
         {/* Error */}
         {error && (
-          <p className="rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 px-4 py-2.5 text-sm text-red-600 dark:text-red-400">
+          <p className="rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 px-4 py-3 text-sm text-red-600 dark:text-red-400">
             {error}
           </p>
         )}
@@ -628,14 +628,14 @@ export default function NewStore() {
             type="button"
             onClick={() => navigate("/stores")}
             disabled={saving}
-            className="rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+            className="rounded-xl border border-gray-200 dark:border-gray-700 px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={saving}
-            className="flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 transition-colors disabled:opacity-60"
+            className="flex items-center gap-2 rounded-xl bg-brand-500 px-6 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors disabled:opacity-60"
           >
             {saving && (
               <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">

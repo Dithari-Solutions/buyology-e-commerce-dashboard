@@ -80,7 +80,7 @@ function TrashRow({
   return (
     <tr className="border-b border-gray-100 dark:border-gray-800">
       {/* Product info */}
-      <td className="px-4 py-2.5">
+      <td className="px-5 py-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 text-gray-400">
             {primaryMedia ? (
@@ -116,7 +116,7 @@ function TrashRow({
       </td>
 
       {/* Type */}
-      <td className="px-4 py-2.5">
+      <td className="px-4 py-4">
         <span
           className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${productTypeColor(product.productType)}`}
         >
@@ -125,12 +125,12 @@ function TrashRow({
       </td>
 
       {/* Deleted at */}
-      <td className="px-4 py-2.5 text-xs text-error-500 dark:text-error-400">
+      <td className="px-4 py-4 text-xs text-error-500 dark:text-error-400">
         {product.deletedAt ? formatDate(product.deletedAt) : "—"}
       </td>
 
       {/* Days until permanent deletion */}
-      <td className="px-4 py-2.5">
+      <td className="px-4 py-4">
         {product.deletedAt ? (
           <DeletionCountdown deletedAt={product.deletedAt} />
         ) : (
@@ -139,12 +139,12 @@ function TrashRow({
       </td>
 
       {/* Created */}
-      <td className="px-4 py-2.5 text-xs text-gray-500 dark:text-gray-400">
+      <td className="px-4 py-4 text-xs text-gray-500 dark:text-gray-400">
         {formatDate(product.createdAt)}
       </td>
 
       {/* Actions */}
-      <td className="px-4 py-2.5 pr-5 text-right">
+      <td className="px-4 py-4 pr-5 text-right">
         <button
           onClick={handleRestore}
           disabled={restoring}
@@ -171,7 +171,7 @@ function TrashRow({
 function SkeletonRow() {
   return (
     <tr className="border-b border-gray-100 dark:border-gray-800">
-      <td className="px-4 py-2.5">
+      <td className="px-5 py-4">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 flex-shrink-0 rounded-xl bg-gray-200 dark:bg-gray-700 animate-pulse" />
           <div className="space-y-2">
@@ -181,7 +181,7 @@ function SkeletonRow() {
         </div>
       </td>
       {[1, 2, 3, 4, 5].map((i) => (
-        <td key={i} className="px-4 py-2.5">
+        <td key={i} className="px-4 py-4">
           <div className="h-3 w-16 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" />
         </td>
       ))}
@@ -242,8 +242,8 @@ export default function ProductsTrash() {
       <PageBreadcrumb pageTitle="Product Trash" />
 
       {/* Toolbar */}
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-base font-semibold text-gray-800 dark:text-white/90">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
           Deleted Products
           {!loading && (
             <span className="ml-2 text-sm font-normal text-gray-400">
@@ -271,7 +271,7 @@ export default function ProductsTrash() {
 
       {/* Action error (restore failures) */}
       {actionError && (
-        <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 px-4 py-2.5">
+        <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 px-4 py-3">
           <p className="text-sm text-red-600 dark:text-red-400">{actionError}</p>
           <button
             onClick={() => setActionError(null)}
@@ -284,7 +284,7 @@ export default function ProductsTrash() {
 
       {/* Error state */}
       {error && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-16 text-center">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-16 text-center">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mb-3 text-red-400">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
@@ -299,16 +299,16 @@ export default function ProductsTrash() {
 
       {/* Table */}
       {!error && (
-        <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03]">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
+                <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-white/[0.02]">
                   {["Product", "Type", "Deleted At", "Permanent Deletion", "Created", "Actions"].map(
                     (col) => (
                       <th
                         key={col}
-                        className={`px-4 py-2.5 first:pl-5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 ${
+                        className={`px-4 py-3.5 first:pl-5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 ${
                           col === "Actions" ? "text-right pr-5" : "text-left"
                         }`}
                       >

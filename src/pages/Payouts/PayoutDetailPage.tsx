@@ -74,7 +74,7 @@ export default function PayoutDetailPage() {
       <>
         <PageMeta title="Payout request | Buyology" description="Payout request details" />
         <PageBreadcrumb pageTitle="Payout request" />
-        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
           <p className="text-sm text-red-600">{loadError ?? "Payout request not found."}</p>
           <Link
             to="/payouts"
@@ -127,12 +127,12 @@ export default function PayoutDetailPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <div className="space-y-4 lg:col-span-2">
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-base font-semibold dark:text-white">Payout request</h3>
+                <h3 className="text-lg font-semibold dark:text-white">Payout request</h3>
                 <p className="font-mono text-xs text-gray-500">{request.id}</p>
               </div>
               <span
@@ -164,7 +164,7 @@ export default function PayoutDetailPage() {
             </dl>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
             <h4 className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
               Payout destination (snapshot at request time)
             </h4>
@@ -194,7 +194,7 @@ export default function PayoutDetailPage() {
             )}
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
             <h4 className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
               Order items being settled ({request.orderItemIds.length})
             </h4>
@@ -207,7 +207,7 @@ export default function PayoutDetailPage() {
         </div>
 
         <div className="lg:col-span-1">
-          <div className="sticky top-6 space-y-4 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+          <div className="sticky top-6 space-y-4 rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
             <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Actions</h4>
 
             {!canAct && (

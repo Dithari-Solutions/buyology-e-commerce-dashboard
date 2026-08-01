@@ -108,7 +108,7 @@ function fmtDateTime(iso: string): string {
 export function OrdersBreakdownTable({ orders }: { orders: RevenueOrderRow[] }) {
   if (!orders || orders.length === 0) {
     return (
-      <div className="rounded-xl border-2 border-dashed border-gray-200 p-4 text-center dark:border-gray-700">
+      <div className="rounded-xl border-2 border-dashed border-gray-200 p-6 text-center dark:border-gray-700">
         <p className="text-sm text-gray-500 dark:text-gray-400">No orders for the selected period.</p>
       </div>
     );

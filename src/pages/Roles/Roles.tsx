@@ -14,7 +14,7 @@ const inputClass =
   "w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/20 transition-all";
 
 const cardClass =
-  "rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900";
+  "rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03]";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -74,9 +74,9 @@ function ConfirmDialog({
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-      <div className="w-full max-w-sm rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-4 shadow-theme-lg">
+      <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-6 shadow-xl">
         <h3 className="text-base font-semibold text-gray-800 dark:text-white/90 mb-2">{title}</h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{message}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{message}</p>
         <div className="flex gap-3 justify-end">
           <button
             onClick={onCancel}
@@ -155,13 +155,13 @@ function RoleFormModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 backdrop-blur-sm px-4 py-5"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 backdrop-blur-sm px-4 py-8"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget && !submitting) onClose();
       }}
     >
-      <div className="w-full max-w-lg rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-theme-lg">
-        <div className="flex items-start justify-between gap-4 border-b border-gray-100 dark:border-gray-800 px-4 py-2.5">
+      <div className="w-full max-w-lg rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-xl">
+        <div className="flex items-start justify-between gap-4 border-b border-gray-100 dark:border-gray-800 px-6 py-4">
           <div>
             <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">
               {editing ? `Edit ${roleLabel(role.name)}` : "New role"}
@@ -182,9 +182,9 @@ function RoleFormModal({
           </button>
         </div>
 
-        <div className="px-4 py-3 space-y-4">
+        <div className="px-6 py-5 space-y-4">
           {error && (
-            <div className="rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/10 px-4 py-2.5 text-sm text-red-600 dark:text-red-400">
+            <div className="rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
               {error}
             </div>
           )}
@@ -220,7 +220,7 @@ function RoleFormModal({
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 border-t border-gray-100 dark:border-gray-800 px-4 py-2.5">
+        <div className="flex items-center justify-end gap-3 border-t border-gray-100 dark:border-gray-800 px-6 py-4">
           <button
             onClick={onClose}
             disabled={submitting}
@@ -231,7 +231,7 @@ function RoleFormModal({
           <button
             onClick={submit}
             disabled={submitting}
-            className="rounded-xl bg-brand-600 hover:bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50 transition-colors"
+            className="rounded-xl bg-brand-500 hover:bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-50 transition-colors"
           >
             {submitting ? "Saving…" : editing ? "Save changes" : "Create role"}
           </button>
@@ -284,13 +284,13 @@ function PermissionFormModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 backdrop-blur-sm px-4 py-5"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 backdrop-blur-sm px-4 py-8"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget && !submitting) onClose();
       }}
     >
-      <div className="w-full max-w-lg rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-theme-lg">
-        <div className="flex items-start justify-between gap-4 border-b border-gray-100 dark:border-gray-800 px-4 py-2.5">
+      <div className="w-full max-w-lg rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-xl">
+        <div className="flex items-start justify-between gap-4 border-b border-gray-100 dark:border-gray-800 px-6 py-4">
           <div>
             <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">
               New permission
@@ -309,9 +309,9 @@ function PermissionFormModal({
           </button>
         </div>
 
-        <div className="px-4 py-3 space-y-4">
+        <div className="px-6 py-5 space-y-4">
           {error && (
-            <div className="rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/10 px-4 py-2.5 text-sm text-red-600 dark:text-red-400">
+            <div className="rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
               {error}
             </div>
           )}
@@ -344,7 +344,7 @@ function PermissionFormModal({
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 border-t border-gray-100 dark:border-gray-800 px-4 py-2.5">
+        <div className="flex items-center justify-end gap-3 border-t border-gray-100 dark:border-gray-800 px-6 py-4">
           <button
             onClick={onClose}
             disabled={submitting}
@@ -355,7 +355,7 @@ function PermissionFormModal({
           <button
             onClick={submit}
             disabled={submitting}
-            className="rounded-xl bg-brand-600 hover:bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50 transition-colors"
+            className="rounded-xl bg-brand-500 hover:bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-50 transition-colors"
           >
             {submitting ? "Saving…" : "Create permission"}
           </button>
@@ -628,7 +628,7 @@ export default function Roles() {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`rounded-xl px-4 py-2.5 text-sm font-medium shadow-theme-md text-white transition-all ${
+            className={`rounded-xl px-4 py-3 text-sm font-medium shadow-lg text-white transition-all ${
               t.type === "success" ? "bg-green-500" : "bg-red-500"
             }`}
           >
@@ -638,9 +638,9 @@ export default function Roles() {
       </div>
 
       {/* Header */}
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+          <h1 className="text-2xl font-semibold text-gray-800 dark:text-white/90">
             Roles &amp; Permissions
           </h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -659,7 +659,7 @@ export default function Roles() {
               setRoleBeingEdited(null);
               setRoleModalOpen(true);
             }}
-            className="rounded-xl bg-brand-600 hover:bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors"
+            className="rounded-xl bg-brand-500 hover:bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors"
           >
             + Create Role
           </button>
@@ -667,7 +667,7 @@ export default function Roles() {
       </div>
 
       {error ? (
-        <div className={`${cardClass} flex flex-col items-center justify-center gap-3 py-20 px-4`}>
+        <div className={`${cardClass} flex flex-col items-center justify-center gap-3 py-20 px-5`}>
           <p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>
           <button
             onClick={() => load()}
@@ -677,22 +677,22 @@ export default function Roles() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
           {/* Role list */}
           <div className={`${cardClass} overflow-hidden self-start`}>
-            <div className="border-b border-gray-100 dark:border-gray-800 px-4 py-2.5">
+            <div className="border-b border-gray-100 dark:border-gray-800 px-5 py-3.5">
               <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
                 Roles {!loading && `(${roles.length})`}
               </h2>
             </div>
             {loading ? (
-              <div className="animate-pulse space-y-3 p-4">
+              <div className="animate-pulse space-y-3 p-5">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <div key={i} className="h-12 rounded-xl bg-gray-100 dark:bg-gray-800" />
                 ))}
               </div>
             ) : roles.length === 0 ? (
-              <p className="px-4 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
+              <p className="px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
                 No roles yet.
               </p>
             ) : (
@@ -703,7 +703,7 @@ export default function Roles() {
                     <li key={role.id}>
                       <button
                         onClick={() => setSelectedRoleId(role.id)}
-                        className={`flex w-full items-start justify-between gap-3 border-b border-gray-100 dark:border-gray-800 px-4 py-2.5 text-left transition-colors last:border-0 ${
+                        className={`flex w-full items-start justify-between gap-3 border-b border-gray-100 dark:border-gray-800 px-5 py-3.5 text-left transition-colors last:border-0 ${
                           active
                             ? "bg-brand-50 dark:bg-brand-500/10"
                             : "hover:bg-gray-50 dark:hover:bg-white/[0.02]"
@@ -747,15 +747,15 @@ export default function Roles() {
           {/* Detail panel */}
           <div className={`${cardClass} overflow-hidden`}>
             {!selectedRole ? (
-              <p className="px-4 py-20 text-center text-sm text-gray-500 dark:text-gray-400">
+              <p className="px-5 py-20 text-center text-sm text-gray-500 dark:text-gray-400">
                 {loading ? "Loading…" : "Select a role to manage its permissions."}
               </p>
             ) : (
               <>
-                <div className="border-b border-gray-100 dark:border-gray-800 px-4 py-2.5">
+                <div className="border-b border-gray-100 dark:border-gray-800 px-5 py-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <h2 className="text-base font-semibold text-gray-800 dark:text-white/90">
+                      <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                         {roleLabel(selectedRole.name)}
                       </h2>
                       <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
@@ -784,7 +784,7 @@ export default function Roles() {
                   </div>
 
                   {selectedRole.locked && (
-                    <div className="mt-4 rounded-xl border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-500/10 px-4 py-2.5 text-sm text-amber-700 dark:text-amber-400">
+                    <div className="mt-4 rounded-xl border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
                       {roleLabel(selectedRole.name)} always holds every permission. It is the
                       recovery path for any other permission mistake, so it cannot be edited here.
                     </div>
@@ -819,7 +819,7 @@ export default function Roles() {
                   <>
                     <div className="divide-y divide-gray-100 dark:divide-gray-800">
                       {permissionsByModule.length === 0 ? (
-                        <p className="px-4 py-16 text-center text-sm text-gray-500 dark:text-gray-400">
+                        <p className="px-5 py-16 text-center text-sm text-gray-500 dark:text-gray-400">
                           No permissions defined yet.
                         </p>
                       ) : (
@@ -829,7 +829,7 @@ export default function Roles() {
                           ).length;
                           const allSelected = selectedCount === modulePermissions.length;
                           return (
-                            <div key={module} className="px-4 py-2.5">
+                            <div key={module} className="px-5 py-4">
                               <div className="mb-3 flex items-center justify-between gap-3">
                                 <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
                                   {module}
@@ -888,7 +888,7 @@ export default function Roles() {
                     </div>
 
                     {editable && (
-                      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 dark:border-gray-800 px-4 py-2.5">
+                      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 dark:border-gray-800 px-5 py-4">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           {dirty
                             ? `${draft.size} selected — unsaved changes`
@@ -905,7 +905,7 @@ export default function Roles() {
                           <button
                             onClick={savePermissions}
                             disabled={!dirty || saving}
-                            className="rounded-xl bg-brand-600 hover:bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50 transition-colors"
+                            className="rounded-xl bg-brand-500 hover:bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-50 transition-colors"
                           >
                             {saving ? "Saving…" : "Save permissions"}
                           </button>
@@ -919,23 +919,23 @@ export default function Roles() {
                 {tab === "members" && (
                   <div className="overflow-x-auto">
                     {holdersLoading ? (
-                      <div className="animate-pulse space-y-3 p-4">
+                      <div className="animate-pulse space-y-3 p-5">
                         {Array.from({ length: 4 }).map((_, i) => (
                           <div key={i} className="h-12 rounded-xl bg-gray-100 dark:bg-gray-800" />
                         ))}
                       </div>
                     ) : holders.length === 0 ? (
-                      <p className="px-4 py-16 text-center text-sm text-gray-500 dark:text-gray-400">
+                      <p className="px-5 py-16 text-center text-sm text-gray-500 dark:text-gray-400">
                         Nobody holds this role yet. Assign it from an admin's page.
                       </p>
                     ) : (
                       <table className="w-full text-left">
                         <thead>
-                          <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-900">
+                          <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-white/[0.02]">
                             {["Name", "Email", "Type", "Status", ""].map((col) => (
                               <th
                                 key={col}
-                                className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
+                                className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
                               >
                                 {col}
                               </th>
@@ -948,13 +948,13 @@ export default function Roles() {
                               key={holder.userId}
                               className="border-b border-gray-100 dark:border-gray-800 last:border-0"
                             >
-                              <td className="px-4 py-2.5 text-sm font-medium text-gray-800 dark:text-white/90">
+                              <td className="px-5 py-3.5 text-sm font-medium text-gray-800 dark:text-white/90">
                                 {holderName(holder)}
                               </td>
-                              <td className="px-4 py-2.5 text-sm text-gray-500 dark:text-gray-400">
+                              <td className="px-5 py-3.5 text-sm text-gray-500 dark:text-gray-400">
                                 {holder.email ?? "—"}
                               </td>
-                              <td className="px-4 py-2.5">
+                              <td className="px-5 py-3.5">
                                 <Badge
                                   size="sm"
                                   color={holder.userType === "ADMIN" ? "info" : "light"}
@@ -962,7 +962,7 @@ export default function Roles() {
                                   {holder.userType ?? "—"}
                                 </Badge>
                               </td>
-                              <td className="px-4 py-2.5">
+                              <td className="px-5 py-3.5">
                                 <Badge
                                   size="sm"
                                   color={holder.status === "ACTIVE" ? "success" : "error"}
@@ -970,7 +970,7 @@ export default function Roles() {
                                   {holder.status ?? "—"}
                                 </Badge>
                               </td>
-                              <td className="px-4 py-2.5 text-right">
+                              <td className="px-5 py-3.5 text-right">
                                 {holder.authCredentialId && (
                                   <button
                                     onClick={() =>
@@ -994,17 +994,17 @@ export default function Roles() {
                 {tab === "catalog" && (
                   <div className="overflow-x-auto">
                     {permissions.length === 0 ? (
-                      <p className="px-4 py-16 text-center text-sm text-gray-500 dark:text-gray-400">
+                      <p className="px-5 py-16 text-center text-sm text-gray-500 dark:text-gray-400">
                         No permissions defined yet.
                       </p>
                     ) : (
                       <table className="w-full text-left">
                         <thead>
-                          <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-900">
+                          <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-white/[0.02]">
                             {["Code", "Description", "Granted by", ""].map((col) => (
                               <th
                                 key={col}
-                                className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
+                                className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
                               >
                                 {col}
                               </th>
@@ -1021,13 +1021,13 @@ export default function Roles() {
                                 key={permission.id}
                                 className="border-b border-gray-100 dark:border-gray-800 last:border-0"
                               >
-                                <td className="px-4 py-2.5 font-mono text-sm text-gray-800 dark:text-white/90">
+                                <td className="px-5 py-3.5 font-mono text-sm text-gray-800 dark:text-white/90">
                                   {permission.code}
                                 </td>
-                                <td className="px-4 py-2.5 text-sm text-gray-500 dark:text-gray-400">
+                                <td className="px-5 py-3.5 text-sm text-gray-500 dark:text-gray-400">
                                   {permission.description || "—"}
                                 </td>
-                                <td className="px-4 py-2.5">
+                                <td className="px-5 py-3.5">
                                   {grantedBy.length === 0 ? (
                                     <span className="text-sm text-gray-400 dark:text-gray-500">
                                       No roles
@@ -1042,7 +1042,7 @@ export default function Roles() {
                                     </div>
                                   )}
                                 </td>
-                                <td className="px-4 py-2.5 text-right">
+                                <td className="px-5 py-3.5 text-right">
                                   <button
                                     onClick={() => setConfirmDeletePermission(permission)}
                                     className="rounded-lg border border-red-200 dark:border-red-800/50 px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"

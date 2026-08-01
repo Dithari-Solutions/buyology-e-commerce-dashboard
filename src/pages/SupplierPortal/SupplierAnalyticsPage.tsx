@@ -60,23 +60,23 @@ export default function SupplierAnalyticsPage() {
       <PageBreadcrumb pageTitle="Analytics" />
 
       {/* Lifetime summary cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
           <p className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1">Total Orders</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">
+          <p className="text-3xl font-bold text-gray-900 dark:text-white">
             {summary ? summary.totalOrders.toLocaleString() : "—"}
           </p>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
           <p className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1">Total Revenue</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">
+          <p className="text-3xl font-bold text-gray-900 dark:text-white">
             {summary ? fmtMoney(summary.totalRevenue) : "—"}
           </p>
         </div>
       </div>
 
       {/* Revenue breakdown with daily/weekly/monthly/yearly filter + export */}
-      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
         <h3 className="mb-4 text-base font-semibold text-gray-900 dark:text-white">Revenue</h3>
         <RevenueFilterBar
           period={period}
@@ -112,13 +112,13 @@ export default function SupplierAnalyticsPage() {
         {loading ? (
           <p className="text-sm text-gray-500">Loading…</p>
         ) : !report || (report.buckets.length === 0 && report.orders.length === 0) ? (
-          <div className="rounded-xl border-2 border-dashed border-gray-200 p-5 text-center dark:border-gray-700">
+          <div className="rounded-xl border-2 border-dashed border-gray-200 p-8 text-center dark:border-gray-700">
             <p className="text-gray-500 dark:text-gray-400">No data for the selected period.</p>
           </div>
         ) : (
           <>
             <h4 className="mb-2 text-xs font-semibold uppercase text-gray-500">Summary by period</h4>
-            <div className="overflow-x-auto mb-5">
+            <div className="overflow-x-auto mb-8">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-100 dark:border-gray-800 text-left text-xs uppercase text-gray-500">

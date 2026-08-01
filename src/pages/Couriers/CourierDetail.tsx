@@ -51,11 +51,11 @@ function vehicleBadgeColor(type: VehicleType): BadgeColor {
 
 function SectionCard({ title, children }: { title: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
-      <div className="px-4 py-2.5 border-b border-gray-100 dark:border-gray-800">
+    <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] overflow-hidden">
+      <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800">
         <h2 className="text-base font-semibold text-gray-800 dark:text-white/90">{title}</h2>
       </div>
-      <div className="p-4">{children}</div>
+      <div className="p-5">{children}</div>
     </div>
   );
 }
@@ -73,9 +73,9 @@ function ProfileField({ label, value }: { label: string; value: React.ReactNode 
 
 function DetailSkeleton() {
   return (
-    <div className="space-y-4 animate-pulse">
-      <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
-        <div className="flex items-center gap-4 mb-4">
+    <div className="space-y-6 animate-pulse">
+      <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-5">
+        <div className="flex items-center gap-4 mb-5">
           <div className="h-16 w-16 rounded-full bg-gray-200 dark:bg-gray-700" />
           <div className="space-y-2">
             <div className="h-5 w-40 rounded-full bg-gray-200 dark:bg-gray-700" />
@@ -111,7 +111,7 @@ function StatusModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 shadow-theme-lg">
+      <div className="w-full max-w-md rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-xl">
         <h3 className="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">
           Update Courier Status
         </h3>
@@ -141,14 +141,14 @@ function StatusModal({
           <button
             onClick={onClose}
             disabled={loading}
-            className="rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-40"
+            className="rounded-xl border border-gray-200 dark:border-gray-700 px-5 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-40"
           >
             Cancel
           </button>
           <button
             onClick={() => onConfirm(status)}
             disabled={loading || status === current}
-            className="rounded-xl bg-brand-600 hover:bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="rounded-xl bg-brand-500 hover:bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {loading ? "Saving…" : "Update Status"}
           </button>
@@ -175,7 +175,7 @@ function DeleteModal({
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="w-full max-w-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 shadow-theme-lg">
+      <div className="w-full max-w-sm rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-xl">
         <div className="mb-4 flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 dark:bg-red-500/10 text-red-500">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -187,21 +187,21 @@ function DeleteModal({
           </span>
           <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">Delete Courier</h3>
         </div>
-        <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+        <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
           Are you sure you want to permanently delete <span className="font-semibold text-gray-700 dark:text-gray-300">{name}</span>? This action cannot be undone.
         </p>
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
             disabled={loading}
-            className="rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-40"
+            className="rounded-xl border border-gray-200 dark:border-gray-700 px-5 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-40"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
             disabled={loading}
-            className="rounded-xl bg-red-500 hover:bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors disabled:opacity-40"
+            className="rounded-xl bg-red-500 hover:bg-red-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors disabled:opacity-40"
           >
             {loading ? "Deleting…" : "Delete"}
           </button>
@@ -314,13 +314,13 @@ export default function CourierDetail() {
             <line x1="18" y1="11" x2="23" y2="16" />
             <line x1="23" y1="11" x2="18" y2="16" />
           </svg>
-          <h1 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-1">Courier not found</h1>
-          <p className="text-sm text-gray-400 dark:text-gray-500 mb-4">
+          <h1 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-1">Courier not found</h1>
+          <p className="text-sm text-gray-400 dark:text-gray-500 mb-5">
             The courier you're looking for doesn't exist or the ID is invalid.
           </p>
           <button
             onClick={() => navigate("/admin/couriers")}
-            className="rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            className="rounded-xl border border-gray-200 dark:border-gray-700 px-5 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
           >
             ← Back to Couriers
           </button>
@@ -344,7 +344,7 @@ export default function CourierDetail() {
           <p className="text-sm font-medium text-red-600 dark:text-red-400 mb-4">{error}</p>
           <button
             onClick={() => navigate("/admin/couriers")}
-            className="rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            className="rounded-xl border border-gray-200 dark:border-gray-700 px-5 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
           >
             ← Back to Couriers
           </button>
@@ -379,7 +379,7 @@ export default function CourierDetail() {
       )}
 
       {/* Back + title */}
-      <div className="mb-4 flex items-center gap-3">
+      <div className="mb-5 flex items-center gap-3">
         <button
           onClick={() => navigate(-1)}
           className="flex items-center gap-1.5 rounded-xl border border-gray-200 dark:border-gray-700 px-3 py-2 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
@@ -389,7 +389,7 @@ export default function CourierDetail() {
           </svg>
           Back
         </button>
-        <h1 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+        <h1 className="text-xl font-semibold text-gray-800 dark:text-white/90">
           {loading ? "Loading…" : fullName(courier?.firstName ?? "", courier?.lastName ?? "")}
         </h1>
       </div>
@@ -397,18 +397,18 @@ export default function CourierDetail() {
       {loading ? (
         <DetailSkeleton />
       ) : courier ? (
-        <div className="space-y-4">
+        <div className="space-y-6">
 
           {/* Inline errors */}
           {(statusError || deleteError) && (
-            <div className="rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 px-4 py-2">
+            <div className="rounded-2xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 px-5 py-3">
               <p className="text-sm text-red-600 dark:text-red-400">{statusError ?? deleteError}</p>
             </div>
           )}
 
           {/* ── Section 1: Profile ─────────────────────────────────────── */}
           <SectionCard title="Profile">
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-6">
               {/* Avatar */}
               <div className="flex-shrink-0">
                 {courier.profileImageUrl ? (
@@ -418,7 +418,7 @@ export default function CourierDetail() {
                     className="h-20 w-20 rounded-full object-cover border-2 border-gray-100 dark:border-gray-700"
                   />
                 ) : (
-                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-500/20 text-brand-600 dark:text-brand-400 text-lg font-bold border-2 border-gray-100 dark:border-gray-700">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-500/20 text-brand-600 dark:text-brand-400 text-xl font-bold border-2 border-gray-100 dark:border-gray-700">
                     {initials(courier.firstName, courier.lastName)}
                   </div>
                 )}
@@ -494,7 +494,7 @@ export default function CourierDetail() {
           <div className="flex flex-wrap gap-3">
             <button
               onClick={() => navigate(`/admin/couriers/${courierId}/edit`)}
-              className="flex items-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="flex items-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -505,7 +505,7 @@ export default function CourierDetail() {
             <button
               onClick={handleAvailabilityToggle}
               disabled={availabilityLoading}
-              className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-40 ${
+              className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-colors disabled:opacity-40 ${
                 courier.isAvailable
                   ? "border border-yellow-200 dark:border-yellow-800/40 text-yellow-600 dark:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-500/5"
                   : "border border-green-200 dark:border-green-800/40 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-500/5"
@@ -519,7 +519,7 @@ export default function CourierDetail() {
             </button>
             <button
               onClick={() => setShowStatusModal(true)}
-              className="flex items-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="flex items-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -529,7 +529,7 @@ export default function CourierDetail() {
             </button>
             <button
               onClick={() => setShowDeleteModal(true)}
-              className="flex items-center gap-2 rounded-xl border border-red-200 dark:border-red-800/40 px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/5 transition-colors"
+              className="flex items-center gap-2 rounded-xl border border-red-200 dark:border-red-800/40 px-5 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/5 transition-colors"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="3 6 5 6 21 6" />

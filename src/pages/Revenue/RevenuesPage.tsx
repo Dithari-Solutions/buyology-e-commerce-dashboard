@@ -69,41 +69,41 @@ export default function RevenuesPage() {
       <PageBreadcrumb pageTitle="Revenues" />
 
       {/* Summary cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
-        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
           <p className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1">Gross Revenue</p>
-          <p className="text-xl font-bold text-gray-900 dark:text-white">
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">
             {report ? fmtMoney(report.totalRevenue) : "—"}
           </p>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
           <p className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1">Refunds</p>
-          <p className="text-xl font-bold text-red-500">
+          <p className="text-2xl font-bold text-red-500">
             {report ? `-${fmtMoney(report.totalRefunded)}` : "—"}
           </p>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
           <p className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1">Net Revenue (Buyology)</p>
-          <p className="text-xl font-bold text-gray-900 dark:text-white">
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">
             {report ? fmtMoney(report.netRevenue) : "—"}
           </p>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
           <p className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1">Delivery Fees (AED)</p>
-          <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
+          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
             {report ? fmtMoney(report.totalDeliveryFeeRevenue) : "—"}
           </p>
           <p className="mt-1 text-[11px] text-gray-400">Courier return-pickup fees</p>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
           <p className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1">Total Orders</p>
-          <p className="text-xl font-bold text-gray-900 dark:text-white">
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">
             {report ? report.totalOrders.toLocaleString() : "—"}
           </p>
         </div>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
         {/* Store filter */}
         <div className="mb-3">
           <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Store</label>
@@ -158,13 +158,13 @@ export default function RevenuesPage() {
         {loading ? (
           <p className="text-sm text-gray-500">Loading…</p>
         ) : !report || (report.buckets.length === 0 && report.orders.length === 0) ? (
-          <div className="rounded-xl border-2 border-dashed border-gray-200 p-5 text-center dark:border-gray-700">
+          <div className="rounded-xl border-2 border-dashed border-gray-200 p-8 text-center dark:border-gray-700">
             <p className="text-gray-500 dark:text-gray-400">No revenue for the selected period.</p>
           </div>
         ) : (
           <>
             <h4 className="mb-2 text-xs font-semibold uppercase text-gray-500">Summary by period</h4>
-            <div className="overflow-x-auto mb-5">
+            <div className="overflow-x-auto mb-8">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-100 dark:border-gray-800 text-left text-xs uppercase text-gray-500">

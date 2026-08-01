@@ -19,34 +19,22 @@ layer(base);
   --breakpoint-xl: 1280px;
   --breakpoint-2xl: 1536px;
 
-  /* Compact type scale — tuned down from the template defaults so headings
-     read as UI, not marketing copy. */
-  --text-title-2xl: 44px;
-  --text-title-2xl--line-height: 52px;
-  --text-title-xl: 36px;
-  --text-title-xl--line-height: 44px;
-  --text-title-lg: 30px;
-  --text-title-lg--line-height: 38px;
-  --text-title-md: 24px;
-  --text-title-md--line-height: 32px;
-  --text-title-sm: 20px;
-  --text-title-sm--line-height: 28px;
-  --text-theme-xl: 18px;
-  --text-theme-xl--line-height: 26px;
-  --text-theme-sm: 13px;
-  --text-theme-sm--line-height: 18px;
-  --text-theme-xs: 11.5px;
-  --text-theme-xs--line-height: 16px;
-
-  /* Radii — generous and soft. Overriding the Tailwind defaults retunes every
-     existing `rounded-*` in the app at once instead of per-file edits.
-     Controls (rounded-lg) sit at 10px, cards (rounded-xl/2xl) at 14–16px. */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.625rem;
-  --radius-xl: 0.875rem;
-  --radius-2xl: 1rem;
-  --radius-3xl: 1.25rem;
+  --text-title-2xl: 72px;
+  --text-title-2xl--line-height: 90px;
+  --text-title-xl: 60px;
+  --text-title-xl--line-height: 72px;
+  --text-title-lg: 48px;
+  --text-title-lg--line-height: 60px;
+  --text-title-md: 36px;
+  --text-title-md--line-height: 44px;
+  --text-title-sm: 30px;
+  --text-title-sm--line-height: 38px;
+  --text-theme-xl: 20px;
+  --text-theme-xl--line-height: 30px;
+  --text-theme-sm: 14px;
+  --text-theme-sm--line-height: 20px;
+  --text-theme-xs: 12px;
+  --text-theme-xs--line-height: 18px;
 
   --color-current: currentColor;
   --color-transparent: transparent;
@@ -173,26 +161,15 @@ layer(base);
   --color-buyology-yellow-500: #eab308;
   --color-buyology-yellow-600: #ca8a04;
 
-  /* Shadows — soft, layered and tinted toward the brand's cool neutral so
-     surfaces read as lifted rather than outlined-and-flat. */
-  --shadow-theme-md: 0px 4px 12px -2px rgba(16, 24, 40, 0.08),
-    0px 2px 4px -2px rgba(16, 24, 40, 0.05);
-  --shadow-theme-lg: 0px 12px 28px -8px rgba(16, 24, 40, 0.14),
-    0px 4px 10px -4px rgba(16, 24, 40, 0.06);
-  --shadow-theme-sm: 0px 2px 5px -1px rgba(16, 24, 40, 0.06),
-    0px 1px 2px 0px rgba(16, 24, 40, 0.04);
-  --shadow-theme-xs: 0px 1px 2px 0px rgba(16, 24, 40, 0.06);
-  --shadow-theme-xl: 0px 24px 48px -12px rgba(16, 24, 40, 0.18),
-    0px 8px 16px -8px rgba(16, 24, 40, 0.08);
-  /* Elevation used by cards and controls. */
-  --shadow-card: 0px 1px 2px 0px rgba(16, 24, 40, 0.04),
-    0px 1px 3px 0px rgba(16, 24, 40, 0.04);
-  --shadow-card-hover: 0px 6px 16px -4px rgba(16, 24, 40, 0.1),
-    0px 2px 6px -2px rgba(16, 24, 40, 0.05);
-  --shadow-control: inset 0px 1px 0px 0px rgba(255, 255, 255, 0.6),
-    0px 1px 2px 0px rgba(16, 24, 40, 0.05);
-  --shadow-brand: 0px 2px 8px -1px rgba(124, 58, 237, 0.35),
-    0px 1px 2px 0px rgba(124, 58, 237, 0.2);
+  --shadow-theme-md: 0px 4px 8px -2px rgba(16, 24, 40, 0.1),
+    0px 2px 4px -2px rgba(16, 24, 40, 0.06);
+  --shadow-theme-lg: 0px 12px 16px -4px rgba(16, 24, 40, 0.08),
+    0px 4px 6px -2px rgba(16, 24, 40, 0.03);
+  --shadow-theme-sm: 0px 1px 3px 0px rgba(16, 24, 40, 0.1),
+    0px 1px 2px 0px rgba(16, 24, 40, 0.06);
+  --shadow-theme-xs: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+  --shadow-theme-xl: 0px 20px 24px -4px rgba(16, 24, 40, 0.08),
+    0px 8px 8px -4px rgba(16, 24, 40, 0.03);
   --shadow-datepicker: -5px 0 0 #262d3c, 5px 0 0 #262d3c;
   --shadow-focus-ring: 0px 0px 0px 4px rgba(70, 95, 255, 0.12);
   --shadow-slider-navigation: 0px 1px 2px 0px rgba(16, 24, 40, 0.1),
@@ -228,150 +205,25 @@ layer(base);
   ::file-selector-button {
     border-color: var(--color-gray-200, currentColor);
   }
-  .dark *,
-  .dark ::after,
-  .dark ::before,
-  .dark ::backdrop,
-  .dark ::file-selector-button {
-    border-color: color-mix(in srgb, var(--color-gray-700) 70%, transparent);
-  }
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
-  html {
-    -webkit-text-size-adjust: 100%;
-  }
   body {
-    @apply relative z-1 bg-gray-50 font-outfit text-[13px] font-normal leading-5 text-gray-700 antialiased dark:bg-gray-950 dark:text-gray-300;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    font-variant-numeric: tabular-nums;
+    @apply relative font-normal font-outfit z-1 bg-gray-50;
   }
-  /* One consistent focus treatment app-wide. */
-  :where(a, button, [role="button"], input, select, textarea, summary):focus-visible {
-    @apply outline-none ring-2 ring-brand-500/35 ring-offset-1 ring-offset-white dark:ring-offset-gray-950;
-  }
-  h1,
-  h2,
-  h3,
-  h4,
-  h5 {
-    @apply text-gray-900 dark:text-white/90;
-    text-wrap: pretty;
-  }
-
-  /* Tables — base-layer defaults so the ~50 pages that hand-roll a <table>
-     all get the same quiet column labels and row rhythm. Page-level utility
-     classes still win, so one-off layouts keep working. */
-  table {
-    @apply w-full text-left;
-    border-collapse: collapse;
-  }
-  table thead {
-    @apply border-b border-gray-200 dark:border-gray-800;
-  }
-  table thead th {
-    @apply whitespace-nowrap text-left align-middle text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400;
-  }
-  table tbody td {
-    @apply align-middle text-[13px];
-  }
-}
-
-/* ───────────────────────────────────────────────────────────────────────────
-   Design system — compact, minimalist surface vocabulary.
-   These utilities are the shared language for every page: a card is always the
-   same radius, border and padding; a table row is always the same height.
-   ─────────────────────────────────────────────────────────────────────────── */
-
-/** The single card look used app-wide: soft radius, hairline, gentle lift. */
-@utility ui-card {
-  @apply rounded-xl border border-gray-200/80 bg-white shadow-card transition-shadow dark:border-gray-800 dark:bg-gray-900 dark:shadow-none;
-}
-
-/** Card that responds to hover — for clickable tiles and summary cards. */
-@utility ui-card-interactive {
-  @apply hover:-translate-y-px hover:border-gray-300 hover:shadow-card-hover dark:hover:border-gray-700;
-}
-
-/** Card header strip — title on the left, actions on the right. */
-@utility ui-card-head {
-  @apply flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-4 py-3 dark:border-gray-800/80;
-}
-
-/** Standard interior padding for a card body. */
-@utility ui-card-body {
-  @apply p-4;
-}
-
-/** Page-level title (h1). */
-@utility ui-page-title {
-  @apply text-lg font-semibold tracking-tight text-gray-900 dark:text-white/90;
-}
-
-/** Section / card title (h2, h3). */
-@utility ui-section-title {
-  @apply text-sm font-semibold text-gray-900 dark:text-white/90;
-}
-
-/** Muted supporting copy. */
-@utility ui-muted {
-  @apply text-xs text-gray-500 dark:text-gray-400;
-}
-
-/** Filter/action strip that sits above a table. */
-@utility ui-toolbar {
-  @apply flex flex-wrap items-center gap-2;
-}
-
-/** Compact, quiet, uppercase column label. */
-@utility ui-th {
-  @apply whitespace-nowrap px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400;
-}
-
-/** Compact data cell. */
-@utility ui-td {
-  @apply px-4 py-2.5 align-middle text-[13px] text-gray-700 dark:text-gray-300;
-}
-
-/** Small status pill. */
-@utility ui-chip {
-  @apply inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-medium;
-}
-
-/** Baseline control surface shared by inputs, selects and textareas. */
-@utility ui-input {
-  @apply w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13px] text-gray-800 shadow-theme-xs transition-[border-color,box-shadow] duration-150 placeholder:text-gray-400 hover:border-gray-400 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/12 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400 dark:border-gray-700 dark:bg-gray-900/60 dark:text-white/90 dark:placeholder:text-gray-500 dark:hover:border-gray-600 dark:focus:border-brand-500 dark:disabled:bg-gray-800;
-}
-
-/** Solid brand action. */
-@utility ui-btn-primary {
-  @apply inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-brand-600 px-3.5 text-[13px] font-medium text-white shadow-brand transition-all hover:bg-brand-700 hover:shadow-theme-md active:translate-y-px disabled:opacity-50 disabled:shadow-none;
-}
-
-/** Neutral action that sits next to a primary one. */
-@utility ui-btn-outline {
-  @apply inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-gray-300 bg-white px-3.5 text-[13px] font-medium text-gray-700 shadow-theme-xs transition-all hover:border-gray-400 hover:bg-gray-50 hover:text-gray-900 active:translate-y-px dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white;
 }
 
 @utility menu-item {
-  @apply relative flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-all duration-150;
+  @apply relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-theme-sm;
 }
 
-/* Active nav row: brand wash plus a short accent bar on the leading edge, so
-   the current section is findable at a glance without shouting. */
 @utility menu-item-active {
-  @apply bg-gradient-to-r from-buyology-50 to-buyology-50/40 font-semibold text-buyology-700 dark:from-buyology-500/15 dark:to-buyology-500/5 dark:text-buyology-200;
-
-  &::before {
-    content: "";
-    @apply absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-r-full bg-buyology-500;
-  }
+  @apply bg-buyology-50 text-buyology-600 ring-1 ring-buyology-yellow-300/70 dark:bg-buyology-500/[0.15] dark:text-buyology-300 dark:ring-buyology-yellow-400/30;
 }
 
 @utility menu-item-inactive {
-  @apply text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-100;
+  @apply text-gray-700 hover:bg-gray-100 group-hover:text-gray-700 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-gray-300;
 }
 
 @utility menu-item-icon {
@@ -383,9 +235,8 @@ layer(base);
 }
 
 @utility menu-item-icon-size {
-  @apply flex shrink-0 items-center justify-center;
   & svg {
-    @apply !size-[18px];
+    @apply !size-6;
   }
 }
 
@@ -406,19 +257,19 @@ layer(base);
 }
 
 @utility menu-dropdown-item {
-  @apply relative flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[12.5px] font-medium transition-colors;
+  @apply relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-theme-sm font-medium;
 }
 
 @utility menu-dropdown-item-active {
-  @apply bg-buyology-50 font-semibold text-buyology-700 dark:bg-buyology-500/12 dark:text-buyology-200;
+  @apply bg-buyology-50 text-buyology-600 dark:bg-buyology-500/[0.15] dark:text-buyology-300;
 }
 
 @utility menu-dropdown-item-inactive {
-  @apply text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-100;
+  @apply text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5;
 }
 
 @utility menu-dropdown-badge {
-  @apply block rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase text-buyology-700 dark:text-buyology-yellow-300;
+  @apply block rounded-full px-2.5 py-0.5 text-xs font-medium uppercase text-buyology-700 dark:text-buyology-yellow-300;
 }
 
 @utility menu-dropdown-badge-active {
@@ -451,28 +302,6 @@ layer(base);
 }
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
   background-color: #344054;
-}
-
-/* App-wide slim scrollbars — keeps dense tables from growing chunky gutters. */
-*::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-*::-webkit-scrollbar-track {
-  background: transparent;
-}
-*::-webkit-scrollbar-thumb {
-  background-color: var(--color-gray-300);
-  border-radius: 9999px;
-}
-*::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-gray-400);
-}
-.dark *::-webkit-scrollbar-thumb {
-  background-color: #344054;
-}
-.dark *::-webkit-scrollbar-thumb:hover {
-  background-color: #475467;
 }
 
 @layer utilities {
@@ -589,7 +418,7 @@ layer(base);
   @apply w-full;
 }
 .flatpickr-calendar {
-  @apply mt-2 !bg-white !rounded-xl !p-4 !border !border-gray-200 !shadow-theme-md dark:!border-white/5 !text-gray-500 dark:!bg-gray-dark dark:!text-gray-400 dark:!shadow-theme-xl 2xsm:!w-auto;
+  @apply mt-2 !bg-white !rounded-xl !p-5 !border !border-gray-200 !shadow-theme-md dark:!border-white/5 !text-gray-500 dark:!bg-gray-dark dark:!text-gray-400 dark:!shadow-theme-xl 2xsm:!w-auto;
   box-shadow: 0px 4px 8px -2px rgba(16, 24, 40, 0.1),
     0px 2px 4px -2px rgba(16, 24, 40, 0.06) !important;
 }
@@ -764,13 +593,13 @@ span.flatpickr-weekday,
   border-left-width: 0;
 }
 .fc .fc-toolbar.fc-header-toolbar {
-  @apply flex-col gap-3 px-4 pt-4 sm:flex-row;
+  @apply flex-col gap-4 px-6 pt-6 sm:flex-row;
 }
 .fc-button-group {
   @apply gap-2;
 }
 .fc-button-group .fc-button {
-  @apply flex h-8 w-8 items-center justify-center !rounded-lg border border-gray-200 bg-transparent hover:border-gray-200 hover:bg-gray-50 focus:shadow-none active:!border-gray-200 active:!bg-transparent active:!shadow-none dark:border-gray-800 dark:hover:border-gray-800 dark:hover:bg-gray-900 dark:active:border-gray-800!;
+  @apply flex h-10 w-10 items-center justify-center !rounded-lg border border-gray-200 bg-transparent hover:border-gray-200 hover:bg-gray-50 focus:shadow-none active:!border-gray-200 active:!bg-transparent active:!shadow-none dark:border-gray-800 dark:hover:border-gray-800 dark:hover:bg-gray-900 dark:active:border-gray-800!;
 }
 
 .fc-button-group .fc-button.fc-prev-button:before {
@@ -791,16 +620,16 @@ span.flatpickr-weekday,
   @apply hidden;
 }
 .fc-addEventButton-button {
-  @apply !rounded-lg !border-0 !bg-brand-500 !px-3 !py-2 !text-[13px] !font-medium hover:!bg-brand-600 focus:!shadow-none;
+  @apply !rounded-lg !border-0 !bg-brand-500 !px-4 !py-2.5 !text-sm !font-medium hover:!bg-brand-600 focus:!shadow-none;
 }
 .fc-toolbar-title {
-  @apply !text-base !font-semibold text-gray-900 dark:text-white/90;
+  @apply !text-lg !font-medium text-gray-800 dark:text-white/90;
 }
 .fc-header-toolbar.fc-toolbar .fc-toolbar-chunk:last-child {
   @apply rounded-lg bg-gray-100 p-0.5 dark:bg-gray-900;
 }
 .fc-header-toolbar.fc-toolbar .fc-toolbar-chunk:last-child .fc-button {
-  @apply !h-auto !w-auto rounded-md !border-0 bg-transparent !px-3 !py-1.5 text-[12.5px] font-medium text-gray-500 hover:text-gray-700 focus:!shadow-none dark:text-gray-400;
+  @apply !h-auto !w-auto rounded-md !border-0 bg-transparent !px-5 !py-2 text-sm font-medium text-gray-500 hover:text-gray-700 focus:!shadow-none dark:text-gray-400;
 }
 .fc-header-toolbar.fc-toolbar
   .fc-toolbar-chunk:last-child
@@ -815,7 +644,7 @@ span.flatpickr-weekday,
   @apply !border-gray-200 dark:!border-gray-800;
 }
 .fc .fc-col-header-cell-cushion {
-  @apply !px-4 !py-2.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400;
+  @apply !px-5 !py-4 text-sm font-medium uppercase text-gray-400;
 }
 .fc .fc-daygrid-day.fc-day-today {
   @apply bg-transparent;
@@ -827,7 +656,7 @@ span.flatpickr-weekday,
   @apply rounded-sm bg-gray-100 dark:bg-white/[0.03];
 }
 .fc .fc-daygrid-day-number {
-  @apply !p-2 text-xs font-medium text-gray-700 dark:text-gray-400;
+  @apply !p-3 text-sm font-medium text-gray-700 dark:text-gray-400;
 }
 .fc .fc-daygrid-day-top {
   @apply !flex-row;
@@ -839,7 +668,7 @@ span.flatpickr-weekday,
   @apply text-gray-400 dark:text-white/30;
 }
 .event-fc-color {
-  @apply rounded-md py-1.5 pl-3 pr-2 text-xs;
+  @apply rounded-lg py-2.5 pl-4 pr-3;
 }
 .event-fc-color .fc-event-title {
   @apply p-0 text-sm font-normal text-gray-700;

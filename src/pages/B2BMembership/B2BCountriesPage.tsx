@@ -69,7 +69,7 @@ export default function B2BCountriesPage() {
       <PageMeta title="B2B Countries" description="Markets where B2B membership is offered" />
       <PageBreadcrumb pageTitle="B2B Countries" />
 
-      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
         <h3 className="mb-4 text-base font-semibold">Add or update country</h3>
         <form onSubmit={submit} className="grid grid-cols-1 gap-3 md:grid-cols-5">
           <input
@@ -114,12 +114,12 @@ export default function B2BCountriesPage() {
         </form>
       </div>
 
-      <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <div className="mt-6 rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
         <h3 className="mb-4 text-base font-semibold">Configured countries</h3>
         {loading ? (
-          <div className="py-4 text-center text-gray-500">Loading…</div>
+          <div className="py-6 text-center text-gray-500">Loading…</div>
         ) : countries.length === 0 ? (
-          <div className="py-4 text-center text-gray-500">No countries configured</div>
+          <div className="py-6 text-center text-gray-500">No countries configured</div>
         ) : (
           <table className="w-full text-sm">
             <thead className="bg-gray-50 text-left text-xs uppercase text-gray-500 dark:bg-gray-900">

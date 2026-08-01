@@ -71,8 +71,8 @@ export default function B2BApplicationDetailPage() {
     }
   };
 
-  if (loading && !app) return <p className="p-4 text-sm text-gray-500">Loading…</p>;
-  if (error || !app) return <p className="p-4 text-sm text-red-500">{error ?? "Not found"}</p>;
+  if (loading && !app) return <p className="p-6 text-sm text-gray-500">Loading…</p>;
+  if (error || !app) return <p className="p-6 text-sm text-red-500">{error ?? "Not found"}</p>;
 
   return (
     <>
@@ -85,7 +85,7 @@ export default function B2BApplicationDetailPage() {
         </button>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-base font-semibold text-gray-800 dark:text-white">{app.companyName}</h2>
           <span className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS_COLORS[app.status]}`}>
@@ -146,7 +146,7 @@ export default function B2BApplicationDetailPage() {
         )}
 
         {app.status !== "APPROVED" && app.status !== "REJECTED" && (
-          <div className="mt-4 border-t border-gray-100 pt-4 dark:border-gray-800">
+          <div className="mt-6 border-t border-gray-100 pt-4 dark:border-gray-800">
             {!actionType ? (
               <div className="flex flex-wrap gap-2">
                 <button onClick={() => setActionType("APPROVE")} className="rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600">
@@ -156,7 +156,7 @@ export default function B2BApplicationDetailPage() {
                   Reject
                 </button>
                 {app.status !== "UNDER_REVIEW" && (
-                  <button onClick={() => setActionType("UNDER_REVIEW")} className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
+                  <button onClick={() => setActionType("UNDER_REVIEW")} className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600">
                     Mark under review
                   </button>
                 )}
@@ -179,7 +179,7 @@ export default function B2BApplicationDetailPage() {
                 )}
                 {actionError && <p className="text-xs text-red-500">{actionError}</p>}
                 <div className="flex gap-2">
-                  <button onClick={handleAction} disabled={processing} className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50">
+                  <button onClick={handleAction} disabled={processing} className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50">
                     {processing ? "Processing..." : "Confirm"}
                   </button>
                   <button onClick={() => { setActionType(null); setActionError(""); setRejectionReason(""); }} className="rounded-lg bg-gray-100 px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300">

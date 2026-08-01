@@ -202,11 +202,11 @@ export default function OrderDetail() {
       />
       <PageBreadcrumb pageTitle="Order Details" />
 
-      <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate(`/orders/${storeId}`)}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-500 shadow-theme-xs transition-colors hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-500 shadow-sm transition-colors hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="19" y1="12" x2="5" y2="12" />
@@ -214,7 +214,7 @@ export default function OrderDetail() {
             </svg>
           </button>
           <div>
-            <h1 className="text-lg font-bold text-gray-800 dark:text-white/90">
+            <h1 className="text-xl font-bold text-gray-800 dark:text-white/90">
               Order #{order.orderNumber || order.id.substring(0, 8)}
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">Placed on {formatDate(order.createdAt)}</p>
@@ -225,15 +225,15 @@ export default function OrderDetail() {
         </Badge>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Main Content */}
-        <div className="lg:col-span-2 space-y-4">
+        <div className="lg:col-span-2 space-y-6">
           {/* Order Items */}
-          <div className="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 overflow-hidden">
-            <div className="border-b border-gray-100 px-4 py-2.5 dark:border-gray-800">
+          <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden">
+            <div className="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
               <h3 className="font-semibold text-gray-800 dark:text-white/90">Order Items</h3>
             </div>
-            <div className="p-4">
+            <div className="p-6">
               <div className="space-y-4">
                 {order.items?.map((item) => (
                   <div
@@ -281,7 +281,7 @@ export default function OrderDetail() {
                 ))}
               </div>
 
-              <div className="mt-4 border-t border-gray-100 pt-4 dark:border-gray-800 space-y-2">
+              <div className="mt-6 border-t border-gray-100 pt-4 dark:border-gray-800 space-y-2">
                 <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
                   <span>Subtotal</span>
                   <span>{order.currency} {order.totalAmount.toFixed(2)}</span>
@@ -301,14 +301,14 @@ export default function OrderDetail() {
           </div>
 
           {/* Chain of Custody / Proofs */}
-          <div className="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 overflow-hidden">
-            <div className="border-b border-gray-100 px-4 py-2.5 dark:border-gray-800">
+          <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden">
+            <div className="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
               <h3 className="font-semibold text-gray-800 dark:text-white/90">Chain of Custody</h3>
             </div>
-            <div className="p-4">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="p-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {/* Pickup Proof */}
-                <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900">
+                <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-800 dark:bg-white/[0.02]">
                   <h4 className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">Package Collected from Store</h4>
                   {order.pickupProofImageUrl ? (
                     <div className="space-y-3">
@@ -325,7 +325,7 @@ export default function OrderDetail() {
                 </div>
 
                 {/* Delivery Proof */}
-                <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900">
+                <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-800 dark:bg-white/[0.02]">
                   <h4 className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">Drop-off Proof</h4>
                   {order.deliveryProofImageUrl ? (
                     <div className="space-y-3">
@@ -355,9 +355,9 @@ export default function OrderDetail() {
         </div>
 
         {/* Sidebar Info */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           {/* Status Management */}
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
             <h3 className="mb-4 font-semibold text-gray-800 dark:text-white/90">Update Status</h3>
             <p className="mb-3 text-xs text-gray-500">
               Current: <span className="font-medium">{STATUS_LABELS[order.status] ?? order.status}</span>
@@ -402,7 +402,7 @@ export default function OrderDetail() {
           </div>
 
           {/* Proof uploads */}
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
             <h3 className="mb-4 font-semibold text-gray-800 dark:text-white/90">Upload Proof Photos</h3>
             <div className="space-y-3">
               <input
@@ -448,7 +448,7 @@ export default function OrderDetail() {
           </div>
 
           {/* Status & Courier */}
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
             <h3 className="mb-4 font-semibold text-gray-800 dark:text-white/90">Fulfillment Info</h3>
             <div className="space-y-4">
               <div>
@@ -504,7 +504,7 @@ export default function OrderDetail() {
           </div>
 
           {/* Customer Info */}
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
             <h3 className="mb-4 font-semibold text-gray-800 dark:text-white/90">Customer Details</h3>
             <div className="space-y-4">
               <div>
@@ -576,9 +576,9 @@ export default function OrderDetail() {
           </div>
 
           {/* Tracking History */}
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
             <h3 className="mb-4 font-semibold text-gray-800 dark:text-white/90">Tracking History</h3>
-            <div className="relative space-y-4 before:absolute before:left-[11px] before:top-2 before:h-[calc(100%-16px)] before:w-0.5 before:bg-gray-100 dark:before:bg-gray-800">
+            <div className="relative space-y-6 before:absolute before:left-[11px] before:top-2 before:h-[calc(100%-16px)] before:w-0.5 before:bg-gray-100 dark:before:bg-gray-800">
               {order.trackingHistory?.map((event, idx) => (
                 <div key={idx} className="relative pl-8">
                   <div className={`absolute left-0 top-1.5 h-6 w-6 rounded-full border-4 border-white dark:border-gray-900 bg-gray-200 dark:bg-gray-700 ${idx === 0 ? "bg-brand-500" : ""}`} />

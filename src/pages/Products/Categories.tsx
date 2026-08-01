@@ -149,14 +149,14 @@ function detailToForm(detail: CategoryDetail): CategoryFormState {
 function SkeletonRow() {
   return (
     <tr className="border-b border-gray-100 dark:border-gray-800">
-      <td className="px-4 py-2.5">
+      <td className="px-5 py-4">
         <div className="space-y-2">
           <div className="h-3.5 w-40 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
           <div className="h-2.5 w-28 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" />
         </div>
       </td>
       {[1, 2, 3, 4, 5].map((i) => (
-        <td key={i} className="px-4 py-2.5">
+        <td key={i} className="px-4 py-4">
           <div className="h-3 w-16 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" />
         </td>
       ))}
@@ -249,14 +249,14 @@ function CategoryFormModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      className="mx-4 max-w-xl w-full p-4 sm:p-5"
+      className="mx-4 max-w-xl w-full p-6 sm:p-8"
     >
-      <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">
+      <h2 className="mb-6 text-lg font-semibold text-gray-800 dark:text-white/90">
         {editingId ? "Edit Category" : "New Category"}
       </h2>
 
       {/* General fields */}
-      <div className="mb-4 grid grid-cols-2 gap-4">
+      <div className="mb-5 grid grid-cols-2 gap-4">
         <div>
           <label className={labelCls}>Parent Category</label>
           <select
@@ -281,7 +281,7 @@ function CategoryFormModal({
       </div>
 
       {/* Icon picker */}
-      <div className="mb-4">
+      <div className="mb-5">
         <label className={labelCls}>Icon (shown in the storefront Shop menu)</label>
         <div className="flex flex-wrap gap-2">
           {CATEGORY_ICON_KEYS.map((key) => {
@@ -317,7 +317,7 @@ function CategoryFormModal({
             onClick={() => setLangTab(lang)}
             className={`flex-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
               langTab === lang
-                ? "bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-theme-xs"
+                ? "bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-sm"
                 : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
             }`}
           >
@@ -365,12 +365,12 @@ function CategoryFormModal({
       )}
 
       {/* Actions */}
-      <div className="mt-4 flex justify-end gap-3">
+      <div className="mt-6 flex justify-end gap-3">
         <button
           type="button"
           onClick={onClose}
           disabled={saving}
-          className="rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+          className="rounded-xl border border-gray-200 dark:border-gray-700 px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
         >
           Cancel
         </button>
@@ -378,7 +378,7 @@ function CategoryFormModal({
           type="button"
           onClick={() => onSave(form)}
           disabled={saving}
-          className="rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 transition-colors disabled:opacity-60 flex items-center gap-2"
+          className="rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors disabled:opacity-60 flex items-center gap-2"
         >
           {saving && (
             <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
@@ -413,9 +413,9 @@ function DeleteConfirmModal({
   deleteError: string | null;
 }) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="mx-4 max-w-sm w-full p-4 sm:p-5">
+    <Modal isOpen={isOpen} onClose={onClose} className="mx-4 max-w-sm w-full p-6 sm:p-8">
       <div className="flex flex-col items-center text-center">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-error-50 dark:bg-error-500/10 mb-4">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-error-50 dark:bg-error-500/10 mb-4">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-error-500">
             <polyline points="3 6 5 6 21 6" />
             <path d="M19 6l-1 14H6L5 6" />
@@ -432,7 +432,7 @@ function DeleteConfirmModal({
         <p className="text-sm font-semibold text-gray-800 dark:text-white/90 mb-4">
           "{categoryName}"?
         </p>
-        <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">
+        <p className="text-xs text-gray-400 dark:text-gray-500 mb-6">
           This will soft-delete the category (set it to INACTIVE). It can be restored via the edit action.
         </p>
 
@@ -701,11 +701,11 @@ export default function Categories() {
       <PageBreadcrumb pageTitle="Categories" />
 
       {/* Stats row */}
-      <div className="mb-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="flex items-center gap-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4"
+            className="flex items-center gap-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-4"
           >
             <span
               className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${stat.color}`}
@@ -713,7 +713,7 @@ export default function Categories() {
               {stat.icon}
             </span>
             <div>
-              <p className="text-xl font-bold text-gray-800 dark:text-white/90 leading-none">
+              <p className="text-2xl font-bold text-gray-800 dark:text-white/90 leading-none">
                 {loading ? "—" : stat.value}
               </p>
               <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
@@ -725,8 +725,8 @@ export default function Categories() {
       </div>
 
       {/* Toolbar */}
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-base font-semibold text-gray-800 dark:text-white/90">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
           All Categories
           {!loading && (
             <span className="ml-2 text-sm font-normal text-gray-400">
@@ -742,10 +742,10 @@ export default function Categories() {
               const isActive = statusFilter === value;
               const activeClass =
                 value === "ALL"
-                  ? "bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-theme-xs"
+                  ? "bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-sm"
                   : value === "ACTIVE"
-                  ? "bg-white dark:bg-gray-700 text-success-600 dark:text-success-400 shadow-theme-xs"
-                  : "bg-white dark:bg-gray-700 text-error-600 dark:text-error-400 shadow-theme-xs";
+                  ? "bg-white dark:bg-gray-700 text-success-600 dark:text-success-400 shadow-sm"
+                  : "bg-white dark:bg-gray-700 text-error-600 dark:text-error-400 shadow-sm";
               return (
                 <button
                   key={value}
@@ -782,7 +782,7 @@ export default function Categories() {
           {/* New category button */}
           <button
             onClick={openCreate}
-            className="flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 transition-colors whitespace-nowrap"
+            className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors whitespace-nowrap"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <line x1="12" y1="5" x2="12" y2="19" />
@@ -795,7 +795,7 @@ export default function Categories() {
 
       {/* Error state */}
       {error && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-16 text-center">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-16 text-center">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mb-3 text-red-400">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
@@ -810,16 +810,16 @@ export default function Categories() {
 
       {/* Table */}
       {!error && (
-        <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03]">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
+                <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-white/[0.02]">
                   {["Name", "Parent", "Slug", "Status", "Created", "Actions"].map(
                     (col) => (
                       <th
                         key={col}
-                        className="px-4 py-2.5 first:pl-5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
+                        className="px-4 py-3.5 first:pl-5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
                       >
                         {col}
                       </th>
@@ -843,12 +843,12 @@ export default function Categories() {
                         key={category.id}
                         className={`transition-colors hover:bg-brand-50/50 dark:hover:bg-white/[0.02] ${
                           isRoot
-                            ? "border-t-2 border-gray-200 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-900"
+                            ? "border-t-2 border-gray-200 dark:border-gray-700 bg-gray-50/60 dark:bg-white/[0.02]"
                             : "border-b border-gray-100 dark:border-gray-800"
                         }`}
                       >
                         {/* Name (indented to show hierarchy) */}
-                        <td className="px-4 py-2.5">
+                        <td className="px-5 py-4">
                           <div
                             className="flex items-center gap-2"
                             style={{ paddingLeft: `${depth * 24}px` }}
@@ -887,7 +887,7 @@ export default function Categories() {
                         </td>
 
                         {/* Parent */}
-                        <td className="px-4 py-2.5">
+                        <td className="px-4 py-4">
                           {parent ? (
                             <span className="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-2.5 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-300">
                               {parent.name}
@@ -900,26 +900,26 @@ export default function Categories() {
                         </td>
 
                         {/* Slug */}
-                        <td className="px-4 py-2.5">
+                        <td className="px-4 py-4">
                           <code className="rounded bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-mono text-gray-600 dark:text-gray-300">
                             {category.slug}
                           </code>
                         </td>
 
                         {/* Status */}
-                        <td className="px-4 py-2.5">
+                        <td className="px-4 py-4">
                           <Badge size="sm" color={statusColor(category.status)}>
                             {category.status}
                           </Badge>
                         </td>
 
                         {/* Created */}
-                        <td className="px-4 py-2.5 text-xs text-gray-500 dark:text-gray-400">
+                        <td className="px-4 py-4 text-xs text-gray-500 dark:text-gray-400">
                           {formatDate(category.createdAt)}
                         </td>
 
                         {/* Actions */}
-                        <td className="px-4 py-2.5">
+                        <td className="px-4 py-4">
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => openEdit(category)}

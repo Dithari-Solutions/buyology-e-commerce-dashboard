@@ -35,7 +35,7 @@ export default function SuppliersPage() {
       <PageMeta title="Supplier Applications | Buyology" description="Review supplier applications" />
       <PageBreadcrumb pageTitle="Supplier Applications" />
 
-      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="mb-4 flex items-center gap-2">
           {TABS.map((t) => (
             <button
@@ -55,7 +55,7 @@ export default function SuppliersPage() {
         {loading ? (
           <p className="text-sm text-gray-500">Loading…</p>
         ) : displayed.length === 0 ? (
-          <div className="rounded-xl border-2 border-dashed border-gray-200 p-5 text-center dark:border-gray-700">
+          <div className="rounded-xl border-2 border-dashed border-gray-200 p-8 text-center dark:border-gray-700">
             <p className="text-gray-500 dark:text-gray-400">No applications found.</p>
           </div>
         ) : (

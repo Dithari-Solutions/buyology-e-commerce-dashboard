@@ -97,16 +97,16 @@ export default function SpecCodes() {
       <PageMeta title="Spec Codes | Buyology" description="Manage product spec codes" />
       <PageBreadcrumb pageTitle="Spec Codes" />
 
-      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <h2 className="text-base font-semibold text-gray-800 dark:text-white">Spec Codes ({codes.length})</h2>
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-white">Spec Codes ({codes.length})</h2>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               The codes admins can attach to products. Codes marked <span className="font-medium">Filter</span> drive storefront filters.
             </p>
           </div>
           <button onClick={openCreate}
-            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
+            className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600">
             + Add Code
           </button>
         </div>
@@ -156,9 +156,9 @@ export default function SpecCodes() {
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-lg rounded-xl bg-white p-4 shadow-theme-lg dark:bg-gray-900">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-base font-semibold dark:text-white">{edit.id ? "Edit Spec Code" : "Add Spec Code"}</h3>
+              <h3 className="text-lg font-semibold dark:text-white">{edit.id ? "Edit Spec Code" : "Add Spec Code"}</h3>
               <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">✕</button>
             </div>
             <div className="space-y-3">
@@ -200,7 +200,7 @@ export default function SpecCodes() {
             {msg && <p className="mt-2 text-sm text-red-500">{msg}</p>}
             <div className="mt-4 flex gap-3">
               <button onClick={handleSave} disabled={saving}
-                className="flex-1 rounded-lg bg-brand-600 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50">
+                className="flex-1 rounded-lg bg-brand-500 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50">
                 {saving ? "Saving..." : edit.id ? "Save" : "Create"}
               </button>
               <button onClick={() => setShowModal(false)}

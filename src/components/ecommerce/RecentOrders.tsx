@@ -53,7 +53,8 @@ interface Row {
   status: OrderStatus;
 }
 
-const HEADER_CLASS = "";
+const HEADER_CLASS =
+  "py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400";
 
 export default function RecentOrders() {
   const [rows, setRows] = useState<Row[]>([]);
@@ -116,19 +117,21 @@ export default function RecentOrders() {
   }, []);
 
   return (
-    <div className="ui-card overflow-hidden">
-      <div className="ui-card-head">
-        <h3 className="ui-section-title">Recent Orders</h3>
+    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+          Recent Orders
+        </h3>
         <Link
           to="/orders"
-          className="inline-flex h-7 items-center rounded-lg border border-gray-300 bg-white px-2.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-white/5"
+          className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
         >
           See all
         </Link>
       </div>
       <div className="max-w-full overflow-x-auto">
         <Table>
-          <TableHeader>
+          <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
             <TableRow>
               <TableCell isHeader className={HEADER_CLASS}>Product</TableCell>
               <TableCell isHeader className={HEADER_CLASS}>Category</TableCell>
@@ -138,18 +141,18 @@ export default function RecentOrders() {
             </TableRow>
           </TableHeader>
 
-          <TableBody>
+          <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
             {loading &&
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={`sk-${i}`}>
-                  <TableCell>
+                  <TableCell className="py-3">
                     <div className="flex items-center gap-3">
-                      <div className="size-8 animate-pulse rounded-md bg-gray-100 dark:bg-white/5" />
+                      <div className="h-[50px] w-[50px] rounded-md bg-gray-100 dark:bg-white/5 animate-pulse" />
                       <div className="h-3.5 w-28 rounded-full bg-gray-100 dark:bg-white/5 animate-pulse" />
                     </div>
                   </TableCell>
                   {[1, 2, 3, 4].map((c) => (
-                    <TableCell key={c}>
+                    <TableCell key={c} className="py-3">
                       <div className="h-3 w-16 rounded-full bg-gray-100 dark:bg-white/5 animate-pulse" />
                     </TableCell>
                   ))}
@@ -158,7 +161,7 @@ export default function RecentOrders() {
 
             {!loading && rows.length === 0 && (
               <TableRow>
-                <TableCell className="py-5 text-center text-gray-500 dark:text-gray-400">
+                <TableCell className="py-8 text-center text-gray-500 text-theme-sm dark:text-gray-400">
                   No recent orders
                 </TableCell>
               </TableRow>
@@ -167,11 +170,11 @@ export default function RecentOrders() {
             {!loading &&
               rows.map((r) => (
                 <TableRow key={r.orderId}>
-                  <TableCell>
+                  <TableCell className="py-3">
                     <div className="flex items-center gap-3">
-                      <div className="size-8 shrink-0 overflow-hidden rounded-md bg-gray-100 dark:bg-white/5">
+                      <div className="h-[50px] w-[50px] overflow-hidden rounded-md bg-gray-100 dark:bg-white/5">
                         {r.image && (
-                          <img src={r.image} className="size-8 object-cover" alt={r.title} />
+                          <img src={r.image} className="h-[50px] w-[50px] object-cover" alt={r.title} />
                         )}
                       </div>
                       <Link
@@ -182,16 +185,16 @@ export default function RecentOrders() {
                       </Link>
                     </div>
                   </TableCell>
-                  <TableCell className="text-gray-500 dark:text-gray-400">
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     {r.category}
                   </TableCell>
-                  <TableCell className="whitespace-nowrap text-gray-500 dark:text-gray-400">
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400 whitespace-nowrap">
                     {r.price}
                   </TableCell>
-                  <TableCell className="text-gray-500 dark:text-gray-400">
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     {r.country}
                   </TableCell>
-                  <TableCell className="text-gray-500 dark:text-gray-400">
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     <Badge size="sm" color={statusColor(r.status)}>
                       {r.status}
                     </Badge>
