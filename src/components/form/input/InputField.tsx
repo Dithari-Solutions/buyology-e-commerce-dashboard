@@ -35,7 +35,7 @@ const Input: FC<InputProps> = ({
   hint,
 }) => {
   // One 36px-tall control surface shared by every input in the app.
-  let inputClasses = `ui-input h-9 appearance-none ${className}`;
+  let inputClasses = `ui-input h-10 appearance-none ${className}`;
 
   if (disabled) {
     inputClasses += ` cursor-not-allowed`;

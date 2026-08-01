@@ -31,7 +31,7 @@ const Select: React.FC<SelectProps> = ({
 
   return (
     <select
-      className={`ui-input h-9 appearance-none pr-9 ${
+      className={`ui-input h-10 appearance-none pr-9 ${
         selectedValue
           ? "text-gray-800 dark:text-white/90"
           : "text-gray-400 dark:text-gray-400"

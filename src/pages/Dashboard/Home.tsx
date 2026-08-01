@@ -93,14 +93,14 @@ function PageHead() {
       <div className="flex items-center gap-2">
         <Link
           to="/new-product"
-          className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-brand-600 px-3.5 text-[13px] font-medium text-white transition-colors hover:bg-brand-700"
+          className="ui-btn-primary h-10"
         >
           <PlusIcon className="size-4" />
           New Product
         </Link>
         <Link
           to="/products"
-          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3.5 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-white/5"
+          className="ui-btn-outline h-10"
         >
           View All
           <ArrowRightIcon className="size-4" />
@@ -124,7 +124,7 @@ function MetricCard({
   loading?: boolean;
 }) {
   return (
-    <div className="ui-card flex items-center gap-3 p-3.5 transition-colors hover:border-gray-300 dark:hover:border-gray-700">
+    <div className="ui-card ui-card-interactive flex items-center gap-3 p-3.5">
       <div
         className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${iconClass}`}
       >
@@ -158,7 +158,7 @@ function QuickLinks() {
           <Link
             key={href}
             to={href}
-            className="group flex flex-col items-center gap-2 rounded-lg border border-transparent px-2 py-3 text-center transition-colors hover:border-gray-200 hover:bg-gray-50 dark:hover:border-gray-800 dark:hover:bg-white/[0.03]"
+            className="group flex flex-col items-center gap-2 rounded-xl border border-transparent px-2 py-3 text-center transition-all hover:-translate-y-px hover:border-gray-200 hover:bg-gray-50 hover:shadow-theme-xs dark:hover:border-gray-800 dark:hover:bg-white/[0.03]"
           >
             <span className="flex size-9 items-center justify-center rounded-lg bg-gray-100 text-gray-500 transition-colors group-hover:bg-brand-50 group-hover:text-brand-600 dark:bg-white/5 dark:text-gray-400 dark:group-hover:bg-brand-500/10 dark:group-hover:text-brand-300">
               <Icon sx={{ fontSize: 18 }} />

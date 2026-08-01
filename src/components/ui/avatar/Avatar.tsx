@@ -9,8 +9,8 @@ const sizeClasses = {
   xsmall: "h-6 w-6 max-w-6",
   small: "h-8 w-8 max-w-8",
   medium: "h-10 w-10 max-w-10",
-  large: "h-10 w-10 max-w-12",
-  xlarge: "h-10 w-10 max-w-14",
+  large: "h-12 w-12 max-w-12",
+  xlarge: "h-14 w-14 max-w-14",
   xxlarge: "h-16 w-16 max-w-16",
 };
 

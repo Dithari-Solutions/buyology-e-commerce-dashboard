@@ -38,13 +38,15 @@ layer(base);
   --text-theme-xs: 11.5px;
   --text-theme-xs--line-height: 16px;
 
-  /* Radii — one calm family. Overriding the Tailwind defaults retunes every
-     existing `rounded-*` in the app at once instead of per-file edits. */
-  --radius-md: 0.375rem;
-  --radius-lg: 0.5rem;
-  --radius-xl: 0.625rem;
-  --radius-2xl: 0.75rem;
-  --radius-3xl: 1rem;
+  /* Radii — generous and soft. Overriding the Tailwind defaults retunes every
+     existing `rounded-*` in the app at once instead of per-file edits.
+     Controls (rounded-lg) sit at 10px, cards (rounded-xl/2xl) at 14–16px. */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.875rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.25rem;
 
   --color-current: currentColor;
   --color-transparent: transparent;
@@ -171,17 +173,26 @@ layer(base);
   --color-buyology-yellow-500: #eab308;
   --color-buyology-yellow-600: #ca8a04;
 
-  /* Shadows — minimalist: surfaces are defined by hairline borders, shadow is
-     reserved for things that genuinely float (menus, modals, popovers). */
-  --shadow-theme-md: 0px 2px 6px -2px rgba(16, 24, 40, 0.06),
-    0px 1px 2px -1px rgba(16, 24, 40, 0.04);
-  --shadow-theme-lg: 0px 8px 20px -6px rgba(16, 24, 40, 0.1),
-    0px 2px 6px -2px rgba(16, 24, 40, 0.04);
-  --shadow-theme-sm: 0px 1px 2px 0px rgba(16, 24, 40, 0.05),
-    0px 1px 1px 0px rgba(16, 24, 40, 0.03);
-  --shadow-theme-xs: 0px 1px 1px 0px rgba(16, 24, 40, 0.04);
-  --shadow-theme-xl: 0px 16px 32px -8px rgba(16, 24, 40, 0.12),
-    0px 4px 8px -4px rgba(16, 24, 40, 0.04);
+  /* Shadows — soft, layered and tinted toward the brand's cool neutral so
+     surfaces read as lifted rather than outlined-and-flat. */
+  --shadow-theme-md: 0px 4px 12px -2px rgba(16, 24, 40, 0.08),
+    0px 2px 4px -2px rgba(16, 24, 40, 0.05);
+  --shadow-theme-lg: 0px 12px 28px -8px rgba(16, 24, 40, 0.14),
+    0px 4px 10px -4px rgba(16, 24, 40, 0.06);
+  --shadow-theme-sm: 0px 2px 5px -1px rgba(16, 24, 40, 0.06),
+    0px 1px 2px 0px rgba(16, 24, 40, 0.04);
+  --shadow-theme-xs: 0px 1px 2px 0px rgba(16, 24, 40, 0.06);
+  --shadow-theme-xl: 0px 24px 48px -12px rgba(16, 24, 40, 0.18),
+    0px 8px 16px -8px rgba(16, 24, 40, 0.08);
+  /* Elevation used by cards and controls. */
+  --shadow-card: 0px 1px 2px 0px rgba(16, 24, 40, 0.04),
+    0px 1px 3px 0px rgba(16, 24, 40, 0.04);
+  --shadow-card-hover: 0px 6px 16px -4px rgba(16, 24, 40, 0.1),
+    0px 2px 6px -2px rgba(16, 24, 40, 0.05);
+  --shadow-control: inset 0px 1px 0px 0px rgba(255, 255, 255, 0.6),
+    0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+  --shadow-brand: 0px 2px 8px -1px rgba(124, 58, 237, 0.35),
+    0px 1px 2px 0px rgba(124, 58, 237, 0.2);
   --shadow-datepicker: -5px 0 0 #262d3c, 5px 0 0 #262d3c;
   --shadow-focus-ring: 0px 0px 0px 4px rgba(70, 95, 255, 0.12);
   --shadow-slider-navigation: 0px 1px 2px 0px rgba(16, 24, 40, 0.1),
@@ -274,14 +285,19 @@ layer(base);
    same radius, border and padding; a table row is always the same height.
    ─────────────────────────────────────────────────────────────────────────── */
 
-/** Elevated-by-hairline surface. The single card look used app-wide. */
+/** The single card look used app-wide: soft radius, hairline, gentle lift. */
 @utility ui-card {
-  @apply rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900;
+  @apply rounded-xl border border-gray-200/80 bg-white shadow-card transition-shadow dark:border-gray-800 dark:bg-gray-900 dark:shadow-none;
+}
+
+/** Card that responds to hover — for clickable tiles and summary cards. */
+@utility ui-card-interactive {
+  @apply hover:-translate-y-px hover:border-gray-300 hover:shadow-card-hover dark:hover:border-gray-700;
 }
 
 /** Card header strip — title on the left, actions on the right. */
 @utility ui-card-head {
-  @apply flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-4 py-3 dark:border-gray-800;
+  @apply flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-4 py-3 dark:border-gray-800/80;
 }
 
 /** Standard interior padding for a card body. */
@@ -326,15 +342,32 @@ layer(base);
 
 /** Baseline control surface shared by inputs, selects and textareas. */
 @utility ui-input {
-  @apply w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13px] text-gray-800 transition placeholder:text-gray-400 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-gray-500 dark:focus:border-brand-500 dark:disabled:bg-gray-800;
+  @apply w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-[13px] text-gray-800 shadow-theme-xs transition-[border-color,box-shadow] duration-150 placeholder:text-gray-400 hover:border-gray-400 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/12 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400 dark:border-gray-700 dark:bg-gray-900/60 dark:text-white/90 dark:placeholder:text-gray-500 dark:hover:border-gray-600 dark:focus:border-brand-500 dark:disabled:bg-gray-800;
+}
+
+/** Solid brand action. */
+@utility ui-btn-primary {
+  @apply inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-brand-600 px-3.5 text-[13px] font-medium text-white shadow-brand transition-all hover:bg-brand-700 hover:shadow-theme-md active:translate-y-px disabled:opacity-50 disabled:shadow-none;
+}
+
+/** Neutral action that sits next to a primary one. */
+@utility ui-btn-outline {
+  @apply inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-gray-300 bg-white px-3.5 text-[13px] font-medium text-gray-700 shadow-theme-xs transition-all hover:border-gray-400 hover:bg-gray-50 hover:text-gray-900 active:translate-y-px dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white;
 }
 
 @utility menu-item {
-  @apply relative flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors;
+  @apply relative flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-all duration-150;
 }
 
+/* Active nav row: brand wash plus a short accent bar on the leading edge, so
+   the current section is findable at a glance without shouting. */
 @utility menu-item-active {
-  @apply bg-buyology-50 text-buyology-700 dark:bg-buyology-500/12 dark:text-buyology-200;
+  @apply bg-gradient-to-r from-buyology-50 to-buyology-50/40 font-semibold text-buyology-700 dark:from-buyology-500/15 dark:to-buyology-500/5 dark:text-buyology-200;
+
+  &::before {
+    content: "";
+    @apply absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-r-full bg-buyology-500;
+  }
 }
 
 @utility menu-item-inactive {
@@ -377,7 +410,7 @@ layer(base);
 }
 
 @utility menu-dropdown-item-active {
-  @apply bg-buyology-50 text-buyology-700 dark:bg-buyology-500/12 dark:text-buyology-200;
+  @apply bg-buyology-50 font-semibold text-buyology-700 dark:bg-buyology-500/12 dark:text-buyology-200;
 }
 
 @utility menu-dropdown-item-inactive {

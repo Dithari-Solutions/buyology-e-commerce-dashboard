@@ -40,38 +40,41 @@ export default function SignInForm() {
 
   return (
     <>
-      <div className="w-full max-w-[400px] z-2">
+      <div className="z-2 w-full max-w-[400px]">
         {/* Mobile-only logo */}
-        <div className="flex lg:hidden justify-center mb-4">
-          <img src={Logo} alt="Buyology" className="w-10 h-10 rounded-xl shadow-theme-sm" />
-        </div>
-
-        {/* Heading */}
-        <div className="mb-5">
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-            Welcome back
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-            Sign in to your Buyology account
-          </p>
+        <div className="mb-5 flex justify-center lg:hidden">
+          <img src={Logo} alt="Buyology" className="h-9 w-[190px] object-cover" />
         </div>
 
         {/* Form card */}
-        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <div className="rounded-2xl border border-gray-200/80 bg-white p-6 shadow-theme-lg dark:border-gray-800 dark:bg-gray-900">
+          <div className="mb-5">
+            <h1 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
+              Welcome back
+            </h1>
+            <p className="mt-1 text-[13px] text-gray-500 dark:text-gray-400">
+              Sign in to your Buyology account
+            </p>
+          </div>
+
           <form onSubmit={handleSubmit}>
             <div className="space-y-4">
               {/* Error banner */}
               {error && (
-                <div className="px-4 py-2.5 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/20 dark:text-red-400 dark:border-red-800">
+                <div
+                  role="alert"
+                  className="rounded-lg border border-error-200 bg-error-50 px-3 py-2.5 text-[13px] text-error-700 dark:border-error-800 dark:bg-error-500/10 dark:text-error-400"
+                >
                   {error}
                 </div>
               )}
 
               <div>
-                <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                  Email <span className="text-red-500">*</span>
+                <Label htmlFor="email">
+                  Email <span className="text-error-500">*</span>
                 </Label>
                 <Input
+                  id="email"
                   type="email"
                   placeholder="you@company.com"
                   value={email}
@@ -80,27 +83,28 @@ export default function SignInForm() {
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Password <span className="text-red-500">*</span>
-                  </Label>
-                </div>
+                <Label htmlFor="password">
+                  Password <span className="text-error-500">*</span>
+                </Label>
                 <div className="relative">
                   <Input
+                    id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
+                    className="pr-10"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
                   <button
                     type="button"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute z-30 -translate-y-1/2 right-4 top-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors cursor-pointer"
+                    className="absolute right-1.5 top-1/2 z-30 flex size-7 -translate-y-1/2 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-white/5 dark:hover:text-gray-300"
                   >
                     {showPassword ? (
-                      <EyeIcon className="fill-current size-5" />
+                      <EyeIcon className="size-4 fill-current" />
                     ) : (
-                      <EyeCloseIcon className="fill-current size-5" />
+                      <EyeCloseIcon className="size-4 fill-current" />
                     )}
                   </button>
                 </div>
@@ -108,7 +112,7 @@ export default function SignInForm() {
 
               <div className="pt-1">
                 <Button
-                  className="w-full font-semibold tracking-wide"
+                  className="w-full font-semibold"
                   size="md"
                   disabled={isSubmitting}
                 >
