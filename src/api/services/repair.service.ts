@@ -40,6 +40,13 @@ export interface RepairRequest {
   returnDeliveryMethod?: RepairDeliveryMethod | null;
   courierFeeAmount?: number | null;
   courierFeeCurrency?: string | null;
+  /** Whether the fee for the currently-selected courier leg has been paid. */
+  courierFeePaid?: boolean;
+  /** Money was taken for a courier pickup the customer then swapped for a store drop-off. */
+  courierFeeRefundDue?: boolean;
+  /** Set when the customer changed their mind before we received the device. */
+  previousInboundDeliveryMethod?: RepairDeliveryMethod | null;
+  inboundDeliveryChangedAt?: string | null;
   estimatedPrice?: number | null;
   estimatedPriceCurrency?: string | null;
   estimatedTime?: string | null;

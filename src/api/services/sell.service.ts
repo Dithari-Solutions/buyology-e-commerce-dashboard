@@ -48,6 +48,11 @@ export interface SellRequest {
   courierFeeAmount?: number | null;
   courierFeeCurrency?: string | null;
   courierFeePaid: boolean;
+  /** Money was taken for a courier pickup the customer then swapped for a store drop-off. */
+  courierFeeRefundDue?: boolean;
+  /** Set when the customer changed their mind before we received the device. */
+  previousInboundDeliveryMethod?: SellDeliveryMethod | null;
+  inboundDeliveryChangedAt?: string | null;
   /** What Buyology pays — set by procurement, accepted or declined by the customer. */
   offerPrice?: number | null;
   offerPriceCurrency?: string | null;

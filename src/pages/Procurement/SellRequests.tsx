@@ -118,6 +118,16 @@ export default function SellRequests() {
                       >
                         {SELL_STATUS_LABELS[req.status]}
                       </span>
+                      {/* Surfaced in the queue, not just the detail page — a changed delivery is
+                          only actionable before someone dispatches a courier. */}
+                      {req.inboundDeliveryChangedAt && (
+                        <span
+                          className="mt-1 block w-fit rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-medium text-orange-700"
+                          title={`Delivery changed ${new Date(req.inboundDeliveryChangedAt).toLocaleString()}`}
+                        >
+                          {req.courierFeeRefundDue ? "Delivery changed · refund due" : "Delivery changed"}
+                        </span>
+                      )}
                     </td>
                     <td className="py-3">
                       <button
