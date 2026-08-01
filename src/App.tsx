@@ -81,6 +81,8 @@ import CourierProfilesPage from "./pages/Couriers/CourierProfilesPage";
 import Quotes from "./pages/Procurement/Quotes";
 import QuoteDetail from "./pages/Procurement/QuoteDetail";
 import Requests from "./pages/Procurement/Requests";
+import SellRequests from "./pages/Procurement/SellRequests";
+import SellRequestDetail from "./pages/Procurement/SellRequestDetail";
 import Repair from "./pages/Repair/Repair";
 import RepairDetail from "./pages/Repair/RepairDetail";
 import QuiqupTestingPage from "./pages/QuiqupTesting/QuiqupTestingPage";
@@ -193,6 +195,9 @@ export default function App() {
               <Route path="/procurement/quotes" element={<Quotes />} />
               <Route path="/procurement/quotes/:id" element={<QuoteDetail />} />
               <Route path="/procurement/requests" element={<Requests />} />
+              {/* Sell (trade-in) requests — procurement prices what Buyology pays */}
+              <Route path="/procurement/sell-requests" element={<SellRequests />} />
+              <Route path="/procurement/sell-requests/:id" element={<SellRequestDetail />} />
               {/* Repair — customer device-repair requests (REPAIR + SUPERADMIN; pages self-gate) */}
               <Route path="/repair" element={<Repair />} />
               <Route path="/repair/:id" element={<RepairDetail />} />
