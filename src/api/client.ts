@@ -65,6 +65,16 @@ function decodeJwtPayload(): JwtPayload | null {
   }
 }
 
+/**
+ * Returns the current user's `users.id` (the `uid` claim).
+ *
+ * Distinct from {@link getUserIdFromToken}, which returns `sub` — the auth-credential id. Anything
+ * comparing against a `userId` from an admin API (or sending one as a body field) needs this one.
+ */
+export function getAccountIdFromToken(): string | null {
+  return decodeJwtPayload()?.uid ?? null;
+}
+
 /** Returns the role names assigned to the current user, e.g. ["ADMIN", "SUPPLIER"]. */
 export function getRolesFromToken(): string[] {
   return decodeJwtPayload()?.roles ?? [];

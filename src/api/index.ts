@@ -1,4 +1,10 @@
-export { apiClient, setAccessToken, getAccessToken, getUserIdFromToken } from "./client";
+export {
+  apiClient,
+  setAccessToken,
+  getAccessToken,
+  getUserIdFromToken,
+  getAccountIdFromToken,
+} from "./client";
 export { authService } from "./services/auth.service";
 export { storiesService, uploadToPresignedUrl } from "./services/stories.service";
 export type {

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import Badge from "../../components/ui/badge/Badge";
@@ -6,13 +6,27 @@ import { usersService, ApiRequestError } from "../../api";
 import { rolesService } from "../../api/services/roles.service";
 import { mfaService } from "../../api/services/mfa.service";
 import { isSuperAdmin } from "../../auth/roles";
-import { getUserIdFromToken } from "../../api";
+import { getUserIdFromToken, getAccountIdFromToken } from "../../api";
 import type { UserDetail } from "../../types";
 import type { Role, Permission, UserRole, UserPermissionOverride } from "../../types/roles.types";
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+const inputClass =
+  "w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/20 transition-all";
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="mb-1.5 block text-xs font-medium text-gray-600 dark:text-gray-400">
+        {label}
+      </label>
+      {children}
+    </div>
+  );
+}
 
 function fullName(first: string | null, last: string | null): string {
   const n = [first, last].filter(Boolean).join(" ");
@@ -168,6 +182,25 @@ export default function AdminDetail() {
   const [roleLoading, setRoleLoading] = useState<Record<string, boolean>>({});
   const [permLoading, setPermLoading] = useState<Record<string, boolean>>({});
 
+  // ── Account management (SUPERADMIN only) ───────────────────────────────────
+  const superAdmin = isSuperAdmin();
+  // Compared against the `uid` claim, not `sub`: `sub` is the auth-credential id, while the admin
+  // APIs identify accounts by users.id.
+  const isSelf = user != null && user.userId === getAccountIdFromToken();
+
+  const [editOpen, setEditOpen] = useState(false);
+  const [editForm, setEditForm] = useState({ firstName: "", lastName: "", email: "" });
+  const [editBusy, setEditBusy] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+
+  const [passwordOpen, setPasswordOpen] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordBusy, setPasswordBusy] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  const [deleteBusy, setDeleteBusy] = useState(false);
+
   // ── Confirm dialog ─────────────────────────────────────────────────────────
   const [confirm, setConfirm] = useState<{
     open: boolean;
@@ -187,10 +220,12 @@ export default function AdminDetail() {
 
   // ── Toasts ─────────────────────────────────────────────────────────────────
   const [toasts, setToasts] = useState<Toast[]>([]);
-  let toastId = 0;
+  // A plain `let` here resets to 0 on every render, so two toasts raised in the same session could
+  // share an id — React then keys them identically and the dismiss timer removes the wrong one.
+  const toastIdRef = useRef(0);
 
   function showToast(message: string, type: "success" | "error") {
-    const id = ++toastId;
+    const id = ++toastIdRef.current;
     setToasts((prev) => [...prev, { id, message, type }]);
     setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3500);
   }
@@ -361,6 +396,113 @@ export default function AdminDetail() {
       onConfirm: async () => {
         setConfirm((prev) => ({ ...prev, open: false }));
         await removeRole(superadminRole.id);
+      },
+    });
+  };
+
+  // ── Account management actions (SUPERADMIN only) ───────────────────────────
+
+  const saveDetails = async () => {
+    if (!user) return;
+    const email = editForm.email.trim();
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEditError("Enter a valid email address.");
+      return;
+    }
+    setEditBusy(true);
+    setEditError(null);
+    try {
+      // Send only what changed, so an untouched field can never blank out a value server-side.
+      const payload: { firstName?: string; lastName?: string; email?: string } = {};
+      if (editForm.firstName.trim() !== (user.firstName ?? "")) {
+        payload.firstName = editForm.firstName.trim();
+      }
+      if (editForm.lastName.trim() !== (user.lastName ?? "")) {
+        payload.lastName = editForm.lastName.trim();
+      }
+      if (email !== (user.email ?? "")) payload.email = email;
+
+      if (Object.keys(payload).length === 0) {
+        setEditOpen(false);
+        return;
+      }
+      const res = await usersService.updateAdmin(user.userId, payload);
+      // Merge only the identity fields. The update response is a summary — spreading it whole would
+      // overwrite the favorites and cart this page already loaded with nulls.
+      setUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              firstName: res.data.firstName,
+              lastName: res.data.lastName,
+              email: res.data.email,
+            }
+          : prev
+      );
+      setEditOpen(false);
+      showToast("Admin updated.", "success");
+    } catch (err: unknown) {
+      setEditError(err instanceof ApiRequestError ? err.message : "Failed to update admin.");
+    } finally {
+      setEditBusy(false);
+    }
+  };
+
+  const savePassword = async () => {
+    if (!user) return;
+    if (newPassword !== confirmPassword) {
+      setPasswordError("The two passwords do not match.");
+      return;
+    }
+    if (newPassword.length < 8) {
+      setPasswordError("Password must be at least 8 characters.");
+      return;
+    }
+    if (!/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/\d/.test(newPassword)) {
+      setPasswordError("Include an upper-case letter, a lower-case letter and a number.");
+      return;
+    }
+    setPasswordBusy(true);
+    setPasswordError(null);
+    try {
+      const res = await usersService.changeAdminPassword(user.userId, newPassword);
+      setPasswordOpen(false);
+      setNewPassword("");
+      setConfirmPassword("");
+      showToast(res.message || "Password updated.", "success");
+    } catch (err: unknown) {
+      setPasswordError(err instanceof ApiRequestError ? err.message : "Failed to set password.");
+    } finally {
+      setPasswordBusy(false);
+    }
+  };
+
+  const confirmDeleteAdmin = () => {
+    if (!user) return;
+    setConfirm({
+      open: true,
+      title: "Delete admin",
+      message:
+        `Delete ${fullName(user.firstName, user.lastName)}? They are signed out immediately and lose ` +
+        `all access. The account is kept in anonymised form so audit history stays intact, and the ` +
+        `email address becomes free to reuse.`,
+      confirmLabel: "Delete admin",
+      confirmColor: "bg-red-500 hover:bg-red-600",
+      onConfirm: async () => {
+        setConfirm((prev) => ({ ...prev, open: false }));
+        setDeleteBusy(true);
+        try {
+          await usersService.deleteAdmin(user.userId);
+          showToast("Admin deleted.", "success");
+          navigate("/admin/admins");
+        } catch (err: unknown) {
+          showToast(
+            err instanceof ApiRequestError ? err.message : "Failed to delete admin.",
+            "error"
+          );
+        } finally {
+          setDeleteBusy(false);
+        }
       },
     });
   };
@@ -566,22 +708,168 @@ export default function AdminDetail() {
         <div className="space-y-6">
           {/* ── Profile card ───────────────────────────────────────────────── */}
           <SectionCard title="Profile">
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
               <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-500/20 text-brand-600 dark:text-brand-400 text-lg font-bold">
                 {initials(user.firstName, user.lastName)}
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="text-base font-semibold text-gray-800 dark:text-white/90">
                   {fullName(user.firstName, user.lastName)}
                 </p>
                 <p className="text-sm text-gray-400 dark:text-gray-500">{user.email ?? "—"}</p>
               </div>
-              <div className="ml-auto">
+              <div className="ml-auto flex items-center gap-2">
                 <Badge size="sm" color={user.status === "ACTIVE" ? "success" : "error"}>
                   {user.status}
                 </Badge>
               </div>
             </div>
+
+            {superAdmin && (
+              <div className="mt-5 border-t border-gray-100 dark:border-gray-800 pt-4">
+                {isSelf && (
+                  <p className="mb-3 text-xs text-gray-400 dark:text-gray-500">
+                    This is your own account. You can edit it, but not delete it or remove your own
+                    Super Admin role.
+                  </p>
+                )}
+
+                {editOpen ? (
+                  <div className="space-y-4">
+                    {editError && (
+                      <div className="rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+                        {editError}
+                      </div>
+                    )}
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                      <Field label="First name">
+                        <input
+                          className={inputClass}
+                          value={editForm.firstName}
+                          onChange={(e) =>
+                            setEditForm((p) => ({ ...p, firstName: e.target.value }))
+                          }
+                        />
+                      </Field>
+                      <Field label="Last name">
+                        <input
+                          className={inputClass}
+                          value={editForm.lastName}
+                          onChange={(e) => setEditForm((p) => ({ ...p, lastName: e.target.value }))}
+                        />
+                      </Field>
+                      <Field label="Email">
+                        <input
+                          type="email"
+                          className={inputClass}
+                          value={editForm.email}
+                          onChange={(e) => setEditForm((p) => ({ ...p, email: e.target.value }))}
+                        />
+                      </Field>
+                    </div>
+                    <div className="flex justify-end gap-3">
+                      <button
+                        onClick={() => setEditOpen(false)}
+                        disabled={editBusy}
+                        className="rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={saveDetails}
+                        disabled={editBusy}
+                        className="rounded-xl bg-brand-500 hover:bg-brand-600 px-5 py-2 text-sm font-semibold text-white disabled:opacity-50 transition-colors"
+                      >
+                        {editBusy ? "Saving…" : "Save changes"}
+                      </button>
+                    </div>
+                  </div>
+                ) : passwordOpen ? (
+                  <div className="space-y-4">
+                    {passwordError && (
+                      <div className="rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+                        {passwordError}
+                      </div>
+                    )}
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <Field label="New password">
+                        <input
+                          type="password"
+                          className={inputClass}
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          placeholder="Min 8 characters"
+                        />
+                      </Field>
+                      <Field label="Confirm new password">
+                        <input
+                          type="password"
+                          className={inputClass}
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                        />
+                      </Field>
+                    </div>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">
+                      Needs an upper-case letter, a lower-case letter and a number. Saving signs this
+                      admin out of every device.
+                    </p>
+                    <div className="flex justify-end gap-3">
+                      <button
+                        onClick={() => setPasswordOpen(false)}
+                        disabled={passwordBusy}
+                        className="rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={savePassword}
+                        disabled={passwordBusy}
+                        className="rounded-xl bg-brand-500 hover:bg-brand-600 px-5 py-2 text-sm font-semibold text-white disabled:opacity-50 transition-colors"
+                      >
+                        {passwordBusy ? "Saving…" : "Set password"}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-3">
+                    <button
+                      onClick={() => {
+                        setEditForm({
+                          firstName: user.firstName ?? "",
+                          lastName: user.lastName ?? "",
+                          email: user.email ?? "",
+                        });
+                        setEditError(null);
+                        setEditOpen(true);
+                      }}
+                      className="rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    >
+                      Edit details
+                    </button>
+                    <button
+                      onClick={() => {
+                        setNewPassword("");
+                        setConfirmPassword("");
+                        setPasswordError(null);
+                        setPasswordOpen(true);
+                      }}
+                      className="rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    >
+                      Change password
+                    </button>
+                    <button
+                      onClick={confirmDeleteAdmin}
+                      disabled={isSelf || deleteBusy}
+                      title={isSelf ? "You cannot delete your own account." : undefined}
+                      className="rounded-xl border border-red-200 dark:border-red-800/50 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {deleteBusy ? "Deleting…" : "Delete admin"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </SectionCard>
 
           {/* ── Roles ─────────────────────────────────────────────────────── */}

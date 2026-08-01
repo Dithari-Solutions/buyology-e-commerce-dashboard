@@ -23,6 +23,18 @@ export interface UserListItem {
   roles?: string[];
 }
 
+/**
+ * SUPERADMIN edit of an admin's identity. Only the fields sent are applied.
+ *
+ * Named "...Account..." to stay distinct from store.types' `UpdateAdminRequest`, which is about
+ * assigning a store admin rather than editing the person's login.
+ */
+export interface UpdateAdminAccountRequest {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+}
+
 /** What currently occupies an email address, and whether that account can become an admin. */
 export interface AdminEmailLookup {
   email: string;

@@ -40,6 +40,7 @@ export type {
   UsersListResponse,
   AdminEmailLookup,
   CreateAdminRequest,
+  UpdateAdminAccountRequest,
   FavoriteItem,
   UserFavorites,
   SelectedSpec,

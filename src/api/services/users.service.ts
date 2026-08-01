@@ -5,6 +5,7 @@ import type {
   UserDetail,
   CreateAdminRequest,
   AdminEmailLookup,
+  UpdateAdminAccountRequest,
 } from "../../types/user.types";
 
 const BASE = "/api/admin/users";
@@ -47,6 +48,31 @@ export const usersService = {
   /** SUPERADMIN: convert an existing customer account into an admin with the given roles. */
   promoteToAdmin(userId: string, roleIds: string[]): Promise<ApiResponse<UserDetail>> {
     return apiClient.post<ApiResponse<UserDetail>>(`${BASE}/${userId}/promote`, { roleIds });
+  },
+
+  /** SUPERADMIN: edit an admin's name and email. Send only the fields being changed. */
+  updateAdmin(userId: string, payload: UpdateAdminAccountRequest): Promise<ApiResponse<UserDetail>> {
+    return apiClient.put<ApiResponse<UserDetail>>(`${BASE}/${userId}`, payload);
+  },
+
+  /**
+   * SUPERADMIN: set a new password for an admin.
+   *
+   * No current password is required — this is the lost-access recovery path. Every active session
+   * of that admin is revoked, so anyone signed in on the old password is signed out.
+   */
+  changeAdminPassword(userId: string, newPassword: string): Promise<ApiResponse<string>> {
+    return apiClient.post<ApiResponse<string>>(`${BASE}/${userId}/password`, { newPassword });
+  },
+
+  /** SUPERADMIN: replace an admin's roles with exactly this set, in one atomic call. */
+  setAdminRoles(userId: string, roleIds: string[]): Promise<ApiResponse<string[]>> {
+    return apiClient.put<ApiResponse<string[]>>(`${BASE}/${userId}/roles`, { roleIds });
+  },
+
+  /** SUPERADMIN: delete an admin — revokes sessions and access, and frees the email for reuse. */
+  deleteAdmin(userId: string): Promise<ApiResponse<string>> {
+    return apiClient.delete<ApiResponse<string>>(`${BASE}/${userId}`);
   },
 
   getAll(
