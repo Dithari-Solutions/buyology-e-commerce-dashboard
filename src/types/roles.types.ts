@@ -5,6 +5,38 @@ export interface Role {
   isSystem: boolean;
   createdAt: string;
   updatedAt: string;
+  /** Permission codes this role grants, straight from the database. */
+  permissionCodes: string[];
+  /** How many users hold this role. */
+  userCount: number;
+  /** SUPERADMIN — cannot be renamed, deleted, or have its permissions edited. */
+  locked: boolean;
+}
+
+export interface RoleHolder {
+  userId: string;
+  authCredentialId: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  email: string | null;
+  userType: string | null;
+  status: string | null;
+  assignedAt: string;
+}
+
+export interface CreateRoleRequest {
+  name: string;
+  description?: string;
+}
+
+export interface UpdateRoleRequest {
+  name?: string;
+  description?: string;
+}
+
+export interface CreatePermissionRequest {
+  code: string;
+  description?: string;
 }
 
 export interface Permission {
@@ -44,63 +76,6 @@ export interface AssignPermissionRequest {
   assignedBy?: string;
 }
 
-// Permissions bundled per role — mirrors the backend seed data
-export const ROLE_PERMISSIONS: Record<string, string[]> = {
-  CUSTOMER_SUPPORT: [
-    "review:read",
-    "review:moderate",
-    "review:reply:create",
-    "review:reply:update",
-    "review:reply:delete",
-    "review:delete",
-    "question:read",
-    "question:moderate",
-    "question:answer:create",
-    "question:answer:update",
-    "question:answer:toggle",
-    "question:answer:delete",
-    "question:delete",
-  ],
-  COURIER_ADMIN: ["courier:read", "courier:create", "courier:update"],
-  // Marketing pages (promo codes, newsletter, banners, stories, games) are gated by the
-  // ADMIN role server-side rather than fine-grained permissions, so no codes are listed.
-  MARKETING: [],
-  STORE_ADMIN: [
-    "store:read",
-    "store:update",
-    "store:product:read",
-    "store:product:assign",
-    "store:product:update",
-    "store:product:remove",
-    "store:admin:read",
-  ],
-  SUPERADMIN: [
-    "review:read",
-    "review:moderate",
-    "review:reply:create",
-    "review:reply:update",
-    "review:reply:delete",
-    "review:delete",
-    "question:read",
-    "question:moderate",
-    "question:answer:create",
-    "question:answer:update",
-    "question:answer:toggle",
-    "question:answer:delete",
-    "question:delete",
-    "courier:read",
-    "courier:create",
-    "courier:update",
-    "courier:delete",
-    "store:read",
-    "store:update",
-    "store:product:read",
-    "store:product:assign",
-    "store:product:update",
-    "store:product:remove",
-    "store:admin:read",
-    "store:admin:assign",
-    "store:admin:update",
-    "store:admin:remove",
-  ],
-};
+// A role's permissions live on `Role.permissionCodes`, served from the database. There is
+// deliberately no hardcoded copy of the backend seed data here: roles are editable from the RBAC
+// console, so any static mirror goes stale the first time someone changes one.

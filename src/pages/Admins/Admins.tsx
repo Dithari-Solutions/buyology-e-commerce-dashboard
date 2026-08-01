@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useCallback, useEffect, useState } from "react";
+import { Navigate, useNavigate } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import Badge from "../../components/ui/badge/Badge";
 import { usersService, ApiRequestError } from "../../api";
 import { isSuperAdmin } from "../../auth/roles";
 import type { UserListItem, UserStatus } from "../../types";
+
+const PAGE_SIZE = 20;
 
 type BadgeColor = "success" | "error" | "warning" | "info" | "light";
 
@@ -41,61 +43,118 @@ function TableSkeleton() {
   );
 }
 
+function Pagination({
+  page,
+  totalPages,
+  onChange,
+}: {
+  page: number;
+  totalPages: number;
+  onChange: (page: number) => void;
+}) {
+  const windowStart = Math.max(0, Math.min(page - 3, totalPages - 7));
+  const pages = Array.from({ length: Math.min(7, totalPages) }, (_, i) => windowStart + i);
+
+  return (
+    <div className="flex flex-wrap items-center justify-center gap-2 border-t border-gray-100 dark:border-gray-800 px-5 py-4">
+      <button
+        onClick={() => onChange(page - 1)}
+        disabled={page === 0}
+        className="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 transition-colors"
+      >
+        Previous
+      </button>
+      {pages.map((p) => (
+        <button
+          key={p}
+          onClick={() => onChange(p)}
+          className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+            p === page
+              ? "border-brand-500 bg-brand-500 text-white"
+              : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+          }`}
+        >
+          {p + 1}
+        </button>
+      ))}
+      <button
+        onClick={() => onChange(page + 1)}
+        disabled={page >= totalPages - 1}
+        className="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 transition-colors"
+      >
+        Next
+      </button>
+    </div>
+  );
+}
+
 export default function Admins() {
   const navigate = useNavigate();
+  // The admin list is SUPERADMIN-only server-side; redirect rather than render a 403.
+  const allowed = isSuperAdmin();
 
   const [admins, setAdmins] = useState<UserListItem[]>([]);
-  const [filtered, setFiltered] = useState<UserListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"ALL" | UserStatus>("ALL");
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
 
+  // Search runs server-side, so debounce it rather than firing a request per keystroke.
   useEffect(() => {
-    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(0);
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const load = useCallback((pageNum: number, query: string, signal?: AbortSignal) => {
     setLoading(true);
     setError(null);
 
+    // Server-side ADMIN filter. The list previously pulled the newest 200 users of any type and
+    // filtered in the browser, so on a store with more customers than that, admins dropped off the
+    // page entirely — they still blocked their email at creation time but appeared nowhere here.
     usersService
-      .getAll(0, 200, controller.signal)
+      .getAdmins(pageNum, PAGE_SIZE, query, signal)
       .then((res) => {
-        const onlyAdmins = res.data.users.filter((u) => u.userType === "ADMIN");
-        setAdmins(onlyAdmins);
-        setFiltered(onlyAdmins);
+        setAdmins(res.data.users);
+        setTotalPages(res.data.totalPages);
+        setTotalElements(res.data.totalElements);
       })
       .catch((err: unknown) => {
         if (err instanceof Error && err.name === "AbortError") return;
-        setError(
-          err instanceof ApiRequestError ? err.message : "Failed to load admins."
-        );
+        setError(err instanceof ApiRequestError ? err.message : "Failed to load admins.");
       })
       .finally(() => setLoading(false));
-
-    return () => controller.abort();
   }, []);
 
   useEffect(() => {
-    let result = admins;
-    if (statusFilter !== "ALL") {
-      result = result.filter((u) => u.status === statusFilter);
-    }
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      result = result.filter(
-        (u) =>
-          fullName(u.firstName, u.lastName).toLowerCase().includes(q) ||
-          (u.email ?? "").toLowerCase().includes(q)
-      );
-    }
-    setFiltered(result);
-  }, [admins, search, statusFilter]);
+    if (!allowed) return;
+    const controller = new AbortController();
+    load(page, debouncedSearch, controller.signal);
+    return () => controller.abort();
+  }, [allowed, page, debouncedSearch, load]);
 
-  const totalActive = admins.filter((u) => u.status === "ACTIVE").length;
-  const totalSuspended = admins.filter((u) => u.status === "SUSPENDED").length;
+  // Status is a cheap client-side narrowing of the page already fetched.
+  const visible =
+    statusFilter === "ALL" ? admins : admins.filter((a) => a.status === statusFilter);
+
+  const activeOnPage = admins.filter((u) => u.status === "ACTIVE").length;
+  const suspendedOnPage = admins.filter((u) => u.status === "SUSPENDED").length;
+
+  if (!allowed) return <Navigate to="/" replace />;
 
   return (
     <>
-      <PageMeta title="Admins | Buyology Dashboard" description="Manage admin users and assign roles & permissions." />
+      <PageMeta
+        title="Admins | Buyology Dashboard"
+        description="Manage admin users and assign roles & permissions."
+      />
 
       {/* Header */}
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
@@ -105,22 +164,40 @@ export default function Admins() {
             Assign roles and permissions to admin users.
           </p>
         </div>
-        {isSuperAdmin() && (
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={() => navigate("/admin/roles")}
+            className="rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          >
+            Roles &amp; Permissions
+          </button>
           <button
             onClick={() => navigate("/admin/admins/new")}
             className="rounded-xl bg-brand-500 hover:bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors"
           >
             + Create Admin
           </button>
-        )}
+        </div>
       </div>
 
       {/* Stats */}
       <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
         {[
-          { label: "Total Admins", value: admins.length, color: "text-brand-600 dark:text-brand-400" },
-          { label: "Active", value: totalActive, color: "text-green-600 dark:text-green-400" },
-          { label: "Suspended", value: totalSuspended, color: "text-red-600 dark:text-red-400" },
+          {
+            label: "Total Admins",
+            value: totalElements,
+            color: "text-brand-600 dark:text-brand-400",
+          },
+          {
+            label: "Active on page",
+            value: activeOnPage,
+            color: "text-green-600 dark:text-green-400",
+          },
+          {
+            label: "Suspended on page",
+            value: suspendedOnPage,
+            color: "text-red-600 dark:text-red-400",
+          },
         ].map((s) => (
           <div
             key={s.label}
@@ -136,7 +213,6 @@ export default function Admins() {
 
       {/* Filters */}
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        {/* Search */}
         <div className="relative flex-1 min-w-[200px]">
           <svg
             className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -159,7 +235,6 @@ export default function Admins() {
           />
         </div>
 
-        {/* Status filter */}
         <div className="flex gap-2">
           {(["ALL", "ACTIVE", "SUSPENDED"] as const).map((s) => (
             <button
@@ -199,8 +274,14 @@ export default function Admins() {
               <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
             <p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>
+            <button
+              onClick={() => load(page, debouncedSearch)}
+              className="mt-3 rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              Retry
+            </button>
           </div>
-        ) : filtered.length === 0 ? (
+        ) : visible.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center px-5">
             <svg
               width="40"
@@ -217,68 +298,88 @@ export default function Admins() {
             <p className="text-sm text-gray-500 dark:text-gray-400">No admin users found.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b border-gray-100 dark:border-gray-800">
-                  {["Admin", "Email", "Status", "Joined", ""].map((h) => (
-                    <th
-                      key={h}
-                      className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((admin) => (
-                  <tr
-                    key={admin.authCredentialId}
-                    className="border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors cursor-pointer"
-                    onClick={() => navigate(`/admin/admins/${admin.authCredentialId}`)}
-                  >
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-500/20 text-brand-600 dark:text-brand-400 text-sm font-bold">
-                          {initials(admin.firstName, admin.lastName)}
-                        </div>
-                        <span className="text-sm font-medium text-gray-800 dark:text-white/90">
-                          {fullName(admin.firstName, admin.lastName)}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                        {admin.email ?? "—"}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <Badge size="sm" color={statusColor(admin.status)}>
-                        {admin.status}
-                      </Badge>
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                        {formatDate(admin.joinedAt)}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3.5 text-right">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/admin/admins/${admin.authCredentialId}`);
-                        }}
-                        className="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b border-gray-100 dark:border-gray-800">
+                    {["Admin", "Email", "Roles", "Status", "Joined", ""].map((h) => (
+                      <th
+                        key={h}
+                        className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
                       >
-                        Manage Roles
-                      </button>
-                    </td>
+                        {h}
+                      </th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {visible.map((admin) => (
+                    <tr
+                      key={admin.authCredentialId}
+                      className="border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors cursor-pointer"
+                      onClick={() => navigate(`/admin/admins/${admin.authCredentialId}`)}
+                    >
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-500/20 text-brand-600 dark:text-brand-400 text-sm font-bold">
+                            {initials(admin.firstName, admin.lastName)}
+                          </div>
+                          <span className="text-sm font-medium text-gray-800 dark:text-white/90">
+                            {fullName(admin.firstName, admin.lastName)}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                          {admin.email ?? "—"}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5">
+                        {admin.roles && admin.roles.length > 0 ? (
+                          <div className="flex flex-wrap gap-1.5">
+                            {admin.roles.map((role) => (
+                              <Badge key={role} size="sm" color="light">
+                                {role.replace(/_/g, " ")}
+                              </Badge>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-amber-600 dark:text-amber-400">
+                            No roles
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <Badge size="sm" color={statusColor(admin.status)}>
+                          {admin.status}
+                        </Badge>
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                          {formatDate(admin.joinedAt)}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5 text-right">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/admin/admins/${admin.authCredentialId}`);
+                          }}
+                          className="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        >
+                          Manage Roles
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {totalPages > 1 && (
+              <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+            )}
+          </>
         )}
       </div>
     </>

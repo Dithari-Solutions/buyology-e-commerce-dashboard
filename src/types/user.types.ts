@@ -19,6 +19,25 @@ export interface UserListItem {
   userType: UserType;
   status: UserStatus;
   joinedAt: string;
+  /** Assigned role names — present on the admins list, absent on the general users list. */
+  roles?: string[];
+}
+
+/** What currently occupies an email address, and whether that account can become an admin. */
+export interface AdminEmailLookup {
+  email: string;
+  available: boolean;
+  userId: string | null;
+  authCredentialId: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  userType: UserType | null;
+  status: string | null;
+  provider: string | null;
+  joinedAt: string | null;
+  roles: string[] | null;
+  promotable: boolean;
+  reason: string;
 }
 
 export interface UsersListResponse {

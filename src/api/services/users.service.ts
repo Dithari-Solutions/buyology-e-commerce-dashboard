@@ -1,6 +1,11 @@
 import { apiClient } from "../client";
 import type { ApiResponse } from "../types/api.types";
-import type { UsersListResponse, UserDetail, CreateAdminRequest } from "../../types/user.types";
+import type {
+  UsersListResponse,
+  UserDetail,
+  CreateAdminRequest,
+  AdminEmailLookup,
+} from "../../types/user.types";
 
 const BASE = "/api/admin/users";
 
@@ -8,6 +13,40 @@ export const usersService = {
   /** SUPERADMIN: create a new admin user and assign roles. Returns the created user's detail. */
   createAdmin(payload: CreateAdminRequest): Promise<ApiResponse<UserDetail>> {
     return apiClient.post<ApiResponse<UserDetail>>(BASE, payload);
+  },
+
+  /**
+   * SUPERADMIN: admin accounts only, filtered server-side.
+   *
+   * Prefer this over paging {@link getAll} and filtering for `userType === "ADMIN"` in the
+   * browser — that only ever saw the newest page of *all* users, so on a store with more
+   * registered customers than the page size, older admins silently disappeared from the list
+   * while still occupying their email address.
+   */
+  getAdmins(
+    page: number = 0,
+    size: number = 20,
+    search?: string,
+    signal?: AbortSignal
+  ): Promise<ApiResponse<UsersListResponse>> {
+    const qs = new URLSearchParams({ page: String(page), size: String(size) });
+    if (search && search.trim()) qs.set("search", search.trim());
+    return apiClient.get<ApiResponse<UsersListResponse>>(`${BASE}/admins?${qs.toString()}`, {
+      signal,
+    });
+  },
+
+  /** SUPERADMIN: what currently holds an email address, and whether it can be promoted. */
+  lookupEmail(email: string, signal?: AbortSignal): Promise<ApiResponse<AdminEmailLookup>> {
+    const qs = new URLSearchParams({ email });
+    return apiClient.get<ApiResponse<AdminEmailLookup>>(`${BASE}/lookup?${qs.toString()}`, {
+      signal,
+    });
+  },
+
+  /** SUPERADMIN: convert an existing customer account into an admin with the given roles. */
+  promoteToAdmin(userId: string, roleIds: string[]): Promise<ApiResponse<UserDetail>> {
+    return apiClient.post<ApiResponse<UserDetail>>(`${BASE}/${userId}/promote`, { roleIds });
   },
 
   getAll(

@@ -9,7 +9,6 @@ import { isSuperAdmin } from "../../auth/roles";
 import { getUserIdFromToken } from "../../api";
 import type { UserDetail } from "../../types";
 import type { Role, Permission, UserRole, UserPermissionOverride } from "../../types/roles.types";
-import { ROLE_PERMISSIONS } from "../../types/roles.types";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -278,10 +277,11 @@ export default function AdminDetail() {
   const hasSuperadmin = superadminRole ? assignedRoleIds.has(superadminRole.id) : false;
 
   const effectivePermissions = useMemo(() => {
+    // Role permissions come from the role records themselves. They used to be read from a hardcoded
+    // frontend copy of the backend seed data, which showed stale access the moment a role's
+    // permissions were edited — and listed nothing at all for roles absent from that map.
     const fromRoles = new Set<string>(
-      roles
-        .filter((r) => assignedRoleIds.has(r.id))
-        .flatMap((r) => ROLE_PERMISSIONS[r.name] ?? [])
+      roles.filter((r) => assignedRoleIds.has(r.id)).flatMap((r) => r.permissionCodes ?? [])
     );
     userPermissions.forEach(({ permissionCode, effect }) => {
       if (effect === "DENY") fromRoles.delete(permissionCode);

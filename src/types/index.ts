@@ -38,6 +38,8 @@ export type {
   UserStatus,
   UserListItem,
   UsersListResponse,
+  AdminEmailLookup,
+  CreateAdminRequest,
   FavoriteItem,
   UserFavorites,
   SelectedSpec,
