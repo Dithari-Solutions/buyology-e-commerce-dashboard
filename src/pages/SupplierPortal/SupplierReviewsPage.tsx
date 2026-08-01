@@ -43,35 +43,35 @@ export default function SupplierReviewsPage() {
       <PageBreadcrumb pageTitle="Reviews" />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
           <div className="text-xs uppercase tracking-wide text-gray-500">Total reviews</div>
-          <div className="mt-2 text-3xl font-semibold">{summary?.totalReviews ?? 0}</div>
+          <div className="mt-2 text-2xl font-semibold">{summary?.totalReviews ?? 0}</div>
         </div>
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
           <div className="text-xs uppercase tracking-wide text-gray-500">Average rating</div>
-          <div className="mt-2 text-3xl font-semibold">
+          <div className="mt-2 text-2xl font-semibold">
             {summary?.averageRating != null ? Number(summary.averageRating).toFixed(2) : "—"}
             <span className="ml-1 text-base text-gray-500">/ 5</span>
           </div>
         </div>
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
           <div className="text-xs uppercase tracking-wide text-gray-500">Products with reviews</div>
-          <div className="mt-2 text-3xl font-semibold">{summary?.productCount ?? 0}</div>
+          <div className="mt-2 text-2xl font-semibold">{summary?.productCount ?? 0}</div>
         </div>
       </div>
 
-      <div className="mt-6 rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+      <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
         <h3 className="mb-4 text-base font-semibold">Recent reviews</h3>
         {loading ? (
-          <div className="py-6 text-center text-gray-500">Loading…</div>
+          <div className="py-4 text-center text-gray-500">Loading…</div>
         ) : reviews.length === 0 ? (
-          <div className="py-6 text-center text-gray-500">No reviews yet</div>
+          <div className="py-4 text-center text-gray-500">No reviews yet</div>
         ) : (
           <ul className="space-y-3">
             {reviews.map((r, i) => (
               <li
                 key={r.id ?? i}
-                className="rounded-md border border-gray-100 px-4 py-3 dark:border-gray-800"
+                className="rounded-md border border-gray-100 px-4 py-2.5 dark:border-gray-800"
               >
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">

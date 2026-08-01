@@ -47,9 +47,9 @@ function productTypeColor(type: string): string {
 
 function DetailSkeleton() {
   return (
-    <div className="space-y-6 animate-pulse">
+    <div className="space-y-4 animate-pulse">
       {/* Header skeleton */}
-      <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6">
+      <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-3 flex-1">
             <div className="h-7 w-64 rounded-lg bg-gray-200 dark:bg-gray-700" />
@@ -65,15 +65,15 @@ function DetailSkeleton() {
       </div>
 
       {/* Media skeleton */}
-      <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03]">
-        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800">
+      <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <div className="px-4 py-2.5 border-b border-gray-100 dark:border-gray-800">
           <div className="h-3 w-12 rounded-full bg-gray-200 dark:bg-gray-700" />
         </div>
         <div className="h-56 bg-gray-100 dark:bg-gray-800/60" />
       </div>
 
       {/* Details skeleton */}
-      <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6">
+      <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
         <div className="h-4 w-24 rounded-full bg-gray-200 dark:bg-gray-700 mb-4" />
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
@@ -156,7 +156,7 @@ export default function ProductDetail() {
       />
 
       {/* Breadcrumb + actions */}
-      <div className="mb-6 flex items-center justify-between gap-4">
+      <div className="mb-4 flex items-center justify-between gap-4">
         <div className="flex items-center gap-2 text-sm min-w-0">
           <Link
             to="/products"
@@ -206,7 +206,7 @@ export default function ProductDetail() {
 
       {/* Error state */}
       {error && (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-20 text-center">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-20 text-center">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mb-3 text-red-400">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
@@ -227,14 +227,14 @@ export default function ProductDetail() {
 
       {/* Content */}
       {!loading && !error && product && (
-        <div className="space-y-5">
+        <div className="space-y-4">
 
           {/* ── Header card ── */}
-          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6">
+          <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2 mb-1">
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+                  <h1 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">
                     {product.title}
                   </h1>
                 </div>
@@ -267,8 +267,8 @@ export default function ProductDetail() {
 
           {/* ── Media gallery ── */}
           {product.media.length > 0 && (
-            <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] overflow-hidden">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
+            <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 dark:border-gray-800">
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
                   Media
                 </h2>
@@ -307,7 +307,7 @@ export default function ProductDetail() {
                         onClick={() => setSelectedMedia(m)}
                         className={`relative flex-shrink-0 h-16 w-16 rounded-xl overflow-hidden border-2 transition-all ${
                           isActive
-                            ? "border-brand-500 dark:border-brand-400 shadow-sm"
+                            ? "border-brand-500 dark:border-brand-400 shadow-theme-xs"
                             : "border-gray-200 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-600"
                         }`}
                       >
@@ -338,11 +338,11 @@ export default function ProductDetail() {
           )}
 
           {/* ── Product details ── */}
-          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6">
+          <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
             <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-400">
               Product Details
             </h2>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-4">
               <div>
                 <p className="text-xs text-gray-400 dark:text-gray-500">Category ID</p>
                 <p
@@ -395,8 +395,8 @@ export default function ProductDetail() {
 
           {/* ── Specs ── */}
           {product.specs.length > 0 && (
-            <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] overflow-hidden">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
+            <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 dark:border-gray-800">
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
                   Specifications
                 </h2>
@@ -406,7 +406,7 @@ export default function ProductDetail() {
               </div>
               <div className="divide-y divide-gray-100 dark:divide-gray-800">
                 {product.specs.map((spec) => (
-                  <div key={spec.id} className="px-6 py-4">
+                  <div key={spec.id} className="px-4 py-2.5">
                     <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                       {spec.name}
                       <span className="ml-2 font-normal normal-case text-gray-400 dark:text-gray-500">
@@ -417,7 +417,7 @@ export default function ProductDetail() {
                       {spec.options.map((opt) => (
                         <div
                           key={opt.id}
-                          className="flex items-center gap-1.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-white/[0.03] px-3 py-1.5"
+                          className="flex items-center gap-1.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-1.5"
                         >
                           <span className="text-sm font-semibold text-gray-800 dark:text-white/90">
                             {opt.value}
@@ -437,8 +437,8 @@ export default function ProductDetail() {
           )}
 
           {/* ── Variants ── */}
-          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
+          <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 dark:border-gray-800">
               <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
                 Variants
               </h2>
@@ -453,7 +453,7 @@ export default function ProductDetail() {
 
             {product.variants.length > 0 ? (
               <div className="overflow-x-auto">
-                <div className="border-b border-gray-100 dark:border-gray-800 bg-amber-50 dark:bg-amber-500/5 px-6 py-2.5 flex items-center gap-2">
+                <div className="border-b border-gray-100 dark:border-gray-800 bg-amber-50 dark:bg-amber-500/5 px-4 py-2.5 flex items-center gap-2">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-amber-500 shrink-0">
                     <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                     <line x1="12" y1="9" x2="12" y2="13" />
@@ -465,14 +465,14 @@ export default function ProductDetail() {
                 </div>
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-gray-50 dark:bg-white/[0.02]">
-                      <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                    <tr className="bg-gray-50 dark:bg-gray-900">
+                      <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
                         SKU
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                      <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
                         Spec Options
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                      <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
                         Variant ID
                       </th>
                     </tr>
@@ -483,15 +483,15 @@ export default function ProductDetail() {
                         key={v.id}
                         className="transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.02]"
                       >
-                        <td className="px-6 py-4 font-mono text-sm text-gray-700 dark:text-gray-300">
+                        <td className="px-4 py-2.5 font-mono text-sm text-gray-700 dark:text-gray-300">
                           {v.sku}
                         </td>
-                        <td className="px-6 py-4 text-right text-xs text-gray-400">
+                        <td className="px-4 py-2.5 text-right text-xs text-gray-400">
                           {v.specOptionIds.length > 0
                             ? `${v.specOptionIds.length} spec${v.specOptionIds.length !== 1 ? "s" : ""}`
                             : "—"}
                         </td>
-                        <td className="px-6 py-4 text-right font-mono text-xs text-gray-400 dark:text-gray-500">
+                        <td className="px-4 py-2.5 text-right font-mono text-xs text-gray-400 dark:text-gray-500">
                           {v.id.slice(0, 8)}…
                         </td>
                       </tr>
@@ -523,10 +523,10 @@ export default function ProductDetail() {
       <Modal
         isOpen={deleteOpen}
         onClose={() => !deleting && setDeleteOpen(false)}
-        className="mx-4 max-w-sm w-full p-6 sm:p-8"
+        className="mx-4 max-w-sm w-full p-4 sm:p-5"
       >
         <div className="flex flex-col items-center text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-error-50 dark:bg-error-500/10 mb-4">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-error-50 dark:bg-error-500/10 mb-4">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-error-500">
               <polyline points="3 6 5 6 21 6" />
               <path d="M19 6l-1 14H6L5 6" />
@@ -543,7 +543,7 @@ export default function ProductDetail() {
           <p className="text-sm font-semibold text-gray-800 dark:text-white/90 mb-4">
             "{product?.title}"?
           </p>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mb-6">
+          <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">
             This moves the product to trash. It can be restored within 30 days before it is permanently deleted.
           </p>
 

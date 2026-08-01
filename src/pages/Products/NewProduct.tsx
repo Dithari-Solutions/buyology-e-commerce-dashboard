@@ -134,14 +134,14 @@ function Section({
 }) {
   return (
     <div
-      className={`rounded-2xl overflow-hidden border bg-white dark:bg-gray-800 ${
+      className={`rounded-xl overflow-hidden border bg-white dark:bg-gray-800 ${
         hasError
           ? "border-red-300 dark:border-red-700"
           : "border-gray-200 dark:border-gray-700"
       }`}
     >
       <div
-        className={`px-6 py-4 border-b flex items-center justify-between ${
+        className={`px-4 py-2.5 border-b flex items-center justify-between ${
           hasError
             ? "bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-700"
             : "bg-[#402F75]/5 dark:bg-[#402F75]/20 border-gray-100 dark:border-gray-700"
@@ -167,7 +167,7 @@ function Section({
           </span>
         )}
       </div>
-      <div className="p-6">{children}</div>
+      <div className="p-4">{children}</div>
     </div>
   );
 }
@@ -209,7 +209,7 @@ function Select({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className={`h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-[#FBBB14] focus:outline-none focus:ring-3 focus:ring-[#FBBB14]/30 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 ${className}`}
+      className={`h-9 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-[#FBBB14] focus:outline-none focus:ring-3 focus:ring-[#FBBB14]/30 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 ${className}`}
     >
       {children}
     </select>
@@ -244,7 +244,7 @@ function AddBtn({ onClick, label }: { onClick: () => void; label: string }) {
     <button
       type="button"
       onClick={onClick}
-      className="mt-3 inline-flex items-center gap-1.5 rounded-[30px] border border-dashed border-[#402F75] px-4 py-2 text-xs font-medium text-[#402F75] hover:bg-[#402F75]/5 dark:border-[#FBBB14] dark:text-[#FBBB14] dark:hover:bg-[#FBBB14]/5 transition-colors"
+      className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-dashed border-[#402F75] px-4 py-2 text-xs font-medium text-[#402F75] hover:bg-[#402F75]/5 dark:border-[#FBBB14] dark:text-[#FBBB14] dark:hover:bg-[#FBBB14]/5 transition-colors"
     >
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
         <line x1="12" y1="5" x2="12" y2="19" />
@@ -1019,7 +1019,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
       <>
         <PageMeta title="Edit Product | Buyology Dashboard" description="Edit a product." />
         <PageBreadcrumb pageTitle="Edit Product" />
-        <div className="rounded-2xl border border-red-200 bg-red-50 py-14 text-center text-sm font-medium text-red-600 dark:border-red-800/40 dark:bg-red-500/5 dark:text-red-400">
+        <div className="rounded-xl border border-red-200 bg-red-50 py-14 text-center text-sm font-medium text-red-600 dark:border-red-800/40 dark:bg-red-500/5 dark:text-red-400">
           {loadError}
         </div>
       </>
@@ -1042,10 +1042,10 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
           onClick={() => setActiveGroupPicker(null)}
         >
           <div
-            className="w-full max-w-md rounded-2xl bg-white dark:bg-gray-800 shadow-xl overflow-hidden"
+            className="w-full max-w-md rounded-xl bg-white dark:bg-gray-800 shadow-theme-lg overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 dark:border-gray-700">
               <h4 className="text-sm font-semibold text-[#402F75] dark:text-[#FBBB14]">
                 Select Global Spec Group
               </h4>
@@ -1062,14 +1062,14 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
             </div>
             <div className="p-4 max-h-80 overflow-y-auto space-y-2">
               {globalSpecGroups.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-6">No spec groups in library yet</p>
+                <p className="text-sm text-gray-400 text-center py-4">No spec groups in library yet</p>
               ) : (
                 globalSpecGroups.map((group) => (
                   <button
                     key={group.id}
                     type="button"
                     onClick={() => selectGlobalSpecGroup(activeGroupPicker.si, group)}
-                    className="w-full flex items-center justify-between rounded-lg px-4 py-3 text-left text-sm hover:bg-[#402F75]/5 dark:hover:bg-[#402F75]/20 transition-colors border border-gray-100 dark:border-gray-700"
+                    className="w-full flex items-center justify-between rounded-lg px-4 py-2.5 text-left text-sm hover:bg-[#402F75]/5 dark:hover:bg-[#402F75]/20 transition-colors border border-gray-100 dark:border-gray-700"
                   >
                     <div>
                       <span className="font-medium text-gray-800 dark:text-white">
@@ -1102,10 +1102,10 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
             onClick={() => setActivePicker(null)}
           >
             <div
-              className="w-full max-w-md rounded-2xl bg-white dark:bg-gray-800 shadow-xl overflow-hidden"
+              className="w-full max-w-md rounded-xl bg-white dark:bg-gray-800 shadow-theme-lg overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+              <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 dark:border-gray-700">
                 <h4 className="text-sm font-semibold text-[#402F75] dark:text-[#FBBB14]">
                   Pick Option — {spec.groupMode === "library" ? spec.groupDisplayName : (specCodeLabels[spec.code] ?? spec.code)}
                 </h4>
@@ -1122,7 +1122,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
               </div>
               <div className="p-4 max-h-72 overflow-y-auto space-y-2">
                 {options.length === 0 ? (
-                  <p className="text-sm text-gray-400 text-center py-6">
+                  <p className="text-sm text-gray-400 text-center py-4">
                     {globalGroup ? "No options in this group yet" : "Select a spec group first to see library options"}
                   </p>
                 ) : (
@@ -1141,7 +1141,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
                             spec.code || spec.groupDisplayName
                           )
                         }
-                        className="w-full flex items-center justify-between rounded-lg px-4 py-3 text-left text-sm hover:bg-[#402F75]/5 dark:hover:bg-[#402F75]/20 transition-colors border border-gray-100 dark:border-gray-700"
+                        className="w-full flex items-center justify-between rounded-lg px-4 py-2.5 text-left text-sm hover:bg-[#402F75]/5 dark:hover:bg-[#402F75]/20 transition-colors border border-gray-100 dark:border-gray-700"
                       >
                         <span className="font-medium text-gray-800 dark:text-white">{val}</span>
                         {opt.unit && (
@@ -1157,11 +1157,11 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
         );
       })()}
 
-      <form onSubmit={handleSubmit} noValidate className="space-y-6 pb-10">
+      <form onSubmit={handleSubmit} noValidate className="space-y-4 pb-10">
 
         {/* ── API error banner ─────────────────────────────────────────────── */}
         {apiError && (
-          <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-5 py-4 dark:border-red-800/40 dark:bg-red-500/5">
+          <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 dark:border-red-800/40 dark:bg-red-500/5">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 shrink-0 text-red-500">
               <circle cx="12" cy="12" r="10" />
               <line x1="12" y1="8" x2="12" y2="12" />
@@ -1173,7 +1173,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
 
         {/* ── Validation summary banner ────────────────────────────────────── */}
         {submitted && Object.keys(errors).length > 0 && (
-          <div className="flex items-start gap-3 rounded-xl border border-orange-200 bg-orange-50 px-5 py-4 dark:border-orange-700/40 dark:bg-orange-500/5">
+          <div className="flex items-start gap-3 rounded-xl border border-orange-200 bg-orange-50 px-4 py-2.5 dark:border-orange-700/40 dark:bg-orange-500/5">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 shrink-0 text-orange-500">
               <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
               <line x1="12" y1="9" x2="12" y2="13" />
@@ -1198,7 +1198,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
         {/* ── Supplier-only: store + price + bg-removed notice ─────────────── */}
         {supplierMode && (
           <Section title="Supplier listing" hasError={false}>
-            <div className="mb-4 rounded-xl border border-yellow-300 bg-yellow-50 px-4 py-3 text-xs text-yellow-900">
+            <div className="mb-4 rounded-xl border border-yellow-300 bg-yellow-50 px-4 py-2.5 text-xs text-yellow-900">
               <strong>Image requirement:</strong> Product images must be PNG or WebP with the
               background <strong>removed</strong> (transparent). Max 5 MB per image, max 8 images.
               Non-transparent images will be rejected on upload. After submitting, your product
@@ -1248,7 +1248,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
         <div ref={basicRef}>
           <Section title="Basic Info" hasError={basicHasError}>
             {/* Store assignment reminder banner */}
-            <div className="mb-5 flex items-start gap-3 rounded-xl border border-brand-200 bg-brand-50 px-4 py-3 dark:border-brand-800/40 dark:bg-brand-500/5">
+            <div className="mb-4 flex items-start gap-3 rounded-xl border border-brand-200 bg-brand-50 px-4 py-2.5 dark:border-brand-800/40 dark:bg-brand-500/5">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 shrink-0 text-brand-500">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="12" y1="8" x2="12" y2="12" />
@@ -1262,7 +1262,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <div>
                 <Label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Category <span className="text-red-500">*</span>
@@ -1316,7 +1316,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
                   value={productSku}
                   onChange={(e) => setProductSku(e.target.value)}
                   placeholder="Auto-generated if left blank"
-                  className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm text-gray-800 focus:border-[#FBBB14] focus:outline-none focus:ring-3 focus:ring-[#FBBB14]/30 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+                  className="h-9 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm text-gray-800 focus:border-[#FBBB14] focus:outline-none focus:ring-3 focus:ring-[#FBBB14]/30 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
                 />
                 <p className="mt-1 text-xs text-gray-400">Optional. Leave blank to auto-generate. Must be unique if set.</p>
               </div>
@@ -1353,7 +1353,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
               )}
             </div>
 
-            <div className="mt-5">
+            <div className="mt-4">
               <Label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Accessory IDs{" "}
                 <span className="text-xs font-normal text-gray-400">(optional — comma-separated UUIDs)</span>
@@ -1369,7 +1369,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
 
         {/* ── Availability & Flags ─────────────────────────────────────────── */}
         <Section title="Availability &amp; Flags">
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div>
               <Label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Stock Status
@@ -1381,7 +1381,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
               </Select>
             </div>
 
-            <div className="flex items-center gap-4 pt-6">
+            <div className="flex items-center gap-4 pt-4">
               <Toggle checked={isSuperDeal} onChange={setIsSuperDeal} color="yellow" />
               <div>
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -1393,7 +1393,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
               </div>
             </div>
 
-            <div className="flex items-center gap-4 pt-6">
+            <div className="flex items-center gap-4 pt-4">
               <Toggle checked={isLimitedStock} onChange={setIsLimitedStock} color="red" />
               <div>
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -1405,7 +1405,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
               </div>
             </div>
 
-            <div className="pt-6">
+            <div className="pt-4">
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Stock quantity
               </Label>
@@ -1428,7 +1428,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
         {/* ── Translations ─────────────────────────────────────────────────── */}
         <div ref={translationsRef}>
           <Section title="Translations" hasError={translationsHasError}>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
 
               {/* Azerbaijani */}
               <div className="space-y-4">
@@ -1492,11 +1492,11 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
         <div ref={specsRef}>
           <Section title="Specifications" hasError={specsHasError}>
             {isEdit && hasVariants && (
-              <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-700 dark:border-amber-800/40 dark:bg-amber-500/5 dark:text-amber-400">
+              <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-xs text-amber-700 dark:border-amber-800/40 dark:bg-amber-500/5 dark:text-amber-400">
                 This product has variants, so its specifications can&apos;t be changed here (the variants depend on them). Changes below won&apos;t be saved.
               </p>
             )}
-            <div className="space-y-5">
+            <div className="space-y-4">
               {specs.map((spec, si) => (
                 <div key={si} className="rounded-xl border border-gray-200 dark:border-gray-700 p-4">
                   <div className="mb-4 flex items-center justify-between">
@@ -1539,7 +1539,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
                   {spec.groupMode === "library" && (
                     <div className="mb-4">
                       {spec.globalSpecGroupId ? (
-                        <div className="flex items-center gap-3 rounded-lg bg-[#402F75]/5 dark:bg-[#402F75]/10 px-4 py-3">
+                        <div className="flex items-center gap-3 rounded-lg bg-[#402F75]/5 dark:bg-[#402F75]/10 px-4 py-2.5">
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-[#402F75] dark:text-[#FBBB14] flex-shrink-0">
                             <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
                             <path d="M9 12l2 2 4-4" />
@@ -1560,7 +1560,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
                         <button
                           type="button"
                           onClick={() => setActiveGroupPicker({ si })}
-                          className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-[#402F75]/30 dark:border-[#FBBB14]/20 px-4 py-3 text-sm text-[#402F75] dark:text-[#FBBB14] hover:border-[#402F75]/60 dark:hover:border-[#FBBB14]/40 hover:bg-[#402F75]/5 transition-colors"
+                          className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-[#402F75]/30 dark:border-[#FBBB14]/20 px-4 py-2.5 text-sm text-[#402F75] dark:text-[#FBBB14] hover:border-[#402F75]/60 dark:hover:border-[#FBBB14]/40 hover:bg-[#402F75]/5 transition-colors"
                         >
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <circle cx="11" cy="11" r="8" />
@@ -1752,7 +1752,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
             </p>
           ) : (
           <>
-          <div className="mb-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-800/40 dark:bg-amber-500/5">
+          <div className="mb-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 dark:border-amber-800/40 dark:bg-amber-500/5">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 shrink-0 text-amber-500">
               <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
               <line x1="12" y1="9" x2="12" y2="13" />
@@ -1875,7 +1875,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
                           type="color"
                           value={c.colorCode}
                           onChange={(e) => updateColor(ci, "colorCode", e.target.value)}
-                          className="h-11 w-14 cursor-pointer rounded-lg border border-gray-300 p-1 dark:border-gray-700"
+                          className="h-9 w-14 cursor-pointer rounded-lg border border-gray-300 p-1 dark:border-gray-700"
                         />
                         <Input placeholder="#C0C0C0" value={c.colorCode} onChange={(e) => updateColor(ci, "colorCode", e.target.value)} />
                       </div>
@@ -2045,7 +2045,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
           <button
             type="submit"
             disabled={isSubmitting}
-            className="inline-flex items-center justify-center gap-2 rounded-[30px] bg-[#402F75] px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#332560] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#402F75] px-4 py-2.5 text-sm font-semibold text-white shadow-theme-xs transition hover:bg-[#332560] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSubmitting ? (
               <>

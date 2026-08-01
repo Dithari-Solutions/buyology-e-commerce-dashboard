@@ -210,14 +210,14 @@ export default function ConvertToB2bModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 backdrop-blur-sm px-4 py-8"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 backdrop-blur-sm px-4 py-5"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget && !submitting) onClose();
       }}
     >
-      <div className="w-full max-w-2xl rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-xl">
+      <div className="w-full max-w-2xl rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-theme-lg">
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 border-b border-gray-100 dark:border-gray-800 px-6 py-4">
+        <div className="flex items-start justify-between gap-4 border-b border-gray-100 dark:border-gray-800 px-4 py-2.5">
           <div>
             <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">
               Convert to B2B Membership
@@ -241,9 +241,9 @@ export default function ConvertToB2bModal({
         </div>
 
         {/* Body */}
-        <div className="px-6 py-5 space-y-5">
+        <div className="px-4 py-3 space-y-4">
           {error && (
-            <div className="rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+            <div className="rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/10 px-4 py-2.5 text-sm text-red-600 dark:text-red-400">
               {error}
             </div>
           )}
@@ -444,18 +444,18 @@ export default function ConvertToB2bModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 border-t border-gray-100 dark:border-gray-800 px-6 py-4">
+        <div className="flex items-center justify-end gap-3 border-t border-gray-100 dark:border-gray-800 px-4 py-2.5">
           <button
             onClick={onClose}
             disabled={submitting}
-            className="rounded-xl border border-gray-200 dark:border-gray-700 px-5 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-40"
+            className="rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-40"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={submitting}
-            className="rounded-xl bg-brand-500 hover:bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="rounded-xl bg-brand-600 hover:bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {submitting ? "Creating…" : "Create B2B Application"}
           </button>

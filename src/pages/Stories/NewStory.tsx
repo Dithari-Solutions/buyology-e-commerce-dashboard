@@ -80,14 +80,14 @@ function Section({
 }) {
   return (
     <div
-      className={`rounded-2xl overflow-hidden border bg-white dark:bg-gray-800 ${
+      className={`rounded-xl overflow-hidden border bg-white dark:bg-gray-800 ${
         hasError
           ? "border-red-300 dark:border-red-700"
           : "border-gray-200 dark:border-gray-700"
       }`}
     >
       <div
-        className={`px-6 py-4 border-b flex items-center justify-between ${
+        className={`px-4 py-2.5 border-b flex items-center justify-between ${
           hasError
             ? "bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-700"
             : "bg-[#402F75]/5 dark:bg-[#402F75]/20 border-gray-100 dark:border-gray-700"
@@ -113,7 +113,7 @@ function Section({
           </span>
         )}
       </div>
-      <div className="px-6 py-5 space-y-5">{children}</div>
+      <div className="px-4 py-3 space-y-4">{children}</div>
     </div>
   );
 }
@@ -322,11 +322,11 @@ export default function NewStory() {
 
       <PageBreadcrumb pageTitle="New Story" />
 
-      <form onSubmit={handleSubmit} noValidate className="space-y-6 pb-10">
+      <form onSubmit={handleSubmit} noValidate className="space-y-4 pb-10">
 
         {/* ── API error banner ───────────────────────────────────────────── */}
         {apiError && (
-          <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-5 py-4 dark:border-red-800/40 dark:bg-red-500/5">
+          <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 dark:border-red-800/40 dark:bg-red-500/5">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 shrink-0 text-red-500">
               <circle cx="12" cy="12" r="10" />
               <line x1="12" y1="8" x2="12" y2="12" />
@@ -338,7 +338,7 @@ export default function NewStory() {
 
         {/* ── Validation summary banner ──────────────────────────────────── */}
         {submitted && Object.keys(errors).length > 0 && (
-          <div className="flex items-start gap-3 rounded-xl border border-orange-200 bg-orange-50 px-5 py-4 dark:border-orange-700/40 dark:bg-orange-500/5">
+          <div className="flex items-start gap-3 rounded-xl border border-orange-200 bg-orange-50 px-4 py-2.5 dark:border-orange-700/40 dark:bg-orange-500/5">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 shrink-0 text-orange-500">
               <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
               <line x1="12" y1="9" x2="12" y2="13" />
@@ -367,7 +367,7 @@ export default function NewStory() {
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value as StoryStatus)}
-              className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 shadow-sm focus:border-[#402F75] focus:outline-none focus:ring-1 focus:ring-[#402F75] dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+              className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 shadow-theme-xs focus:border-[#402F75] focus:outline-none focus:ring-1 focus:ring-[#402F75] dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
             >
               <option value="ACTIVE">Active</option>
               <option value="INACTIVE">Inactive</option>

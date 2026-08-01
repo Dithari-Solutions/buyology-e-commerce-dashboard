@@ -13,7 +13,7 @@ export default function Images() {
         description="This is React.js Images page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
       />
       <PageBreadcrumb pageTitle="Images" />
-      <div className="space-y-5 sm:space-y-6">
+      <div className="space-y-4 sm:space-y-4">
         <ComponentCard title="Responsive image">
           <ResponsiveImage />
         </ComponentCard>

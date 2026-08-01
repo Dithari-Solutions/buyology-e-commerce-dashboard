@@ -126,9 +126,9 @@ export default function Requests() {
       />
       <PageBreadcrumb pageTitle="Requests" />
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
+          <h2 className="text-base font-semibold text-gray-800 dark:text-white">
             B2B Product Requests
             {newCount > 0 && (
               <span className="ml-2 rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">
@@ -141,7 +141,7 @@ export default function Requests() {
         {loading ? (
           <p className="text-sm text-gray-500">Loading…</p>
         ) : requests.length === 0 ? (
-          <div className="rounded-xl border-2 border-dashed border-gray-200 p-8 text-center dark:border-gray-700">
+          <div className="rounded-xl border-2 border-dashed border-gray-200 p-5 text-center dark:border-gray-700">
             <p className="text-gray-500 dark:text-gray-400">No product requests yet.</p>
           </div>
         ) : (
@@ -215,9 +215,9 @@ export default function Requests() {
       {/* Detail drawer */}
       {selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/40 p-4">
-          <div className="h-full w-full max-w-md rounded-2xl bg-white p-6 shadow-xl overflow-y-auto dark:bg-gray-900">
-            <div className="mb-6 flex items-center justify-between">
-              <h3 className="text-lg font-semibold dark:text-white">Request Detail</h3>
+          <div className="h-full w-full max-w-md rounded-xl bg-white p-4 shadow-theme-lg overflow-y-auto dark:bg-gray-900">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-base font-semibold dark:text-white">Request Detail</h3>
               <button
                 onClick={closeDetail}
                 className="text-gray-400 hover:text-gray-600"
@@ -228,7 +228,7 @@ export default function Requests() {
             </div>
 
             {selected.imageUrl && (
-              <div className="mb-6">
+              <div className="mb-4">
                 <img
                   src={selected.imageUrl}
                   alt={selected.productName}
@@ -237,7 +237,7 @@ export default function Requests() {
               </div>
             )}
 
-            <dl className="space-y-3 text-sm mb-6">
+            <dl className="space-y-3 text-sm mb-4">
               {[
                 ["Product", selected.productName],
                 ["Quantity", selected.quantity.toLocaleString()],
@@ -296,14 +296,14 @@ export default function Requests() {
               <button
                 onClick={handleUpdateStatus}
                 disabled={updatingStatus}
-                className="w-full rounded-lg bg-brand-500 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
+                className="w-full rounded-lg bg-brand-600 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
               >
                 {updatingStatus ? "Saving…" : "Update status"}
               </button>
             </div>
 
             {/* Send update message to member */}
-            <div className="mt-6 space-y-3 border-t border-gray-100 dark:border-gray-800 pt-4">
+            <div className="mt-4 space-y-3 border-t border-gray-100 dark:border-gray-800 pt-4">
               <h4 className="text-sm font-semibold text-gray-800 dark:text-white">
                 Message to member
               </h4>

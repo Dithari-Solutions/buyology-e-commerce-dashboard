@@ -126,9 +126,9 @@ export default function PromoCodePage() {
       <PageMeta title="Promo Codes | Buyology" description="Manage promotional codes" />
       <PageBreadcrumb pageTitle="Promo Codes" />
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-white">Promo Codes ({codes.length})</h2>
+          <h2 className="text-base font-semibold text-gray-800 dark:text-white">Promo Codes ({codes.length})</h2>
           <div className="flex flex-wrap gap-2">
             <button onClick={openConfig}
               className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800">
@@ -139,7 +139,7 @@ export default function PromoCodePage() {
               Issue to User
             </button>
             <button onClick={() => setShowCreate(true)}
-              className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600">
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
               + Create Code
             </button>
           </div>
@@ -211,9 +211,9 @@ export default function PromoCodePage() {
       {/* Create modal */}
       {showCreate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900">
+          <div className="w-full max-w-lg rounded-xl bg-white p-4 shadow-theme-lg dark:bg-gray-900">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold dark:text-white">Create Promo Code</h3>
+              <h3 className="text-base font-semibold dark:text-white">Create Promo Code</h3>
               <button onClick={() => setShowCreate(false)} className="text-gray-400 hover:text-gray-600">✕</button>
             </div>
             <div className="space-y-3">
@@ -253,7 +253,7 @@ export default function PromoCodePage() {
             {msg && <p className="mt-2 text-sm text-red-500">{msg}</p>}
             <div className="mt-4 flex gap-3">
               <button onClick={handleCreate} disabled={saving}
-                className="flex-1 rounded-lg bg-brand-500 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50">
+                className="flex-1 rounded-lg bg-brand-600 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50">
                 {saving ? "Creating..." : "Create"}
               </button>
               <button onClick={() => setShowCreate(false)}
@@ -268,8 +268,8 @@ export default function PromoCodePage() {
       {/* Send modal */}
       {showSend && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900">
-            <h3 className="mb-4 text-lg font-semibold dark:text-white">Send Promo to Customers</h3>
+          <div className="w-full max-w-sm rounded-xl bg-white p-4 shadow-theme-lg dark:bg-gray-900">
+            <h3 className="mb-4 text-base font-semibold dark:text-white">Send Promo to Customers</h3>
             <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
               This will send the promo code to ALL customers. Choose channels:
             </p>
@@ -283,7 +283,7 @@ export default function PromoCodePage() {
             </label>
             <div className="flex gap-3">
               <button onClick={handleSend} disabled={sending}
-                className="flex-1 rounded-lg bg-brand-500 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50">
+                className="flex-1 rounded-lg bg-brand-600 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50">
                 {sending ? "Sending..." : "Send"}
               </button>
               <button onClick={() => setShowSend(null)}
@@ -298,9 +298,9 @@ export default function PromoCodePage() {
       {/* Usage / "who used it" modal */}
       {showUsage && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900">
+          <div className="w-full max-w-2xl rounded-xl bg-white p-4 shadow-theme-lg dark:bg-gray-900">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold dark:text-white">
+              <h3 className="text-base font-semibold dark:text-white">
                 Redemptions — <span className="font-mono">{showUsage.code}</span>
               </h3>
               <button onClick={() => setShowUsage(null)} className="text-gray-400 hover:text-gray-600">✕</button>
@@ -349,9 +349,9 @@ export default function PromoCodePage() {
       {/* Issue-to-user modal (item 4) */}
       {showIssue && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900">
+          <div className="w-full max-w-lg rounded-xl bg-white p-4 shadow-theme-lg dark:bg-gray-900">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold dark:text-white">Issue Personal Coupon</h3>
+              <h3 className="text-base font-semibold dark:text-white">Issue Personal Coupon</h3>
               <button onClick={() => setShowIssue(false)} className="text-gray-400 hover:text-gray-600">✕</button>
             </div>
             <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
@@ -414,7 +414,7 @@ export default function PromoCodePage() {
             {msg && <p className="mt-2 text-sm text-red-500">{msg}</p>}
             <div className="mt-4 flex gap-3">
               <button onClick={handleIssue} disabled={issuing}
-                className="flex-1 rounded-lg bg-brand-500 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50">
+                className="flex-1 rounded-lg bg-brand-600 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50">
                 {issuing ? "Issuing..." : "Issue & Notify"}
               </button>
               <button onClick={() => setShowIssue(false)}
@@ -429,9 +429,9 @@ export default function PromoCodePage() {
       {/* Token redemption config modal (item 3) */}
       {showConfig && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900">
+          <div className="w-full max-w-lg rounded-xl bg-white p-4 shadow-theme-lg dark:bg-gray-900">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold dark:text-white">Token Redemption Settings</h3>
+              <h3 className="text-base font-semibold dark:text-white">Token Redemption Settings</h3>
               <button onClick={() => setShowConfig(false)} className="text-gray-400 hover:text-gray-600">✕</button>
             </div>
             {!config ? (
@@ -500,7 +500,7 @@ export default function PromoCodePage() {
                 {msg && <p className="mt-2 text-sm text-red-500">{msg}</p>}
                 <div className="mt-4 flex gap-3">
                   <button onClick={handleSaveConfig} disabled={configSaving}
-                    className="flex-1 rounded-lg bg-brand-500 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50">
+                    className="flex-1 rounded-lg bg-brand-600 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50">
                     {configSaving ? "Saving..." : "Save Settings"}
                   </button>
                   <button onClick={() => setShowConfig(false)}

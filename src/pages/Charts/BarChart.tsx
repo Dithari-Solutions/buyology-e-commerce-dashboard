@@ -11,7 +11,7 @@ export default function BarChart() {
         description="This is React.js Chart Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
       />
       <PageBreadcrumb pageTitle="Bar Chart" />
-      <div className="space-y-6">
+      <div className="space-y-4">
         <ComponentCard title="Bar Chart 1">
           <BarChartOne />
         </ComponentCard>

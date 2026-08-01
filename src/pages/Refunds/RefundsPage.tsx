@@ -47,7 +47,7 @@ export default function RefundsPage() {
       <PageMeta title="Refunds | Buyology" description="Manage refund requests and settings" />
       <PageBreadcrumb pageTitle={storeId ? "Store Refunds" : "Refunds"} />
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
         <div className="mb-4 flex items-center gap-2 border-b border-gray-100 dark:border-gray-800">
           {(["requests", "settings"] as Tab[]).map((t) => (
             <button
@@ -182,7 +182,7 @@ function SettingsTab() {
       <button
         onClick={save}
         disabled={saving}
-        className="w-full rounded-lg bg-brand-500 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
+        className="w-full rounded-lg bg-brand-600 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
       >
         {saving ? "Saving…" : "Save settings"}
       </button>
@@ -258,7 +258,7 @@ function RequestsTab({ storeId }: { storeId?: string }) {
       ) : error ? (
         <p className="text-sm text-red-600">{error}</p>
       ) : !data || data.content.length === 0 ? (
-        <div className="rounded-xl border-2 border-dashed border-gray-200 p-8 text-center dark:border-gray-700">
+        <div className="rounded-xl border-2 border-dashed border-gray-200 p-5 text-center dark:border-gray-700">
           <p className="text-gray-500 dark:text-gray-400">No refund requests.</p>
         </div>
       ) : (

@@ -31,7 +31,7 @@ export default function MyProductsPage() {
       <PageMeta title="My Products | Buyology Supplier" description="Your submitted products" />
       <PageBreadcrumb pageTitle="My Products" />
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2 flex-wrap">
             {TABS.map((t) => (
@@ -59,7 +59,7 @@ export default function MyProductsPage() {
         {loading ? (
           <p className="text-sm text-gray-500">Loading…</p>
         ) : products.length === 0 ? (
-          <div className="rounded-xl border-2 border-dashed border-gray-200 p-8 text-center dark:border-gray-700">
+          <div className="rounded-xl border-2 border-dashed border-gray-200 p-5 text-center dark:border-gray-700">
             <p className="text-gray-500 dark:text-gray-400 mb-3">No products yet.</p>
             <Link
               to="/supplier/new-product"

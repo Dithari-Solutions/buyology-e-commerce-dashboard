@@ -37,14 +37,14 @@ function statusLabel(status: StoreStatus): string {
 function SkeletonRow() {
   return (
     <tr className="border-b border-gray-100 dark:border-gray-800">
-      <td className="px-5 py-4">
+      <td className="px-4 py-2.5">
         <div className="space-y-2">
           <div className="h-3.5 w-40 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
           <div className="h-2.5 w-24 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" />
         </div>
       </td>
       {[1, 2, 3].map((i) => (
-        <td key={i} className="px-4 py-4">
+        <td key={i} className="px-4 py-2.5">
           <div className="h-3 w-20 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" />
         </td>
       ))}
@@ -97,8 +97,8 @@ export default function Orders() {
       />
       <PageBreadcrumb pageTitle="Orders" />
 
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-base font-semibold text-gray-800 dark:text-white/90">
           Select Store to View Orders
           {!loading && (
             <span className="ml-2 text-sm font-normal text-gray-400">({filtered?.length || 0})</span>
@@ -123,21 +123,21 @@ export default function Orders() {
       </div>
 
       {error && (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-16 text-center">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-16 text-center">
           <p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>
         </div>
       )}
 
       {!error && (
-        <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03]">
+        <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-white/[0.02]">
-                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Store</th>
-                  <th className="px-4 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Country</th>
-                  <th className="px-4 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Status</th>
-                  <th className="px-4 py-3.5 text-right text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Actions</th>
+                <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
+                  <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Store</th>
+                  <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Country</th>
+                  <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Status</th>
+                  <th className="px-4 py-2.5 text-right text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -148,7 +148,7 @@ export default function Orders() {
                     onClick={() => navigate(`/orders/${store.id}`)}
                     className="border-b border-gray-100 dark:border-gray-800 transition-colors hover:bg-brand-50/50 dark:hover:bg-white/[0.02] cursor-pointer"
                   >
-                    <td className="px-5 py-4">
+                    <td className="px-4 py-2.5">
                       <div className="flex items-center gap-3">
                         <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-brand-50 dark:bg-brand-500/10 text-brand-500">
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -162,13 +162,13 @@ export default function Orders() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-600 dark:text-gray-300">{store.countryName}</td>
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300">{store.countryName}</td>
+                    <td className="px-4 py-2.5">
                       <Badge size="sm" color={statusColor(store.status)}>
                         {statusLabel(store.status)}
                       </Badge>
                     </td>
-                    <td className="px-4 py-4 text-right">
+                    <td className="px-4 py-2.5 text-right">
                       <button className="text-brand-500 hover:text-brand-600 text-sm font-medium">
                         View Orders
                       </button>

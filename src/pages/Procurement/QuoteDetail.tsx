@@ -149,13 +149,13 @@ export default function QuoteDetail() {
       ) : !quote ? (
         <p className="text-sm text-gray-500">Quote not found.</p>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Summary */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="font-mono text-xs text-gray-500">{quote.id}</p>
-                <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
+                <h2 className="text-base font-semibold text-gray-800 dark:text-white">
                   {quote.countryCode} · {quote.currency}
                 </h2>
               </div>
@@ -187,13 +187,13 @@ export default function QuoteDetail() {
           </div>
 
           {error && (
-            <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-300">
+            <div className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-300">
               {error}
             </div>
           )}
 
           {/* Line items */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
             <h3 className="mb-4 text-base font-semibold text-gray-800 dark:text-white">Line items</h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -262,9 +262,9 @@ export default function QuoteDetail() {
 
           {/* Actions (only when SUBMITTED) */}
           {editable ? (
-            <div className="grid gap-6 lg:grid-cols-2">
+            <div className="grid gap-4 lg:grid-cols-2">
               {/* Send quote */}
-              <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+              <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
                 <h3 className="mb-4 text-base font-semibold text-gray-800 dark:text-white">
                   Send Quote
                 </h3>
@@ -294,7 +294,7 @@ export default function QuoteDetail() {
                   <button
                     onClick={handleSendQuote}
                     disabled={saving}
-                    className="w-full rounded-lg bg-brand-500 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
+                    className="w-full rounded-lg bg-brand-600 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
                   >
                     {saving ? "Sending…" : "Send Quote"}
                   </button>
@@ -302,7 +302,7 @@ export default function QuoteDetail() {
               </div>
 
               {/* Reject */}
-              <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+              <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
                 <h3 className="mb-4 text-base font-semibold text-gray-800 dark:text-white">Reject</h3>
                 <div className="space-y-4">
                   <div>
@@ -328,7 +328,7 @@ export default function QuoteDetail() {
               </div>
             </div>
           ) : (
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 text-sm text-gray-500 dark:border-gray-800 dark:bg-white/[0.03]">
+            <div className="rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-500 dark:border-gray-800 dark:bg-gray-900">
               This quote is <span className="font-medium">{quote.status}</span> and can no longer be
               priced or rejected.
               {quote.procurementNote && (

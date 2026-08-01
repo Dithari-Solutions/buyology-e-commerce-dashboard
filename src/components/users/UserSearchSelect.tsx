@@ -102,7 +102,7 @@ export default function UserSearchSelect({ value, onSelect }: Props) {
         className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
       />
       {open && (
-        <div className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900">
+        <div className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-gray-200 bg-white shadow-theme-md dark:border-gray-700 dark:bg-gray-900">
           {loading && <div className="px-3 py-2 text-sm text-gray-400">Searching…</div>}
           {!loading && results.length === 0 && query.trim().length >= 2 && (
             <div className="px-3 py-2 text-sm text-gray-400">No users found</div>

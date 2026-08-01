@@ -12,7 +12,7 @@ export default function Badges() {
         description="This is React.js Badges Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
       />
       <PageBreadcrumb pageTitle="Badges" />
-      <div className="space-y-5 sm:space-y-6">
+      <div className="space-y-4 sm:space-y-4">
         <ComponentCard title="With Light Background">
           <div className="flex flex-wrap gap-4 sm:items-center sm:justify-center">
             {/* Light Variant */}

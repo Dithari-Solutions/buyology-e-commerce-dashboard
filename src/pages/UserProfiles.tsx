@@ -91,8 +91,8 @@ function SecuritySection() {
   }
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
-      <h3 className="mb-5 text-base font-semibold text-gray-800 dark:text-white">Security</h3>
+    <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <h3 className="mb-4 text-base font-semibold text-gray-800 dark:text-white">Security</h3>
 
       {loading ? (
         <p className="text-sm text-gray-500">Loading…</p>
@@ -269,18 +269,18 @@ export default function UserProfiles() {
       <PageBreadcrumb pageTitle="Profile" />
 
       {loading ? (
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 text-center text-sm text-gray-500 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 text-center text-sm text-gray-500 dark:border-gray-800 dark:bg-gray-900">
           Loading…
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {error && (
             <div className="rounded-md bg-red-50 px-4 py-2 text-sm text-red-700">{error}</div>
           )}
 
           {/* Account section — always shown */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
-            <h3 className="mb-5 text-base font-semibold text-gray-800 dark:text-white">
+          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+            <h3 className="mb-4 text-base font-semibold text-gray-800 dark:text-white">
               Account
             </h3>
             <dl className="space-y-3">
@@ -308,8 +308,8 @@ export default function UserProfiles() {
 
           {/* Supplier section — only when SUPPLIER role */}
           {isSupplier && (
-            <div className="rounded-2xl border border-purple-200 bg-purple-50/50 p-6 dark:border-purple-900/40 dark:bg-purple-500/5">
-              <h3 className="mb-5 text-base font-semibold text-purple-900 dark:text-purple-300">
+            <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-4 dark:border-purple-900/40 dark:bg-purple-500/5">
+              <h3 className="mb-4 text-base font-semibold text-purple-900 dark:text-purple-300">
                 Supplier details
               </h3>
               {supplier ? (

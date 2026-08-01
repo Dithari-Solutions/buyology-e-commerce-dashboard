@@ -428,251 +428,219 @@ const AppSidebar: React.FC = () => {
     });
   };
 
+  const showLabels = isExpanded || isHovered || isMobileOpen;
+
+  /** Small red count pill used by the Procurement group and its sub-items. */
+  const CountBadge = ({
+    count,
+    title,
+    className = "",
+  }: {
+    count: number;
+    title: string;
+    className?: string;
+  }) => (
+    <span
+      title={title}
+      className={`inline-flex min-w-4 items-center justify-center rounded-full bg-error-500 px-1 py-px text-[10px] font-semibold leading-none text-white ${className}`}
+    >
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+
   const renderMenuItems = (items: NavItem[], menuType: "main" | "others") => (
-    <ul className="flex flex-col gap-4">
-      {items.map((nav, index) => (
-        <li key={nav.name}>
-          {nav.subItems ? (
-            <button
-              onClick={() => handleSubmenuToggle(index, menuType)}
-              className={`menu-item group rounded-[30px] ${
-                openSubmenu?.type === menuType && openSubmenu?.index === index
-                  ? "menu-item-active"
-                  : "menu-item-inactive"
-              } cursor-pointer ${
-                !isExpanded && !isHovered
-                  ? "lg:justify-center"
-                  : "lg:justify-start"
-              }`}
-            >
-              <span
-                className={`menu-item-icon-size   ${
-                  openSubmenu?.type === menuType && openSubmenu?.index === index
-                    ? "menu-item-icon-active"
-                    : "menu-item-icon-inactive"
-                }`}
-              >
-                {nav.icon}
-              </span>
-              {(isExpanded || isHovered || isMobileOpen) && (
-                <span className="menu-item-text rounded-[30px]">{nav.name}</span>
-              )}
-              {nav.name === "Procurement" && procurementNewCount > 0 && (
-                <span
-                  className={`flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white ${
-                    isExpanded || isHovered || isMobileOpen
-                      ? "relative ml-2"
-                      : "absolute right-2 top-1.5"
-                  }`}
-                  title={`${newQuoteCount} new quote${newQuoteCount === 1 ? "" : "s"}, ${newRequestCount} new product request${newRequestCount === 1 ? "" : "s"}`}
-                >
-                  {procurementNewCount > 99 ? "99+" : procurementNewCount}
-                  <span className="absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75 animate-ping" />
-                </span>
-              )}
-              {(isExpanded || isHovered || isMobileOpen) && (
-                <ChevronDownIcon
-                  className={`ml-auto w-5 h-5 transition-transform duration-200 ${
-                    openSubmenu?.type === menuType &&
-                    openSubmenu?.index === index
-                      ? "rotate-180 text-buyology-600 dark:text-buyology-300"
-                      : ""
-                  }`}
-                />
-              )}
-            </button>
-          ) : (
-            nav.path && (
-              <Link
-                to={nav.path}
-                className={`menu-item group rounded-[30px] ${
-                  isActive(nav.path) ? "menu-item-active" : "menu-item-inactive"
-                }`}
+    <ul className="flex flex-col gap-0.5">
+      {items.map((nav, index) => {
+        const isOpen =
+          openSubmenu?.type === menuType && openSubmenu?.index === index;
+        // A collapsed group still reads as "current" when one of its children is.
+        const hasActiveChild = !!nav.subItems?.some((s) => isActive(s.path));
+
+        return (
+          <li key={nav.name}>
+            {nav.subItems ? (
+              <button
+                onClick={() => handleSubmenuToggle(index, menuType)}
+                title={!showLabels ? nav.name : undefined}
+                className={`menu-item group ${
+                  isOpen || hasActiveChild
+                    ? "menu-item-active"
+                    : "menu-item-inactive"
+                } ${!showLabels ? "lg:justify-center" : "lg:justify-start"}`}
               >
                 <span
                   className={`menu-item-icon-size ${
-                    isActive(nav.path)
+                    isOpen || hasActiveChild
                       ? "menu-item-icon-active"
                       : "menu-item-icon-inactive"
                   }`}
                 >
                   {nav.icon}
                 </span>
-                {(isExpanded || isHovered || isMobileOpen) && (
-                  <span className="menu-item-text">{nav.name}</span>
+                {showLabels && <span className="truncate">{nav.name}</span>}
+                {nav.name === "Procurement" && procurementNewCount > 0 && (
+                  <CountBadge
+                    count={procurementNewCount}
+                    title={`${newQuoteCount} new quote${newQuoteCount === 1 ? "" : "s"}, ${newRequestCount} new product request${newRequestCount === 1 ? "" : "s"}`}
+                    className={showLabels ? "ml-1" : "absolute right-1 top-1"}
+                  />
                 )}
-              </Link>
-            )
-          )}
-          {nav.subItems && (isExpanded || isHovered || isMobileOpen) && (
-            <div
-              ref={(el) => {
-                subMenuRefs.current[`${menuType}-${index}`] = el;
-              }}
-              className="overflow-hidden transition-all duration-300 rounded-[30px]"
-              style={{
-                height:
-                  openSubmenu?.type === menuType && openSubmenu?.index === index
-                    ? `${subMenuHeight[`${menuType}-${index}`]}px`
-                    : "0px",
-              }}
-            >
-              <ul className="mt-2 ml-9">
-                {nav.subItems.map((subItem, subIndex, subArr) => (
-                  <li key={subItem.name} className="relative pl-5">
-                    {/* Tree connectors — rounded yellow branch + continuous trunk (elbow on the last item) */}
-                    <span
-                      aria-hidden
-                      className="absolute left-0 top-0 h-1/2 w-3 rounded-bl-[12px] border-b-2 border-l-2 border-[#FBBB14]"
-                    />
-                    {subIndex !== subArr.length - 1 && (
-                      <span aria-hidden className="absolute left-0 top-1/2 bottom-0 w-0.5 bg-[#FBBB14]" />
-                    )}
-                    <Link
-                      to={subItem.path}
-                      className={`menu-dropdown-item rounded-[30px] ${
-                        isActive(subItem.path)
-                          ? "menu-dropdown-item-active"
-                          : "menu-dropdown-item-inactive"
-                      }`}
-                    >
-                      {subItem.name}
-                      <span className="flex items-center gap-1 ml-auto">
-                        {subItem.path === "/procurement/quotes" && newQuoteCount > 0 && (
-                          <span
-                            className="flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white"
-                            title={`${newQuoteCount} new quote${newQuoteCount === 1 ? "" : "s"} to price`}
-                          >
-                            {newQuoteCount > 99 ? "99+" : newQuoteCount}
-                          </span>
-                        )}
-                        {subItem.path === "/procurement/requests" && newRequestCount > 0 && (
-                          <span
-                            className="flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white"
-                            title={`${newRequestCount} new product request${newRequestCount === 1 ? "" : "s"}`}
-                          >
-                            {newRequestCount > 99 ? "99+" : newRequestCount}
-                          </span>
-                        )}
-                        {subItem.new && (
-                          <span
-                            className={`ml-auto ${
-                              isActive(subItem.path)
-                                ? "menu-dropdown-badge-active"
-                                : "menu-dropdown-badge-inactive"
-                            } menu-dropdown-badge`}
-                          >
-                            new
-                          </span>
-                        )}
-                        {subItem.pro && (
-                          <span
-                            className={`ml-auto ${
-                              isActive(subItem.path)
-                                ? "menu-dropdown-badge-active"
-                                : "menu-dropdown-badge-inactive"
-                            } menu-dropdown-badge`}
-                          >
-                            pro
-                          </span>
-                        )}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </li>
-      ))}
+                {showLabels && (
+                  <ChevronDownIcon
+                    className={`ml-auto size-4 shrink-0 text-gray-400 transition-transform duration-200 ${
+                      isOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                )}
+              </button>
+            ) : (
+              nav.path && (
+                <Link
+                  to={nav.path}
+                  title={!showLabels ? nav.name : undefined}
+                  className={`menu-item group ${
+                    isActive(nav.path) ? "menu-item-active" : "menu-item-inactive"
+                  } ${!showLabels ? "lg:justify-center" : "lg:justify-start"}`}
+                >
+                  <span
+                    className={`menu-item-icon-size ${
+                      isActive(nav.path)
+                        ? "menu-item-icon-active"
+                        : "menu-item-icon-inactive"
+                    }`}
+                  >
+                    {nav.icon}
+                  </span>
+                  {showLabels && <span className="truncate">{nav.name}</span>}
+                </Link>
+              )
+            )}
+
+            {nav.subItems && showLabels && (
+              <div
+                ref={(el) => {
+                  subMenuRefs.current[`${menuType}-${index}`] = el;
+                }}
+                className="overflow-hidden transition-[height] duration-200 ease-out"
+                style={{ height: isOpen ? `${subMenuHeight[`${menuType}-${index}`]}px` : "0px" }}
+              >
+                {/* A single hairline rail replaces the old per-item tree elbows —
+                    same hierarchy cue, far less visual noise. */}
+                <ul className="ml-[19px] mt-0.5 flex flex-col gap-px border-l border-gray-200 pb-1 pl-2 dark:border-gray-800">
+                  {nav.subItems.map((subItem) => (
+                    <li key={subItem.name}>
+                      <Link
+                        to={subItem.path}
+                        className={`menu-dropdown-item ${
+                          isActive(subItem.path)
+                            ? "menu-dropdown-item-active"
+                            : "menu-dropdown-item-inactive"
+                        }`}
+                      >
+                        <span className="truncate">{subItem.name}</span>
+                        <span className="ml-auto flex items-center gap-1 pl-1">
+                          {subItem.path === "/procurement/quotes" && newQuoteCount > 0 && (
+                            <CountBadge
+                              count={newQuoteCount}
+                              title={`${newQuoteCount} new quote${newQuoteCount === 1 ? "" : "s"} to price`}
+                            />
+                          )}
+                          {subItem.path === "/procurement/requests" && newRequestCount > 0 && (
+                            <CountBadge
+                              count={newRequestCount}
+                              title={`${newRequestCount} new product request${newRequestCount === 1 ? "" : "s"}`}
+                            />
+                          )}
+                          {subItem.new && (
+                            <span
+                              className={`${
+                                isActive(subItem.path)
+                                  ? "menu-dropdown-badge-active"
+                                  : "menu-dropdown-badge-inactive"
+                              } menu-dropdown-badge`}
+                            >
+                              new
+                            </span>
+                          )}
+                          {subItem.pro && (
+                            <span
+                              className={`${
+                                isActive(subItem.path)
+                                  ? "menu-dropdown-badge-active"
+                                  : "menu-dropdown-badge-inactive"
+                              } menu-dropdown-badge`}
+                            >
+                              pro
+                            </span>
+                          )}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </li>
+        );
+      })}
     </ul>
+  );
+
+  const sectionLabel = (text: string) => (
+    <h2
+      className={`mb-1.5 flex px-2.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-400 ${
+        !showLabels ? "lg:justify-center lg:px-0" : "justify-start"
+      }`}
+    >
+      {showLabels ? text : <HorizontaLDots className="size-4" />}
+    </h2>
   );
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
-        ${
-          isExpanded || isMobileOpen
-            ? "w-[290px]"
-            : isHovered
-            ? "w-[290px]"
-            : "w-[90px]"
-        }
+      className={`fixed left-0 top-0 z-50 mt-14 flex h-screen flex-col border-r border-gray-200 bg-white text-gray-900 transition-[width,transform] duration-200 ease-out dark:border-gray-800 dark:bg-gray-900 lg:mt-0
+        ${isExpanded || isMobileOpen || isHovered ? "w-[240px]" : "w-[64px]"}
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0`}
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Brand — same 56px height as the header, so the two align exactly. */}
       <div
-        className={`py-8 flex ${
-          !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
+        className={`flex h-14 shrink-0 items-center border-b border-gray-200 px-3 dark:border-gray-800 ${
+          !showLabels ? "lg:justify-center lg:px-0" : "justify-start"
         }`}
       >
-        <Link to={homePath}>
-          {isExpanded || isHovered || isMobileOpen ? (
-            <div className="flex items-center gap-3">
-              <img
-                className="rounded-full"
-                src="/logo.png"
-                alt="Logo"
-                width={90}
-                height={40}
-              />
-              <span className="text-xl font-bold tracking-tight text-brand-500 dark:text-white">
-                Buyology
-              </span>
-            </div>
-          ) : (
-            <div>
-              <img
-            className=" rounded-full"
+        {/* logo.png is a square tile with a wide wordmark inside, so it only
+            reads at wordmark proportions — object-cover crops the dead padding.
+            Collapsed, it falls back to a monogram that stays legible at 28px. */}
+        <Link to={homePath} className="flex items-center overflow-hidden">
+          {showLabels ? (
+            <img
+              className="h-7 w-[116px] shrink-0 rounded-md object-cover"
               src="/logo.png"
-              alt="Logo"
-              width={32}
-              height={32}
+              alt="Buyology"
             />
-            </div>
+          ) : (
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-[#402F75] text-sm font-bold text-white">
+              B
+            </span>
           )}
         </Link>
       </div>
-      <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
-        <nav className="mb-6">
-          <div className="flex flex-col gap-4">
-            <div>
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Menu"
-                ) : (
-                  <HorizontaLDots className="size-6" />
-                )}
-              </h2>
-              {renderMenuItems(visibleNavItems, "main")}
-            </div>
-            {visibleOthersItems.length > 0 && (
-              <div className="">
-                <h2
-                  className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                    !isExpanded && !isHovered
-                      ? "lg:justify-center"
-                      : "justify-start"
-                  }`}
-                >
-                  {isExpanded || isHovered || isMobileOpen ? (
-                    "Others"
-                  ) : (
-                    <HorizontaLDots />
-                  )}
-                </h2>
-                {renderMenuItems(visibleOthersItems, "others")}
-              </div>
-            )}
+
+      <div className="no-scrollbar flex flex-col overflow-y-auto px-2.5 py-3">
+        <nav className="flex flex-col gap-4">
+          <div>
+            {sectionLabel("Menu")}
+            {renderMenuItems(visibleNavItems, "main")}
           </div>
+          {visibleOthersItems.length > 0 && (
+            <div>
+              {sectionLabel("Others")}
+              {renderMenuItems(visibleOthersItems, "others")}
+            </div>
+          )}
         </nav>
       </div>
     </aside>

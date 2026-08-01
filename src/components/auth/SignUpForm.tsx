@@ -10,7 +10,7 @@ export default function SignUpForm() {
   const [isChecked, setIsChecked] = useState(false);
   return (
     <div className="flex flex-col flex-1 w-full overflow-y-auto lg:w-1/2 no-scrollbar">
-      <div className="w-full max-w-md mx-auto mb-5 sm:pt-10">
+      <div className="w-full max-w-md mx-auto mb-4 sm:pt-10">
         <Link
           to="/"
           className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
@@ -21,7 +21,7 @@ export default function SignUpForm() {
       </div>
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div>
-          <div className="mb-5 sm:mb-8">
+          <div className="mb-4 sm:mb-5">
             <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
               Sign Up
             </h1>
@@ -30,7 +30,7 @@ export default function SignUpForm() {
             </p>
           </div>
           <div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
               <button className="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
                 <svg
                   width="20"
@@ -72,19 +72,19 @@ export default function SignUpForm() {
                 Sign up with X
               </button>
             </div>
-            <div className="relative py-3 sm:py-5">
+            <div className="relative py-3 sm:py-3.5">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200 dark:border-gray-800"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="p-2 text-gray-400 bg-white dark:bg-gray-900 sm:px-5 sm:py-2">
+                <span className="p-2 text-gray-400 bg-white dark:bg-gray-900 sm:px-4 sm:py-2">
                   Or
                 </span>
               </div>
             </div>
             <form>
-              <div className="space-y-5">
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {/* <!-- First Name --> */}
                   <div className="sm:col-span-1">
                     <Label>
@@ -164,14 +164,14 @@ export default function SignUpForm() {
                 </div>
                 {/* <!-- Button --> */}
                 <div>
-                  <button className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
+                  <button className="flex items-center justify-center w-full px-4 py-2.5 text-sm font-medium text-white transition rounded-lg bg-brand-600 shadow-theme-xs hover:bg-brand-700">
                     Sign Up
                   </button>
                 </div>
               </div>
             </form>
 
-            <div className="mt-5">
+            <div className="mt-4">
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
                 Already have an account? {""}
                 <Link

@@ -86,21 +86,21 @@ export default function UserDropdown() {
     <div className="relative">
       <button
         onClick={toggleDropdown}
-        className="flex items-center text-gray-700 dropdown-toggle dark:text-gray-400"
+        className="dropdown-toggle flex items-center gap-2 rounded-lg py-1 pl-1 pr-1.5 text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5"
       >
-        <span className="mr-3 flex h-11 w-11 items-center justify-center rounded-full bg-brand-500 text-sm font-semibold uppercase text-white ring-2 ring-buyology-yellow-300/70 dark:ring-buyology-yellow-400/30">
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-600 text-[11px] font-semibold uppercase text-white">
           {initials || "?"}
         </span>
 
-        <span className="block mr-1 font-medium text-theme-sm">
+        <span className="hidden max-w-[120px] truncate text-[13px] font-medium xl:block">
           {user?.firstName || user?.name || "User"}
         </span>
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
           }`}
-          width="18"
-          height="20"
+          width="16"
+          height="16"
           viewBox="0 0 18 20"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -118,10 +118,10 @@ export default function UserDropdown() {
       <Dropdown
         isOpen={isOpen}
         onClose={closeDropdown}
-        className="absolute right-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
+        className="absolute right-0 mt-1.5 flex w-[240px] flex-col rounded-lg border border-gray-200 bg-white p-2 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
       >
-        <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-500 text-sm font-semibold uppercase text-white">
+        <div className="flex items-center gap-2.5 px-1 py-1">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-600 text-[11px] font-semibold uppercase text-white">
             {initials || "?"}
           </span>
           <div className="min-w-0">
@@ -134,7 +134,7 @@ export default function UserDropdown() {
           </div>
         </div>
 
-        <ul className="flex flex-col gap-1 pt-4 pb-3 border-b border-gray-200 dark:border-gray-800">
+        <ul className="mt-2 flex flex-col gap-0.5 border-t border-gray-100 pb-1 pt-1.5 dark:border-gray-800">
           <li>
             <DropdownItem
               onItemClick={closeDropdown}

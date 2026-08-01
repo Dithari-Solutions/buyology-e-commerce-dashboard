@@ -119,9 +119,9 @@ function ConfirmDialog({
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-6 shadow-xl">
+      <div className="w-full max-w-sm rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-4 shadow-theme-lg">
         <h3 className="text-base font-semibold text-gray-800 dark:text-white/90 mb-2">{title}</h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{message}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{message}</p>
         <div className="flex gap-3 justify-end">
           <button
             onClick={onCancel}
@@ -165,11 +165,11 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] overflow-hidden">
-      <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800">
+    <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
+      <div className="px-4 py-2.5 border-b border-gray-100 dark:border-gray-800">
         <h2 className="text-base font-semibold text-gray-800 dark:text-white/90">{title}</h2>
       </div>
-      <div className="p-5">{children}</div>
+      <div className="p-4">{children}</div>
     </div>
   );
 }
@@ -195,7 +195,7 @@ function ProfileField({ label, value }: { label: string; value: React.ReactNode 
 
 function CartItemRow({ item }: { item: CartItem }) {
   return (
-    <div className="rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-white/[0.02] p-4">
+    <div className="rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <p className="text-sm font-medium text-gray-800 dark:text-white/90">
@@ -246,8 +246,8 @@ function CartItemRow({ item }: { item: CartItem }) {
 
 function DetailSkeleton() {
   return (
-    <div className="space-y-6 animate-pulse">
-      <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-5">
+    <div className="space-y-4 animate-pulse">
+      <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
         <div className="flex items-center gap-4">
           <div className="h-16 w-16 rounded-full bg-gray-200 dark:bg-gray-700" />
           <div className="space-y-2">
@@ -255,13 +255,13 @@ function DetailSkeleton() {
             <div className="h-3 w-28 rounded-full bg-gray-100 dark:bg-gray-800" />
           </div>
         </div>
-        <div className="mt-5 space-y-3">
+        <div className="mt-4 space-y-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="h-3 rounded-full bg-gray-100 dark:bg-gray-800" style={{ width: `${50 + (i % 3) * 15}%` }} />
           ))}
         </div>
       </div>
-      <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-5 space-y-3">
+      <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 space-y-3">
         {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="h-16 rounded-xl bg-gray-100 dark:bg-gray-800" />
         ))}
@@ -408,13 +408,13 @@ export default function UserDetail() {
             <line x1="18" y1="11" x2="23" y2="16" />
             <line x1="23" y1="11" x2="18" y2="16" />
           </svg>
-          <h1 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-1">User not found</h1>
-          <p className="text-sm text-gray-400 dark:text-gray-500 mb-5">
+          <h1 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-1">User not found</h1>
+          <p className="text-sm text-gray-400 dark:text-gray-500 mb-4">
             The user you're looking for doesn't exist or the ID is invalid.
           </p>
           <button
             onClick={() => navigate("/admin/users")}
-            className="rounded-xl border border-gray-200 dark:border-gray-700 px-5 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            className="rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
           >
             ← Back to Users
           </button>
@@ -438,7 +438,7 @@ export default function UserDetail() {
           <p className="text-sm font-medium text-red-600 dark:text-red-400 mb-4">{error}</p>
           <button
             onClick={() => navigate("/admin/users")}
-            className="rounded-xl border border-gray-200 dark:border-gray-700 px-5 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            className="rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
           >
             ← Back to Users
           </button>
@@ -472,7 +472,7 @@ export default function UserDetail() {
         title="Unblock Account"
         message="This will restore the user's access. They will be able to sign in again immediately. Continue?"
         confirmLabel="Unblock Account"
-        confirmColor="bg-brand-500 hover:bg-brand-600"
+        confirmColor="bg-brand-600 hover:bg-brand-700"
         loading={actionLoading}
         onConfirm={handleUnblockConfirm}
         onCancel={() => setConfirmAction(null)}
@@ -502,7 +502,7 @@ export default function UserDetail() {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`rounded-xl px-4 py-3 text-sm font-medium shadow-lg text-white transition-all ${
+            className={`rounded-xl px-4 py-2.5 text-sm font-medium shadow-theme-md text-white transition-all ${
               t.type === "success" ? "bg-green-500" : "bg-red-500"
             }`}
           >
@@ -512,7 +512,7 @@ export default function UserDetail() {
       </div>
 
       {/* Back button + title */}
-      <div className="mb-5 flex items-center gap-3">
+      <div className="mb-4 flex items-center gap-3">
         <button
           onClick={() => navigate(-1)}
           className="flex items-center gap-1.5 rounded-xl border border-gray-200 dark:border-gray-700 px-3 py-2 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
@@ -522,7 +522,7 @@ export default function UserDetail() {
           </svg>
           Back
         </button>
-        <h1 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+        <h1 className="text-lg font-semibold text-gray-800 dark:text-white/90">
           {loading ? "Loading…" : fullName(user?.firstName ?? null, user?.lastName ?? null)}
         </h1>
       </div>
@@ -530,11 +530,11 @@ export default function UserDetail() {
       {loading ? (
         <DetailSkeleton />
       ) : user ? (
-        <div className="space-y-6">
+        <div className="space-y-4">
 
           {/* ── Section 1: Profile ─────────────────────────────────────────── */}
           <SectionCard title="Profile">
-            <div className="flex flex-col sm:flex-row gap-6">
+            <div className="flex flex-col sm:flex-row gap-4">
               {/* Avatar */}
               <div className="flex-shrink-0">
                 {user.avatarUrl ? (
@@ -544,7 +544,7 @@ export default function UserDetail() {
                     className="h-20 w-20 rounded-full object-cover border-2 border-gray-100 dark:border-gray-700"
                   />
                 ) : (
-                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-500/20 text-brand-600 dark:text-brand-400 text-xl font-bold border-2 border-gray-100 dark:border-gray-700">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-500/20 text-brand-600 dark:text-brand-400 text-lg font-bold border-2 border-gray-100 dark:border-gray-700">
                     {initials(user.firstName, user.lastName)}
                   </div>
                 )}
@@ -795,11 +795,11 @@ export default function UserDetail() {
                 {user.activeCart.items.map((item) => (
                   <CartItemRow key={item.id} item={item} />
                 ))}
-                <div className="flex items-center justify-between rounded-xl bg-brand-50 dark:bg-brand-500/10 px-4 py-3 mt-2">
+                <div className="flex items-center justify-between rounded-xl bg-brand-50 dark:bg-brand-500/10 px-4 py-2.5 mt-2">
                   <span className="text-sm font-semibold text-brand-700 dark:text-brand-400">
                     Cart Total
                   </span>
-                  <span className="text-lg font-bold text-brand-700 dark:text-brand-400">
+                  <span className="text-base font-bold text-brand-700 dark:text-brand-400">
                     {formatCurrency(user.activeCart.totalPrice)}
                   </span>
                 </div>

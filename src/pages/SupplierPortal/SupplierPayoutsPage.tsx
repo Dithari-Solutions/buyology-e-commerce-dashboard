@@ -118,7 +118,7 @@ export default function SupplierPayoutsPage() {
       <PageMeta title="Payouts | Buyology" description="Request your supplier payouts" />
       <PageBreadcrumb pageTitle="Payouts" />
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Eligibility banner */}
         <EligibilityBanner
           eligibility={eligibility}
@@ -136,7 +136,7 @@ export default function SupplierPayoutsPage() {
         )}
 
         {/* Account form */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-base font-semibold text-gray-800 dark:text-white">
               Payout details
@@ -167,7 +167,7 @@ export default function SupplierPayoutsPage() {
                 <button
                   onClick={saveAccount}
                   disabled={savingAccount}
-                  className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
+                  className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
                 >
                   {savingAccount ? "Saving…" : "Save"}
                 </button>
@@ -207,7 +207,7 @@ export default function SupplierPayoutsPage() {
         </div>
 
         {/* History */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
           <h3 className="mb-4 text-base font-semibold text-gray-800 dark:text-white">
             Payout history
           </h3>
@@ -272,7 +272,7 @@ function EligibilityBanner({
 }) {
   if (loading || !eligibility) {
     return (
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 text-sm text-gray-500 dark:border-gray-800 dark:bg-white/[0.03]">
+      <div className="rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-500 dark:border-gray-800 dark:bg-gray-900">
         Checking payout eligibility…
       </div>
     );
@@ -282,7 +282,7 @@ function EligibilityBanner({
     : "border-gray-200 bg-gray-50 dark:bg-gray-800/40";
 
   return (
-    <div className={`rounded-2xl border p-6 ${tone}`}>
+    <div className={`rounded-xl border p-4 ${tone}`}>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-gray-800 dark:text-gray-100">
@@ -298,7 +298,7 @@ function EligibilityBanner({
           <button
             onClick={onSubmit}
             disabled={submitting}
-            className="rounded-lg bg-green-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-50"
+            className="rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-50"
           >
             {submitting ? "Submitting…" : "Request payout"}
           </button>

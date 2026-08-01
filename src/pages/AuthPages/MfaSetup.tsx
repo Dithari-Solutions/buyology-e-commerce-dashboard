@@ -81,15 +81,15 @@ export default function MfaSetup() {
         <PageMeta title="Save your recovery codes | Buyology" description="One-time backup codes" />
         <AuthLayout>
           <div className="w-full max-w-[420px] z-2">
-            <div className="mb-6">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Save your recovery codes</h1>
+            <div className="mb-4">
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Save your recovery codes</h1>
               <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
                 Store these somewhere safe. Each code can be used once if you lose access to your
                 authenticator. They will not be shown again.
               </p>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-theme-xs border border-gray-200 dark:border-gray-700 p-4">
               <div className="grid grid-cols-2 gap-2 font-mono text-sm text-gray-800 dark:text-gray-100">
                 {recoveryCodes.map((rc) => (
                   <div key={rc} className="rounded-md bg-gray-50 dark:bg-gray-900 px-3 py-2 text-center tracking-wider">
@@ -98,7 +98,7 @@ export default function MfaSetup() {
                 ))}
               </div>
 
-              <div className="mt-5 flex gap-2">
+              <div className="mt-4 flex gap-2">
                 <Button
                   variant="outline"
                   className="flex-1"
@@ -124,18 +124,18 @@ export default function MfaSetup() {
       <PageMeta title="Set up two-factor authentication | Buyology" description="Enroll Google Authenticator" />
       <AuthLayout>
         <div className="w-full max-w-[420px] z-2">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Set up two-factor authentication</h1>
+          <div className="mb-4">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">Set up two-factor authentication</h1>
             <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
               Two-factor authentication is required for this account. Scan the QR code with Google
               Authenticator (or any TOTP app), then enter the 6-digit code to confirm.
             </p>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-theme-xs border border-gray-200 dark:border-gray-700 p-4">
             {loadError ? (
               <div className="space-y-4 text-center">
-                <div className="px-4 py-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/20 dark:text-red-400 dark:border-red-800">
+                <div className="px-4 py-2.5 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/20 dark:text-red-400 dark:border-red-800">
                   {loadError}
                 </div>
                 <Link to="/signin" className="text-sm text-[#402F75] dark:text-[#FBBB14] hover:underline">
@@ -146,7 +146,7 @@ export default function MfaSetup() {
               <p className="text-center text-sm text-gray-500 py-10">Preparing your authenticator…</p>
             ) : (
               <form onSubmit={handleConfirm}>
-                <div className="space-y-5">
+                <div className="space-y-4">
                   <div className="flex justify-center">
                     <img
                       src={enroll.qrDataUri}
@@ -163,7 +163,7 @@ export default function MfaSetup() {
                   </div>
 
                   {error && (
-                    <div className="px-4 py-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/20 dark:text-red-400 dark:border-red-800">
+                    <div className="px-4 py-2.5 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/20 dark:text-red-400 dark:border-red-800">
                       {error}
                     </div>
                   )}

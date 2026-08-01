@@ -77,7 +77,7 @@ export default function RefundDetailPage() {
       <>
         <PageMeta title="Refund request | Buyology" description="Refund request details" />
         <PageBreadcrumb pageTitle="Refund request" />
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
           <p className="text-sm text-red-600">{loadError ?? "Refund request not found."}</p>
           <Link
             to="/refunds"
@@ -133,13 +133,13 @@ export default function RefundDetailPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* Left column — overview */}
-        <div className="space-y-6 lg:col-span-2">
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="space-y-4 lg:col-span-2">
+          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-lg font-semibold dark:text-white">Refund request</h3>
+                <h3 className="text-base font-semibold dark:text-white">Refund request</h3>
                 <p className="font-mono text-xs text-gray-500">{request.id}</p>
               </div>
               <span
@@ -176,7 +176,7 @@ export default function RefundDetailPage() {
             </dl>
           </div>
 
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
             <h4 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
               Customer description
             </h4>
@@ -185,7 +185,7 @@ export default function RefundDetailPage() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
             <h4 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
               Photos ({request.imageUrls.length})
             </h4>
@@ -213,7 +213,7 @@ export default function RefundDetailPage() {
 
         {/* Right column — actions */}
         <div className="lg:col-span-1">
-          <div className="sticky top-6 space-y-4 rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+          <div className="sticky top-6 space-y-4 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
             <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Actions</h4>
 
             {!canApproveReject && !canMarkReceived && !canPay && (
@@ -244,7 +244,7 @@ export default function RefundDetailPage() {
                     )
                   }
                   disabled={busy !== null}
-                  className="w-full rounded-lg bg-brand-500 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
+                  className="w-full rounded-lg bg-brand-600 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
                 >
                   {busy === "approve" ? "Approving…" : "Approve"}
                 </button>
@@ -286,7 +286,7 @@ export default function RefundDetailPage() {
                   )
                 }
                 disabled={busy !== null}
-                className="w-full rounded-lg bg-brand-500 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
+                className="w-full rounded-lg bg-brand-600 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
               >
                 {busy === "received" ? "Saving…" : "Mark product received"}
               </button>
@@ -348,7 +348,7 @@ export default function RefundDetailPage() {
 
       {lightbox && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-6"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4"
           onClick={() => setLightbox(null)}
         >
           <img src={lightbox} alt="" className="max-h-full max-w-full rounded-lg" />

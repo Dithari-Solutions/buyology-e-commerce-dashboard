@@ -54,14 +54,14 @@ function statusLabel(status: StoreStatus): string {
 function SkeletonRow() {
   return (
     <tr className="border-b border-gray-100 dark:border-gray-800">
-      <td className="px-5 py-4">
+      <td className="px-4 py-2.5">
         <div className="space-y-2">
           <div className="h-3.5 w-40 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
           <div className="h-2.5 w-24 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" />
         </div>
       </td>
       {[1, 2, 3, 4, 5].map((i) => (
-        <td key={i} className="px-4 py-4">
+        <td key={i} className="px-4 py-2.5">
           <div className="h-3 w-20 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" />
         </td>
       ))}
@@ -89,9 +89,9 @@ function DeleteConfirmModal({
   deleteError: string | null;
 }) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="mx-4 max-w-sm w-full p-6 sm:p-8">
+    <Modal isOpen={isOpen} onClose={onClose} className="mx-4 max-w-sm w-full p-4 sm:p-5">
       <div className="flex flex-col items-center text-center">
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-error-50 dark:bg-error-500/10 mb-4">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-error-50 dark:bg-error-500/10 mb-4">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-error-500">
             <polyline points="3 6 5 6 21 6" />
             <path d="M19 6l-1 14H6L5 6" />
@@ -102,7 +102,7 @@ function DeleteConfirmModal({
         <h3 className="text-base font-semibold text-gray-800 dark:text-white/90 mb-1">Delete Store</h3>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Are you sure you want to delete</p>
         <p className="text-sm font-semibold text-gray-800 dark:text-white/90 mb-4">"{storeName}"?</p>
-        <p className="text-xs text-gray-400 dark:text-gray-500 mb-6">
+        <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">
           This is a soft-delete. The store data will be preserved but hidden.
         </p>
         {deleteError && (
@@ -286,17 +286,17 @@ export default function Stores() {
       <PageBreadcrumb pageTitle="Stores" />
 
       {/* Stats row */}
-      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="mb-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="flex items-center gap-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-4"
+            className="flex items-center gap-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4"
           >
             <span className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${stat.color}`}>
               {stat.icon}
             </span>
             <div>
-              <p className="text-2xl font-bold text-gray-800 dark:text-white/90 leading-none">
+              <p className="text-xl font-bold text-gray-800 dark:text-white/90 leading-none">
                 {loading ? "—" : stat.value}
               </p>
               <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{stat.label}</p>
@@ -306,8 +306,8 @@ export default function Stores() {
       </div>
 
       {/* Toolbar */}
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-base font-semibold text-gray-800 dark:text-white/90">
           All Stores
           {!loading && (
             <span className="ml-2 text-sm font-normal text-gray-400">({filtered.length})</span>
@@ -323,7 +323,7 @@ export default function Stores() {
                 onClick={() => setStatusFilter(value)}
                 className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
                   statusFilter === value
-                    ? "bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-sm"
+                    ? "bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-theme-xs"
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                 }`}
               >
@@ -352,7 +352,7 @@ export default function Stores() {
           {/* New Store */}
           <button
             onClick={() => navigate("/stores/new")}
-            className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors whitespace-nowrap"
+            className="flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 transition-colors whitespace-nowrap"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <line x1="12" y1="5" x2="12" y2="19" />
@@ -365,7 +365,7 @@ export default function Stores() {
 
       {/* Error state */}
       {error && (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-16 text-center">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-16 text-center">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mb-3 text-red-400">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
@@ -377,15 +377,15 @@ export default function Stores() {
 
       {/* Table */}
       {!error && (
-        <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03]">
+        <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-white/[0.02]">
+                <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
                   {["Store", "Country", "Status", "Contact", "Slug", "Created", "Actions"].map((col) => (
                     <th
                       key={col}
-                      className="px-4 py-3.5 first:pl-5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
+                      className="px-4 py-2.5 first:pl-5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
                     >
                       {col}
                     </th>
@@ -403,7 +403,7 @@ export default function Stores() {
                       className="border-b border-gray-100 dark:border-gray-800 transition-colors hover:bg-brand-50/50 dark:hover:bg-white/[0.02] cursor-pointer"
                     >
                       {/* Store name */}
-                      <td className="px-5 py-4">
+                      <td className="px-4 py-2.5">
                         <div className="flex items-center gap-3">
                           <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-brand-50 dark:bg-brand-500/10 text-brand-500">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -419,35 +419,35 @@ export default function Stores() {
                       </td>
 
                       {/* Country */}
-                      <td className="px-4 py-4 text-sm text-gray-600 dark:text-gray-300">{store.countryName}</td>
+                      <td className="px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300">{store.countryName}</td>
 
                       {/* Status */}
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-2.5">
                         <Badge size="sm" color={statusColor(store.status)}>
                           {statusLabel(store.status)}
                         </Badge>
                       </td>
 
                       {/* Contact */}
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-2.5">
                         <p className="text-xs text-gray-600 dark:text-gray-300">{store.contactEmail ?? "—"}</p>
                         <p className="text-xs text-gray-400">{store.contactPhone ?? ""}</p>
                       </td>
 
                       {/* Slug */}
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-2.5">
                         <code className="rounded bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-mono text-gray-600 dark:text-gray-300">
                           {store.slug}
                         </code>
                       </td>
 
                       {/* Created */}
-                      <td className="px-4 py-4 text-xs text-gray-500 dark:text-gray-400">
+                      <td className="px-4 py-2.5 text-xs text-gray-500 dark:text-gray-400">
                         {formatDate(store.createdAt)}
                       </td>
 
                       {/* Actions */}
-                      <td className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
+                      <td className="px-4 py-2.5" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => navigate(`/stores/${store.id}`)}

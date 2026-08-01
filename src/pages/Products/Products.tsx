@@ -72,7 +72,7 @@ function ProductRow({
       className="group cursor-pointer border-b border-gray-100 dark:border-gray-800 transition-colors hover:bg-brand-50/50 dark:hover:bg-white/[0.02]"
     >
       {/* Product info */}
-      <td className="px-5 py-4">
+      <td className="px-4 py-2.5">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 text-gray-400">
             {primaryMedia ? (
@@ -108,7 +108,7 @@ function ProductRow({
       </td>
 
       {/* Type */}
-      <td className="px-4 py-4">
+      <td className="px-4 py-2.5">
         <span
           className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${productTypeColor(product.productType)}`}
         >
@@ -117,19 +117,19 @@ function ProductRow({
       </td>
 
       {/* Brand */}
-      <td className="px-4 py-4 text-sm text-gray-600 dark:text-gray-300">
+      <td className="px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300">
         {product.brandName ?? <span className="text-gray-300 dark:text-gray-600">—</span>}
       </td>
 
       {/* Availability */}
-      <td className="px-4 py-4">
+      <td className="px-4 py-2.5">
         <Badge size="sm" color={availabilityColor(product.availabilityStatus)}>
           {product.availabilityStatus?.replace("_", " ") ?? "—"}
         </Badge>
       </td>
 
       {/* Flags */}
-      <td className="px-4 py-4">
+      <td className="px-4 py-2.5">
         <div className="flex flex-col gap-1">
           {product.isSuperDeal && (
             <span className="inline-flex items-center gap-1 rounded-full bg-yellow-100 dark:bg-yellow-500/10 px-2 py-0.5 text-[10px] font-semibold text-yellow-700 dark:text-yellow-400">
@@ -148,7 +148,7 @@ function ProductRow({
       </td>
 
       {/* Variants */}
-      <td className="px-4 py-4">
+      <td className="px-4 py-2.5">
         <span
           className={`inline-flex items-center justify-center rounded-full w-7 h-7 text-xs font-bold ${
             product.variants.length > 0
@@ -161,19 +161,19 @@ function ProductRow({
       </td>
 
       {/* Status */}
-      <td className="px-4 py-4">
+      <td className="px-4 py-2.5">
         <Badge size="sm" color={statusColor(product.status)}>
           {product.status}
         </Badge>
       </td>
 
       {/* Created */}
-      <td className="px-4 py-4 text-xs text-gray-500 dark:text-gray-400">
+      <td className="px-4 py-2.5 text-xs text-gray-500 dark:text-gray-400">
         {formatDate(product.createdAt)}
       </td>
 
       {/* Chevron */}
-      <td className="px-4 py-4">
+      <td className="px-4 py-2.5">
         <span className="flex items-center justify-end text-gray-300 dark:text-gray-600 group-hover:text-brand-400 transition-colors">
           <svg
             width="16"
@@ -198,7 +198,7 @@ function ProductRow({
 function SkeletonRow() {
   return (
     <tr className="border-b border-gray-100 dark:border-gray-800">
-      <td className="px-5 py-4">
+      <td className="px-4 py-2.5">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 flex-shrink-0 rounded-xl bg-gray-200 dark:bg-gray-700 animate-pulse" />
           <div className="space-y-2">
@@ -208,7 +208,7 @@ function SkeletonRow() {
         </div>
       </td>
       {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-        <td key={i} className="px-4 py-4">
+        <td key={i} className="px-4 py-2.5">
           <div className="h-3 w-16 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" />
         </td>
       ))}
@@ -330,17 +330,17 @@ export default function Products() {
       <PageBreadcrumb pageTitle="Products" />
 
       {/* Stats row */}
-      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="mb-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="flex items-center gap-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-4"
+            className="flex items-center gap-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4"
           >
             <span className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${stat.color}`}>
               {stat.icon}
             </span>
             <div>
-              <p className="text-2xl font-bold text-gray-800 dark:text-white/90 leading-none">
+              <p className="text-xl font-bold text-gray-800 dark:text-white/90 leading-none">
                 {loading ? "—" : stat.value}
               </p>
               <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
@@ -352,8 +352,8 @@ export default function Products() {
       </div>
 
       {/* Toolbar */}
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-base font-semibold text-gray-800 dark:text-white/90">
           All Products
           {!loading && (
             <span className="ml-2 text-sm font-normal text-gray-400">
@@ -369,10 +369,10 @@ export default function Products() {
               const isActive = statusFilter === value;
               const activeClass =
                 value === "ALL"
-                  ? "bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-sm"
+                  ? "bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-theme-xs"
                   : value === "ACTIVE"
-                  ? "bg-white dark:bg-gray-700 text-success-600 dark:text-success-400 shadow-sm"
-                  : "bg-white dark:bg-gray-700 text-error-600 dark:text-error-400 shadow-sm";
+                  ? "bg-white dark:bg-gray-700 text-success-600 dark:text-success-400 shadow-theme-xs"
+                  : "bg-white dark:bg-gray-700 text-error-600 dark:text-error-400 shadow-theme-xs";
               return (
                 <button
                   key={value}
@@ -410,7 +410,7 @@ export default function Products() {
 
       {/* Error state */}
       {error && (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-16 text-center">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-16 text-center">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mb-3 text-red-400">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
@@ -425,16 +425,16 @@ export default function Products() {
 
       {/* Table */}
       {!error && (
-        <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03]">
+        <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-white/[0.02]">
+                <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
                   {["Product", "Type", "Brand", "Availability", "Flags", "Variants", "Status", "Created", ""].map(
                     (col) => (
                       <th
                         key={col}
-                        className="px-4 py-3.5 first:pl-5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
+                        className="px-4 py-2.5 first:pl-5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
                       >
                         {col}
                       </th>
@@ -486,7 +486,7 @@ export default function Products() {
 
           {/* Pagination */}
           {!loading && totalPages > 1 && (
-            <div className="flex items-center justify-between gap-3 border-t border-gray-100 dark:border-gray-800 px-4 py-3">
+            <div className="flex items-center justify-between gap-3 border-t border-gray-100 dark:border-gray-800 px-4 py-2.5">
               <span className="text-xs text-gray-500 dark:text-gray-400">
                 Page {page + 1} of {totalPages} · {totalElements} products
               </span>

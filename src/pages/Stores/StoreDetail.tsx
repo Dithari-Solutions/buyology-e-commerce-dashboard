@@ -158,8 +158,8 @@ function EditStoreModal({ isOpen, onClose, store, onSaved }: EditStoreModalProps
   const currentBanner = bannerPreview ?? store.bannerUrl;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="mx-4 max-w-lg w-full p-6 sm:p-8">
-      <h2 className="mb-6 text-lg font-semibold text-gray-800 dark:text-white/90">Edit Store</h2>
+    <Modal isOpen={isOpen} onClose={onClose} className="mx-4 max-w-lg w-full p-4 sm:p-5">
+      <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">Edit Store</h2>
 
       <div className="space-y-4">
         <div>
@@ -198,7 +198,7 @@ function EditStoreModal({ isOpen, onClose, store, onSaved }: EditStoreModalProps
               className="mb-2 h-24 w-full rounded-xl object-cover border border-gray-200 dark:border-gray-700"
             />
           )}
-          <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/40 px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+          <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/40 px-4 py-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-gray-400 flex-shrink-0">
               <rect x="3" y="3" width="18" height="18" rx="2" />
               <circle cx="8.5" cy="8.5" r="1.5" />
@@ -218,18 +218,18 @@ function EditStoreModal({ isOpen, onClose, store, onSaved }: EditStoreModalProps
         </p>
       )}
 
-      <div className="mt-6 flex justify-end gap-3">
+      <div className="mt-4 flex justify-end gap-3">
         <button
           onClick={onClose}
           disabled={saving}
-          className="rounded-xl border border-gray-200 dark:border-gray-700 px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+          className="rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors disabled:opacity-60"
+          className="flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 transition-colors disabled:opacity-60"
         >
           {saving && <Spinner />}
           {saving ? "Saving…" : "Save Changes"}
@@ -296,8 +296,8 @@ function TranslationModal({ isOpen, onClose, storeId, existing, onSaved }: Trans
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="mx-4 max-w-md w-full p-6 sm:p-8">
-      <h2 className="mb-6 text-lg font-semibold text-gray-800 dark:text-white/90">
+    <Modal isOpen={isOpen} onClose={onClose} className="mx-4 max-w-md w-full p-4 sm:p-5">
+      <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">
         {existing ? "Edit Translation" : "Add Translation"}
       </h2>
 
@@ -342,18 +342,18 @@ function TranslationModal({ isOpen, onClose, storeId, existing, onSaved }: Trans
         </p>
       )}
 
-      <div className="mt-6 flex justify-end gap-3">
+      <div className="mt-4 flex justify-end gap-3">
         <button
           onClick={onClose}
           disabled={saving}
-          className="rounded-xl border border-gray-200 dark:border-gray-700 px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+          className="rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors disabled:opacity-60"
+          className="flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 transition-colors disabled:opacity-60"
         >
           {saving && <Spinner />}
           {saving ? "Saving…" : "Save"}
@@ -483,8 +483,8 @@ function LocationModal({ isOpen, onClose, storeId, existing, onSaved }: Location
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="mx-4 max-w-2xl w-full p-6 sm:p-8">
-      <h2 className="mb-6 text-lg font-semibold text-gray-800 dark:text-white/90">
+    <Modal isOpen={isOpen} onClose={onClose} className="mx-4 max-w-2xl w-full p-4 sm:p-5">
+      <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">
         {existing ? "Edit Branch" : "Add Branch"}
       </h2>
 
@@ -581,18 +581,18 @@ function LocationModal({ isOpen, onClose, storeId, existing, onSaved }: Location
         </p>
       )}
 
-      <div className="mt-6 flex justify-end gap-3">
+      <div className="mt-4 flex justify-end gap-3">
         <button
           onClick={onClose}
           disabled={saving}
-          className="rounded-xl border border-gray-200 dark:border-gray-700 px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+          className="rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors disabled:opacity-60"
+          className="flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 transition-colors disabled:opacity-60"
         >
           {saving && <Spinner />}
           {saving ? "Saving…" : "Save"}
@@ -683,9 +683,9 @@ function ManageHoursModal({ isOpen, onClose, location }: ManageHoursModalProps) 
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="mx-4 max-w-xl w-full p-6 sm:p-8">
-      <h2 className="mb-1 text-lg font-semibold text-gray-800 dark:text-white/90">Operating Hours</h2>
-      <p className="mb-5 text-xs text-gray-500 dark:text-gray-400">{location.branchName}</p>
+    <Modal isOpen={isOpen} onClose={onClose} className="mx-4 max-w-xl w-full p-4 sm:p-5">
+      <h2 className="mb-1 text-base font-semibold text-gray-800 dark:text-white/90">Operating Hours</h2>
+      <p className="mb-4 text-xs text-gray-500 dark:text-gray-400">{location.branchName}</p>
 
       {loading ? (
         <div className="flex justify-center py-10">
@@ -740,18 +740,18 @@ function ManageHoursModal({ isOpen, onClose, location }: ManageHoursModalProps) 
         </p>
       )}
 
-      <div className="mt-6 flex justify-end gap-3">
+      <div className="mt-4 flex justify-end gap-3">
         <button
           onClick={onClose}
           disabled={saving}
-          className="rounded-xl border border-gray-200 dark:border-gray-700 px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+          className="rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
         >
           Close
         </button>
         <button
           onClick={handleSave}
           disabled={saving || loading}
-          className="flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors disabled:opacity-60"
+          className="flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 transition-colors disabled:opacity-60"
         >
           {saving && <Spinner />}
           {saving ? "Saving…" : "Save Hours"}
@@ -808,8 +808,8 @@ function AssignAdminModal({ isOpen, onClose, storeId, existing, onSaved }: Assig
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="mx-4 max-w-sm w-full p-6 sm:p-8">
-      <h2 className="mb-6 text-lg font-semibold text-gray-800 dark:text-white/90">
+    <Modal isOpen={isOpen} onClose={onClose} className="mx-4 max-w-sm w-full p-4 sm:p-5">
+      <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">
         {existing ? "Update Role" : "Assign Admin"}
       </h2>
 
@@ -828,7 +828,7 @@ function AssignAdminModal({ isOpen, onClose, storeId, existing, onSaved }: Assig
           </div>
         )}
         {existing && (
-          <div className="rounded-xl bg-gray-50 dark:bg-gray-800/60 px-4 py-3">
+          <div className="rounded-xl bg-gray-50 dark:bg-gray-800/60 px-4 py-2.5">
             <p className="text-xs text-gray-500 dark:text-gray-400">Admin</p>
             <p className="text-sm font-medium text-gray-800 dark:text-white/90">
               {existing.userFirstName} {existing.userLastName}
@@ -855,18 +855,18 @@ function AssignAdminModal({ isOpen, onClose, storeId, existing, onSaved }: Assig
         </p>
       )}
 
-      <div className="mt-6 flex justify-end gap-3">
+      <div className="mt-4 flex justify-end gap-3">
         <button
           onClick={onClose}
           disabled={saving}
-          className="rounded-xl border border-gray-200 dark:border-gray-700 px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+          className="rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors disabled:opacity-60"
+          className="flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 transition-colors disabled:opacity-60"
         >
           {saving && <Spinner />}
           {saving ? "Saving…" : existing ? "Update Role" : "Assign"}
@@ -1065,7 +1065,7 @@ export default function StoreDetail() {
 
   if (error || !store) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-20 text-center">
+      <div className="flex flex-col items-center justify-center rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-20 text-center">
         <p className="text-sm font-medium text-red-600 dark:text-red-400">{error ?? "Store not found."}</p>
         <button
           onClick={() => navigate("/stores")}
@@ -1093,9 +1093,9 @@ export default function StoreDetail() {
       <PageBreadcrumb pageTitle={store.name} />
 
       {/* Store header */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-50 dark:bg-brand-500/10 text-brand-500">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-500">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
               <polyline points="9 22 9 12 15 12 15 22" />
@@ -1103,7 +1103,7 @@ export default function StoreDetail() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-gray-800 dark:text-white/90">{store.name}</h1>
+              <h1 className="text-lg font-bold text-gray-800 dark:text-white/90">{store.name}</h1>
               <Badge size="sm" color={statusColor(store.status)}>{statusLabel(store.status)}</Badge>
             </div>
             <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{store.countryName}</p>
@@ -1122,14 +1122,14 @@ export default function StoreDetail() {
       </div>
 
       {/* Tabs */}
-      <div className="mb-6 flex gap-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 p-1 w-fit">
+      <div className="mb-4 flex gap-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 p-1 w-fit">
         {tabs.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
             className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
               tab === t.id
-                ? "bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-sm"
+                ? "bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-theme-xs"
                 : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
             }`}
           >
@@ -1140,11 +1140,11 @@ export default function StoreDetail() {
 
       {/* ── OVERVIEW TAB ─────────────────────────────────────────────────────── */}
       {tab === "overview" && (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Info grid */}
-          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6">
+          <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
             <h2 className="mb-4 text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Store Info</h2>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-3">
               {[
                 { label: "Slug", value: store.slug, mono: true },
                 { label: "Country", value: store.countryName },
@@ -1168,14 +1168,14 @@ export default function StoreDetail() {
           </div>
 
           {/* Translations */}
-          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6">
+          <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                 Translations ({store.translations.length})
               </h2>
               <button
                 onClick={() => { setEditingTranslation(null); setTranslationModalOpen(true); }}
-                className="flex items-center gap-1.5 rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-600 transition-colors"
+                className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700 transition-colors"
               >
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <line x1="12" y1="5" x2="12" y2="19" />
@@ -1186,7 +1186,7 @@ export default function StoreDetail() {
             </div>
 
             {store.translations.length === 0 ? (
-              <p className="text-sm text-gray-400 dark:text-gray-500 py-4 text-center">No translations yet.</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 py-3 text-center">No translations yet.</p>
             ) : (
               <div className="space-y-2">
                 {store.translations.map((t) => (
@@ -1249,7 +1249,7 @@ export default function StoreDetail() {
             </h2>
             <button
               onClick={() => { setEditingLocation(null); setLocationModalOpen(true); }}
-              className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors"
+              className="flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 transition-colors"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <line x1="12" y1="5" x2="12" y2="19" />
@@ -1264,7 +1264,7 @@ export default function StoreDetail() {
               <Spinner />
             </div>
           ) : locations.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-gray-800 py-20 text-center">
+            <div className="flex flex-col items-center justify-center rounded-xl border border-gray-200 dark:border-gray-800 py-20 text-center">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" className="mb-4 text-gray-300 dark:text-gray-600">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                 <circle cx="12" cy="10" r="3" />
@@ -1282,7 +1282,7 @@ export default function StoreDetail() {
               {locations.map((loc) => (
                 <div
                   key={loc.id}
-                  className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-5"
+                  className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-3">
@@ -1370,7 +1370,7 @@ export default function StoreDetail() {
             </h2>
             <button
               onClick={() => { setEditingAdmin(null); setAdminModalOpen(true); }}
-              className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors"
+              className="flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 transition-colors"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <line x1="12" y1="5" x2="12" y2="19" />
@@ -1385,14 +1385,14 @@ export default function StoreDetail() {
               <Spinner />
             </div>
           ) : (
-            <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03]">
+            <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
               <table className="w-full text-left">
                 <thead>
-                  <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-white/[0.02]">
+                  <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
                     {["Admin", "Role", "Status", "Assigned", "Actions"].map((col) => (
                       <th
                         key={col}
-                        className="px-4 py-3.5 first:pl-5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
+                        className="px-4 py-2.5 first:pl-5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
                       >
                         {col}
                       </th>
@@ -1413,7 +1413,7 @@ export default function StoreDetail() {
                         className="border-b border-gray-100 dark:border-gray-800 last:border-0"
                       >
                         {/* Name */}
-                        <td className="px-5 py-4">
+                        <td className="px-4 py-2.5">
                           <p className="text-sm font-semibold text-gray-800 dark:text-white/90">
                             {admin.userFirstName} {admin.userLastName}
                           </p>
@@ -1421,26 +1421,26 @@ export default function StoreDetail() {
                         </td>
 
                         {/* Role */}
-                        <td className="px-4 py-4">
+                        <td className="px-4 py-2.5">
                           <Badge size="sm" color={roleColor(admin.storeRole)}>
                             {admin.storeRole.replace("STORE_", "").replace("_", " ")}
                           </Badge>
                         </td>
 
                         {/* Status */}
-                        <td className="px-4 py-4">
+                        <td className="px-4 py-2.5">
                           <Badge size="sm" color={admin.isActive ? "success" : "error"}>
                             {admin.isActive ? "Active" : "Inactive"}
                           </Badge>
                         </td>
 
                         {/* Assigned at */}
-                        <td className="px-4 py-4 text-xs text-gray-500 dark:text-gray-400">
+                        <td className="px-4 py-2.5 text-xs text-gray-500 dark:text-gray-400">
                           {formatDate(admin.assignedAt)}
                         </td>
 
                         {/* Actions */}
-                        <td className="px-4 py-4">
+                        <td className="px-4 py-2.5">
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => { setEditingAdmin(admin); setAdminModalOpen(true); }}
@@ -1490,7 +1490,7 @@ export default function StoreDetail() {
             </h2>
             <button
               onClick={() => navigate(`/stores/${id}/products/assign`)}
-              className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors"
+              className="flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 transition-colors"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <line x1="12" y1="5" x2="12" y2="19" />
@@ -1505,7 +1505,7 @@ export default function StoreDetail() {
               <Spinner />
             </div>
           ) : storeProducts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 py-20 text-center">
+            <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 dark:border-gray-700 py-20 text-center">
               <p className="text-sm text-gray-400 dark:text-gray-500">No products assigned to this store yet.</p>
               <button
                 onClick={() => navigate(`/stores/${id}/products/assign`)}
@@ -1515,14 +1515,14 @@ export default function StoreDetail() {
               </button>
             </div>
           ) : (
-            <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03]">
+            <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-white/[0.02]">
+                  <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
                     {["Product", "Price", "Sale Price", "Discount", "Variants", "Status", ""].map((col) => (
                       <th
                         key={col}
-                        className="px-4 py-3.5 first:pl-5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
+                        className="px-4 py-2.5 first:pl-5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
                       >
                         {col}
                       </th>
@@ -1539,16 +1539,16 @@ export default function StoreDetail() {
                       : `Sale: ${sp.discountValue?.toLocaleString()}`;
                     return (
                       <tr key={sp.id} className="hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-colors">
-                        <td className="px-5 py-4">
+                        <td className="px-4 py-2.5">
                           <p className="font-semibold text-gray-800 dark:text-white/90 max-w-[180px] truncate">
                             {sp.productTitle}
                           </p>
                           <p className="mt-0.5 font-mono text-xs text-gray-400">{sp.productSku}</p>
                         </td>
-                        <td className="px-4 py-4 text-gray-700 dark:text-gray-300">
+                        <td className="px-4 py-2.5 text-gray-700 dark:text-gray-300">
                           {sp.storePrice.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                         </td>
-                        <td className="px-4 py-4">
+                        <td className="px-4 py-2.5">
                           {hasDiscount ? (
                             <span className="font-semibold text-green-600 dark:text-green-400">
                               {sp.effectivePrice.toLocaleString("en-US", { minimumFractionDigits: 2 })}
@@ -1557,16 +1557,16 @@ export default function StoreDetail() {
                             <span className="text-gray-300 dark:text-gray-600">—</span>
                           )}
                         </td>
-                        <td className="px-4 py-4 text-gray-600 dark:text-gray-300">{discountLabel}</td>
-                        <td className="px-4 py-4 text-gray-600 dark:text-gray-300">
+                        <td className="px-4 py-2.5 text-gray-600 dark:text-gray-300">{discountLabel}</td>
+                        <td className="px-4 py-2.5 text-gray-600 dark:text-gray-300">
                           {sp.variants.length} variant{sp.variants.length !== 1 ? "s" : ""}
                         </td>
-                        <td className="px-4 py-4">
+                        <td className="px-4 py-2.5">
                           <Badge size="sm" color={sp.isActive ? "success" : "error"}>
                             {sp.isActive ? "Active" : "Inactive"}
                           </Badge>
                         </td>
-                        <td className="px-4 py-4">
+                        <td className="px-4 py-2.5">
                           <button
                             onClick={() => navigate(`/stores/${id}/products`)}
                             className="text-xs text-brand-500 hover:text-brand-600 font-medium hover:underline"

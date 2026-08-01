@@ -45,7 +45,7 @@ export default function RevenueExportsPage() {
       <PageMeta title="Revenue Exports | Buyology" description="Revenue export history" />
       <PageBreadcrumb pageTitle="Revenue Exports" />
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
         <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
           Every revenue export is archived in object storage. This log shows who exported what.
         </p>
@@ -53,7 +53,7 @@ export default function RevenueExportsPage() {
         {loading ? (
           <p className="text-sm text-gray-500">Loading…</p>
         ) : exports.length === 0 ? (
-          <div className="rounded-xl border-2 border-dashed border-gray-200 p-8 text-center dark:border-gray-700">
+          <div className="rounded-xl border-2 border-dashed border-gray-200 p-5 text-center dark:border-gray-700">
             <p className="text-gray-500 dark:text-gray-400">No exports yet.</p>
           </div>
         ) : (

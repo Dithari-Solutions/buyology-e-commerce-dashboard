@@ -214,7 +214,7 @@ export default function NewAdmin() {
           description="Create a new admin account."
         />
         <PageBreadcrumb pageTitle="Create Admin" />
-        <div className="rounded-2xl border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-500/5 px-5 py-4">
+        <div className="rounded-xl border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-500/5 px-4 py-2.5">
           <p className="text-sm text-amber-700 dark:text-amber-400">
             Only a Super Admin can create admin accounts.
           </p>
@@ -235,16 +235,16 @@ export default function NewAdmin() {
       <PageBreadcrumb pageTitle="Create Admin" />
 
       <div className="max-w-2xl">
-        <form onSubmit={handleSubmit} noValidate className="space-y-6">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
           {submitError && (
-            <div className="rounded-2xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 px-5 py-3">
+            <div className="rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 px-4 py-2">
               <p className="text-sm text-red-600 dark:text-red-400">{submitError}</p>
             </div>
           )}
 
           {/* ── Email conflict, explained and actionable ───────────────────── */}
           {conflict && (
-            <div className="rounded-2xl border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-500/5 px-5 py-4">
+            <div className="rounded-xl border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-500/5 px-4 py-2.5">
               <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300">
                 {conflict.email} is already taken
               </h3>
@@ -296,8 +296,8 @@ export default function NewAdmin() {
           )}
 
           {/* ── Account ──────────────────────────────────────────────────── */}
-          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6">
-            <h2 className="mb-5 text-base font-semibold text-gray-800 dark:text-white/90">
+          <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+            <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">
               Admin Account
             </h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -349,8 +349,8 @@ export default function NewAdmin() {
           </div>
 
           {/* ── Roles ────────────────────────────────────────────────────── */}
-          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6">
-            <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+          <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+            <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h2 className="text-base font-semibold text-gray-800 dark:text-white/90">Roles</h2>
                 <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
@@ -426,19 +426,19 @@ export default function NewAdmin() {
           </div>
 
           {/* ── Actions ──────────────────────────────────────────────────── */}
-          <div className="flex items-center justify-end gap-3 pb-6">
+          <div className="flex items-center justify-end gap-3 pb-4">
             <button
               type="button"
               onClick={() => navigate("/admin/admins")}
               disabled={loading}
-              className="rounded-xl border border-gray-200 dark:border-gray-700 px-5 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-40"
+              className="rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-40"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="rounded-xl bg-brand-500 hover:bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="rounded-xl bg-brand-600 hover:bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {loading ? "Creating…" : "Create Admin"}
             </button>

@@ -11,10 +11,10 @@ export default function Avatars() {
         description="This is React.js Avatars Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
       />
       <PageBreadcrumb pageTitle="Avatars" />
-      <div className="space-y-5 sm:space-y-6">
+      <div className="space-y-4 sm:space-y-4">
         <ComponentCard title="Default Avatar">
           {/* Default Avatar (No Status) */}
-          <div className="flex flex-col items-center justify-center gap-5 sm:flex-row">
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Avatar src="/images/user/user-01.jpg" size="xsmall" />
             <Avatar src="/images/user/user-01.jpg" size="small" />
             <Avatar src="/images/user/user-01.jpg" size="medium" />
@@ -24,7 +24,7 @@ export default function Avatars() {
           </div>
         </ComponentCard>
         <ComponentCard title="Avatar with online indicator">
-          <div className="flex flex-col items-center justify-center gap-5 sm:flex-row">
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Avatar
               src="/images/user/user-01.jpg"
               size="xsmall"
@@ -58,7 +58,7 @@ export default function Avatars() {
           </div>
         </ComponentCard>
         <ComponentCard title="Avatar with Offline indicator">
-          <div className="flex flex-col items-center justify-center gap-5 sm:flex-row">
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Avatar
               src="/images/user/user-01.jpg"
               size="xsmall"
@@ -92,7 +92,7 @@ export default function Avatars() {
           </div>
         </ComponentCard>{" "}
         <ComponentCard title="Avatar with busy indicator">
-          <div className="flex flex-col items-center justify-center gap-5 sm:flex-row">
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Avatar
               src="/images/user/user-01.jpg"
               size="xsmall"

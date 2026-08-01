@@ -127,8 +127,8 @@ function EditStoreProductModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-md w-full">
-      <div className="p-6 space-y-5">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+      <div className="p-4 space-y-4">
+        <h3 className="text-base font-semibold text-gray-800 dark:text-white">
           Edit Store Product
         </h3>
         <p className="text-sm text-gray-500 dark:text-gray-400 -mt-3">
@@ -278,7 +278,7 @@ function EditStoreProductModal({
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-60 transition-colors"
+            className="flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60 transition-colors"
           >
             {saving && <Spinner />}
             Save Changes
@@ -376,9 +376,9 @@ function ManageVariantsModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-2xl w-full">
-      <div className="p-6 space-y-5">
+      <div className="p-4 space-y-4">
         <div>
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Manage Variants</h3>
+          <h3 className="text-base font-semibold text-gray-800 dark:text-white">Manage Variants</h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             {storeProduct.productTitle}
           </p>
@@ -388,7 +388,7 @@ function ManageVariantsModal({
         {variants.length > 0 ? (
           <div className="divide-y divide-gray-100 dark:divide-gray-700 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
             {variants.map((v) => (
-              <div key={v.id} className="px-4 py-3 bg-white dark:bg-gray-800">
+              <div key={v.id} className="px-4 py-2.5 bg-white dark:bg-gray-800">
                 {editingId === v.id ? (
                   <div className="space-y-3">
                     <p className="text-xs font-mono text-gray-500">{v.variantSku}</p>
@@ -431,7 +431,7 @@ function ManageVariantsModal({
                         type="button"
                         onClick={() => handleUpdate(v)}
                         disabled={saving}
-                        className="flex items-center gap-1.5 rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-600 disabled:opacity-60 transition-colors"
+                        className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700 disabled:opacity-60 transition-colors"
                       >
                         {saving && <Spinner />}
                         Save
@@ -489,7 +489,7 @@ function ManageVariantsModal({
             ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-4">
+          <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-3">
             No variants assigned yet.
           </p>
         )}
@@ -537,7 +537,7 @@ function ManageVariantsModal({
               type="button"
               onClick={handleAdd}
               disabled={saving || !addForm.variantId.trim()}
-              className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-60 transition-colors"
+              className="flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60 transition-colors"
             >
               {saving && <Spinner />}
               Add Variant
@@ -576,7 +576,7 @@ interface RemoveConfirmModalProps {
 function RemoveConfirmModal({ isOpen, onClose, productTitle, removing, onConfirm }: RemoveConfirmModalProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-sm w-full">
-      <div className="p-6 space-y-4">
+      <div className="p-4 space-y-4">
         <h3 className="text-base font-semibold text-gray-800 dark:text-white">Remove Product from Store</h3>
         <p className="text-sm text-gray-500 dark:text-gray-400">
           Remove <strong>{productTitle}</strong> from your store? This will hide the product from customers. The global product is not affected.
@@ -668,11 +668,11 @@ export default function StoreProducts() {
       <PageMeta title="Store Products" description="Manage products assigned to this store" />
       <PageBreadcrumb pageTitle="Store Products" />
 
-      <div className="space-y-5">
+      <div className="space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-800 dark:text-white">Store Products</h1>
+            <h1 className="text-lg font-bold text-gray-800 dark:text-white">Store Products</h1>
             <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
               Products assigned to this store with local pricing and stock.
             </p>
@@ -680,7 +680,7 @@ export default function StoreProducts() {
           <button
             type="button"
             onClick={() => navigate(`/stores/${storeId}/products/assign`)}
-            className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-600 transition-colors"
+            className="flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 transition-colors"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <line x1="12" y1="5" x2="12" y2="19" />
@@ -697,7 +697,7 @@ export default function StoreProducts() {
             <span className="ml-2 text-sm">Loading products…</span>
           </div>
         ) : error ? (
-          <div className="rounded-2xl bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 p-6 text-center">
+          <div className="rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 p-4 text-center">
             <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
             <button
               type="button"
@@ -708,7 +708,7 @@ export default function StoreProducts() {
             </button>
           </div>
         ) : products.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 py-20 text-center">
+          <div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-700 py-20 text-center">
             <p className="text-sm text-gray-400 dark:text-gray-500">No products assigned to this store yet.</p>
             <button
               type="button"
@@ -719,36 +719,36 @@ export default function StoreProducts() {
             </button>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm">
+          <div className="overflow-hidden rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-theme-xs">
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Product
                     </th>
-                    <th className="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Price
                     </th>
-                    <th className="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Sale Price
                     </th>
-                    <th className="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Discount
                     </th>
-                    <th className="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Variants
                     </th>
-                    <th className="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Channel
                     </th>
-                    <th className="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Updated
                     </th>
-                    <th className="px-4 py-3.5" />
+                    <th className="px-4 py-2.5" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
@@ -760,7 +760,7 @@ export default function StoreProducts() {
                         className="hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-colors"
                       >
                         {/* Product */}
-                        <td className="px-5 py-4">
+                        <td className="px-4 py-2.5">
                           <p className="font-semibold text-gray-800 dark:text-white/90 truncate max-w-[200px]">
                             {sp.productTitle}
                           </p>
@@ -768,12 +768,12 @@ export default function StoreProducts() {
                         </td>
 
                         {/* Store Price */}
-                        <td className="px-4 py-4 text-gray-700 dark:text-gray-300">
+                        <td className="px-4 py-2.5 text-gray-700 dark:text-gray-300">
                           {formatPrice(sp.storePrice)}
                         </td>
 
                         {/* Effective / Sale Price */}
-                        <td className="px-4 py-4">
+                        <td className="px-4 py-2.5">
                           {hasDiscount ? (
                             <span className="font-semibold text-green-600 dark:text-green-400">
                               {formatPrice(sp.effectivePrice)}
@@ -784,12 +784,12 @@ export default function StoreProducts() {
                         </td>
 
                         {/* Discount */}
-                        <td className="px-4 py-4 text-gray-600 dark:text-gray-300">
+                        <td className="px-4 py-2.5 text-gray-600 dark:text-gray-300">
                           {discountLabel(sp)}
                         </td>
 
                         {/* Variants */}
-                        <td className="px-4 py-4">
+                        <td className="px-4 py-2.5">
                           <button
                             type="button"
                             onClick={() => setVariantTarget(sp)}
@@ -800,14 +800,14 @@ export default function StoreProducts() {
                         </td>
 
                         {/* Status */}
-                        <td className="px-4 py-4">
+                        <td className="px-4 py-2.5">
                           <Badge color={sp.isActive ? "success" : "error"}>
                             {sp.isActive ? "Active" : "Inactive"}
                           </Badge>
                         </td>
 
                         {/* Channel — B2C / B2B */}
-                        <td className="px-4 py-4">
+                        <td className="px-4 py-2.5">
                           <div className="flex flex-wrap gap-1.5">
                             <Badge color={sp.b2cEnabled ? "success" : "light"}>
                               B2C {sp.b2cEnabled ? "On" : "Off"}
@@ -819,12 +819,12 @@ export default function StoreProducts() {
                         </td>
 
                         {/* Updated */}
-                        <td className="px-4 py-4 text-gray-500 dark:text-gray-400">
+                        <td className="px-4 py-2.5 text-gray-500 dark:text-gray-400">
                           {formatDate(sp.updatedAt)}
                         </td>
 
                         {/* Actions */}
-                        <td className="px-4 py-4">
+                        <td className="px-4 py-2.5">
                           <div className="flex items-center gap-1">
                             <button
                               type="button"

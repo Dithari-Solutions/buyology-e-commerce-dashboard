@@ -59,9 +59,9 @@ function ConfirmDialog({
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-6 shadow-xl">
+      <div className="w-full max-w-sm rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-4 shadow-theme-lg">
         <h3 className="text-base font-semibold text-gray-800 dark:text-white/90 mb-2">{title}</h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{message}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{message}</p>
         <div className="flex gap-3 justify-end">
           <button
             onClick={onCancel}
@@ -101,7 +101,7 @@ function SkeletonRow() {
   return (
     <tr className="border-b border-gray-100 dark:border-gray-800 animate-pulse">
       {Array.from({ length: 6 }).map((_, i) => (
-        <td key={i} className="px-4 py-3">
+        <td key={i} className="px-4 py-2.5">
           <div className="h-4 rounded-full bg-gray-200 dark:bg-gray-700" style={{ width: `${60 + (i % 3) * 20}%` }} />
         </td>
       ))}
@@ -133,32 +133,32 @@ function UserRow({
       className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors cursor-pointer"
       onClick={() => onView(user.authCredentialId)}
     >
-      <td className="px-4 py-3">
+      <td className="px-4 py-2.5">
         <span className="text-sm font-medium text-gray-800 dark:text-white/90">
           {fullName(user.firstName, user.lastName)}
         </span>
       </td>
-      <td className="px-4 py-3">
+      <td className="px-4 py-2.5">
         <span className="text-sm text-gray-500 dark:text-gray-400">
           {user.email ?? <span className="italic text-gray-400 dark:text-gray-500">No email</span>}
         </span>
       </td>
-      <td className="px-4 py-3">
+      <td className="px-4 py-2.5">
         <Badge size="sm" color={typeBadgeColor(user.userType)}>
           {user.userType}
         </Badge>
       </td>
-      <td className="px-4 py-3">
+      <td className="px-4 py-2.5">
         <Badge size="sm" color={statusBadgeColor(user.status)}>
           {user.status}
         </Badge>
       </td>
-      <td className="px-4 py-3">
+      <td className="px-4 py-2.5">
         <span className="text-sm text-gray-500 dark:text-gray-400">
           {formatDate(user.joinedAt)}
         </span>
       </td>
-      <td className="px-4 py-3">
+      <td className="px-4 py-2.5">
         <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => onView(user.authCredentialId)}
@@ -210,7 +210,7 @@ function Pagination({
   const to = Math.min((page + 1) * size, totalElements);
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 py-3 border-t border-gray-100 dark:border-gray-800">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 py-2.5 border-t border-gray-100 dark:border-gray-800">
       <p className="text-xs text-gray-500 dark:text-gray-400">
         Showing <span className="font-medium text-gray-700 dark:text-gray-300">{from}–{to}</span> of{" "}
         <span className="font-medium text-gray-700 dark:text-gray-300">{totalElements}</span> users
@@ -493,7 +493,7 @@ export default function Users() {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`rounded-xl px-4 py-3 text-sm font-medium shadow-lg text-white transition-all ${
+            className={`rounded-xl px-4 py-2.5 text-sm font-medium shadow-theme-md text-white transition-all ${
               t.type === "success" ? "bg-green-500" : "bg-red-500"
             }`}
           >
@@ -503,17 +503,17 @@ export default function Users() {
       </div>
 
       {/* Stats */}
-      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="mb-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="flex items-center gap-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-4"
+            className="flex items-center gap-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4"
           >
             <span className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${stat.color}`}>
               {stat.icon}
             </span>
             <div>
-              <p className="text-2xl font-bold text-gray-800 dark:text-white/90 leading-none">
+              <p className="text-xl font-bold text-gray-800 dark:text-white/90 leading-none">
                 {loading ? "—" : stat.value}
               </p>
               <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{stat.label}</p>
@@ -523,8 +523,8 @@ export default function Users() {
       </div>
 
       {/* Toolbar */}
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-base font-semibold text-gray-800 dark:text-white/90">
           All Users
           {!loading && (
             <span className="ml-2 text-sm font-normal text-gray-400">
@@ -549,7 +549,7 @@ export default function Users() {
                 onClick={() => setStatusFilter(value)}
                 className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
                   statusFilter === value
-                    ? "bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-sm"
+                    ? "bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-theme-xs"
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                 }`}
               >
@@ -590,7 +590,7 @@ export default function Users() {
 
       {/* Error */}
       {error && (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-16 text-center">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-16 text-center">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mb-3 text-red-400">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
@@ -608,15 +608,15 @@ export default function Users() {
 
       {/* Table */}
       {!error && (
-        <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03]">
+        <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-white/[0.02]">
+                <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-900">
                   {["Name", "Email", "Type", "Status", "Joined", "Actions"].map((col) => (
                     <th
                       key={col}
-                      className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                      className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400"
                     >
                       {col}
                     </th>

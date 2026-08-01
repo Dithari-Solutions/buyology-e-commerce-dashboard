@@ -49,13 +49,13 @@ export default function SupplierTrashPage() {
       <PageMeta title="Trash | Supplier Portal" description="Your deleted products" />
       <PageBreadcrumb pageTitle="Trash" />
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
         <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
           Deleted products. Restoring requires superadmin approval.
         </p>
 
         {msg && (
-          <div className={`mb-4 rounded-xl px-4 py-3 text-sm ${msg.kind === "ok" ? "bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400" : "bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400"}`}>
+          <div className={`mb-4 rounded-xl px-4 py-2.5 text-sm ${msg.kind === "ok" ? "bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400" : "bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400"}`}>
             {msg.text}
           </div>
         )}
@@ -65,7 +65,7 @@ export default function SupplierTrashPage() {
         ) : error ? (
           <p className="text-sm text-red-600">{error}</p>
         ) : items.length === 0 ? (
-          <div className="rounded-xl border-2 border-dashed border-gray-200 p-8 text-center dark:border-gray-700">
+          <div className="rounded-xl border-2 border-dashed border-gray-200 p-5 text-center dark:border-gray-700">
             <p className="text-gray-500 dark:text-gray-400">Trash is empty.</p>
           </div>
         ) : (

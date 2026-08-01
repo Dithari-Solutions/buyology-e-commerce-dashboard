@@ -71,34 +71,34 @@ export default function SupplierRevenuesPage() {
       <PageMeta title="Supplier Revenues | Buyology" description="Per-supplier revenue" />
       <PageBreadcrumb pageTitle="Supplier Revenues" />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
           <p className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1">Gross Supplier Revenue</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">
+          <p className="text-xl font-bold text-gray-900 dark:text-white">
             {overview ? fmtMoney(overview.totalRevenue) : "—"}
           </p>
         </div>
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
           <p className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1">Refunds</p>
-          <p className="text-2xl font-bold text-red-500">
+          <p className="text-xl font-bold text-red-500">
             {overview ? `-${fmtMoney(overview.totalRefunded)}` : "—"}
           </p>
         </div>
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
           <p className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1">Net Supplier Revenue</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">
+          <p className="text-xl font-bold text-gray-900 dark:text-white">
             {overview ? fmtMoney(overview.netRevenue) : "—"}
           </p>
         </div>
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
           <p className="text-xs uppercase text-gray-500 dark:text-gray-400 mb-1">Total Orders</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">
+          <p className="text-xl font-bold text-gray-900 dark:text-white">
             {overview ? overview.totalOrders.toLocaleString() : "—"}
           </p>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
         <RevenueFilterBar
           period={period}
           onPeriodChange={setPeriod}
@@ -137,7 +137,7 @@ export default function SupplierRevenuesPage() {
         {loading ? (
           <p className="text-sm text-gray-500">Loading…</p>
         ) : !overview || overview.suppliers.length === 0 ? (
-          <div className="rounded-xl border-2 border-dashed border-gray-200 p-8 text-center dark:border-gray-700">
+          <div className="rounded-xl border-2 border-dashed border-gray-200 p-5 text-center dark:border-gray-700">
             <p className="text-gray-500 dark:text-gray-400">No supplier revenue for the selected period.</p>
           </div>
         ) : (
@@ -183,7 +183,7 @@ export default function SupplierRevenuesPage() {
 
       {/* Drill-in: single supplier bucketed report */}
       {selected && (
-        <div className="mt-6 rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-base font-semibold text-gray-900 dark:text-white">
               {selected.name} — {period.toLowerCase()} breakdown
@@ -202,7 +202,7 @@ export default function SupplierRevenuesPage() {
           ) : (
             <>
               <h4 className="mb-2 text-xs font-semibold uppercase text-gray-500">Summary by period</h4>
-              <div className="overflow-x-auto mb-6">
+              <div className="overflow-x-auto mb-4">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-100 dark:border-gray-800 text-left text-xs uppercase text-gray-500">

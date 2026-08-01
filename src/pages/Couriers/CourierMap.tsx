@@ -118,7 +118,7 @@ export default function CourierMap() {
     <div className="p-4 flex flex-col gap-4 h-full">
       <PageBreadCrumb pageTitle="Courier Fleet Map" />
 
-      <div className="rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 flex flex-col" style={{ height: "calc(100vh - 180px)" }}>
+      <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 flex flex-col" style={{ height: "calc(100vh - 180px)" }}>
         {/* Filters */}
         <FilterBar filters={filters} onChange={setFilters} />
 

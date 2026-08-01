@@ -195,10 +195,10 @@ export default function AssignProduct() {
       <PageMeta title="Assign Product" description="Assign a global product to this store" />
       <PageBreadcrumb pageTitle="Assign Product" />
 
-      <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+      <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl">
 
         {/* Step 1 — Select Product */}
-        <div className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-sm space-y-4">
+        <div className="rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 shadow-theme-xs space-y-4">
           <h2 className="text-base font-semibold text-gray-800 dark:text-white">
             1. Select Global Product
           </h2>
@@ -228,14 +228,14 @@ export default function AssignProduct() {
           {!selectedProduct && pickerOpen && (
             <div className="rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden divide-y divide-gray-50 dark:divide-gray-700/50 max-h-60 overflow-y-auto">
               {loadingProducts ? (
-                <div className="flex items-center justify-center gap-2 py-6 text-gray-400">
+                <div className="flex items-center justify-center gap-2 py-4 text-gray-400">
                   <Spinner />
                   <span className="text-sm">Loading…</span>
                 </div>
               ) : productError ? (
-                <p className="py-4 text-center text-sm text-red-500">{productError}</p>
+                <p className="py-3 text-center text-sm text-red-500">{productError}</p>
               ) : filteredProducts.length === 0 ? (
-                <p className="py-4 text-center text-sm text-gray-400">No products found.</p>
+                <p className="py-3 text-center text-sm text-gray-400">No products found.</p>
               ) : (
                 filteredProducts.slice(0, 50).map((p) => (
                   <button
@@ -243,7 +243,7 @@ export default function AssignProduct() {
                     type="button"
                     onMouseDown={(e) => e.preventDefault()} /* keep input focus so onBlur doesn't pre-empt the click */
                     onClick={() => handleSelectProduct(p)}
-                    className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left bg-white dark:bg-gray-800 hover:bg-brand-50 dark:hover:bg-brand-500/10 transition-colors"
+                    className="w-full flex items-center justify-between gap-3 px-4 py-2.5 text-left bg-white dark:bg-gray-800 hover:bg-brand-50 dark:hover:bg-brand-500/10 transition-colors"
                   >
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-gray-800 dark:text-white truncate">{p.title}</p>
@@ -268,7 +268,7 @@ export default function AssignProduct() {
 
           {/* Selected product summary */}
           {selectedProduct && (
-            <div className="flex items-center justify-between rounded-xl bg-brand-50 dark:bg-brand-500/10 border border-brand-100 dark:border-brand-500/20 px-4 py-3">
+            <div className="flex items-center justify-between rounded-xl bg-brand-50 dark:bg-brand-500/10 border border-brand-100 dark:border-brand-500/20 px-4 py-2.5">
               <div>
                 <p className="text-sm font-semibold text-brand-700 dark:text-brand-400">
                   {selectedProduct.title}
@@ -294,7 +294,7 @@ export default function AssignProduct() {
 
         {/* Step 2 — Pricing & Discount */}
         {selectedProduct && (
-          <div className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-sm space-y-4">
+          <div className="rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 shadow-theme-xs space-y-4">
             <h2 className="text-base font-semibold text-gray-800 dark:text-white">
               2. Pricing &amp; Discount
             </h2>
@@ -454,7 +454,7 @@ export default function AssignProduct() {
 
         {/* Step 3 — Variants */}
         {selectedProduct && variantRows.length > 0 && (
-          <div className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-sm space-y-4">
+          <div className="rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 shadow-theme-xs space-y-4">
             <div>
               <h2 className="text-base font-semibold text-gray-800 dark:text-white">
                 3. Variants
@@ -529,14 +529,14 @@ export default function AssignProduct() {
             <button
               type="button"
               onClick={() => navigate(`/stores/${storeId}/products`)}
-              className="rounded-xl px-5 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="rounded-xl px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-600 disabled:opacity-60 transition-colors"
+              className="flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60 transition-colors"
             >
               {submitting && <Spinner />}
               Assign Product

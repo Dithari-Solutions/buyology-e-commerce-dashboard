@@ -51,13 +51,13 @@ const labelCls = "block text-xs font-medium text-gray-600 dark:text-gray-400 mb-
 function SkeletonRow() {
   return (
     <tr className="border-b border-gray-100 dark:border-gray-800">
-      <td className="px-5 py-4">
+      <td className="px-4 py-2.5">
         <div className="space-y-2">
           <div className="h-3.5 w-36 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
         </div>
       </td>
       {[1, 2, 3, 4, 5, 6].map((i) => (
-        <td key={i} className="px-4 py-4">
+        <td key={i} className="px-4 py-2.5">
           <div className="h-3 w-16 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" />
         </td>
       ))}
@@ -131,8 +131,8 @@ function CountryFormModal({
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="mx-4 max-w-md w-full p-6 sm:p-8">
-      <h2 className="mb-6 text-lg font-semibold text-gray-800 dark:text-white/90">
+    <Modal isOpen={isOpen} onClose={onClose} className="mx-4 max-w-md w-full p-4 sm:p-5">
+      <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">
         {editingId ? "Edit Country" : "New Country"}
       </h2>
 
@@ -235,18 +235,18 @@ function CountryFormModal({
         </p>
       )}
 
-      <div className="mt-6 flex justify-end gap-3">
+      <div className="mt-4 flex justify-end gap-3">
         <button
           onClick={onClose}
           disabled={saving}
-          className="rounded-xl border border-gray-200 dark:border-gray-700 px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+          className="rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           onClick={() => onSave(form)}
           disabled={saving}
-          className="flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors disabled:opacity-60"
+          className="flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 transition-colors disabled:opacity-60"
         >
           {saving && (
             <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
@@ -281,9 +281,9 @@ function DeactivateConfirmModal({
   deactivateError: string | null;
 }) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="mx-4 max-w-sm w-full p-6 sm:p-8">
+    <Modal isOpen={isOpen} onClose={onClose} className="mx-4 max-w-sm w-full p-4 sm:p-5">
       <div className="flex flex-col items-center text-center">
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-warning-50 dark:bg-warning-500/10 mb-4">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-warning-50 dark:bg-warning-500/10 mb-4">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-warning-500">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
@@ -295,7 +295,7 @@ function DeactivateConfirmModal({
           Are you sure you want to deactivate
         </p>
         <p className="text-sm font-semibold text-gray-800 dark:text-white/90 mb-4">"{countryName}"?</p>
-        <p className="text-xs text-gray-400 dark:text-gray-500 mb-6">
+        <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">
           This sets <code className="font-mono">isActive</code> to <code className="font-mono">false</code>. You can re-activate it via the edit action.
         </p>
 
@@ -534,17 +534,17 @@ export default function Countries() {
       <PageBreadcrumb pageTitle="Countries" />
 
       {/* Stats */}
-      <div className="mb-6 grid grid-cols-3 gap-4">
+      <div className="mb-4 grid grid-cols-3 gap-4">
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="flex items-center gap-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-4"
+            className="flex items-center gap-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4"
           >
             <span className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${stat.color}`}>
               {stat.icon}
             </span>
             <div>
-              <p className="text-2xl font-bold text-gray-800 dark:text-white/90 leading-none">
+              <p className="text-xl font-bold text-gray-800 dark:text-white/90 leading-none">
                 {loading ? "—" : stat.value}
               </p>
               <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{stat.label}</p>
@@ -554,8 +554,8 @@ export default function Countries() {
       </div>
 
       {/* Toolbar */}
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-base font-semibold text-gray-800 dark:text-white/90">
           All Countries
           {!loading && (
             <span className="ml-2 text-sm font-normal text-gray-400">({filtered.length})</span>
@@ -571,7 +571,7 @@ export default function Countries() {
                 onClick={() => setStatusFilter(value)}
                 className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
                   statusFilter === value
-                    ? "bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-sm"
+                    ? "bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-theme-xs"
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                 }`}
               >
@@ -600,7 +600,7 @@ export default function Countries() {
           {/* New Country */}
           <button
             onClick={openCreate}
-            className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors whitespace-nowrap"
+            className="flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 transition-colors whitespace-nowrap"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <line x1="12" y1="5" x2="12" y2="19" />
@@ -613,7 +613,7 @@ export default function Countries() {
 
       {/* Error */}
       {error && (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-16 text-center">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-16 text-center">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mb-3 text-red-400">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
@@ -625,15 +625,15 @@ export default function Countries() {
 
       {/* Table */}
       {!error && (
-        <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03]">
+        <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-white/[0.02]">
+                <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
                   {["Name", "Code", "Currency", "Status", "Market", "Created", "Actions"].map((col) => (
                     <th
                       key={col}
-                      className="px-4 py-3.5 first:pl-5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
+                      className="px-4 py-2.5 first:pl-5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
                     >
                       {col}
                     </th>
@@ -650,33 +650,33 @@ export default function Countries() {
                       className="border-b border-gray-100 dark:border-gray-800 transition-colors hover:bg-brand-50/50 dark:hover:bg-white/[0.02]"
                     >
                       {/* Name */}
-                      <td className="px-5 py-4">
+                      <td className="px-4 py-2.5">
                         <p className="text-sm font-semibold text-gray-800 dark:text-white/90">{country.name}</p>
                       </td>
 
                       {/* Code */}
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-2.5">
                         <code className="rounded bg-gray-100 dark:bg-gray-800 px-2.5 py-1 text-xs font-mono font-semibold text-gray-700 dark:text-gray-200">
                           {country.code}
                         </code>
                       </td>
 
                       {/* Currency */}
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-2.5">
                         <span className="inline-flex items-center rounded-full bg-indigo-50 dark:bg-indigo-500/10 px-2.5 py-0.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400">
                           {country.currency}
                         </span>
                       </td>
 
                       {/* Status */}
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-2.5">
                         <Badge size="sm" color={country.isActive ? "success" : "error"}>
                           {country.isActive ? "Active" : "Inactive"}
                         </Badge>
                       </td>
 
                       {/* Market mode */}
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-2.5">
                         {(() => {
                           const meta = MARKET_MODE_META[marketMode(country.isActive, country.b2bEnabled)];
                           return <Badge size="sm" color={meta.color}>{meta.label}</Badge>;
@@ -684,12 +684,12 @@ export default function Countries() {
                       </td>
 
                       {/* Created */}
-                      <td className="px-4 py-4 text-xs text-gray-500 dark:text-gray-400">
+                      <td className="px-4 py-2.5 text-xs text-gray-500 dark:text-gray-400">
                         {formatDate(country.createdAt)}
                       </td>
 
                       {/* Actions */}
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-2.5">
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => openEdit(country)}

@@ -35,7 +35,7 @@ function Field({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         dir={dir}
-        className={`h-11 w-full rounded-lg border bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:outline-none focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${
+        className={`h-9 w-full rounded-lg border bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:outline-none focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${
           error
             ? "border-red-400 focus:border-red-400 focus:ring-red-400/20"
             : "border-gray-300 focus:border-[#FBBB14] focus:ring-[#FBBB14]/30 dark:border-gray-700"
@@ -65,8 +65,8 @@ function DeactivateModal({
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
-        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-500/10">
+      <div className="w-full max-w-sm rounded-xl bg-white dark:bg-gray-900 p-4 shadow-theme-lg">
+        <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-500/10">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-orange-500">
             <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
             <line x1="12" y1="9" x2="12" y2="13" />
@@ -79,7 +79,7 @@ function DeactivateModal({
         <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
           Are you sure you want to deactivate <strong>{brand.translations.find((t) => t.language === "EN")?.name ?? brand.id}</strong>? It will be soft-deactivated (status → INACTIVE). Products linked to this brand will retain the reference.
         </p>
-        <div className="mt-5 flex justify-end gap-3">
+        <div className="mt-4 flex justify-end gap-3">
           <button
             onClick={onCancel}
             disabled={loading}
@@ -114,7 +114,7 @@ function SkeletonRow() {
   return (
     <tr className="border-b border-gray-100 dark:border-gray-800">
       {[120, 100, 100, 60, 80].map((w, i) => (
-        <td key={i} className="px-5 py-4">
+        <td key={i} className="px-4 py-2.5">
           <div
             className="h-3 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse"
             style={{ width: w }}
@@ -263,7 +263,7 @@ export default function Brands() {
       )}
 
       {/* Stats */}
-      <div className="mb-6 grid grid-cols-3 gap-4">
+      <div className="mb-4 grid grid-cols-3 gap-4">
         {[
           { label: "Total Brands", value: brands.length, color: "text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10" },
           { label: "Active", value: activeCount, color: "text-success-600 dark:text-success-400 bg-success-50 dark:bg-success-500/10" },
@@ -271,10 +271,10 @@ export default function Brands() {
         ].map((s) => (
           <div
             key={s.label}
-            className="flex items-center gap-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-4"
+            className="flex items-center gap-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4"
           >
             <div>
-              <p className={`text-2xl font-bold leading-none ${s.color.split(" ")[0]} ${s.color.split(" ")[1]}`}>
+              <p className={`text-xl font-bold leading-none ${s.color.split(" ")[0]} ${s.color.split(" ")[1]}`}>
                 {loading ? "—" : s.value}
               </p>
               <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{s.label}</p>
@@ -284,8 +284,8 @@ export default function Brands() {
       </div>
 
       {/* Toolbar */}
-      <div className="mb-5 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-base font-semibold text-gray-800 dark:text-white/90">
           All Brands
           {!loading && (
             <span className="ml-2 text-sm font-normal text-gray-400">({brands.length})</span>
@@ -293,7 +293,7 @@ export default function Brands() {
         </h2>
         <button
           onClick={() => setShowForm((v) => !v)}
-          className="inline-flex items-center gap-2 rounded-[30px] bg-[#402F75] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#332560] transition-colors"
+          className="inline-flex items-center gap-2 rounded-lg bg-[#402F75] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#332560] transition-colors"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <line x1="12" y1="5" x2="12" y2="19" />
@@ -305,15 +305,15 @@ export default function Brands() {
 
       {/* Create form */}
       {showForm && (
-        <div className="mb-6 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-white/[0.03] overflow-hidden">
-          <div className="border-b border-gray-100 dark:border-gray-700 bg-[#402F75]/5 dark:bg-[#402F75]/20 px-6 py-4">
+        <div className="mb-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-hidden">
+          <div className="border-b border-gray-100 dark:border-gray-700 bg-[#402F75]/5 dark:bg-[#402F75]/20 px-4 py-2.5">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-[#402F75] dark:text-[#FBBB14]">
               New Brand
             </h3>
           </div>
-          <form onSubmit={handleCreate} noValidate className="p-6">
+          <form onSubmit={handleCreate} noValidate className="p-4">
             {createError && (
-              <div className="mb-4 flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-500/5 px-4 py-3">
+              <div className="mb-4 flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-500/5 px-4 py-2.5">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-red-500">
                   <circle cx="12" cy="12" r="10" />
                   <line x1="12" y1="8" x2="12" y2="12" />
@@ -322,7 +322,7 @@ export default function Brands() {
                 <p className="text-sm text-red-600 dark:text-red-400">{createError}</p>
               </div>
             )}
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <Field
                 label="Name AZ"
                 value={nameAz}
@@ -346,7 +346,7 @@ export default function Brands() {
                 error={submitted ? formErrors.nameAr : undefined}
               />
             </div>
-            <div className="mt-5 flex justify-end gap-3">
+            <div className="mt-4 flex justify-end gap-3">
               <button
                 type="button"
                 onClick={resetForm}
@@ -358,7 +358,7 @@ export default function Brands() {
               <button
                 type="submit"
                 disabled={creating}
-                className="inline-flex items-center gap-2 rounded-[30px] bg-[#402F75] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#332560] disabled:opacity-50 transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg bg-[#402F75] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#332560] disabled:opacity-50 transition-colors"
               >
                 {creating ? (
                   <>
@@ -379,7 +379,7 @@ export default function Brands() {
 
       {/* Error state */}
       {error && (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-14 text-center">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-500/5 py-14 text-center">
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mb-3 text-red-400">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
@@ -391,15 +391,15 @@ export default function Brands() {
 
       {/* Table */}
       {!error && (
-        <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03]">
+        <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-white/[0.02]">
+                <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
                   {["Name EN", "Name AZ", "Name AR", "Status", "Actions"].map((col) => (
                     <th
                       key={col}
-                      className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
+                      className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
                     >
                       {col}
                     </th>
@@ -415,21 +415,21 @@ export default function Brands() {
                       key={brand.id}
                       className="border-b border-gray-100 dark:border-gray-800 last:border-0"
                     >
-                      <td className="px-5 py-4 text-sm font-semibold text-gray-800 dark:text-white/90">
+                      <td className="px-4 py-2.5 text-sm font-semibold text-gray-800 dark:text-white/90">
                         {brand.translations.find((t) => t.language === "EN")?.name ?? "—"}
                       </td>
-                      <td className="px-5 py-4 text-sm text-gray-600 dark:text-gray-300">
+                      <td className="px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300">
                         {brand.translations.find((t) => t.language === "AZ")?.name ?? "—"}
                       </td>
-                      <td className="px-5 py-4 text-sm text-gray-600 dark:text-gray-300" dir="rtl">
+                      <td className="px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300" dir="rtl">
                         {brand.translations.find((t) => t.language === "AR")?.name ?? "—"}
                       </td>
-                      <td className="px-5 py-4">
+                      <td className="px-4 py-2.5">
                         <Badge size="sm" color={brand.status === "ACTIVE" ? "success" : "light"}>
                           {brand.status}
                         </Badge>
                       </td>
-                      <td className="px-5 py-4">
+                      <td className="px-4 py-2.5">
                         {brand.status === "ACTIVE" && (
                           <button
                             onClick={() => setDeactivating(brand)}

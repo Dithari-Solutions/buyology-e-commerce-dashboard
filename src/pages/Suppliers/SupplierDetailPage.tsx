@@ -188,8 +188,8 @@ export default function SupplierDetailPage() {
     }
   };
 
-  if (loading && !app) return <p className="p-6 text-sm text-gray-500">Loading…</p>;
-  if (error || !app) return <p className="p-6 text-sm text-red-500">{error ?? "Not found"}</p>;
+  if (loading && !app) return <p className="p-4 text-sm text-gray-500">Loading…</p>;
+  if (error || !app) return <p className="p-4 text-sm text-red-500">{error ?? "Not found"}</p>;
 
   const trashCutoff = supplier?.deletedAt
     ? new Date(new Date(supplier.deletedAt).getTime() + 30 * 24 * 3600 * 1000)
@@ -214,10 +214,10 @@ export default function SupplierDetailPage() {
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-3">
         {/* Application info + (if approved) supplier profile */}
-        <div className="lg:col-span-2 space-y-6">
-          <section className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="lg:col-span-2 space-y-4">
+          <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-base font-semibold text-gray-800 dark:text-white">Application</h2>
               <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[app.status]}`}>
@@ -261,7 +261,7 @@ export default function SupplierDetailPage() {
 
           {/* Supplier profile (post-approval, editable) */}
           {supplier && (
-            <section className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+            <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-base font-semibold text-gray-800 dark:text-white">Supplier profile</h2>
                 {!editing ? (
@@ -270,7 +270,7 @@ export default function SupplierDetailPage() {
                   </button>
                 ) : (
                   <div className="flex gap-2">
-                    <button onClick={saveProfile} disabled={saving} className="rounded-lg bg-brand-500 px-3 py-1.5 text-xs text-white hover:bg-brand-600 disabled:opacity-50">
+                    <button onClick={saveProfile} disabled={saving} className="rounded-lg bg-brand-600 px-3 py-1.5 text-xs text-white hover:bg-brand-700 disabled:opacity-50">
                       {saving ? "Saving…" : "Save"}
                     </button>
                     <button onClick={() => setEditing(false)} className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300">
@@ -348,7 +348,7 @@ export default function SupplierDetailPage() {
 
           {/* Assigned stores (post-approval) */}
           {supplier && (
-            <section className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+            <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
               <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-white">Assigned stores</h2>
               {stores.length === 0 ? (
                 <p className="text-xs text-gray-500">No stores configured.</p>
@@ -380,7 +380,7 @@ export default function SupplierDetailPage() {
 
           {/* Pending application: approve / reject */}
           {app.status === "PENDING" && !supplier && (
-            <section className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+            <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
               <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-white">Review</h2>
               <div className="space-y-4">
                 <div>
@@ -437,9 +437,9 @@ export default function SupplierDetailPage() {
         </div>
 
         {/* Sidebar: lifecycle */}
-        <div className="space-y-6">
+        <div className="space-y-4">
           {supplier && (
-            <section className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+            <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
               <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-white">Lifecycle</h2>
               <div className="flex flex-col gap-2">
                 {supplier.status === "ACTIVE" && (

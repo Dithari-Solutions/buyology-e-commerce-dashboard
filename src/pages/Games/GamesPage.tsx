@@ -163,9 +163,9 @@ export default function GamesPage() {
       <PageMeta title="Games Management | Buyology" description="Manage daily games and quiz questions" />
       <PageBreadcrumb pageTitle="Games" />
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Today indicator */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Today's active game:{" "}
             <span className="font-semibold text-gray-900 dark:text-white">
@@ -175,8 +175,8 @@ export default function GamesPage() {
         </div>
 
         {/* Daily game config */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
-          <h2 className="mb-4 text-lg font-semibold text-gray-800 dark:text-white">Daily Game Configuration</h2>
+        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+          <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-white">Daily Game Configuration</h2>
           <div className="flex flex-wrap gap-4 items-end">
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Date</label>
@@ -192,7 +192,7 @@ export default function GamesPage() {
               </select>
             </div>
             <button onClick={handleConfigSave} disabled={configSaving}
-              className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50">
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50">
               {configSaving ? "Saving..." : "Save Config"}
             </button>
             {configMsg && <p className="text-sm text-gray-600 dark:text-gray-400">{configMsg}</p>}
@@ -200,8 +200,8 @@ export default function GamesPage() {
         </div>
 
         {/* Token rewards (#11) — tokens granted per successful play */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
-          <h2 className="mb-1 text-lg font-semibold text-gray-800 dark:text-white">Token Rewards</h2>
+        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+          <h2 className="mb-1 text-base font-semibold text-gray-800 dark:text-white">Token Rewards</h2>
           <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
             Tokens awarded to a customer for a successful play.
           </p>
@@ -219,7 +219,7 @@ export default function GamesPage() {
                 className="w-32 rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
             </div>
             <button onClick={handleRewardSave} disabled={rewardSaving}
-              className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50">
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50">
               {rewardSaving ? "Saving..." : "Save Rewards"}
             </button>
             {rewardMsg && <p className="text-sm text-gray-600 dark:text-gray-400">{rewardMsg}</p>}
@@ -227,13 +227,13 @@ export default function GamesPage() {
         </div>
 
         {/* Quiz questions manager */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
+            <h2 className="text-base font-semibold text-gray-800 dark:text-white">
               Quiz Questions ({quizzes.length})
             </h2>
             <button onClick={openCreate}
-              className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600">
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
               + New Question
             </button>
           </div>
@@ -241,7 +241,7 @@ export default function GamesPage() {
           {loading ? (
             <p className="text-sm text-gray-500">Loading...</p>
           ) : quizzes.length === 0 ? (
-            <div className="rounded-xl border-2 border-dashed border-gray-200 p-8 text-center dark:border-gray-700">
+            <div className="rounded-xl border-2 border-dashed border-gray-200 p-5 text-center dark:border-gray-700">
               <p className="text-gray-500 dark:text-gray-400">No quiz questions yet. Create one to get started.</p>
             </div>
           ) : (
@@ -297,9 +297,9 @@ export default function GamesPage() {
         {/* Create/edit quiz modal */}
         {showQuizModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900 overflow-y-auto max-h-[90vh]">
+            <div className="w-full max-w-2xl rounded-xl bg-white p-4 shadow-theme-lg dark:bg-gray-900 overflow-y-auto max-h-[90vh]">
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+                <h3 className="text-base font-semibold text-gray-800 dark:text-white">
                   {editingId ? "Edit Quiz Question" : "Create Quiz Question"}
                 </h3>
                 <button onClick={() => setShowQuizModal(false)} className="text-gray-400 hover:text-gray-600">✕</button>
@@ -359,7 +359,7 @@ export default function GamesPage() {
 
               <div className="flex gap-3">
                 <button onClick={handleSaveQuiz} disabled={quizSaving}
-                  className="flex-1 rounded-lg bg-brand-500 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50">
+                  className="flex-1 rounded-lg bg-brand-600 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50">
                   {quizSaving ? "Saving..." : editingId ? "Save Changes" : "Create Question"}
                 </button>
                 <button onClick={() => setShowQuizModal(false)}

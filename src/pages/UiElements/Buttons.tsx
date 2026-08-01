@@ -12,10 +12,10 @@ export default function Buttons() {
         description="This is React.js Buttons Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
       />
       <PageBreadcrumb pageTitle="Buttons" />
-      <div className="space-y-5 sm:space-y-6">
+      <div className="space-y-4 sm:space-y-4">
         {/* Primary Button */}
         <ComponentCard title="Primary Button">
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-4">
             <Button size="sm" variant="primary">
               Button Text
             </Button>
@@ -26,7 +26,7 @@ export default function Buttons() {
         </ComponentCard>
         {/* Primary Button with Start Icon */}
         <ComponentCard title="Primary Button with Left Icon">
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-4">
             <Button
               size="sm"
               variant="primary"
@@ -45,7 +45,7 @@ export default function Buttons() {
         </ComponentCard>
         {/* Primary Button with Start Icon */}
         <ComponentCard title="Primary Button with Right Icon">
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-4">
             <Button
               size="sm"
               variant="primary"
@@ -64,7 +64,7 @@ export default function Buttons() {
         </ComponentCard>
         {/* Outline Button */}
         <ComponentCard title="Secondary Button">
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-4">
             {/* Outline Button */}
             <Button size="sm" variant="outline">
               Button Text
@@ -76,7 +76,7 @@ export default function Buttons() {
         </ComponentCard>
         {/* Outline Button with Start Icon */}
         <ComponentCard title="Outline Button with Left Icon">
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-4">
             <Button
               size="sm"
               variant="outline"
@@ -95,7 +95,7 @@ export default function Buttons() {
         </ComponentCard>{" "}
         {/* Outline Button with Start Icon */}
         <ComponentCard title="Outline Button with Right Icon">
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-4">
             <Button
               size="sm"
               variant="outline"

@@ -56,7 +56,7 @@ function Pagination({
   const pages = Array.from({ length: Math.min(7, totalPages) }, (_, i) => windowStart + i);
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-2 border-t border-gray-100 dark:border-gray-800 px-5 py-4">
+    <div className="flex flex-wrap items-center justify-center gap-2 border-t border-gray-100 dark:border-gray-800 px-4 py-2.5">
       <button
         onClick={() => onChange(page - 1)}
         disabled={page === 0}
@@ -157,9 +157,9 @@ export default function Admins() {
       />
 
       {/* Header */}
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-800 dark:text-white/90">Admins</h1>
+          <h1 className="text-xl font-semibold text-gray-800 dark:text-white/90">Admins</h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Assign roles and permissions to admin users.
           </p>
@@ -173,7 +173,7 @@ export default function Admins() {
           </button>
           <button
             onClick={() => navigate("/admin/admins/new")}
-            className="rounded-xl bg-brand-500 hover:bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors"
+            className="rounded-xl bg-brand-600 hover:bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors"
           >
             + Create Admin
           </button>
@@ -181,7 +181,7 @@ export default function Admins() {
       </div>
 
       {/* Stats */}
-      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
+      <div className="mb-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
         {[
           {
             label: "Total Admins",
@@ -201,12 +201,12 @@ export default function Admins() {
         ].map((s) => (
           <div
             key={s.label}
-            className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] px-5 py-4"
+            className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-2.5"
           >
             <p className="text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500">
               {s.label}
             </p>
-            <p className={`mt-1 text-2xl font-bold ${s.color}`}>{loading ? "—" : s.value}</p>
+            <p className={`mt-1 text-xl font-bold ${s.color}`}>{loading ? "—" : s.value}</p>
           </div>
         ))}
       </div>
@@ -253,13 +253,13 @@ export default function Admins() {
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] overflow-hidden">
+      <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
         {loading ? (
-          <div className="p-5">
+          <div className="p-4">
             <TableSkeleton />
           </div>
         ) : error ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center px-5">
+          <div className="flex flex-col items-center justify-center py-20 text-center px-4">
             <svg
               width="36"
               height="36"
@@ -282,7 +282,7 @@ export default function Admins() {
             </button>
           </div>
         ) : visible.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center px-5">
+          <div className="flex flex-col items-center justify-center py-20 text-center px-4">
             <svg
               width="40"
               height="40"
@@ -306,7 +306,7 @@ export default function Admins() {
                     {["Admin", "Email", "Roles", "Status", "Joined", ""].map((h) => (
                       <th
                         key={h}
-                        className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
+                        className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
                       >
                         {h}
                       </th>
@@ -320,7 +320,7 @@ export default function Admins() {
                       className="border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors cursor-pointer"
                       onClick={() => navigate(`/admin/admins/${admin.authCredentialId}`)}
                     >
-                      <td className="px-5 py-3.5">
+                      <td className="px-4 py-2.5">
                         <div className="flex items-center gap-3">
                           <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-500/20 text-brand-600 dark:text-brand-400 text-sm font-bold">
                             {initials(admin.firstName, admin.lastName)}
@@ -330,12 +330,12 @@ export default function Admins() {
                           </span>
                         </div>
                       </td>
-                      <td className="px-5 py-3.5">
+                      <td className="px-4 py-2.5">
                         <span className="text-sm text-gray-500 dark:text-gray-400">
                           {admin.email ?? "—"}
                         </span>
                       </td>
-                      <td className="px-5 py-3.5">
+                      <td className="px-4 py-2.5">
                         {admin.roles && admin.roles.length > 0 ? (
                           <div className="flex flex-wrap gap-1.5">
                             {admin.roles.map((role) => (
@@ -350,17 +350,17 @@ export default function Admins() {
                           </span>
                         )}
                       </td>
-                      <td className="px-5 py-3.5">
+                      <td className="px-4 py-2.5">
                         <Badge size="sm" color={statusColor(admin.status)}>
                           {admin.status}
                         </Badge>
                       </td>
-                      <td className="px-5 py-3.5">
+                      <td className="px-4 py-2.5">
                         <span className="text-sm text-gray-500 dark:text-gray-400">
                           {formatDate(admin.joinedAt)}
                         </span>
                       </td>
-                      <td className="px-5 py-3.5 text-right">
+                      <td className="px-4 py-2.5 text-right">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();

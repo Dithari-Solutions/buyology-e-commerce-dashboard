@@ -87,7 +87,7 @@ export default function CreditManagementPage() {
       <PageMeta title="B2B Credit Management" description="Manage B2B credit usages and payback policy" />
       <PageBreadcrumb pageTitle="B2B Credit" />
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
         <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <h3 className="text-base font-semibold text-gray-800 dark:text-white">Payback policy</h3>
@@ -119,7 +119,7 @@ export default function CreditManagementPage() {
         </div>
       </div>
 
-      <div className="mt-6 rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+      <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
         <div className="mb-4 flex items-center gap-3">
           <h3 className="text-base font-semibold text-gray-800 dark:text-white">Credit usages</h3>
           <select
@@ -198,8 +198,8 @@ export default function CreditManagementPage() {
 
       {editing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 dark:bg-gray-800">
-            <h3 className="text-lg font-semibold">Change deadline</h3>
+          <div className="w-full max-w-md rounded-xl bg-white p-4 dark:bg-gray-800">
+            <h3 className="text-base font-semibold">Change deadline</h3>
             <p className="mt-1 text-sm text-gray-500">
               Current due: {new Date(editing.dueAt).toLocaleString()}
             </p>
@@ -230,7 +230,7 @@ export default function CreditManagementPage() {
                 />
               </label>
             </div>
-            <div className="mt-6 flex justify-end gap-2">
+            <div className="mt-4 flex justify-end gap-2">
               <button
                 onClick={() => setEditing(null)}
                 className="rounded-md px-4 py-2 text-sm text-gray-600"

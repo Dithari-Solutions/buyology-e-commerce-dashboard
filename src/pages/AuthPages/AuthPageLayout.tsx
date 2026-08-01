@@ -13,18 +13,16 @@ export default function AuthLayout({
         {/* Decorative blobs */}
         <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#FBBB14]/10 rounded-full" />
         <div className="absolute -bottom-40 -right-20 w-[28rem] h-[28rem] bg-white/5 rounded-full" />
-        <div className="absolute top-1/2 right-0 translate-x-1/2 w-48 h-48 bg-[#FBBB14]/15 rounded-full" />
 
         <div className="relative z-10 text-center max-w-sm">
+          {/* Cropped to wordmark proportions — the tile's purple matches the
+              panel, so only the lettering reads. */}
           <img
             src={Logo}
             alt="Buyology"
-            className="w-24 h-24 rounded-2xl mx-auto shadow-2xl mb-8"
+            className="mx-auto mb-4 h-11 w-[230px] object-cover"
           />
-          <h1 className="text-4xl font-bold text-white mb-3 tracking-tight">
-            Buyology
-          </h1>
-          <p className="text-white/60 text-base leading-relaxed">
+          <p className="text-sm leading-relaxed text-white/60">
             Your all-in-one e-commerce dashboard for smarter business decisions.
           </p>
 
@@ -35,7 +33,7 @@ export default function AuthLayout({
               { value: "500+", label: "Clients" },
             ].map(({ value, label }) => (
               <div key={label}>
-                <div className="text-xl font-bold text-[#FBBB14]">{value}</div>
+                <div className="text-lg font-bold text-[#FBBB14]">{value}</div>
                 <div className="text-white/50 text-xs mt-0.5">{label}</div>
               </div>
             ))}
@@ -44,7 +42,7 @@ export default function AuthLayout({
       </div>
 
       {/* Right form panel */}
-      <div className="flex-1 flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-6">
+      <div className="flex flex-1 items-center justify-center bg-gray-50 p-4 dark:bg-gray-950">
         {children}
       </div>
     </div>

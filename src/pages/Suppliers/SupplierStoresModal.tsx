@@ -56,17 +56,17 @@ export default function SupplierStoresModal({ supplierId, supplierName, onClose 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900">
+      <div className="w-full max-w-lg rounded-xl bg-white p-4 shadow-theme-lg dark:bg-gray-900">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+            <h3 className="text-base font-semibold text-gray-800 dark:text-white">
               Manage stores
             </h3>
             {supplierName && (
               <p className="text-xs text-gray-500">{supplierName}</p>
             )}
           </div>
-          <button onClick={onClose} className="text-xl text-gray-400 hover:text-gray-600">
+          <button onClick={onClose} className="text-lg text-gray-400 hover:text-gray-600">
             ✕
           </button>
         </div>
@@ -76,9 +76,9 @@ export default function SupplierStoresModal({ supplierId, supplierName, onClose 
         )}
 
         {loading ? (
-          <div className="py-8 text-center text-sm text-gray-500">Loading…</div>
+          <div className="py-5 text-center text-sm text-gray-500">Loading…</div>
         ) : allStores.length === 0 ? (
-          <div className="py-8 text-center text-sm text-gray-500">
+          <div className="py-5 text-center text-sm text-gray-500">
             No stores configured.
           </div>
         ) : (
@@ -86,7 +86,7 @@ export default function SupplierStoresModal({ supplierId, supplierName, onClose 
             {allStores.map((s) => {
               const isAssigned = assignedIds.has(s.id);
               return (
-                <li key={s.id} className="flex items-center justify-between gap-3 px-4 py-3">
+                <li key={s.id} className="flex items-center justify-between gap-3 px-4 py-2.5">
                   <div className="min-w-0">
                     <div className="truncate text-sm font-medium text-gray-800 dark:text-gray-100">
                       {s.name}
