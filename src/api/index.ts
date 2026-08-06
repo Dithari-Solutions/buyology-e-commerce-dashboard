@@ -47,6 +47,24 @@ export type {
   B2bProductRequestStatus,
   B2bProductRequestCount,
 } from "./services/b2b-product-requests.service";
+export { sellService } from "./services/sell.service";
+export type {
+  SellRequest,
+  SellStatus,
+  SellDeliveryMethod,
+  SellPayoutMethod,
+  DeviceCondition,
+  SellRequestCount,
+  SetSellOfferPayload,
+} from "./services/sell.service";
+export { repairService } from "./services/repair.service";
+export type {
+  RepairRequest,
+  RepairStatus,
+  RepairDeliveryMethod,
+  RepairCount,
+  SetRepairPricePayload,
+} from "./services/repair.service";
 export type {
   SupplierApplication,
   SupplierDetail,

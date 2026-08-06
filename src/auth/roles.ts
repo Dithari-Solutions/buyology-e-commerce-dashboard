@@ -12,6 +12,7 @@ export const ADMIN_ROLES = [
   "MARKETING",
   "COURIER",
   "PROCUREMENT",
+  "REPAIR",
 ] as const;
 
 /** Has any role that grants admin-side dashboard access. */
@@ -32,6 +33,11 @@ export function isSuperAdmin(): boolean {
 /** Procurement role — prices/rejects B2B RFQ quotes in the Procurement section. */
 export function isProcurement(): boolean {
   return hasRole("PROCUREMENT");
+}
+
+/** Repair role — triages customer device-repair requests in the Repair section. */
+export function isRepair(): boolean {
+  return hasRole("REPAIR");
 }
 
 /**

@@ -30,6 +30,60 @@ export interface ErpConfig {
   baseUrl: string | null;
   hasApiKey: boolean;
   hasApiSecret: boolean;
+  syncOrders: boolean;
+  submitDocuments: boolean;
+  company: string | null;
+  autoCreateCustomer: boolean;
+  autoCreateItems: boolean;
+  shippingAccountHead: string | null;
+}
+
+/** One ERP item in the import preview. */
+export interface ErpImportPreviewRow {
+  itemCode: string;
+  itemName: string | null;
+  itemGroup: string | null;
+  brand: string | null;
+  standardRate: number | null;
+  image: string | null;
+  stock: number;
+  alreadyImported: boolean;
+}
+
+/** Outcome of importing one ERP item. */
+export interface ErpImportResult {
+  itemCode: string;
+  outcome: "CREATED" | "UPDATED" | "SKIPPED" | "FAILED";
+  productId: string | null;
+  message: string;
+}
+
+/** Result of pushing a synthetic mock order to ERPNext (no Buyology order created). */
+export interface ErpMockOrderResult {
+  ok: boolean;
+  salesOrder: string | null;
+  salesInvoice: string | null;
+  salesOrderUrl: string | null;
+  salesInvoiceUrl: string | null;
+  customer: string | null;
+  itemCodes: string[] | null;
+  currency: string | null;
+  message: string;
+}
+
+/** ERPNext sync state of one Buyology order. */
+export interface ErpOrderSync {
+  orderId: string;
+  status: string | null;
+  totalAmount: number | null;
+  currency: string | null;
+  paidAt: string | null;
+  erpSalesOrder: string | null;
+  erpSalesInvoice: string | null;
+  erpSyncedAt: string | null;
+  erpSyncError: string | null;
+  salesOrderUrl: string | null;
+  salesInvoiceUrl: string | null;
 }
 
 export interface Envelope<T> {
@@ -52,9 +106,36 @@ async function call<T>(p: Promise<ApiResponse<T>>): Promise<Envelope<T>> {
 }
 
 const get = <T>(path: string) => apiClient.get<ApiResponse<T>>(`${BASE}${path}`);
+const post = <T>(path: string, body?: unknown) => apiClient.post<ApiResponse<T>>(`${BASE}${path}`, body);
 
 export const erpService = {
   getConfig: () => call<ErpConfig>(get<ErpConfig>("/config")),
   /** Fetch the first `limit` products live from ERPNext (default 10). No DB save. */
   getProducts: (limit = 10) => call<ErpProduct[]>(get<ErpProduct[]>(`/products?limit=${limit}`)),
+
+  /** Preview a page of ERP items (with warehouse stock + already-imported flag). */
+  getImportPreview: (limit = 20, offset = 0) =>
+    call<ErpImportPreviewRow[]>(get<ErpImportPreviewRow[]>(`/import/preview?limit=${limit}&offset=${offset}`)),
+
+  /** Import (create/update) the given ERP item codes into the general products list. */
+  importProducts: (itemCodes: string[]) =>
+    call<ErpImportResult[]>(post<ErpImportResult[]>("/import", { itemCodes })),
+
+  /** Recent orders with their ERPNext Sales Order / Sales Invoice sync state. */
+  getOrders: (limit = 20) => call<ErpOrderSync[]>(get<ErpOrderSync[]>(`/orders?limit=${limit}`)),
+
+  /** Push one order to ERPNext now. Idempotent — already-synced orders are not duplicated. */
+  syncOrder: (orderId: string) =>
+    call<{ outcome: string; order: ErpOrderSync | null }>(
+      post<{ outcome: string; order: ErpOrderSync | null }>(
+        `/orders/${encodeURIComponent(orderId)}/sync`
+      )
+    ),
+
+  /**
+   * Push a synthetic mock order to ERPNext through the real order code path (Customer →
+   * Sales Order → Sales Invoice). Creates nothing in the Buyology orders table.
+   */
+  createMockOrder: (itemCodes?: string[], currency?: string) =>
+    call<ErpMockOrderResult>(post<ErpMockOrderResult>("/orders/mock", { itemCodes, currency })),
 };

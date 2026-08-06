@@ -9,6 +9,7 @@ export type B2bQuoteStatus =
   | "SUBMITTED"
   | "QUOTED"
   | "ACCEPTED"
+  | "AWAITING_PAYMENT_VERIFICATION"
   | "REJECTED"
   | "EXPIRED"
   | "CANCELLED"
@@ -23,6 +24,10 @@ export interface B2bQuoteItem {
   quantity: number;
   productTitle?: string | null;
   sku?: string | null;
+  /** Lead time set at pricing (e.g. "2–3 weeks"). */
+  leadTime?: string | null;
+  /** Optional line description set at pricing. */
+  description?: string | null;
   /** null until the quote is QUOTED. */
   quotedUnitPrice?: number | null;
   /** quotedUnitPrice * quantity; null until QUOTED. */
@@ -39,6 +44,14 @@ export interface B2bQuote {
   currency: string;
   memberNote?: string | null;
   procurementNote?: string | null;
+  paymentTerms?: string | null;
+  termsAndConditions?: string | null;
+  /** "BANK_TRANSFER" once the member submits a bank-transfer proof. */
+  paymentMethod?: string | null;
+  /** Presigned URL of the uploaded bank-transfer proof; null if none. */
+  proofOfPaymentFileUrl?: string | null;
+  proofUploadedAt?: string | null;
+  paymentVerifiedAt?: string | null;
   submittedAt?: string | null;
   quotedAt?: string | null;
   validUntil?: string | null;
@@ -59,6 +72,10 @@ export interface B2bQuote {
 export interface B2bQuotePriceItem {
   itemId: string;
   unitPrice: number;
+  /** Lead time for this line (e.g. "2–3 weeks"). */
+  leadTime?: string;
+  /** Optional line description. */
+  description?: string;
 }
 
 /** Body for POST /{id}/price. */
@@ -67,6 +84,8 @@ export interface B2bQuotePriceRequest {
   /** ISO instant string, e.g. 2026-07-31T12:00:00Z. */
   validUntil: string;
   procurementNote?: string;
+  paymentTerms?: string;
+  termsAndConditions?: string;
 }
 
 /** Shape returned by GET /count. */
@@ -95,6 +114,16 @@ export const b2bQuotesService = {
   // POST /api/admin/b2b/quotes/{id}/reject  → SUBMITTED → REJECTED
   reject(id: string, reason: string): Promise<ApiResponse<B2bQuote>> {
     return apiClient.post<ApiResponse<B2bQuote>>(`${BASE}/${id}/reject`, { reason });
+  },
+
+  // POST /api/admin/b2b/quotes/{id}/verify-payment  → AWAITING_PAYMENT_VERIFICATION → ORDERED
+  verifyPayment(id: string): Promise<ApiResponse<B2bQuote>> {
+    return apiClient.post<ApiResponse<B2bQuote>>(`${BASE}/${id}/verify-payment`);
+  },
+
+  // POST /api/admin/b2b/quotes/{id}/reject-payment  → AWAITING_PAYMENT_VERIFICATION → ACCEPTED
+  rejectPayment(id: string, reason: string): Promise<ApiResponse<B2bQuote>> {
+    return apiClient.post<ApiResponse<B2bQuote>>(`${BASE}/${id}/reject-payment`, { reason });
   },
 
   // GET /api/admin/b2b/quotes/count  → { newCount }  (count of SUBMITTED quotes)

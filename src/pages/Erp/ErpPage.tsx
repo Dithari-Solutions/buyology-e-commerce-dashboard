@@ -5,11 +5,18 @@ import {
   erpService,
   type ErpConfig,
   type ErpProduct,
+  type ErpOrderSync,
+  type ErpImportPreviewRow,
+  type ErpImportResult,
+  type ErpMockOrderResult,
 } from "../../api/services/erp.service";
+
+type Tab = "products" | "import" | "orders";
 
 const btn =
   "inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed";
 const btnPrimary = `${btn} bg-brand-500 text-white hover:bg-brand-600`;
+const btnGhost = `${btn} border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-white/[0.05]`;
 const card = "rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]";
 
 /** Strip HTML tags from an ERPNext description (Frappe stores rich text). */
@@ -72,7 +79,419 @@ function ProductCard({ p }: { p: ErpProduct }) {
   );
 }
 
+/** Import tab — preview ERP items and pull them into the general products list. */
+function ImportTab({ enabled }: { enabled: boolean }) {
+  const PAGE = 20;
+  const [rows, setRows] = useState<ErpImportPreviewRow[]>([]);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [offset, setOffset] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [err, setErr] = useState("");
+  const [results, setResults] = useState<ErpImportResult[]>([]);
+
+  const load = useCallback(async (nextOffset: number) => {
+    setLoading(true);
+    setErr("");
+    try {
+      const res = await erpService.getImportPreview(PAGE, nextOffset);
+      if (!res.ok || !res.data) {
+        setErr(res.error ?? "Failed to load ERP items");
+        setRows([]);
+        return;
+      }
+      setRows(res.data);
+      setOffset(nextOffset);
+      setSelected(new Set());
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (enabled) load(0);
+  }, [enabled, load]);
+
+  const toggle = (code: string) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(code)) next.delete(code);
+      else next.add(code);
+      return next;
+    });
+
+  const importable = rows.map((r) => r.itemCode);
+  const allSelected = importable.length > 0 && importable.every((c) => selected.has(c));
+  const toggleAll = () =>
+    setSelected(allSelected ? new Set() : new Set(importable));
+
+  const runImport = async (codes: string[]) => {
+    if (codes.length === 0) return;
+    setImporting(true);
+    setErr("");
+    try {
+      const res = await erpService.importProducts(codes);
+      if (!res.ok || !res.data) {
+        setErr(res.error ?? "Import failed");
+        return;
+      }
+      setResults(res.data);
+      await load(offset); // refresh the already-imported flags
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const counts = results.reduce<Record<string, number>>((acc, r) => {
+    acc[r.outcome] = (acc[r.outcome] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  return (
+    <>
+      <div className="mb-4 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600 dark:border-gray-800 dark:bg-white/[0.02] dark:text-gray-300">
+        Imports ERP items into the <b>general products list</b> (no store assigned yet — assign
+        them to a store with a price to put them on sale). Re-importing refreshes stock; it never
+        duplicates or overwrites your edits.
+      </div>
+
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+          ERP items {rows.length > 0 ? `(${offset + 1}–${offset + rows.length})` : ""}
+        </h3>
+        <div className="flex flex-wrap gap-2">
+          <button className={btnGhost} onClick={() => load(Math.max(0, offset - PAGE))} disabled={!enabled || loading || offset === 0}>
+            Prev
+          </button>
+          <button className={btnGhost} onClick={() => load(offset + PAGE)} disabled={!enabled || loading || rows.length < PAGE}>
+            Next
+          </button>
+          <button className={btnGhost} onClick={() => runImport(importable)} disabled={!enabled || importing || rows.length === 0}>
+            {importing ? "Importing…" : "Import all on page"}
+          </button>
+          <button className={btnPrimary} onClick={() => runImport([...selected])} disabled={!enabled || importing || selected.size === 0}>
+            {importing ? "Importing…" : `Import selected (${selected.size})`}
+          </button>
+        </div>
+      </div>
+
+      {err && (
+        <div className="mb-5 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800/60 dark:bg-red-900/20 dark:text-red-300">
+          {err}
+        </div>
+      )}
+
+      {results.length > 0 && (
+        <div className="mb-5 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800 dark:border-green-800/60 dark:bg-green-900/20 dark:text-green-200">
+          Last import — created {counts.CREATED ?? 0}, updated {counts.UPDATED ?? 0}
+          {counts.FAILED ? `, failed ${counts.FAILED}` : ""}.
+          {counts.FAILED ? (
+            <ul className="mt-2 list-disc pl-5">
+              {results
+                .filter((r) => r.outcome === "FAILED")
+                .map((r) => (
+                  <li key={r.itemCode} className="font-mono text-xs">
+                    {r.itemCode}: {r.message}
+                  </li>
+                ))}
+            </ul>
+          ) : null}
+        </div>
+      )}
+
+      <div className={`${card} overflow-x-auto p-0`}>
+        <table className="w-full min-w-[820px] text-left text-sm">
+          <thead className="border-b border-gray-200 text-xs uppercase tracking-wide text-gray-500 dark:border-gray-800 dark:text-gray-400">
+            <tr>
+              <th className="p-4">
+                <input type="checkbox" checked={allSelected} onChange={toggleAll} aria-label="Select all" />
+              </th>
+              <th className="p-4">Item</th>
+              <th className="p-4">Group</th>
+              <th className="p-4">Brand</th>
+              <th className="p-4">Rate</th>
+              <th className="p-4">Stock</th>
+              <th className="p-4">State</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.itemCode} className="border-b border-gray-100 last:border-0 dark:border-gray-800">
+                <td className="p-4">
+                  <input
+                    type="checkbox"
+                    checked={selected.has(r.itemCode)}
+                    onChange={() => toggle(r.itemCode)}
+                    aria-label={`Select ${r.itemCode}`}
+                  />
+                </td>
+                <td className="p-4">
+                  <div className="font-medium text-gray-800 dark:text-white">{r.itemName ?? r.itemCode}</div>
+                  <div className="font-mono text-xs text-gray-500 dark:text-gray-400">{r.itemCode}</div>
+                </td>
+                <td className="p-4 text-gray-600 dark:text-gray-300">{r.itemGroup ?? "—"}</td>
+                <td className="p-4 text-gray-600 dark:text-gray-300">{r.brand ?? "—"}</td>
+                <td className="p-4 text-gray-600 dark:text-gray-300">
+                  {r.standardRate != null ? r.standardRate.toLocaleString() : "—"}
+                </td>
+                <td className="p-4 text-gray-700 dark:text-gray-200">{r.stock}</td>
+                <td className="p-4">
+                  {r.alreadyImported ? (
+                    <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                      imported
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-semibold text-gray-600 dark:bg-white/10 dark:text-gray-300">
+                      new
+                    </span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {!loading && rows.length === 0 && (
+          <p className="p-5 text-sm text-gray-500 dark:text-gray-400">No ERP items on this page.</p>
+        )}
+      </div>
+    </>
+  );
+}
+
+/** Orders tab — shows what was pushed to ERPNext for each recent order. */
+function OrdersTab({ enabled }: { enabled: boolean }) {
+  const [orders, setOrders] = useState<ErpOrderSync[]>([]);
+  const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [syncing, setSyncing] = useState<string | null>(null);
+  const [mocking, setMocking] = useState(false);
+  const [mockResult, setMockResult] = useState<ErpMockOrderResult | null>(null);
+
+  const fetchOrders = useCallback(async () => {
+    setLoading(true);
+    setErr("");
+    try {
+      const res = await erpService.getOrders(20);
+      if (!res.ok || !res.data) {
+        setErr(res.error ?? "Failed to load orders");
+        setOrders([]);
+        return;
+      }
+      setOrders(res.data);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
+
+  const syncOne = async (orderId: string) => {
+    setSyncing(orderId);
+    setErr("");
+    try {
+      const res = await erpService.syncOrder(orderId);
+      if (!res.ok) setErr(res.error ?? "Sync failed");
+      await fetchOrders();
+    } finally {
+      setSyncing(null);
+    }
+  };
+
+  const runMockOrder = async () => {
+    setMocking(true);
+    setErr("");
+    setMockResult(null);
+    try {
+      const res = await erpService.createMockOrder();
+      if (!res.ok || !res.data) {
+        setErr(res.error ?? "Mock order failed");
+        return;
+      }
+      setMockResult(res.data);
+    } finally {
+      setMocking(false);
+    }
+  };
+
+  return (
+    <>
+      {/* Mock order tester — pushes a synthetic order to ERPNext through the real code path. */}
+      <div className={`${card} mb-5`}>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h4 className="font-semibold text-gray-800 dark:text-white">Test the live ERP push</h4>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              Creates a Sales Order + Sales Invoice in ERPNext for a test customer, using the
+              exact code a real paid order runs. No Buyology order is created.
+            </p>
+          </div>
+          <button className={btnPrimary} onClick={runMockOrder} disabled={!enabled || mocking}>
+            {mocking ? "Pushing…" : "Create mock order → ERP"}
+          </button>
+        </div>
+
+        {mockResult && (
+          <div className="mt-4 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800 dark:border-green-800/60 dark:bg-green-900/20 dark:text-green-200">
+            <div className="font-medium">{mockResult.message}</div>
+            <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1">
+              <span>
+                Customer: <b>{mockResult.customer}</b>
+              </span>
+              <span>
+                Sales Order:{" "}
+                {mockResult.salesOrderUrl ? (
+                  <a className="underline" href={mockResult.salesOrderUrl} target="_blank" rel="noreferrer">
+                    {mockResult.salesOrder}
+                  </a>
+                ) : (
+                  mockResult.salesOrder
+                )}
+              </span>
+              <span>
+                Sales Invoice:{" "}
+                {mockResult.salesInvoiceUrl ? (
+                  <a className="underline" href={mockResult.salesInvoiceUrl} target="_blank" rel="noreferrer">
+                    {mockResult.salesInvoice}
+                  </a>
+                ) : (
+                  mockResult.salesInvoice
+                )}
+              </span>
+              {mockResult.itemCodes && mockResult.itemCodes.length > 0 && (
+                <span>Items: {mockResult.itemCodes.join(", ")}</span>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="mb-5 flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+          Order sync {orders.length > 0 ? `(${orders.length})` : ""}
+        </h3>
+        <button className={btnPrimary} onClick={fetchOrders} disabled={loading}>
+          {loading ? "Loading…" : "Refresh"}
+        </button>
+      </div>
+
+      {err && (
+        <div className="mb-5 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800/60 dark:bg-red-900/20 dark:text-red-300">
+          {err}
+        </div>
+      )}
+
+      <div className={`${card} overflow-x-auto p-0`}>
+        <table className="w-full min-w-[900px] text-left text-sm">
+          <thead className="border-b border-gray-200 text-xs uppercase tracking-wide text-gray-500 dark:border-gray-800 dark:text-gray-400">
+            <tr>
+              <th className="p-4">Order</th>
+              <th className="p-4">Status</th>
+              <th className="p-4">Total</th>
+              <th className="p-4">Sales Order</th>
+              <th className="p-4">Sales Invoice</th>
+              <th className="p-4">ERP state</th>
+              <th className="p-4"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {orders.map((o) => (
+              <tr key={o.orderId} className="border-b border-gray-100 last:border-0 dark:border-gray-800">
+                <td className="p-4 font-mono text-xs text-gray-600 dark:text-gray-300">
+                  {o.orderId.slice(0, 8)}…
+                </td>
+                <td className="p-4 text-gray-700 dark:text-gray-200">{o.status ?? "—"}</td>
+                <td className="p-4 text-gray-700 dark:text-gray-200">
+                  {o.totalAmount != null ? `${o.totalAmount} ${o.currency ?? ""}` : "—"}
+                </td>
+                <td className="p-4">
+                  {o.erpSalesOrder ? (
+                    <a
+                      className="text-brand-500 hover:underline"
+                      href={o.salesOrderUrl ?? undefined}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {o.erpSalesOrder}
+                    </a>
+                  ) : (
+                    <span className="text-gray-400">—</span>
+                  )}
+                </td>
+                <td className="p-4">
+                  {o.erpSalesInvoice ? (
+                    <a
+                      className="text-brand-500 hover:underline"
+                      href={o.salesInvoiceUrl ?? undefined}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {o.erpSalesInvoice}
+                    </a>
+                  ) : (
+                    <span className="text-gray-400">—</span>
+                  )}
+                </td>
+                <td className="p-4">
+                  {o.erpSyncedAt ? (
+                    <span className="rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-semibold text-green-700 dark:bg-green-900/40 dark:text-green-300">
+                      synced
+                    </span>
+                  ) : o.erpSyncError ? (
+                    <span
+                      title={o.erpSyncError}
+                      className="rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-semibold text-red-700 dark:bg-red-900/40 dark:text-red-300"
+                    >
+                      failed
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-semibold text-gray-600 dark:bg-white/10 dark:text-gray-300">
+                      not synced
+                    </span>
+                  )}
+                </td>
+                <td className="p-4 text-right">
+                  <button
+                    className={btnGhost}
+                    disabled={!enabled || syncing === o.orderId}
+                    onClick={() => syncOne(o.orderId)}
+                  >
+                    {syncing === o.orderId ? "Syncing…" : o.erpSalesInvoice ? "Re-check" : "Sync now"}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {!loading && orders.length === 0 && (
+          <p className="p-5 text-sm text-gray-500 dark:text-gray-400">No orders yet.</p>
+        )}
+      </div>
+
+      {orders.some((o) => o.erpSyncError) && (
+        <div className="mt-5 space-y-2">
+          <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-200">Sync errors</h4>
+          {orders
+            .filter((o) => o.erpSyncError)
+            .map((o) => (
+              <div
+                key={o.orderId}
+                className="rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700 dark:border-red-800/60 dark:bg-red-900/20 dark:text-red-300"
+              >
+                <span className="font-mono">{o.orderId.slice(0, 8)}…</span> — {o.erpSyncError}
+              </div>
+            ))}
+        </div>
+      )}
+    </>
+  );
+}
+
 export default function ErpPage() {
+  const [tab, setTab] = useState<Tab>("products");
   const [config, setConfig] = useState<ErpConfig | null>(null);
   const [configErr, setConfigErr] = useState("");
   const [products, setProducts] = useState<ErpProduct[]>([]);
@@ -114,12 +533,13 @@ export default function ErpPage() {
 
   return (
     <>
-      <PageMeta title="ERP | Buyology" description="ERPNext product list (testing — no DB save)" />
+      <PageMeta title="ERP | Buyology" description="ERPNext products and order sync" />
       <PageBreadcrumb pageTitle="ERP" />
 
       <div className="mb-5 rounded-xl border border-blue-300 bg-blue-50 p-4 text-sm text-blue-800 dark:border-blue-800/60 dark:bg-blue-900/20 dark:text-blue-200">
-        <b>ERPNext product test.</b> Products are fetched <b>live</b> from ERPNext and shown here
-        only — nothing is saved to the Buyology database. SUPERADMIN only.
+        <b>ERPNext integration.</b> Products are fetched <b>live</b> from ERPNext for display only
+        (nothing saved locally). Paid orders are pushed to ERPNext as a Sales Order + Sales Invoice
+        in the background — a failed push never affects the order or the payment. SUPERADMIN only.
       </div>
 
       {configErr && (
@@ -164,35 +584,84 @@ export default function ErpPage() {
               {config?.hasApiSecret ? "Configured" : "Missing"}
             </p>
           </div>
+          <div>
+            <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Order sync</p>
+            <p className="font-medium text-gray-800 dark:text-white">
+              {config?.syncOrders ? "On" : "Off"}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Documents</p>
+            <p className="font-medium text-gray-800 dark:text-white">
+              {config?.submitDocuments ? "Submitted" : "Draft"}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Company</p>
+            <p className="truncate font-medium text-gray-800 dark:text-white">
+              {config?.company || "ERPNext default"}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Shipping account</p>
+            <p className="truncate font-medium text-gray-800 dark:text-white">
+              {config?.shippingAccountHead || "Not set (excluded)"}
+            </p>
+          </div>
         </div>
       </div>
 
-      <div className="mb-5 flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-          Products from ERPNext {products.length > 0 ? `(${products.length})` : ""}
-        </h3>
-        <button className={btnPrimary} onClick={fetchProducts} disabled={!enabled || loading}>
-          {loading ? "Loading…" : "Refresh"}
-        </button>
-      </div>
-
-      {err && (
-        <div className="mb-5 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800/60 dark:bg-red-900/20 dark:text-red-300">
-          {err}
-        </div>
-      )}
-
-      {!loading && enabled && !err && products.length === 0 && (
-        <div className={`${card} text-sm text-gray-500 dark:text-gray-400`}>
-          No products returned from ERPNext.
-        </div>
-      )}
-
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-        {products.map((p) => (
-          <ProductCard key={p.name} p={p} />
+      {/* Tabs */}
+      <div className="mb-5 flex gap-2 border-b border-gray-200 dark:border-gray-800">
+        {(["products", "import", "orders"] as Tab[]).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`-mb-px border-b-2 px-4 py-2 text-sm font-medium capitalize transition ${
+              tab === t
+                ? "border-brand-500 text-brand-500"
+                : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            }`}
+          >
+            {t === "products" ? "Products" : t === "import" ? "Import products" : "Order sync"}
+          </button>
         ))}
       </div>
+
+      {tab === "import" && <ImportTab enabled={enabled} />}
+
+      {tab === "orders" && <OrdersTab enabled={enabled} />}
+
+      {tab === "products" && (
+        <>
+          <div className="mb-5 flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+              Products from ERPNext {products.length > 0 ? `(${products.length})` : ""}
+            </h3>
+            <button className={btnPrimary} onClick={fetchProducts} disabled={!enabled || loading}>
+              {loading ? "Loading…" : "Refresh"}
+            </button>
+          </div>
+
+          {err && (
+            <div className="mb-5 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800/60 dark:bg-red-900/20 dark:text-red-300">
+              {err}
+            </div>
+          )}
+
+          {!loading && enabled && !err && products.length === 0 && (
+            <div className={`${card} text-sm text-gray-500 dark:text-gray-400`}>
+              No products returned from ERPNext.
+            </div>
+          )}
+
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            {products.map((p) => (
+              <ProductCard key={p.name} p={p} />
+            ))}
+          </div>
+        </>
+      )}
     </>
   );
 }

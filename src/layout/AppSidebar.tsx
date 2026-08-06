@@ -13,6 +13,7 @@ import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import SportsEsportsOutlinedIcon from '@mui/icons-material/SportsEsportsOutlined';
 import RequestQuoteOutlinedIcon from '@mui/icons-material/RequestQuoteOutlined';
+import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
 import ScienceOutlinedIcon from '@mui/icons-material/ScienceOutlined';
 import WarehouseOutlinedIcon from '@mui/icons-material/WarehouseOutlined';
 
@@ -25,8 +26,8 @@ import {
   UserCircleIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
-import { canAccessRoles, isProcurement, isPureSupplier, isSuperAdmin, landingPathForCurrentUser } from "../auth/roles";
-import { storesService, b2bProductRequestsService, b2bQuotesService } from "../api";
+import { canAccessRoles, isProcurement, isRepair, isPureSupplier, isSuperAdmin, landingPathForCurrentUser } from "../auth/roles";
+import { storesService, b2bProductRequestsService, b2bQuotesService, repairService, sellService } from "../api";
 import type { Store } from "../types";
 
 type NavArea = "admin" | "supplier" | "shared";
@@ -63,6 +64,7 @@ const SUPPORT = "CUSTOMER_SUPPORT";
 const COURIER = "COURIER_ADMIN";
 const MARKETING = "MARKETING";
 const PROCUREMENT = "PROCUREMENT";
+const REPAIR = "REPAIR";
 const SUPER = "SUPERADMIN";
 
 const navItems: NavItem[] = [
@@ -213,6 +215,15 @@ const navItems: NavItem[] = [
     subItems: [
       { name: "Quotes", path: "/procurement/quotes", pro: false },
       { name: "Requests", path: "/procurement/requests", pro: false },
+      { name: "Sell Requests", path: "/procurement/sell-requests", pro: false },
+    ],
+  },
+  {
+    name: "Repair",
+    icon: <BuildOutlinedIcon />,
+    roles: [REPAIR],
+    subItems: [
+      { name: "Requests", path: "/repair", pro: false },
     ],
   },
   {
@@ -281,13 +292,14 @@ const AppSidebar: React.FC = () => {
     return () => ctrl.abort();
   }, [supplierOnly]);
 
-  // Poll the count of NEW B2B product requests + SUBMITTED quotes so the Procurement
-  // group dot and the Requests / Quotes subitems surface a red badge without a manual
-  // refresh. Only Procurement / SuperAdmin can read those admin endpoints, so skip
-  // polling for everyone else. Mirrors the NotificationDropdown 30s polling pattern.
+  // Poll the count of NEW B2B product requests + SUBMITTED quotes + sell requests with unseen
+  // customer activity, so the Procurement group dot and its subitems surface a red badge without a
+  // manual refresh. Only Procurement / SuperAdmin can read those admin endpoints, so skip polling
+  // for everyone else. Mirrors the NotificationDropdown 30s polling pattern.
   const canSeeProcurement = isSuperAdmin() || isProcurement();
   const [newRequestCount, setNewRequestCount] = useState(0);
   const [newQuoteCount, setNewQuoteCount] = useState(0);
+  const [newSellCount, setNewSellCount] = useState(0);
   useEffect(() => {
     if (!canSeeProcurement) return;
     let active = true;
@@ -304,6 +316,12 @@ const AppSidebar: React.FC = () => {
           if (active) setNewQuoteCount(r.data?.newCount ?? 0);
         })
         .catch(() => {/* badge is best-effort */});
+      sellService
+        .getNewCount()
+        .then((r) => {
+          if (active) setNewSellCount(r.data?.newCount ?? 0);
+        })
+        .catch(() => {/* badge is best-effort */});
     };
     refresh();
     const t = setInterval(refresh, 30000);
@@ -313,7 +331,31 @@ const AppSidebar: React.FC = () => {
     };
   }, [canSeeProcurement]);
   // Combined total drives the collapsed Procurement group badge.
-  const procurementNewCount = newRequestCount + newQuoteCount;
+  const procurementNewCount = newRequestCount + newQuoteCount + newSellCount;
+
+  // Poll the count of repair requests with unseen customer activity so the Repair group +
+  // "Requests" sub-item surface a red badge without a manual refresh. Only REPAIR / SuperAdmin
+  // can read that admin endpoint. Mirrors the Procurement polling pattern above.
+  const canSeeRepair = isSuperAdmin() || isRepair();
+  const [newRepairCount, setNewRepairCount] = useState(0);
+  useEffect(() => {
+    if (!canSeeRepair) return;
+    let active = true;
+    const refresh = () => {
+      repairService
+        .getNewCount()
+        .then((r) => {
+          if (active) setNewRepairCount(r.data?.newCount ?? 0);
+        })
+        .catch(() => {/* badge is best-effort */});
+    };
+    refresh();
+    const t = setInterval(refresh, 30000);
+    return () => {
+      active = false;
+      clearInterval(t);
+    };
+  }, [canSeeRepair]);
 
   // Inject one Orders/Refunds sub-item per store, after the static entries. NOT gated to
   // super admins — any admin who sees the Orders/Refunds dropdown gets the full store list
@@ -470,6 +512,19 @@ const AppSidebar: React.FC = () => {
                   <span className="absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75 animate-ping" />
                 </span>
               )}
+              {nav.name === "Repair" && newRepairCount > 0 && (
+                <span
+                  className={`flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white ${
+                    isExpanded || isHovered || isMobileOpen
+                      ? "relative ml-2"
+                      : "absolute right-2 top-1.5"
+                  }`}
+                  title={`${newRepairCount} repair request${newRepairCount === 1 ? "" : "s"} with new activity`}
+                >
+                  {newRepairCount > 99 ? "99+" : newRepairCount}
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75 animate-ping" />
+                </span>
+              )}
               {(isExpanded || isHovered || isMobileOpen) && (
                 <ChevronDownIcon
                   className={`ml-auto w-5 h-5 transition-transform duration-200 ${
@@ -552,6 +607,22 @@ const AppSidebar: React.FC = () => {
                             title={`${newRequestCount} new product request${newRequestCount === 1 ? "" : "s"}`}
                           >
                             {newRequestCount > 99 ? "99+" : newRequestCount}
+                          </span>
+                        )}
+                        {subItem.path === "/procurement/sell-requests" && newSellCount > 0 && (
+                          <span
+                            className="flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white"
+                            title={`${newSellCount} sell request${newSellCount === 1 ? "" : "s"} with new activity`}
+                          >
+                            {newSellCount > 99 ? "99+" : newSellCount}
+                          </span>
+                        )}
+                        {subItem.path === "/repair" && newRepairCount > 0 && (
+                          <span
+                            className="flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white"
+                            title={`${newRepairCount} repair request${newRepairCount === 1 ? "" : "s"} with new activity`}
+                          >
+                            {newRepairCount > 99 ? "99+" : newRepairCount}
                           </span>
                         )}
                         {subItem.new && (

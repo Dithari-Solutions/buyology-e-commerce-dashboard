@@ -11,6 +11,7 @@ const STATUS_COLORS: Record<B2bQuoteStatus, string> = {
   SUBMITTED: "bg-brand-100 text-brand-700",
   QUOTED: "bg-blue-100 text-blue-700",
   ACCEPTED: "bg-green-100 text-green-700",
+  AWAITING_PAYMENT_VERIFICATION: "bg-indigo-100 text-indigo-700",
   REJECTED: "bg-red-100 text-red-700",
   EXPIRED: "bg-yellow-100 text-yellow-700",
   CANCELLED: "bg-gray-100 text-gray-600",
@@ -32,10 +33,14 @@ export default function QuoteDetail() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
-  // Per-line unit price inputs, keyed by item id.
+  // Per-line pricing inputs, keyed by item id.
   const [prices, setPrices] = useState<Record<string, string>>({});
+  const [leadTimes, setLeadTimes] = useState<Record<string, string>>({});
+  const [descriptions, setDescriptions] = useState<Record<string, string>>({});
   const [validUntil, setValidUntil] = useState("");
   const [procurementNote, setProcurementNote] = useState("");
+  const [paymentTerms, setPaymentTerms] = useState("");
+  const [termsAndConditions, setTermsAndConditions] = useState("");
   const [rejectReason, setRejectReason] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,12 +55,20 @@ export default function QuoteDetail() {
         const q = r.data;
         setQuote(q);
         setProcurementNote(q?.procurementNote ?? "");
-        // Seed price inputs with any already-quoted values.
+        setPaymentTerms(q?.paymentTerms ?? "");
+        setTermsAndConditions(q?.termsAndConditions ?? "");
+        // Seed the per-line inputs with any already-quoted values.
         const seed: Record<string, string> = {};
+        const seedLead: Record<string, string> = {};
+        const seedDesc: Record<string, string> = {};
         (q?.items ?? []).forEach((it) => {
           seed[it.id] = it.quotedUnitPrice != null ? String(it.quotedUnitPrice) : "";
+          seedLead[it.id] = it.leadTime ?? "";
+          seedDesc[it.id] = it.description ?? "";
         });
         setPrices(seed);
+        setLeadTimes(seedLead);
+        setDescriptions(seedDesc);
       })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
@@ -89,6 +102,8 @@ export default function QuoteDetail() {
     const items = quote.items.map((it) => ({
       itemId: it.id,
       unitPrice: parseFloat(prices[it.id] ?? ""),
+      leadTime: leadTimes[it.id]?.trim() || undefined,
+      description: descriptions[it.id]?.trim() || undefined,
     }));
     if (items.some((i) => !Number.isFinite(i.unitPrice) || i.unitPrice < 0)) {
       setError("Enter a valid unit price for every line.");
@@ -105,10 +120,45 @@ export default function QuoteDetail() {
         items,
         validUntil: toIsoInstant(validUntil),
         procurementNote: procurementNote.trim() || undefined,
+        paymentTerms: paymentTerms.trim() || undefined,
+        termsAndConditions: termsAndConditions.trim() || undefined,
       });
       setQuote(r.data);
     } catch {
       setError("Failed to send the quote. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleVerifyPayment = async () => {
+    if (!quote) return;
+    setError(null);
+    setSaving(true);
+    try {
+      const r = await b2bQuotesService.verifyPayment(quote.id);
+      setQuote(r.data);
+    } catch {
+      setError("Failed to validate the payment. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleRejectPayment = async () => {
+    if (!quote) return;
+    setError(null);
+    if (!rejectReason.trim()) {
+      setError("Enter a reason for rejecting the proof.");
+      return;
+    }
+    setSaving(true);
+    try {
+      const r = await b2bQuotesService.rejectPayment(quote.id, rejectReason.trim());
+      setQuote(r.data);
+      setRejectReason("");
+    } catch {
+      setError("Failed to reject the proof. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -202,6 +252,8 @@ export default function QuoteDetail() {
                     <th className="pb-3 pr-4">Product</th>
                     <th className="pb-3 pr-4">SKU</th>
                     <th className="pb-3 pr-4">Qty</th>
+                    <th className="pb-3 pr-4">Lead time</th>
+                    <th className="pb-3 pr-4">Description</th>
                     <th className="pb-3 pr-4">Unit Price</th>
                     <th className="pb-3">Line Total</th>
                   </tr>
@@ -219,6 +271,32 @@ export default function QuoteDetail() {
                       </td>
                       <td className="py-3 pr-4 text-gray-500 text-xs">{it.sku ?? "—"}</td>
                       <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">{it.quantity}</td>
+                      <td className="py-3 pr-4">
+                        {editable ? (
+                          <input
+                            type="text"
+                            value={leadTimes[it.id] ?? ""}
+                            onChange={(e) => setLeadTimes((p) => ({ ...p, [it.id]: e.target.value }))}
+                            placeholder="e.g. 2–3 weeks"
+                            className="w-32 rounded-lg border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                          />
+                        ) : (
+                          <span className="text-gray-700 dark:text-gray-300">{it.leadTime ?? "—"}</span>
+                        )}
+                      </td>
+                      <td className="py-3 pr-4">
+                        {editable ? (
+                          <input
+                            type="text"
+                            value={descriptions[it.id] ?? ""}
+                            onChange={(e) => setDescriptions((p) => ({ ...p, [it.id]: e.target.value }))}
+                            placeholder="Optional"
+                            className="w-40 rounded-lg border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                          />
+                        ) : (
+                          <span className="text-gray-700 dark:text-gray-300">{it.description ?? "—"}</span>
+                        )}
+                      </td>
                       <td className="py-3 pr-4">
                         {editable ? (
                           <input
@@ -248,7 +326,7 @@ export default function QuoteDetail() {
                 </tbody>
                 <tfoot>
                   <tr className="border-t border-gray-200 dark:border-gray-700">
-                    <td colSpan={4} className="pt-3 text-right text-sm font-medium text-gray-500">
+                    <td colSpan={6} className="pt-3 text-right text-sm font-medium text-gray-500">
                       Subtotal
                     </td>
                     <td className="pt-3 text-sm font-semibold text-gray-900 dark:text-white">
@@ -277,6 +355,30 @@ export default function QuoteDetail() {
                       type="datetime-local"
                       value={validUntil}
                       onChange={(e) => setValidUntil(e.target.value)}
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Payment terms
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={paymentTerms}
+                      onChange={(e) => setPaymentTerms(e.target.value)}
+                      placeholder="e.g. 50% advance, 50% on delivery"
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Terms &amp; conditions
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={termsAndConditions}
+                      onChange={(e) => setTermsAndConditions(e.target.value)}
+                      placeholder="Shown to the member and included on the order confirmation email"
                       className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     />
                   </div>
@@ -335,6 +437,86 @@ export default function QuoteDetail() {
                 <div className="mt-3 rounded-lg bg-gray-50 p-3 dark:bg-gray-800/60">
                   <p className="text-xs uppercase text-gray-400">Procurement note</p>
                   <p className="text-gray-700 dark:text-gray-300">{quote.procurementNote}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Payment terms & T&C (read-only once set) */}
+          {!editable && (quote.paymentTerms || quote.termsAndConditions) && (
+            <div className="space-y-4 rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+              {quote.paymentTerms && (
+                <div>
+                  <p className="text-xs uppercase text-gray-400">Payment terms</p>
+                  <p className="whitespace-pre-line text-sm text-gray-700 dark:text-gray-300">{quote.paymentTerms}</p>
+                </div>
+              )}
+              {quote.termsAndConditions && (
+                <div>
+                  <p className="text-xs uppercase text-gray-400">Terms &amp; conditions</p>
+                  <p className="whitespace-pre-line text-sm text-gray-700 dark:text-gray-300">{quote.termsAndConditions}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Bank-transfer proof of payment + validation */}
+          {(quote.proofOfPaymentFileUrl || quote.status === "AWAITING_PAYMENT_VERIFICATION") && (
+            <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-base font-semibold text-gray-800 dark:text-white">Bank-transfer payment</h3>
+                  <p className="mt-0.5 text-sm text-gray-500">
+                    {quote.status === "ORDERED"
+                      ? "Payment validated — order placed."
+                      : quote.status === "AWAITING_PAYMENT_VERIFICATION"
+                        ? "Proof uploaded by the member — validate it to place the order."
+                        : "Proof of payment on file."}
+                  </p>
+                </div>
+                {quote.proofOfPaymentFileUrl && (
+                  <a
+                    href={quote.proofOfPaymentFileUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 rounded-lg border border-brand-500 px-4 py-2 text-sm font-medium text-brand-600 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-brand-500/10"
+                  >
+                    View proof of payment ↗
+                  </a>
+                )}
+              </div>
+
+              {quote.status === "AWAITING_PAYMENT_VERIFICATION" && (
+                <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                  <div className="rounded-xl border border-green-200 bg-green-50/40 p-4 dark:border-green-800/50 dark:bg-green-900/10">
+                    <p className="mb-3 text-sm text-gray-600 dark:text-gray-300">
+                      Confirm you've received the bank transfer. This places the order and emails the member
+                      the full order details.
+                    </p>
+                    <button
+                      onClick={handleVerifyPayment}
+                      disabled={saving}
+                      className="w-full rounded-lg bg-green-600 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+                    >
+                      {saving ? "Working…" : "Validate payment & place order"}
+                    </button>
+                  </div>
+                  <div className="rounded-xl border border-red-200 bg-red-50/40 p-4 dark:border-red-800/50 dark:bg-red-900/10">
+                    <textarea
+                      rows={2}
+                      value={rejectReason}
+                      onChange={(e) => setRejectReason(e.target.value)}
+                      placeholder="Reason the proof is not acceptable"
+                      className="mb-3 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    />
+                    <button
+                      onClick={handleRejectPayment}
+                      disabled={saving}
+                      className="w-full rounded-lg border border-red-300 bg-white py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-700 dark:bg-transparent dark:text-red-300"
+                    >
+                      {saving ? "Working…" : "Reject proof"}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
