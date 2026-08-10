@@ -82,5 +82,11 @@ export type {
 } from "../types/product.types";
 export type { ModerateQuestionRequest, AddQuestionAnswerRequest } from "./services/questions.service";
 export type { GlobalSpecGroup, GlobalSpecOption, CreateGlobalSpecGroupRequest, CreateGlobalSpecOptionInput, SpecCode, SpecGroupTranslation, SpecOptionTranslation, SpecLanguage } from "./services/specs.service";
+export { analyticsService } from "./services/analytics.service";
+export type {
+  VisitorMetricsResponse,
+  VisitorWindow,
+  VisitorDailyPoint,
+} from "./services/analytics.service";
 export type { ApiResponse, ApiError } from "./types/api.types";
 export { ApiRequestError } from "./types/api.types";

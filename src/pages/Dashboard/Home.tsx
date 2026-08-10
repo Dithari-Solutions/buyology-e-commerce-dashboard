@@ -5,6 +5,9 @@ import { usersService } from "../../api/services/users.service";
 import { ordersService } from "../../api/services/orders.service";
 import { revenueService } from "../../api/services/revenue.service";
 import { productsService } from "../../api/services/products.service";
+import { analyticsService } from "../../api/services/analytics.service";
+import type { VisitorMetricsResponse } from "../../api/services/analytics.service";
+import VisitorsChart from "../../components/ecommerce/VisitorsChart";
 import MonthlySalesChart from "../../components/ecommerce/MonthlySalesChart";
 import StatisticsChart from "../../components/ecommerce/StatisticsChart";
 import MonthlyTarget from "../../components/ecommerce/MonthlyTarget";
@@ -18,6 +21,10 @@ import {
   PlusIcon,
   ArrowRightIcon,
   ListIcon,
+  UserCircleIcon,
+  EyeIcon,
+  ArrowUpIcon,
+  ArrowDownIcon,
 } from "../../icons";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import CategoryIcon from "@mui/icons-material/Category";
@@ -28,7 +35,13 @@ import PostAddIcon from "@mui/icons-material/PostAdd";
 import TuneIcon from "@mui/icons-material/Tune";
 import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
 
-type MetricKey = "customers" | "orders" | "revenue" | "products";
+type MetricKey =
+  | "customers"
+  | "orders"
+  | "revenue"
+  | "products"
+  | "uniqueVisitors"
+  | "visits";
 
 const METRIC_CARDS: {
   key: MetricKey;
@@ -69,6 +82,27 @@ const METRIC_CARDS: {
     bg: "bg-orange-50 dark:bg-orange-900/20",
     iconBg: "bg-orange-100 dark:bg-orange-800/40",
     iconColor: "text-orange-600 dark:text-orange-300",
+  },
+  // Website traffic. "Unique visitors" counts browsers, "total visits" counts
+  // browsing sessions — the same shopper returning next week adds a visit but not
+  // a unique visitor.
+  {
+    key: "uniqueVisitors",
+    label: "Unique Visitors",
+    icon: UserCircleIcon,
+    bg: "bg-teal-50 dark:bg-teal-900/20",
+    iconBg: "bg-teal-100 dark:bg-teal-800/40",
+    iconColor: "text-teal-600 dark:text-teal-300",
+  },
+  {
+    key: "visits",
+    label: "Total Visits",
+    icon: EyeIcon,
+    bg: "bg-sky-50 dark:bg-sky-900/20",
+    iconBg: "bg-sky-100 dark:bg-sky-800/40",
+    // eye.svg leaves its <path> with no fill and sets fill="none" on the root, so a
+    // text-* colour alone paints nothing — fill-current is what makes it visible.
+    iconColor: "fill-current text-sky-600 dark:text-sky-300",
   },
 ];
 
@@ -190,6 +224,8 @@ function MetricCard({
   iconBg,
   iconColor,
   loading,
+  hint,
+  trend,
 }: {
   label: string;
   value: string;
@@ -198,7 +234,13 @@ function MetricCard({
   iconBg: string;
   iconColor: string;
   loading?: boolean;
+  /** Secondary line under the headline number, e.g. "128 today". */
+  hint?: string;
+  /** Percentage change against the comparable previous window. */
+  trend?: number | null;
 }) {
+  const trendUp = trend != null && trend >= 0;
+
   return (
     <div
       className={`group relative overflow-hidden rounded-2xl border border-gray-100 ${bg} p-5 transition-all hover:shadow-lg dark:border-white/5 md:p-6`}
@@ -209,6 +251,25 @@ function MetricCard({
         >
           <Icon className={`size-6 ${iconColor}`} />
         </div>
+        {!loading && trend != null && (
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${
+              trendUp
+                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
+                : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+            }`}
+            title="Last 7 days vs. the 7 days before"
+          >
+            {/* fill-current must be repeated: svgr spreads props after the icon's own
+                className, so passing one here replaces the fill-current it ships with. */}
+            {trendUp ? (
+              <ArrowUpIcon className="size-3 fill-current" />
+            ) : (
+              <ArrowDownIcon className="size-3 fill-current" />
+            )}
+            {Math.abs(trend).toFixed(0)}%
+          </span>
+        )}
       </div>
       <div className="mt-5">
         <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
@@ -218,6 +279,9 @@ function MetricCard({
           <h3 className="mt-1 text-2xl font-bold text-gray-800 dark:text-white/90">
             {value}
           </h3>
+        )}
+        {!loading && hint && (
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{hint}</p>
         )}
       </div>
       {/* Subtle hover glow */}
@@ -268,8 +332,22 @@ const fmtCount = (n?: number) => (n == null ? "—" : n.toLocaleString());
 const fmtMoney = (n?: number) =>
   n == null ? "—" : `AED ${n.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 
+/** Percentage change between two windows; null when there is no baseline to compare against. */
+const pctChange = (current: number, previous: number): number | null => {
+  if (previous <= 0) return null;
+  return ((current - previous) / previous) * 100;
+};
+
 export default function Home() {
   const [stats, setStats] = useState<Stats>({});
+  /** Website traffic. Held whole because the chart needs the daily series too. */
+  const [visitors, setVisitors] = useState<VisitorMetricsResponse | null>(null);
+  /**
+   * Set when the traffic endpoint refuses or fails — an admin whose role lacks
+   * analytics:visitor:read gets a 403, and a card stuck on its loading skeleton forever reads as a
+   * broken dashboard.
+   */
+  const [visitorsUnavailable, setVisitorsUnavailable] = useState(false);
 
   useEffect(() => {
     const ctrl = new AbortController();
@@ -286,6 +364,12 @@ export default function Home() {
     productsService.getStats(ctrl.signal)
       .then((r) => setStats((s) => ({ ...s, products: r.data?.active })))
       .catch(() => {});
+    // 30 days covers both the cards and the chart's 7d/30d toggle in a single call.
+    analyticsService.getVisitorMetrics(30, ctrl.signal)
+      .then((r) => (r.data ? setVisitors(r.data) : setVisitorsUnavailable(true)))
+      .catch(() => {
+        if (!ctrl.signal.aborted) setVisitorsUnavailable(true);
+      });
     return () => ctrl.abort();
   }, []);
 
@@ -293,9 +377,36 @@ export default function Home() {
     if (key === "customers") return fmtCount(stats.customers);
     if (key === "orders") return fmtCount(stats.orders);
     if (key === "revenue") return fmtMoney(stats.revenue);
+    if (key === "uniqueVisitors") return fmtCount(visitors?.allTime.uniqueVisitors);
+    if (key === "visits") return fmtCount(visitors?.allTime.visits);
     return fmtCount(stats.products);
   };
-  const loadingFor = (key: MetricKey): boolean => stats[key] == null;
+
+  const loadingFor = (key: MetricKey): boolean => {
+    if (key === "uniqueVisitors" || key === "visits") {
+      return visitors == null && !visitorsUnavailable;
+    }
+    return stats[key] == null;
+  };
+
+  /** Today's figure, so the all-time headline has something current beside it. */
+  const hintFor = (key: MetricKey): string | undefined => {
+    if (!visitors) return undefined;
+    if (key === "uniqueVisitors") return `${visitors.today.uniqueVisitors.toLocaleString()} today`;
+    if (key === "visits") return `${visitors.today.visits.toLocaleString()} today`;
+    return undefined;
+  };
+
+  const trendFor = (key: MetricKey): number | null => {
+    if (!visitors) return null;
+    if (key === "uniqueVisitors") {
+      return pctChange(visitors.last7Days.uniqueVisitors, visitors.previous7Days.uniqueVisitors);
+    }
+    if (key === "visits") {
+      return pctChange(visitors.last7Days.visits, visitors.previous7Days.visits);
+    }
+    return null;
+  };
 
   return (
     <>
@@ -309,14 +420,26 @@ export default function Home() {
         <WelcomeBanner />
 
         {/* Metrics */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 md:gap-5">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 md:gap-5">
           {METRIC_CARDS.map(({ key, ...rest }) => (
-            <MetricCard key={key} {...rest} value={valueFor(key)} loading={loadingFor(key)} />
+            <MetricCard
+              key={key}
+              {...rest}
+              value={valueFor(key)}
+              loading={loadingFor(key)}
+              hint={hintFor(key)}
+              trend={trendFor(key)}
+            />
           ))}
         </div>
 
         {/* Pending & Active Orders */}
         <ActivePendingOrders />
+
+        {/* Website traffic — hidden entirely when the endpoint is unavailable to this admin */}
+        {!visitorsUnavailable && (
+          <VisitorsChart metrics={visitors} loading={visitors == null} />
+        )}
 
         {/* Quick Links */}
         <QuickLinks />
