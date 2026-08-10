@@ -23,6 +23,55 @@ function Json({ value }: { value: unknown }) {
   );
 }
 
+/**
+ * Request headers Quiqup sent with a webhook delivery.
+ *
+ * The backend has always stored these, but nothing rendered them — which mattered, because Quiqup
+ * publish no signature spec (no header name, algorithm variant or encoding), so the delivered
+ * headers are the only place that information exists. Anything that looks like a signature or a
+ * shared token is pulled out and shown up front; the rest stays collapsed.
+ */
+function WebhookHeaders({ headers }: { headers?: unknown }) {
+  if (headers == null) return null;
+
+  const entries: [string, string][] =
+    typeof headers === "object" && !Array.isArray(headers)
+      ? Object.entries(headers as Record<string, unknown>).map(([k, v]) => [k, String(v)])
+      : [];
+
+  const notable = entries.filter(([k]) =>
+    /sign|hmac|hash|digest|token|secret|timestamp|webhook/i.test(k)
+  );
+
+  return (
+    <details className="mt-2">
+      <summary className="cursor-pointer text-xs font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+        Request headers{entries.length ? ` (${entries.length})` : ""}
+        {notable.length > 0 && (
+          <span className="ms-2 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+            {notable.length} signature/token
+          </span>
+        )}
+      </summary>
+
+      {notable.length > 0 && (
+        <div className="mt-2 space-y-1">
+          {notable.map(([k, v]) => (
+            <div key={k} className="flex gap-2 rounded bg-amber-50 px-2 py-1 text-xs dark:bg-amber-900/20">
+              <span className="shrink-0 font-mono font-semibold text-amber-900 dark:text-amber-300">{k}</span>
+              <span className="break-all font-mono text-amber-800 dark:text-amber-200">{v}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="mt-2">
+        <Json value={headers} />
+      </div>
+    </details>
+  );
+}
+
 function StatusPill({ result }: { result?: QuiqupResult | null }) {
   if (!result) return null;
   const good = result.ok;
@@ -389,7 +438,10 @@ export default function QuiqupTestingPage() {
               <p className="text-gray-600 dark:text-gray-300">Configure Quiqup's staging webhook to POST to:</p>
               <p className="mt-1 break-all font-mono text-xs text-gray-800 dark:text-gray-100">{webhookUrl}</p>
               <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                Events seen in staging: ready_for_collection · collected · at_depot · out_for_delivery · delivery_complete · delivery_failed
+                Subscribe in Quiqdash under Integrations → Webhooks. Event names are dotted, e.g.
+                order.ready_for_collection · order.collected · order.at_depot · order.out_for_delivery ·
+                order.delivery_complete · order.delivery_failed · order.cancelled. Creating an order fires
+                nothing on its own — only a status transition does.
               </p>
             </div>
             <div className="flex items-center justify-between">
@@ -417,6 +469,7 @@ export default function QuiqupTestingPage() {
                       {w.sourceIp && <span className="text-xs text-gray-400">{w.sourceIp}</span>}
                     </div>
                     <Json value={w.payload} />
+                    <WebhookHeaders headers={w.headers} />
                   </div>
                 ))}
               </div>
