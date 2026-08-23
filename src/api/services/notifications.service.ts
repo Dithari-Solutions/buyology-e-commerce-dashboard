@@ -7,7 +7,8 @@ export interface NotificationItem {
   title: string;
   body: string;
   type: string;
-  isRead: boolean;
+  /** Wire name is `read` — Jackson serializes the entity's boolean is-getter without the prefix. */
+  read: boolean;
   createdAt: string;
 }
 

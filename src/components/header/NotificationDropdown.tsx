@@ -58,10 +58,10 @@ export default function NotificationDropdown() {
   }
 
   async function handleItemClick(n: NotificationItem) {
-    if (!n.isRead) {
+    if (!n.read) {
       try {
         await notificationsService.markRead(n.id);
-        setItems((prev) => prev.map((i) => (i.id === n.id ? { ...i, isRead: true } : i)));
+        setItems((prev) => prev.map((i) => (i.id === n.id ? { ...i, read: true } : i)));
         refreshUnread();
       } catch { /* ignore */ }
     }
@@ -76,7 +76,7 @@ export default function NotificationDropdown() {
   async function handleMarkAllRead() {
     try {
       await notificationsService.markAllRead();
-      setItems((prev) => prev.map((i) => ({ ...i, isRead: true })));
+      setItems((prev) => prev.map((i) => ({ ...i, read: true })));
       refreshUnread();
     } catch { /* ignore */ }
   }
@@ -138,10 +138,10 @@ export default function NotificationDropdown() {
                 <button
                   onClick={() => handleItemClick(n)}
                   className={`flex w-full gap-3 rounded-lg border-b border-gray-100 p-3 text-left hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5 ${
-                    n.isRead ? "" : "bg-brand-50/60 dark:bg-brand-500/5"
+                    n.read ? "" : "bg-brand-50/60 dark:bg-brand-500/5"
                   }`}
                 >
-                  <span className={`mt-1 h-2 w-2 shrink-0 rounded-full ${n.isRead ? "bg-transparent" : "bg-brand-500"}`} />
+                  <span className={`mt-1 h-2 w-2 shrink-0 rounded-full ${n.read ? "bg-transparent" : "bg-brand-500"}`} />
                   <span className="min-w-0">
                     <span className="block text-sm font-medium text-gray-800 dark:text-white/90">{n.title}</span>
                     <span className="block truncate text-sm text-gray-500 dark:text-gray-400">{n.body}</span>

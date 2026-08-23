@@ -33,7 +33,9 @@ export default function Support() {
           setError(e instanceof ApiRequestError ? e.message : "Could not load support tickets");
         }
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!ac.signal.aborted) setLoading(false);
+      });
     return () => ac.abort();
      
   }, [allowed, status, page]);

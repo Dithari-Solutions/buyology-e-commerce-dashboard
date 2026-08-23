@@ -32,6 +32,7 @@ export default function SupportDetail() {
     if (!allowed || !id) return;
     const ac = new AbortController();
     setLoading(true);
+    setError(null);
     supportService
       .getById(id, ac.signal)
       .then((r) => setTicket(r.data))
@@ -40,29 +41,34 @@ export default function SupportDetail() {
           setError(e instanceof ApiRequestError ? e.message : "Could not load the ticket");
         }
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!ac.signal.aborted) setLoading(false);
+      });
     return () => ac.abort();
      
   }, [allowed, id]);
 
   if (!allowed) return <Navigate to="/" replace />;
 
+  /** Returns true on success so callers only clear typed input when the request landed. */
   const run = async (
     kind: "status" | "reply",
     fn: () => Promise<{ data: SupportTicket }>,
     okMsg: string,
-  ) => {
+  ): Promise<boolean> => {
     setBusy(kind);
     setActionMsg(null);
     try {
       const r = await fn();
       setTicket(r.data);
       setActionMsg({ kind: "ok", text: okMsg });
+      return true;
     } catch (e) {
       setActionMsg({
         kind: "err",
         text: e instanceof ApiRequestError ? e.message : "Action failed",
       });
+      return false;
     } finally {
       setBusy(null);
     }
@@ -114,9 +120,14 @@ export default function SupportDetail() {
                   <div className="flex gap-3">
                     <dt className="w-36 shrink-0 text-gray-500">Page</dt>
                     <dd className="min-w-0 break-all text-gray-800 dark:text-gray-200">
-                      <a href={ticket.pageUrl} target="_blank" rel="noreferrer" className="text-brand-600 hover:underline">
-                        {ticket.pageUrl}
-                      </a>
+                      {/* Customer input: the backend keeps only http(s), but never link anything else. */}
+                      {/^https?:\/\//i.test(ticket.pageUrl) ? (
+                        <a href={ticket.pageUrl} target="_blank" rel="noreferrer" className="text-brand-600 hover:underline">
+                          {ticket.pageUrl}
+                        </a>
+                      ) : (
+                        ticket.pageUrl
+                      )}
                     </dd>
                   </div>
                 )}
@@ -187,7 +198,7 @@ export default function SupportDetail() {
                   disabled={busy !== null || !reply.trim()}
                   onClick={() =>
                     run("reply", () => supportService.reply(ticket.id, reply.trim()), "Reply sent — customer notified").then(
-                      () => setReply(""),
+                      (ok) => ok && setReply(""),
                     )
                   }
                   className="mt-3 w-full rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-500 disabled:opacity-50"
@@ -224,7 +235,7 @@ export default function SupportDetail() {
                       "status",
                       () => supportService.updateStatus(ticket.id, newStatus, note.trim() || undefined),
                       `Status set to ${STATUS_LABELS[newStatus]} — customer notified`,
-                    ).then(() => setNote(""))
+                    ).then((ok) => ok && setNote(""))
                   }
                   className="mt-3 w-full rounded-lg bg-gray-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-gray-700 disabled:opacity-50 dark:bg-gray-700 dark:hover:bg-gray-600"
                 >

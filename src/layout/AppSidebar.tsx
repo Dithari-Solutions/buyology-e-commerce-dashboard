@@ -27,8 +27,8 @@ import {
   UserCircleIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
-import { canAccessRoles, isProcurement, isRepair, isPureSupplier, isSuperAdmin, landingPathForCurrentUser } from "../auth/roles";
-import { storesService, b2bProductRequestsService, b2bQuotesService, repairService, sellService } from "../api";
+import { canAccessRoles, isProcurement, isRepair, isSupport, isPureSupplier, isSuperAdmin, landingPathForCurrentUser } from "../auth/roles";
+import { storesService, b2bProductRequestsService, b2bQuotesService, repairService, sellService, supportService } from "../api";
 import type { Store } from "../types";
 
 type NavArea = "admin" | "supplier" | "shared";
@@ -366,6 +366,29 @@ const AppSidebar: React.FC = () => {
     };
   }, [canSeeRepair]);
 
+  // Same again for support tickets: the Support group + "Tickets" sub-item badge counts
+  // tickets with unseen customer activity. Only CUSTOMER_SUPPORT / SuperAdmin can read it.
+  const canSeeSupport = isSuperAdmin() || isSupport();
+  const [newSupportCount, setNewSupportCount] = useState(0);
+  useEffect(() => {
+    if (!canSeeSupport) return;
+    let active = true;
+    const refresh = () => {
+      supportService
+        .getNewCount()
+        .then((r) => {
+          if (active) setNewSupportCount(r.data?.newCount ?? 0);
+        })
+        .catch(() => {/* badge is best-effort */});
+    };
+    refresh();
+    const t = setInterval(refresh, 30000);
+    return () => {
+      active = false;
+      clearInterval(t);
+    };
+  }, [canSeeSupport]);
+
   // Inject one Orders/Refunds sub-item per store, after the static entries. NOT gated to
   // super admins — any admin who sees the Orders/Refunds dropdown gets the full store list
   // (suppliers never see those groups, since they're area:"admin"). Gating on superAdminOnly
@@ -521,6 +544,19 @@ const AppSidebar: React.FC = () => {
                   <span className="absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75 animate-ping" />
                 </span>
               )}
+              {nav.name === "Support" && newSupportCount > 0 && (
+                <span
+                  className={`flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white ${
+                    isExpanded || isHovered || isMobileOpen
+                      ? "relative ml-2"
+                      : "absolute right-2 top-1.5"
+                  }`}
+                  title={`${newSupportCount} ticket${newSupportCount === 1 ? "" : "s"} with new activity`}
+                >
+                  {newSupportCount > 99 ? "99+" : newSupportCount}
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75 animate-ping" />
+                </span>
+              )}
               {nav.name === "Repair" && newRepairCount > 0 && (
                 <span
                   className={`flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white ${
@@ -624,6 +660,14 @@ const AppSidebar: React.FC = () => {
                             title={`${newSellCount} sell request${newSellCount === 1 ? "" : "s"} with new activity`}
                           >
                             {newSellCount > 99 ? "99+" : newSellCount}
+                          </span>
+                        )}
+                        {subItem.path === "/support" && newSupportCount > 0 && (
+                          <span
+                            className="flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white"
+                            title={`${newSupportCount} ticket${newSupportCount === 1 ? "" : "s"} with new activity`}
+                          >
+                            {newSupportCount > 99 ? "99+" : newSupportCount}
                           </span>
                         )}
                         {subItem.path === "/repair" && newRepairCount > 0 && (
