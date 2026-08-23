@@ -87,11 +87,11 @@ export default function NotificationDropdown() {
         onClick={() => (isOpen ? closeDropdown() : openDropdown())}
       >
         <span
-          className={`absolute right-0 top-0.5 z-10 h-2 w-2 rounded-full bg-orange-400 ${
+          className={`absolute right-0 top-0.5 z-10 h-2 w-2 rounded-full bg-gold-500 ${
             unread === 0 ? "hidden" : "flex"
           }`}
         >
-          <span className="absolute inline-flex w-full h-full bg-orange-400 rounded-full opacity-75 animate-ping"></span>
+          <span className="absolute inline-flex w-full h-full bg-gold-500 rounded-full opacity-75 animate-ping"></span>
         </span>
         <svg className="fill-current" width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
           <path

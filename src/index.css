@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap")
+@import url("https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,300..800;1,300..800&display=swap")
 layer(base);
 
 @import "tailwindcss";
@@ -7,7 +7,7 @@ layer(base);
 
 @theme {
   --font-*: initial;
-  --font-sans: "Plus Jakarta Sans", sans-serif;
+  --font-sans: "Raleway", "Plus Jakarta Sans", sans-serif;
 
   --breakpoint-*: initial;
   --breakpoint-2xsm: 375px;
@@ -42,18 +42,18 @@ layer(base);
   --color-black: #101828;
 
   /* Buyology brand purple — applied app-wide as the primary brand color */
-  --color-brand-25: #faf7ff;
-  --color-brand-50: #f4effe;
-  --color-brand-100: #ebe3fd;
-  --color-brand-200: #d9cbfb;
-  --color-brand-300: #bda4f7;
-  --color-brand-400: #9b72f1;
-  --color-brand-500: #7c3aed;
-  --color-brand-600: #6d28d9;
-  --color-brand-700: #5b21b6;
-  --color-brand-800: #4c1d95;
-  --color-brand-900: #3b0d6e;
-  --color-brand-950: #25064a;
+  --color-brand-25: #fbfafd;
+  --color-brand-50: #f5f3fa;
+  --color-brand-100: #eae6f4;
+  --color-brand-200: #d4cce8;
+  --color-brand-300: #b2a4d4;
+  --color-brand-400: #8b77b9;
+  --color-brand-500: #533f91;
+  --color-brand-600: #402f75;
+  --color-brand-700: #35275f;
+  --color-brand-800: #2a1f4b;
+  --color-brand-900: #1f1738;
+  --color-brand-950: #130e24;
 
   --color-blue-light-25: #f5fbff;
   --color-blue-light-50: #f0f9ff;
@@ -139,27 +139,39 @@ layer(base);
   --color-theme-purple-500: #7a5af8;
 
   /* Buyology brand palette — purple (primary) + yellow (accent) */
-  --color-buyology-25: #faf7ff;
-  --color-buyology-50: #f4effe;
-  --color-buyology-100: #ebe3fd;
-  --color-buyology-200: #d9cbfb;
-  --color-buyology-300: #bda4f7;
-  --color-buyology-400: #9b72f1;
-  --color-buyology-500: #7c3aed;
-  --color-buyology-600: #6d28d9;
-  --color-buyology-700: #5b21b6;
-  --color-buyology-800: #4c1d95;
-  --color-buyology-900: #3b0d6e;
-  --color-buyology-950: #25064a;
+  /* Mikado Yellow — the Buyology accent (Brand Identity Guidelines) */
+  --color-gold-50: #fff8e6;
+  --color-gold-100: #ffefc2;
+  --color-gold-200: #ffe28a;
+  --color-gold-300: #ffd352;
+  --color-gold-400: #ffc72e;
+  --color-gold-500: #ffbe12;
+  --color-gold-600: #e0a710;
+  --color-gold-700: #b8890d;
+  --color-gold-800: #8a6500;
+  --color-gold-900: #5c4400;
 
-  --color-buyology-yellow-25: #fffdf2;
-  --color-buyology-yellow-50: #fefce8;
-  --color-buyology-yellow-100: #fef9c3;
-  --color-buyology-yellow-200: #fef08a;
-  --color-buyology-yellow-300: #fde047;
-  --color-buyology-yellow-400: #facc15;
-  --color-buyology-yellow-500: #eab308;
-  --color-buyology-yellow-600: #ca8a04;
+  --color-buyology-25: #fbfafd;
+  --color-buyology-50: #f5f3fa;
+  --color-buyology-100: #eae6f4;
+  --color-buyology-200: #d4cce8;
+  --color-buyology-300: #b2a4d4;
+  --color-buyology-400: #8b77b9;
+  --color-buyology-500: #533f91;
+  --color-buyology-600: #402f75;
+  --color-buyology-700: #35275f;
+  --color-buyology-800: #2a1f4b;
+  --color-buyology-900: #1f1738;
+  --color-buyology-950: #130e24;
+
+  --color-buyology-yellow-25: #fffdf5;
+  --color-buyology-yellow-50: #fff8e6;
+  --color-buyology-yellow-100: #ffefc2;
+  --color-buyology-yellow-200: #ffe28a;
+  --color-buyology-yellow-300: #ffd352;
+  --color-buyology-yellow-400: #ffc72e;
+  --color-buyology-yellow-500: #ffbe12;
+  --color-buyology-yellow-600: #e0a710;
 
   --shadow-theme-md: 0px 4px 8px -2px rgba(16, 24, 40, 0.1),
     0px 2px 4px -2px rgba(16, 24, 40, 0.06);

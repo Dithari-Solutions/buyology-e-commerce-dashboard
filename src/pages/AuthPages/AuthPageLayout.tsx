@@ -11,9 +11,9 @@ export default function AuthLayout({
       {/* Left branding panel */}
       <div className="hidden lg:flex lg:w-[45%] bg-[#402F75] relative overflow-hidden flex-col items-center justify-center p-12 z-10">
         {/* Decorative blobs */}
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#FBBB14]/10 rounded-full" />
+        <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#FFBE12]/10 rounded-full" />
         <div className="absolute -bottom-40 -right-20 w-[28rem] h-[28rem] bg-white/5 rounded-full" />
-        <div className="absolute top-1/2 right-0 translate-x-1/2 w-48 h-48 bg-[#FBBB14]/15 rounded-full" />
+        <div className="absolute top-1/2 right-0 translate-x-1/2 w-48 h-48 bg-[#FFBE12]/15 rounded-full" />
 
         <div className="relative z-10 text-center max-w-sm">
           <img
@@ -28,18 +28,9 @@ export default function AuthLayout({
             Your all-in-one e-commerce dashboard for smarter business decisions.
           </p>
 
-          <div className="mt-12 pt-8 border-t border-white/10 grid grid-cols-3 gap-4">
-            {[
-              { value: "10K+", label: "Products" },
-              { value: "99%", label: "Uptime" },
-              { value: "500+", label: "Clients" },
-            ].map(({ value, label }) => (
-              <div key={label}>
-                <div className="text-xl font-bold text-[#FBBB14]">{value}</div>
-                <div className="text-white/50 text-xs mt-0.5">{label}</div>
-              </div>
-            ))}
-          </div>
+          <p className="mt-12 border-t border-white/10 pt-8 text-sm font-semibold uppercase tracking-[0.25em] text-[#FFBE12]">
+            Buy the why
+          </p>
         </div>
       </div>
 
