@@ -35,6 +35,8 @@ export function notificationRoute(type: string): string | null {
       return "/orders/all";
     case "REPAIR_REQUEST":
       return "/repair";
+    case "SUPPORT_REQUEST":
+      return "/support";
     case "SELL_REQUEST":
       return "/procurement/sell-requests";
     default:

@@ -11,6 +11,7 @@ const TYPE_LABELS: Record<string, string> = {
   REFUND_REQUEST: "Refund request",
   REPAIR_REQUEST: "Repair request",
   SELL_REQUEST: "Sell request",
+  SUPPORT_REQUEST: "Support ticket",
   ORDER_STATUS: "Order update",
 };
 

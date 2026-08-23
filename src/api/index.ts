@@ -58,6 +58,14 @@ export type {
   SetSellOfferPayload,
 } from "./services/sell.service";
 export { repairService } from "./services/repair.service";
+export { supportService } from "./services/support.service";
+export type {
+  SupportTicket,
+  SupportTicketStatus,
+  SupportCategory,
+  SupportMessage,
+  SupportCount,
+} from "./services/support.service";
 export type {
   RepairRequest,
   RepairStatus,

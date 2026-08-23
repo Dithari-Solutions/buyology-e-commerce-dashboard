@@ -40,6 +40,11 @@ export function isRepair(): boolean {
   return hasRole("REPAIR");
 }
 
+/** Customer-support role — answers support tickets in the Support section. */
+export function isSupport(): boolean {
+  return hasRole("CUSTOMER_SUPPORT");
+}
+
 /**
  * Whether the current user may see a nav entry restricted to `allowedRoles`.
  * SUPERADMIN sees everything; an undefined/empty list means "all admins".

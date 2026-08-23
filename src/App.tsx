@@ -52,6 +52,8 @@ import NewsletterPage from "./pages/Newsletter/NewsletterPage";
 import BannersPage from "./pages/Banners/BannersPage";
 import B2BInquiriesPage from "./pages/B2BInquiries/B2BInquiriesPage";
 import RefundsPage from "./pages/Refunds/RefundsPage";
+import Support from "./pages/Support/Support";
+import SupportDetail from "./pages/Support/SupportDetail";
 import RefundDetailPage from "./pages/Refunds/RefundDetailPage";
 import PayoutsPage from "./pages/Payouts/PayoutsPage";
 import PayoutDetailPage from "./pages/Payouts/PayoutDetailPage";
@@ -204,6 +206,10 @@ export default function App() {
               {/* Repair — customer device-repair requests (REPAIR + SUPERADMIN; pages self-gate) */}
               <Route path="/repair" element={<Repair />} />
               <Route path="/repair/:id" element={<RepairDetail />} />
+
+              {/* Support tickets */}
+              <Route path="/support" element={<Support />} />
+              <Route path="/support/:id" element={<SupportDetail />} />
 
               {/* Quiqup Testing — isolated staging delivery sandbox (SUPERADMIN; sidebar-gated).
                   Talks only to the local quiqup-sandbox server, never the prod order APIs. */}
