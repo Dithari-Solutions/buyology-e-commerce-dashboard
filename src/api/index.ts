@@ -17,7 +17,7 @@ export type {
 } from "./services/stories.service";
 export { productsService } from "./services/products.service";
 export type { ProductLanguage, CreateProductRequest, CreateProductSpecOption, UpdateProductRequest } from "./services/products.service";
-export { notificationsService } from "./services/notifications.service";
+export { notificationsService, notificationRoute } from "./services/notifications.service";
 export type { NotificationItem } from "./services/notifications.service";
 export { categoriesService } from "./services/categories.service";
 export { brandsService } from "./services/brands.service";

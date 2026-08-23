@@ -105,9 +105,43 @@ export interface OrderAdminResponse {
   paymentMethod?: string;
   
   paidAt?: string;
+  shippedAt?: string;
   deliveredAt?: string;
+  cancelledAt?: string;
   createdAt: string;
   updatedAt: string;
+
+  // Money breakdown (the page previously showed only totalAmount)
+  subtotal?: number | null;
+  shippingFee?: number | null;
+  discount?: number | null;
+  couponCode?: string | null;
+
+  // Full address snapshot
+  addressLine1?: string | null;
+  addressLine2?: string | null;
+  state?: string | null;
+  postalCode?: string | null;
+
+  // Carrier / tracking
+  trackingCode?: string | null;
+  estimatedDeliveryTime?: string | null;
+
+  // Payment identity (admin-only): the settling transaction's method + masked card tail
+  paymentTransactionId?: string | null;
+  paymentMethodType?: string | null;
+  cardLast4?: string | null;
+  cardBrand?: string | null;
+
+  // Quiqup dispatch operations — "did this order reach the carrier, and why not?"
+  quiqupOrderId?: string | null;
+  quiqupStatus?: string | null;
+  quiqupDispatchedAt?: string | null;
+  quiqupDispatchError?: string | null;
+  quiqupCancelStatus?: string | null;
+  quiqupCancelConfirmedAt?: string | null;
+  quiqupCancelError?: string | null;
+  cancelRefundInitiatedAt?: string | null;
 }
 
 export interface OrderListResponse {

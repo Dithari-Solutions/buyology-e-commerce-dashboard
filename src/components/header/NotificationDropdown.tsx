@@ -1,6 +1,18 @@
 import { useCallback, useEffect, useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
-import { notificationsService, type NotificationItem } from "../../api";
+import { useNavigate } from "react-router";
+import { notificationsService, notificationRoute, type NotificationItem } from "../../api";
+
+/** Human labels for the machine types the backend stamps on feed rows. */
+const TYPE_LABELS: Record<string, string> = {
+  NEW_ORDER: "Order paid",
+  ORDER_CANCELLED: "Order cancelled",
+  ORDER_ATTENTION: "Needs attention",
+  REFUND_REQUEST: "Refund request",
+  REPAIR_REQUEST: "Repair request",
+  SELL_REQUEST: "Sell request",
+  ORDER_STATUS: "Order update",
+};
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -13,6 +25,7 @@ function timeAgo(iso: string): string {
 }
 
 export default function NotificationDropdown() {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [unread, setUnread] = useState(0);
@@ -51,6 +64,20 @@ export default function NotificationDropdown() {
         refreshUnread();
       } catch { /* ignore */ }
     }
+    // The feed is a to-do list: clicking an item goes to where the work is.
+    const route = notificationRoute(n.type);
+    if (route) {
+      closeDropdown();
+      navigate(route);
+    }
+  }
+
+  async function handleMarkAllRead() {
+    try {
+      await notificationsService.markAllRead();
+      setItems((prev) => prev.map((i) => ({ ...i, isRead: true })));
+      refreshUnread();
+    } catch { /* ignore */ }
   }
 
   return (
@@ -82,6 +109,14 @@ export default function NotificationDropdown() {
       >
         <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100 dark:border-gray-700">
           <h5 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Notifications</h5>
+          {unread > 0 && (
+            <button
+              onClick={handleMarkAllRead}
+              className="text-xs font-medium text-brand-500 hover:underline"
+            >
+              Mark all read
+            </button>
+          )}
           <button onClick={closeDropdown} className="text-gray-500 transition dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
             <svg className="fill-current" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path
@@ -110,7 +145,7 @@ export default function NotificationDropdown() {
                     <span className="block text-sm font-medium text-gray-800 dark:text-white/90">{n.title}</span>
                     <span className="block truncate text-sm text-gray-500 dark:text-gray-400">{n.body}</span>
                     <span className="mt-1 block text-xs text-gray-400">
-                      {n.type} · {timeAgo(n.createdAt)}
+                      {TYPE_LABELS[n.type] ?? n.type} · {timeAgo(n.createdAt)}
                     </span>
                   </span>
                 </button>

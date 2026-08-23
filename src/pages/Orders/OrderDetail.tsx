@@ -284,8 +284,20 @@ export default function OrderDetail() {
               <div className="mt-6 border-t border-gray-100 pt-4 dark:border-gray-800 space-y-2">
                 <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
                   <span>Subtotal</span>
-                  <span>{order.currency} {order.totalAmount.toFixed(2)}</span>
+                  <span>{order.currency} {(order.subtotal ?? order.totalAmount).toFixed(2)}</span>
                 </div>
+                {order.shippingFee != null && (
+                  <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
+                    <span>Delivery fee</span>
+                    <span>{order.currency} {order.shippingFee.toFixed(2)}</span>
+                  </div>
+                )}
+                {order.discount != null && order.discount > 0 && (
+                  <div className="flex justify-between text-sm text-emerald-600 dark:text-emerald-400">
+                    <span>Discount{order.couponCode ? ` (${order.couponCode})` : ""}</span>
+                    <span>− {order.currency} {order.discount.toFixed(2)}</span>
+                  </div>
+                )}
                 {order.creditApplied != null && order.creditApplied > 0 && (
                   <div className="flex justify-between text-sm text-purple-700 dark:text-purple-400">
                     <span>B2B credit applied</span>
@@ -540,7 +552,9 @@ export default function OrderDetail() {
                   <div>
                     <p className="text-xs text-gray-400 uppercase mb-1">Shipping Address</p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {order.shippingAddress || `${order.city || ""}, ${order.country || ""}`}
+                      {[order.addressLine1, order.addressLine2, order.city, order.state, order.postalCode, order.country]
+                        .filter(Boolean)
+                        .join(", ") || order.shippingAddress || `${order.city || ""}, ${order.country || ""}`}
                     </p>
                     {order.deliveryLatitude != null && order.deliveryLongitude != null && (
                       <a
@@ -575,6 +589,99 @@ export default function OrderDetail() {
             </div>
           </div>
 
+          {/* Payment & milestones — how it was paid, and when each stage happened */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+            <h3 className="mb-4 font-semibold text-gray-800 dark:text-white/90">Payment & Milestones</h3>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <p className="text-xs text-gray-400 uppercase mb-1">Paid with</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {order.paymentMethodType === "CARD"
+                    ? `${order.cardBrand ?? "Card"}${order.cardLast4 ? ` •••• ${order.cardLast4}` : ""}`
+                    : order.paymentMethodType === "TABBY"
+                      ? "Tabby (pay in 4)"
+                      : order.paymentMethodType === "TAMARA"
+                        ? "Tamara"
+                        : order.paymentMethodType === "B2B_CREDIT"
+                          ? "B2B credit"
+                          : order.paymentTransactionId
+                            ? "Online payment"
+                            : "—"}
+                </p>
+                {order.paymentTransactionId && (
+                  <p className="mt-1 break-all text-xs text-gray-400">tx {order.paymentTransactionId}</p>
+                )}
+              </div>
+              {(order.trackingCode || order.carrierName) && (
+                <div>
+                  <p className="text-xs text-gray-400 uppercase mb-1">Carrier / tracking</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {[order.carrierName, order.trackingCode].filter(Boolean).join(" · ")}
+                  </p>
+                </div>
+              )}
+              {([
+                ["Placed", order.createdAt],
+                ["Paid", order.paidAt],
+                ["Shipped", order.shippedAt],
+                ["Delivered", order.deliveredAt],
+                ["Cancelled", order.cancelledAt],
+              ] as const)
+                .filter(([, ts]) => !!ts)
+                .map(([label, ts]) => (
+                  <div key={label}>
+                    <p className="text-xs text-gray-400 uppercase mb-1">{label}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{formatDate(ts as string)}</p>
+                  </div>
+                ))}
+            </div>
+          </div>
+
+          {/* Quiqup dispatch — did this order reach the carrier, and why not? */}
+          {(order.quiqupOrderId || order.quiqupDispatchError || order.quiqupCancelStatus) && (
+            <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+              <h3 className="mb-4 font-semibold text-gray-800 dark:text-white/90">Quiqup Dispatch</h3>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {order.quiqupOrderId && (
+                  <div>
+                    <p className="text-xs text-gray-400 uppercase mb-1">Quiqup job</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {order.quiqupOrderId}
+                      {order.quiqupStatus ? ` · ${order.quiqupStatus}` : ""}
+                    </p>
+                    {order.quiqupDispatchedAt && (
+                      <p className="mt-1 text-xs text-gray-400">dispatched {formatDate(order.quiqupDispatchedAt)}</p>
+                    )}
+                  </div>
+                )}
+                {order.quiqupDispatchError && (
+                  <div>
+                    <p className="text-xs text-gray-400 uppercase mb-1">Dispatch error</p>
+                    <p className="text-sm text-red-600 dark:text-red-400">{order.quiqupDispatchError}</p>
+                  </div>
+                )}
+                {order.quiqupCancelStatus && (
+                  <div>
+                    <p className="text-xs text-gray-400 uppercase mb-1">Cancel status</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {order.quiqupCancelStatus}
+                      {order.quiqupCancelConfirmedAt ? ` · confirmed ${formatDate(order.quiqupCancelConfirmedAt)}` : ""}
+                    </p>
+                    {order.quiqupCancelError && (
+                      <p className="mt-1 text-xs text-red-600 dark:text-red-400">{order.quiqupCancelError}</p>
+                    )}
+                  </div>
+                )}
+                {order.cancelRefundInitiatedAt && (
+                  <div>
+                    <p className="text-xs text-gray-400 uppercase mb-1">Refund initiated</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{formatDate(order.cancelRefundInitiatedAt)}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Tracking History */}
           <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
             <h3 className="mb-4 font-semibold text-gray-800 dark:text-white/90">Tracking History</h3>
@@ -586,6 +693,9 @@ export default function OrderDetail() {
                   <p className="text-xs text-gray-500">{formatDate(event.timestamp)}</p>
                   {event.message && (
                     <p className="mt-1 text-xs text-gray-400">{event.message}</p>
+                  )}
+                  {event.location && (
+                    <p className="mt-0.5 text-xs text-gray-400">{event.location}</p>
                   )}
                 </div>
               ))}
