@@ -53,6 +53,7 @@ import BannersPage from "./pages/Banners/BannersPage";
 import B2BInquiriesPage from "./pages/B2BInquiries/B2BInquiriesPage";
 import RefundsPage from "./pages/Refunds/RefundsPage";
 import Support from "./pages/Support/Support";
+import Giveaway from "./pages/Giveaway/Giveaway";
 import SupportDetail from "./pages/Support/SupportDetail";
 import RefundDetailPage from "./pages/Refunds/RefundDetailPage";
 import PayoutsPage from "./pages/Payouts/PayoutsPage";
@@ -206,6 +207,9 @@ export default function App() {
               {/* Repair — customer device-repair requests (REPAIR + SUPERADMIN; pages self-gate) */}
               <Route path="/repair" element={<Repair />} />
               <Route path="/repair/:id" element={<RepairDetail />} />
+
+              {/* Giveaway */}
+              <Route path="/giveaway" element={<Giveaway />} />
 
               {/* Support tickets */}
               <Route path="/support" element={<Support />} />

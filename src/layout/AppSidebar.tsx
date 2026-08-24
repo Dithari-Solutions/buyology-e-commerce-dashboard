@@ -15,6 +15,7 @@ import SportsEsportsOutlinedIcon from '@mui/icons-material/SportsEsportsOutlined
 import RequestQuoteOutlinedIcon from '@mui/icons-material/RequestQuoteOutlined';
 import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
 import SupportAgentOutlinedIcon from '@mui/icons-material/SupportAgentOutlined';
+import CardGiftcardOutlinedIcon from '@mui/icons-material/CardGiftcardOutlined';
 import ScienceOutlinedIcon from '@mui/icons-material/ScienceOutlined';
 import WarehouseOutlinedIcon from '@mui/icons-material/WarehouseOutlined';
 
@@ -166,6 +167,14 @@ const navItems: NavItem[] = [
     roles: [STORE, SUPPORT],
     subItems: [
       { name: "All Refunds", path: "/refunds" },
+    ],
+  },
+  {
+    name: "Giveaway",
+    icon: <CardGiftcardOutlinedIcon />,
+    roles: [SUPER, MARKETING],
+    subItems: [
+      { name: "Entries", path: "/giveaway", pro: false },
     ],
   },
   {

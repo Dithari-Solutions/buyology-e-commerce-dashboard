@@ -59,6 +59,8 @@ export type {
 } from "./services/sell.service";
 export { repairService } from "./services/repair.service";
 export { supportService } from "./services/support.service";
+export { giveawayService } from "./services/giveaway.service";
+export type { GiveawayEntry } from "./services/giveaway.service";
 export type {
   SupportTicket,
   SupportTicketStatus,
