@@ -172,7 +172,9 @@ const navItems: NavItem[] = [
   {
     name: "Giveaway",
     icon: <CardGiftcardOutlinedIcon />,
-    roles: [SUPER, MARKETING],
+    // Superadmin only, matching the page guard and the backend endpoint. Listing MARKETING
+    // here would show the entry to someone the API then answers 403 to.
+    roles: [SUPER],
     subItems: [
       { name: "Entries", path: "/giveaway", pro: false },
     ],
