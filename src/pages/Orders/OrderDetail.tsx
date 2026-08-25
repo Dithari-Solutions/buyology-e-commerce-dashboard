@@ -82,6 +82,7 @@ export default function OrderDetail() {
 
   const [busy, setBusy] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [recheckMsg, setRecheckMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [cancellationReason, setCancellationReason] = useState("");
   const pickupInputRef = useRef<HTMLInputElement>(null);
   const dropoffInputRef = useRef<HTMLInputElement>(null);
@@ -157,6 +158,31 @@ export default function OrderDetail() {
       setBusy(null);
     }
   }, [orderId, cancellationReason]);
+
+  /**
+   * Ask Paymob what an unsettled payment really did. For the case where the gateway took the
+   * money but the webhook never landed, leaving a paid order in "Awaiting payment" — no
+   * automatic path rescues that, because the reconciler only promotes payments already marked
+   * successful. The server settles the order through the normal success path if Paymob confirms.
+   */
+  const handleRecheckPayment = useCallback(async () => {
+    if (!orderId) return;
+    setBusy("recheck");
+    setActionError(null);
+    setRecheckMsg(null);
+    try {
+      const res = await ordersService.recheckPayment(orderId);
+      setRecheckMsg({ ok: res.data.settled, text: res.data.message });
+      if (res.data.settled) {
+        const fresh = await ordersService.getById(orderId);
+        setOrder(fresh.data);
+      }
+    } catch (err) {
+      setActionError(err instanceof ApiRequestError ? err.message : "Could not re-check the payment.");
+    } finally {
+      setBusy(null);
+    }
+  }, [orderId]);
 
   const handleProofUpload = useCallback(async (type: "PICKUP" | "DROPOFF", file: File) => {
     if (!orderId) return;
@@ -406,6 +432,33 @@ export default function OrderDetail() {
             {order.cancellationReason && (
               <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700 dark:bg-red-500/10 dark:text-red-300">
                 <span className="font-semibold">Cancellation reason:</span> {order.cancellationReason}
+              </p>
+            )}
+            {order.status === "PENDING_PAYMENT" && (
+              <div className="mt-3 border-t border-gray-100 pt-3 dark:border-gray-800">
+                <p className="text-xs text-gray-500">
+                  Paid at the gateway but still showing as awaiting payment? Ask Paymob what the
+                  payment really did — if it went through, the order is settled properly here.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleRecheckPayment}
+                  disabled={busy !== null}
+                  className="mt-2 rounded-lg bg-gray-800 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-gray-700 disabled:opacity-50 dark:bg-gray-700 dark:hover:bg-gray-600"
+                >
+                  {busy === "recheck" ? "Checking with Paymob…" : "Re-check payment"}
+                </button>
+              </div>
+            )}
+            {recheckMsg && (
+              <p
+                className={`mt-3 rounded-lg px-3 py-2 text-xs ${
+                  recheckMsg.ok
+                    ? "bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-300"
+                    : "bg-yellow-50 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-300"
+                }`}
+              >
+                {recheckMsg.text}
               </p>
             )}
             {actionError && (

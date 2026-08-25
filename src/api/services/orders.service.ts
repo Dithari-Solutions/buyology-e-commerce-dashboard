@@ -8,6 +8,14 @@ import type {
 
 const BASE = "/api/admin/orders";
 
+/** What a payment re-check found at the gateway. */
+export interface PaymentRecheckResult {
+  /** True when the gateway confirmed payment and the order was settled. */
+  settled: boolean;
+  status: string | null;
+  message: string;
+}
+
 export const ordersService = {
   // GET /api/admin/orders
   getAll(
@@ -79,6 +87,19 @@ export const ordersService = {
     const query = new URLSearchParams({ status });
     if (notes) query.set("notes", notes);
     return apiClient.patch<ApiResponse<OrderAdminResponse>>(`/api/supplier/orders/${id}/status?${query}`);
+  },
+
+  /**
+   * POST /api/admin/payments/orders/{id}/recheck
+   *
+   * Asks Paymob what the order's outstanding payment really did, and settles the order if it
+   * was paid. For the case where the gateway took the money but the webhook never landed, so
+   * a paid order sits in "Awaiting payment" and no automatic path can rescue it.
+   */
+  recheckPayment(id: string): Promise<ApiResponse<PaymentRecheckResult>> {
+    return apiClient.post<ApiResponse<PaymentRecheckResult>>(
+      `/api/admin/payments/orders/${id}/recheck`,
+    );
   },
 
   // POST /api/admin/orders/{id}/proof/{type}  (multipart)
