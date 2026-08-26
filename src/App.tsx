@@ -54,6 +54,7 @@ import B2BInquiriesPage from "./pages/B2BInquiries/B2BInquiriesPage";
 import RefundsPage from "./pages/Refunds/RefundsPage";
 import Support from "./pages/Support/Support";
 import Giveaway from "./pages/Giveaway/Giveaway";
+import OrdersTrash from "./pages/Orders/OrdersTrash";
 import SupportDetail from "./pages/Support/SupportDetail";
 import RefundDetailPage from "./pages/Refunds/RefundDetailPage";
 import PayoutsPage from "./pages/Payouts/PayoutsPage";
@@ -177,6 +178,8 @@ export default function App() {
               <Route path="/b2b-inquiries" element={<B2BInquiriesPage />} />
 
               {/* Refunds */}
+              <Route path="/orders/trash" element={<OrdersTrash />} />
+
               <Route path="/refunds" element={<RefundsPage />} />
               <Route path="/refunds/store/:storeId" element={<RefundsPage />} />
               <Route path="/refunds/:id" element={<RefundDetailPage />} />

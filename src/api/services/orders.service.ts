@@ -8,6 +8,26 @@ import type {
 
 const BASE = "/api/admin/orders";
 
+/** One order sitting in the trash, and when it will be destroyed. */
+export interface TrashedOrder {
+  id: string;
+  deletedAt: string | null;
+  deletedBy: string | null;
+  status: string | null;
+  totalAmount: number | null;
+  currency: string | null;
+  createdAt: string | null;
+  /** 30 days after deletion. Null only if the deletion timestamp is missing. */
+  purgeAt: string | null;
+}
+
+export interface TrashPage {
+  content: TrashedOrder[];
+  totalElements: number;
+  page: number;
+  size: number;
+}
+
 /** What a payment re-check found at the gateway. */
 export interface PaymentRecheckResult {
   /** True when the gateway confirmed payment and the order was settled. */
@@ -107,6 +127,25 @@ export const ordersService = {
     return apiClient.post<ApiResponse<PaymentRecheckResult>>(
       `/api/admin/payments/orders/${id}/recheck${query}`,
     );
+  },
+
+  /**
+   * DELETE /api/admin/orders/{id} — move an order to the trash (superadmin).
+   * Not a status change: it leaves every list, including the customer's own order history.
+   * Recoverable for 30 days.
+   */
+  trash(id: string): Promise<ApiResponse<void>> {
+    return apiClient.delete<ApiResponse<void>>(`${BASE}/${id}`);
+  },
+
+  // GET /api/admin/orders/trash
+  listTrash(page = 0, size = 20): Promise<ApiResponse<TrashPage>> {
+    return apiClient.get<ApiResponse<TrashPage>>(`${BASE}/trash?page=${page}&size=${size}`);
+  },
+
+  // POST /api/admin/orders/trash/{id}/restore
+  restoreFromTrash(id: string): Promise<ApiResponse<void>> {
+    return apiClient.post<ApiResponse<void>>(`${BASE}/trash/${id}/restore`);
   },
 
   // POST /api/admin/orders/{id}/proof/{type}  (multipart)

@@ -4,6 +4,7 @@ import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Badge from "../../components/ui/badge/Badge";
 import { ordersService, ApiRequestError } from "../../api";
+import { isSuperAdmin } from "../../auth/roles";
 import { courierProfilesService, type CourierProfile } from "../../api/services/courierProfiles.service";
 import type { OrderAdminResponse, OrderStatus } from "../../types";
 
@@ -84,6 +85,7 @@ export default function OrderDetail() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [recheckMsg, setRecheckMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [paymobTxnId, setPaymobTxnId] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [cancellationReason, setCancellationReason] = useState("");
   const pickupInputRef = useRef<HTMLInputElement>(null);
   const dropoffInputRef = useRef<HTMLInputElement>(null);
@@ -184,6 +186,24 @@ export default function OrderDetail() {
       setBusy(null);
     }
   }, [orderId, paymobTxnId]);
+
+  /**
+   * Move the order to the trash. Two-step on purpose: this removes the order from every list,
+   * including the customer's own history, and is only recoverable for 30 days.
+   */
+  const handleDelete = useCallback(async () => {
+    if (!orderId) return;
+    setBusy("delete");
+    setActionError(null);
+    try {
+      await ordersService.trash(orderId);
+      navigate("/orders/trash");
+    } catch (err) {
+      setActionError(err instanceof ApiRequestError ? err.message : "Could not delete the order.");
+      setBusy(null);
+      setConfirmDelete(false);
+    }
+  }, [orderId, navigate]);
 
   const handleProofUpload = useCallback(async (type: "PICKUP" | "DROPOFF", file: File) => {
     if (!orderId) return;
@@ -471,6 +491,45 @@ export default function OrderDetail() {
               >
                 {recheckMsg.text}
               </p>
+            )}
+            {isSuperAdmin() && (
+              <div className="mt-4 border-t border-gray-100 pt-3 dark:border-gray-800">
+                {confirmDelete ? (
+                  <div className="rounded-lg bg-red-50 p-3 dark:bg-red-500/10">
+                    <p className="text-xs text-red-700 dark:text-red-300">
+                      Delete this order? It leaves every list, including the customer's own order
+                      history, and can be restored from the trash for 30 days.
+                    </p>
+                    <div className="mt-2 flex gap-2">
+                      <button
+                        type="button"
+                        onClick={handleDelete}
+                        disabled={busy !== null}
+                        className="rounded-lg bg-red-600 px-3 py-2 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50"
+                      >
+                        {busy === "delete" ? "Deleting…" : "Yes, move to trash"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setConfirmDelete(false)}
+                        disabled={busy !== null}
+                        className="rounded-lg bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:bg-gray-800 dark:text-gray-300"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setConfirmDelete(true)}
+                    disabled={busy !== null}
+                    className="text-xs font-medium text-red-600 hover:underline disabled:opacity-50 dark:text-red-400"
+                  >
+                    Delete order
+                  </button>
+                )}
+              </div>
             )}
             {actionError && (
               <p className="mt-3 text-xs text-red-500">{actionError}</p>
