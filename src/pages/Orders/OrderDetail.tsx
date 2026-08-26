@@ -7,6 +7,7 @@ import { ordersService, ApiRequestError } from "../../api";
 import { isSuperAdmin } from "../../auth/roles";
 import { courierProfilesService, type CourierProfile } from "../../api/services/courierProfiles.service";
 import type { OrderAdminResponse, OrderStatus } from "../../types";
+import { PaymentSupportPanel } from "./PaymentSupportPanel";
 
 // Status transitions allowed from each current status (must mirror backend validateTransition).
 // Pickup orders branch to READY_FOR_PICKUP after packaging; delivery orders go to a courier.
@@ -711,6 +712,10 @@ export default function OrderDetail() {
               )}
             </div>
           </div>
+
+          {/* Why the payment didn't complete, and the one place to do something about it. Renders
+              itself away on orders that paid first time with nothing to explain. */}
+          {orderId && <PaymentSupportPanel orderId={orderId} />}
 
           {/* Payment & milestones — how it was paid, and when each stage happened */}
           <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">

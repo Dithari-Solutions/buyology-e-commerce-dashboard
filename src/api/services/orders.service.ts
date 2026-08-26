@@ -8,6 +8,69 @@ import type {
 
 const BASE = "/api/admin/orders";
 
+/** Why an order's payment did not complete, and where the customer stopped. */
+export interface PaymentStallDiagnosis {
+  code: string;
+  stage: string;
+  summary: string;
+  detail: string | null;
+  /** A starting point for the message box — never sent on its own. */
+  suggestedMessage: string | null;
+  /** True when the money is already in. Contacting this customer would be wrong. */
+  customerHasPaid: boolean;
+  contactRecommended: boolean;
+  attemptCount: number;
+  methodsTried: string[];
+  lastAttemptAt: string | null;
+}
+
+/** One payment attempt. Together these are the struggled-then-repaid history. */
+export interface PaymentAttempt {
+  id: string;
+  methodType: string | null;
+  status: string | null;
+  amount: number | null;
+  currency: string | null;
+  failureReason: string | null;
+  failureCode: string | null;
+  paymobTransactionId: number | null;
+  /** Whether the customer ever got as far as a payment page. */
+  reachedGateway: boolean;
+  createdAt: string | null;
+}
+
+/** A message an admin sent the customer about this payment. */
+export interface PaymentMessage {
+  id: string;
+  templateKey: string | null;
+  subject: string;
+  body: string;
+  diagnosisCode: string | null;
+  sentByName: string | null;
+  emailSent: boolean;
+  notificationSent: boolean;
+  createdAt: string | null;
+}
+
+export interface PaymentMessageTemplate {
+  key: string;
+  label: string;
+  subject: string;
+  body: string;
+}
+
+export interface PaymentSupportView {
+  diagnosis: PaymentStallDiagnosis;
+  attempts: PaymentAttempt[];
+  messages: PaymentMessage[];
+  templates: PaymentMessageTemplate[];
+  customerEmail: string | null;
+  canContactCustomer: boolean;
+  repayUrl: string;
+}
+
+
+
 /** One order sitting in the trash, and when it will be destroyed. */
 export interface TrashedOrder {
   id: string;
@@ -126,6 +189,32 @@ export const ordersService = {
       : "";
     return apiClient.post<ApiResponse<PaymentRecheckResult>>(
       `/api/admin/payments/orders/${id}/recheck${query}`,
+    );
+  },
+
+  /**
+   * GET /api/admin/orders/{id}/payment-support
+   *
+   * Why the payment did not complete, every attempt behind that, and anything we have already
+   * said to the customer about it.
+   */
+  paymentSupport(id: string): Promise<ApiResponse<PaymentSupportView>> {
+    return apiClient.get<ApiResponse<PaymentSupportView>>(`${BASE}/${id}/payment-support`);
+  },
+
+  /**
+   * POST /api/admin/orders/{id}/payment-support/messages
+   *
+   * Emails the customer and drops the same message in their storefront notification bell.
+   * Nothing is ever sent automatically — this fires only when an admin presses send.
+   */
+  sendPaymentMessage(
+    id: string,
+    body: { templateKey?: string | null; subject: string; body: string },
+  ): Promise<ApiResponse<PaymentMessage>> {
+    return apiClient.post<ApiResponse<PaymentMessage>>(
+      `${BASE}/${id}/payment-support/messages`,
+      body,
     );
   },
 
