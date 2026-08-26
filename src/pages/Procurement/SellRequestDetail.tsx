@@ -15,6 +15,7 @@ import {
   SELL_STATUS_OPTIONS,
   money,
 } from "./sellUi";
+import { ApiRequestError } from "../../api";
 
 /**
  * Procurement's view of one sell request: the device as the customer described it, the advisory AI
@@ -85,8 +86,11 @@ export default function SellRequestDetail() {
     try {
       const r = await fn();
       applyResult(r.data);
-    } catch {
-      setError(failMsg);
+    } catch (err) {
+      // The server's own words when it has them — "ANTHROPIC_API_KEY is not set", "the valuation
+      // came back empty for this device". A fixed fallback string turns every distinct cause into
+      // the same dead end.
+      setError(err instanceof ApiRequestError && err.message ? err.message : failMsg);
     } finally {
       setBusy(false);
     }
