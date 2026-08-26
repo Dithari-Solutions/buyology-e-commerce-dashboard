@@ -108,6 +108,17 @@ export const sellService = {
   },
 
   // POST /api/admin/sell-requests/{id}/received  → UNDER_REVIEW
+  /**
+   * POST /api/admin/sell-requests/{id}/ai-estimate
+   *
+   * Values a request that has no estimate. The valuation normally runs once, on submit, and a
+   * request that missed it — the feature was off, the call failed — had no second chance short of
+   * asking the customer to fill the whole form in again.
+   */
+  generateEstimate(id: string): Promise<ApiResponse<SellRequest>> {
+    return apiClient.post<ApiResponse<SellRequest>>(`${BASE}/${id}/ai-estimate`, {});
+  },
+
   markReceived(id: string): Promise<ApiResponse<SellRequest>> {
     return apiClient.post<ApiResponse<SellRequest>>(`${BASE}/${id}/received`, {});
   },
