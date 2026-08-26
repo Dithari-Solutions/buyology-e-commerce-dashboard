@@ -96,9 +96,16 @@ export const ordersService = {
    * was paid. For the case where the gateway took the money but the webhook never landed, so
    * a paid order sits in "Awaiting payment" and no automatic path can rescue it.
    */
-  recheckPayment(id: string): Promise<ApiResponse<PaymentRecheckResult>> {
+  recheckPayment(
+    id: string,
+    providerTransactionId?: string,
+  ): Promise<ApiResponse<PaymentRecheckResult>> {
+    // Supplied only when no webhook ever reached us, so we have no id of our own to ask about.
+    const query = providerTransactionId
+      ? `?providerTransactionId=${encodeURIComponent(providerTransactionId)}`
+      : "";
     return apiClient.post<ApiResponse<PaymentRecheckResult>>(
-      `/api/admin/payments/orders/${id}/recheck`,
+      `/api/admin/payments/orders/${id}/recheck${query}`,
     );
   },
 

@@ -83,6 +83,7 @@ export default function OrderDetail() {
   const [busy, setBusy] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [recheckMsg, setRecheckMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [paymobTxnId, setPaymobTxnId] = useState("");
   const [cancellationReason, setCancellationReason] = useState("");
   const pickupInputRef = useRef<HTMLInputElement>(null);
   const dropoffInputRef = useRef<HTMLInputElement>(null);
@@ -171,7 +172,7 @@ export default function OrderDetail() {
     setActionError(null);
     setRecheckMsg(null);
     try {
-      const res = await ordersService.recheckPayment(orderId);
+      const res = await ordersService.recheckPayment(orderId, paymobTxnId.trim() || undefined);
       setRecheckMsg({ ok: res.data.settled, text: res.data.message });
       if (res.data.settled) {
         const fresh = await ordersService.getById(orderId);
@@ -182,7 +183,7 @@ export default function OrderDetail() {
     } finally {
       setBusy(null);
     }
-  }, [orderId]);
+  }, [orderId, paymobTxnId]);
 
   const handleProofUpload = useCallback(async (type: "PICKUP" | "DROPOFF", file: File) => {
     if (!orderId) return;
@@ -440,6 +441,16 @@ export default function OrderDetail() {
                   Paid at the gateway but still showing as awaiting payment? Ask Paymob what the
                   payment really did — if it went through, the order is settled properly here.
                 </p>
+                {/* When no webhook ever arrived we hold no Paymob id, so the only way to ask
+                    about the payment is the id shown on the transaction in Paymob's dashboard.
+                    The server still refuses it unless the amount, currency and merchant order
+                    id all match this order. */}
+                <input
+                  value={paymobTxnId}
+                  onChange={(e) => setPaymobTxnId(e.target.value)}
+                  placeholder="Paymob transaction ID (only if asked for)"
+                  className="mt-2 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
+                />
                 <button
                   type="button"
                   onClick={handleRecheckPayment}
