@@ -4,7 +4,7 @@ import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { isSuperAdmin } from "../../auth/roles";
 import { giveawayService } from "../../api/services/giveaway.service";
-import type { GiveawayEntry } from "../../api/services/giveaway.service";
+import type { GiveawayCampaign, GiveawayEntry } from "../../api/services/giveaway.service";
 import type { SpringPage } from "../../api/services/refunds.service";
 import { ApiRequestError } from "../../api/types/api.types";
 
@@ -24,6 +24,37 @@ export default function Giveaway() {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
   const [query, setQuery] = useState("");
+  const [campaign, setCampaign] = useState<GiveawayCampaign | null>(null);
+  const [switching, setSwitching] = useState(false);
+  const [switchError, setSwitchError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!allowed) return;
+    const ac = new AbortController();
+    giveawayService
+      .campaign(ac.signal)
+      .then((r) => setCampaign(r.data))
+      .catch(() => {
+        /* the entry list is still worth showing without the switch */
+      });
+    return () => ac.abort();
+  }, [allowed]);
+
+  const toggleCampaign = async () => {
+    if (!campaign) return;
+    setSwitching(true);
+    setSwitchError(null);
+    try {
+      const res = await giveawayService.setOpen(!campaign.open);
+      setCampaign(res.data);
+    } catch (err) {
+      setSwitchError(
+        err instanceof ApiRequestError && err.message ? err.message : "Could not change the giveaway.",
+      );
+    } finally {
+      setSwitching(false);
+    }
+  };
 
   useEffect(() => {
     if (!allowed) return;
@@ -61,6 +92,50 @@ export default function Giveaway() {
     <>
       <PageMeta title="Giveaway | Buyology" description="Giveaway entries" />
       <PageBreadcrumb pageTitle="Entries" />
+
+      {/* The switch. Closing hides every entry surface on the storefront and in the app and makes
+          the entry endpoint refuse — it does not touch the entries below, which are the draw. */}
+      {campaign && (
+        <div className="mb-5 rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`inline-block h-2.5 w-2.5 rounded-full ${
+                    campaign.open ? "bg-green-500" : "bg-gray-400"
+                  }`}
+                />
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
+                  {campaign.open ? "Giveaway is open" : "Giveaway is closed"}
+                </h2>
+              </div>
+              <p className="mt-1 max-w-xl text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+                {campaign.open
+                  ? "Customers can see and enter the draw on the website and in the app."
+                  : "The draw is hidden everywhere and no new entries are accepted. The entries below are kept."}
+                {!campaign.open && campaign.closedAt && (
+                  <> Closed {new Date(campaign.closedAt).toLocaleString("en-GB")}.</>
+                )}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={toggleCampaign}
+              disabled={switching}
+              className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors disabled:opacity-50 ${
+                campaign.open ? "bg-gray-800 hover:bg-gray-700" : "bg-brand-500 hover:bg-brand-600"
+              }`}
+            >
+              {switching ? "Saving…" : campaign.open ? "Close the giveaway" : "Reopen the giveaway"}
+            </button>
+          </div>
+          {switchError && (
+            <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700 dark:bg-red-500/10 dark:text-red-300">
+              {switchError}
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
