@@ -25,6 +25,16 @@ export const newsletterService = {
   createArticle(formData: FormData): Promise<ApiResponse<NewsArticle>> {
     return apiClient.post("/api/admin/news", formData);
   },
+  /** PUT /api/admin/news/{id} — edit in place. The slug never changes; links already shared keep working. */
+  updateArticle(id: string, formData: FormData): Promise<ApiResponse<NewsArticle>> {
+    return apiClient.put(`/api/admin/news/${id}`, formData);
+  },
+
+  /** DELETE /api/admin/news/{id} — takes it off the site. An email already sent cannot be unsent. */
+  deleteArticle(id: string): Promise<ApiResponse<void>> {
+    return apiClient.delete(`/api/admin/news/${id}`);
+  },
+
   publishArticle(id: string, sendToSubscribers: boolean): Promise<ApiResponse<void>> {
     return apiClient.put(`/api/admin/news/${id}/publish?sendToSubscribers=${sendToSubscribers}`, {});
   },
