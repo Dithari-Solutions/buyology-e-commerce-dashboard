@@ -8,6 +8,10 @@ export interface NewsArticle {
   content: string;
   status: "DRAFT" | "PUBLISHED";
   imageUrl?: string;
+  /** Gallery images, in the order they were uploaded. */
+  galleryUrls?: string[];
+  /** The public URL segment: buyology.online/news/{slug}. Fixed at creation, never follows the title. */
+  slug?: string;
   publishedAt?: string;
   createdAt: string;
 }

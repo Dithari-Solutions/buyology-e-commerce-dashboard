@@ -92,6 +92,7 @@ const navItems: NavItem[] = [
     roles: [MARKETING],
     subItems: [
       { name: "Promo Codes", path: "/promo-codes", pro: false },
+      { name: "Announcements", path: "/announcements", pro: false },
       { name: "Newsletter", path: "/newsletter", pro: false },
       { name: "Banners", path: "/banners", pro: false },
     ],
