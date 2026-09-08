@@ -41,6 +41,38 @@ export interface ServiceHealth {
     quiqupFailed24h: number;
     oldestUndispatchedMinutes: number;
   };
+  /**
+   * Status codes the application has actually returned, from Micrometer.
+   *
+   * Cumulative since the JVM started — hence uptimeHours. A count with no window is not a rate,
+   * and the ratios are what matter: 5xx as a share of traffic, and which endpoints produce them.
+   * `available` is false before the app has served anything.
+   */
+  http: {
+    available: boolean;
+    note?: string;
+    uptimeHours?: number;
+    total?: number;
+    status2xx?: number;
+    status3xx?: number;
+    status4xx?: number;
+    status5xx?: number;
+    serverErrorRatePercent?: number;
+    unauthorized401?: number;
+    forbidden403?: number;
+    throttled429?: number;
+    topServerErrors?: { uri: string; count: number }[];
+    topUnauthorized?: { uri: string; count: number }[];
+    caveat?: string;
+  };
+  /** Checkouts that started and never completed — distinct from payments we failed to record. */
+  checkout: {
+    pendingPaymentTotal: number;
+    pendingPayment24h: number;
+    oldestPendingHours: number;
+    paid24h: number;
+    failed24h: number;
+  };
 }
 
 export const serviceHealthService = {

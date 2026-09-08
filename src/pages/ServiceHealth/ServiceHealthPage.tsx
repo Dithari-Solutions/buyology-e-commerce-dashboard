@@ -82,7 +82,9 @@ export default function ServiceHealthPage() {
         <div className="space-y-6">
           <SignupClusters clusters={data.signupClusters} />
           <Verification v={data.verification} />
+          <HttpStatus h={data.http} />
           <div className="grid gap-6 lg:grid-cols-2">
+            <Checkout c={data.checkout} />
             <Payments p={data.payments} />
             <Integrations i={data.integrations} />
           </div>
@@ -230,6 +232,128 @@ function Integrations({ i }: { i: ServiceHealth["integrations"] }) {
       <Caveat>
         Both of these record their failures in a column on the order and carry on. A paid order can
         sit unsynced indefinitely while every other screen reports it as fine.
+      </Caveat>
+    </Panel>
+  );
+}
+
+/* ── HTTP status codes ─────────────────────────────────────────────────────── */
+
+function HttpStatus({ h }: { h: ServiceHealth["http"] }) {
+  if (!h?.available) {
+    return (
+      <Panel title="Response codes" tone="ok" subtitle="No requests recorded yet">
+        <Caveat>{h?.note ?? "Metrics become available once the application has served traffic."}</Caveat>
+      </Panel>
+    );
+  }
+
+  const total = h.total ?? 0;
+  const errRate = h.serverErrorRatePercent ?? 0;
+  const throttled = h.throttled429 ?? 0;
+  const unauthorized = h.unauthorized401 ?? 0;
+
+  // 5xx is us breaking, so it sets the tone. A burst of 429s is the rate limiter working, but it
+  // is also the cheapest early sign of the abuse that drained the Twilio balance — worth amber.
+  const tone: Tone = errRate >= 2 ? "alert" : errRate >= 0.5 || throttled > 100 ? "warn" : "ok";
+
+  const share = (n: number | undefined) =>
+    total > 0 && n !== undefined ? `${n.toLocaleString()} · ${((n / total) * 100).toFixed(1)}%` : String(n ?? 0);
+
+  return (
+    <Panel
+      title="Response codes"
+      tone={tone}
+      subtitle={`${total.toLocaleString()} requests over ${hours(h.uptimeHours ?? -1)} of uptime`}
+    >
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Tile label="2xx" value={share(h.status2xx)} tone="ok" />
+        <Tile label="4xx" value={share(h.status4xx)} tone={(h.status4xx ?? 0) > 0 ? "warn" : "ok"} />
+        <Tile label="5xx" value={share(h.status5xx)} tone={(h.status5xx ?? 0) > 0 ? "alert" : "ok"} />
+        <Tile label="429 throttled" value={String(throttled)} tone={throttled > 100 ? "warn" : "ok"} />
+      </div>
+
+      <div className="mt-4">
+        <Rows
+          rows={[
+            ["Server error rate", `${errRate}%`, errRate >= 0.5],
+            ["401 unauthorized", unauthorized, unauthorized > 500],
+            ["403 forbidden", h.forbidden403 ?? 0, (h.forbidden403 ?? 0) > 100],
+          ]}
+        />
+      </div>
+
+      {(h.topServerErrors?.length ?? 0) > 0 && (
+        <UriList title="Endpoints returning 5xx" rows={h.topServerErrors!} tone="alert" />
+      )}
+      {(h.topUnauthorized?.length ?? 0) > 0 && (
+        <UriList title="Endpoints returning 401" rows={h.topUnauthorized!} tone="warn" />
+      )}
+
+      <Caveat>{h.caveat}</Caveat>
+    </Panel>
+  );
+}
+
+function Tile({ label, value, tone }: { label: string; value: string; tone: Tone }) {
+  const colour =
+    tone === "alert"
+      ? "text-red-600 dark:text-red-400"
+      : tone === "warn"
+        ? "text-amber-600 dark:text-amber-400"
+        : "text-gray-800 dark:text-white";
+  return (
+    <div className="rounded-xl border border-gray-100 p-3 dark:border-gray-800">
+      <p className="text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">{label}</p>
+      <p className={`mt-1 text-sm font-semibold tabular-nums ${colour}`}>{value}</p>
+    </div>
+  );
+}
+
+/** Concentration is the signal — one endpoint with all the errors reads differently to a long tail. */
+function UriList({ title, rows, tone }: { title: string; rows: { uri: string; count: number }[]; tone: Tone }) {
+  const colour = tone === "alert" ? "text-red-600 dark:text-red-400" : "text-amber-600 dark:text-amber-400";
+  return (
+    <div className="mt-4">
+      <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+        {title}
+      </p>
+      <ul className="divide-y divide-gray-100 dark:divide-gray-800">
+        {rows.map((r) => (
+          <li key={r.uri} className="flex items-center justify-between gap-3 py-1.5">
+            <code className="truncate text-xs text-gray-600 dark:text-gray-300">{r.uri}</code>
+            <span className={`shrink-0 text-xs font-semibold tabular-nums ${colour}`}>{r.count}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/* ── Unfinished checkouts ──────────────────────────────────────────────────── */
+
+function Checkout({ c }: { c: ServiceHealth["checkout"] }) {
+  const started = c.paid24h + c.pendingPayment24h + c.failed24h;
+  const dropOff = started > 0 ? Math.round((c.pendingPayment24h / started) * 100) : 0;
+  return (
+    <Panel
+      title="Unfinished checkouts"
+      tone={dropOff >= 50 ? "alert" : dropOff >= 25 || c.oldestPendingHours > 72 ? "warn" : "ok"}
+      subtitle={started > 0 ? `${dropOff}% of the last 24h left payment unfinished` : undefined}
+    >
+      <Rows
+        rows={[
+          ["Awaiting payment, last 24h", c.pendingPayment24h, dropOff >= 25],
+          ["Completed, last 24h", c.paid24h, false],
+          ["Failed, last 24h", c.failed24h, c.failed24h > 0],
+          ["Awaiting payment, all time", c.pendingPaymentTotal, false],
+          ["Oldest still awaiting", hours(c.oldestPendingHours), c.oldestPendingHours > 72],
+        ]}
+      />
+      <Caveat>
+        A customer who abandoned checkout and a payment we never recorded both land here. The
+        settlement panel beside this one separates them: orders it is still re-checking are ours to
+        answer for, the rest walked away.
       </Caveat>
     </Panel>
   );
