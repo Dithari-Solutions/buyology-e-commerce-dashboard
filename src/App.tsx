@@ -50,6 +50,7 @@ import GamesPage from "./pages/Games/GamesPage";
 import PromoCodePage from "./pages/PromoCode/PromoCodePage";
 import NewsletterPage from "./pages/Newsletter/NewsletterPage";
 import AnnouncementsPage from "./pages/Announcements/AnnouncementsPage";
+import ServiceHealthPage from "./pages/ServiceHealth/ServiceHealthPage";
 import BannersPage from "./pages/Banners/BannersPage";
 import B2BInquiriesPage from "./pages/B2BInquiries/B2BInquiriesPage";
 import RefundsPage from "./pages/Refunds/RefundsPage";
@@ -172,6 +173,7 @@ export default function App() {
               {/* Newsletter & News */}
               <Route path="/newsletter" element={<NewsletterPage />} />
               <Route path="/announcements" element={<AnnouncementsPage />} />
+              <Route path="/service-health" element={<ServiceHealthPage />} />
 
               {/* Banners */}
               <Route path="/banners" element={<BannersPage />} />

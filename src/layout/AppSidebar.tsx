@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router";
+import MonitorHeartOutlinedIcon from '@mui/icons-material/MonitorHeartOutlined';
 import PeopleIcon from '@mui/icons-material/People';
 import CardMembershipOutlinedIcon from '@mui/icons-material/CardMembershipOutlined';
 import HandshakeOutlinedIcon from '@mui/icons-material/HandshakeOutlined';
@@ -96,6 +97,14 @@ const navItems: NavItem[] = [
       { name: "Newsletter", path: "/newsletter", pro: false },
       { name: "Banners", path: "/banners", pro: false },
     ],
+  },
+  {
+    name: "Service Health",
+    icon: <MonitorHeartOutlinedIcon />,
+    path: "/service-health",
+    // Superadmin only: this page lists registration IPs and email domains, gathered for abuse
+    // detection. An empty array would not do it — canAccessRoles reads that as "all admins".
+    roles: ["SUPERADMIN"],
   },
   {
     name: "Admins",
