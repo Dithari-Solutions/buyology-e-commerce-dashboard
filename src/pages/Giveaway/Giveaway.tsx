@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Navigate } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import { isSuperAdmin } from "../../auth/roles";
+import { isMarketing, isSuperAdmin } from "../../auth/roles";
 import { giveawayService } from "../../api/services/giveaway.service";
 import type { GiveawayCampaign, GiveawayEntry } from "../../api/services/giveaway.service";
 import type { SpringPage } from "../../api/services/refunds.service";
@@ -17,7 +17,9 @@ import { ApiRequestError } from "../../api/types/api.types";
  * far as the rules can tell.
  */
 export default function Giveaway() {
-  const allowed = isSuperAdmin();
+  // Marketing as well as superadmin: the backend grants this role giveaway:entry:read and
+  // giveaway:campaign:update. Without this the sidebar entry would appear and then bounce them.
+  const allowed = isSuperAdmin() || isMarketing();
 
   const [data, setData] = useState<SpringPage<GiveawayEntry> | null>(null);
   const [loading, setLoading] = useState(true);

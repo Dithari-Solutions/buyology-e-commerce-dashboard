@@ -40,6 +40,11 @@ export function isRepair(): boolean {
   return hasRole("REPAIR");
 }
 
+/** Marketing role — runs promos, banners, announcements and the giveaway. */
+export function isMarketing(): boolean {
+  return hasRole("MARKETING");
+}
+
 /** Customer-support role — answers support tickets in the Support section. */
 export function isSupport(): boolean {
   return hasRole("CUSTOMER_SUPPORT");

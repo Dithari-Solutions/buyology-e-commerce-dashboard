@@ -183,9 +183,11 @@ const navItems: NavItem[] = [
   {
     name: "Giveaway",
     icon: <CardGiftcardOutlinedIcon />,
-    // Superadmin only, matching the page guard and the backend endpoint. Listing MARKETING
-    // here would show the entry to someone the API then answers 403 to.
-    roles: [SUPER],
+    // Marketing runs the giveaway, so it is listed for them as well as superadmins. This was
+    // superadmin-only because the API was: the endpoints are now gated on giveaway:entry:read
+    // and giveaway:campaign:update, both granted to the Marketing role, so the entry no longer
+    // points somewhere the API answers 403 to.
+    roles: [SUPER, MARKETING],
     subItems: [
       { name: "Entries", path: "/giveaway", pro: false },
     ],
