@@ -102,8 +102,34 @@ export interface OrderAdminResponse {
   pickupStoreName?: string | null;
   pickupStoreAddress?: string | null;
   billingAddress?: string;
-  paymentMethod?: string;
-  
+  /**
+   * How the order is settled: ONLINE (before fulfilment) or CASH_ON_DELIVERY (at handover).
+   *
+   * Not the same thing as {@link paymentMethodType}, which is the gateway instrument (CARD,
+   * TABBY, …) of the transaction that settled it. A cash order has no such transaction at all.
+   */
+  paymentMethod?: "ONLINE" | "CASH_ON_DELIVERY" | null;
+
+  /**
+   * Whether this order's money is actually in hand.
+   *
+   * Server-computed, because no combination of status and paidAt answers it from the client: a
+   * cash order reaches DELIVERED while still owing the money, and never passes through PAID.
+   */
+  moneyCollected?: boolean | null;
+
+  /** When an admin recorded the cash as collected. Null while a cash order still owes it. */
+  codCollectedAt?: string | null;
+
+  /** How much cash was taken, in the order's currency. */
+  codCollectedAmount?: number | null;
+
+  /** Tax charged on top of goods + delivery, already included in totalAmount. */
+  vatAmount?: number | null;
+
+  /** The rate applied — 5 means 5%. Null when the order carries no VAT. */
+  vatRatePercent?: number | null;
+
   paidAt?: string;
   shippedAt?: string;
   deliveredAt?: string;

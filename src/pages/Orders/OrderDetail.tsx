@@ -46,6 +46,11 @@ function formatDate(iso: string): string {
   }).format(new Date(iso));
 }
 
+// The rate arrives as a plain number (5 means 5%), so a whole rate would otherwise read "5.00%".
+function formatRate(rate: number): string {
+  return Number.isInteger(rate) ? String(rate) : rate.toFixed(2);
+}
+
 type BadgeColor = "success" | "error" | "warning" | "info" | "light";
 
 function statusColor(status: OrderStatus): BadgeColor {
@@ -88,6 +93,9 @@ export default function OrderDetail() {
   const [paymobTxnId, setPaymobTxnId] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [cancellationReason, setCancellationReason] = useState("");
+  const [codAmount, setCodAmount] = useState("");
+  const [codNotes, setCodNotes] = useState("");
+  const [codMsg, setCodMsg] = useState<string | null>(null);
   const pickupInputRef = useRef<HTMLInputElement>(null);
   const dropoffInputRef = useRef<HTMLInputElement>(null);
 
@@ -189,6 +197,39 @@ export default function OrderDetail() {
   }, [orderId, paymobTxnId]);
 
   /**
+   * Book the cash as being in hand. The amount box stays optional and blank means "the whole
+   * total" — defaulting it to 0 would instead record a collection of nothing and close the
+   * order off as settled for free.
+   */
+  const handleRecordCashCollected = useCallback(async () => {
+    if (!orderId) return;
+    const typedAmount = codAmount.trim();
+    const amount = typedAmount ? Number(typedAmount) : undefined;
+    if (amount !== undefined && (!Number.isFinite(amount) || amount <= 0)) {
+      setActionError("Enter a positive amount, or leave it blank to record the full total.");
+      return;
+    }
+    setBusy("cod-collected");
+    setActionError(null);
+    setCodMsg(null);
+    try {
+      const body: { amount?: number; notes?: string } = {};
+      if (amount !== undefined) body.amount = amount;
+      const notes = codNotes.trim();
+      if (notes) body.notes = notes;
+      const res = await ordersService.recordCashCollected(orderId, body);
+      setOrder(res.data);
+      setCodAmount("");
+      setCodNotes("");
+      setCodMsg("Cash recorded as collected.");
+    } catch (err) {
+      setActionError(err instanceof ApiRequestError ? err.message : "Could not record the cash collection.");
+    } finally {
+      setBusy(null);
+    }
+  }, [orderId, codAmount, codNotes]);
+
+  /**
    * Move the order to the trash. Two-step on purpose: this removes the order from every list,
    * including the customer's own history, and is only recoverable for 30 days.
    */
@@ -273,6 +314,25 @@ export default function OrderDetail() {
         </Badge>
       </div>
 
+      {/* A cash order is packed, dispatched and delivered while still unpaid — it never passes
+          through PAID — so the status line alone never admits that the money is missing. Say it
+          here, and say it loudest at DELIVERED, where the goods are gone and the cash is not yet
+          ours. Only the server can answer "is it in hand?", hence moneyCollected and not status. */}
+      {order.paymentMethod === "CASH_ON_DELIVERY" && !order.moneyCollected && (
+        <div
+          className={`mb-6 rounded-xl border px-4 py-3 text-sm ${
+            order.status === "DELIVERED"
+              ? "border-red-200 bg-red-50 text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300"
+              : "border-yellow-200 bg-yellow-50 text-yellow-800 dark:border-yellow-500/30 dark:bg-yellow-500/10 dark:text-yellow-300"
+          }`}
+        >
+          <span className="font-semibold">Cash on delivery — not collected.</span>{" "}
+          {order.status === "DELIVERED"
+            ? `Delivered, but ${order.currency} ${order.totalAmount.toFixed(2)} is still outstanding. Record it as soon as the courier hands the money in.`
+            : `${order.currency} ${order.totalAmount.toFixed(2)} is due at handover.`}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
@@ -344,6 +404,14 @@ export default function OrderDetail() {
                   <div className="flex justify-between text-sm text-emerald-600 dark:text-emerald-400">
                     <span>Discount{order.couponCode ? ` (${order.couponCode})` : ""}</span>
                     <span>− {order.currency} {order.discount.toFixed(2)}</span>
+                  </div>
+                )}
+                {/* VAT is already inside totalAmount, so this row is shown for the breakdown and
+                    never added on top of the total again. */}
+                {order.vatAmount != null && order.vatAmount > 0 && (
+                  <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
+                    <span>VAT{order.vatRatePercent != null ? ` (${formatRate(order.vatRatePercent)}%)` : ""}</span>
+                    <span>{order.currency} {order.vatAmount.toFixed(2)}</span>
                   </div>
                 )}
                 {order.creditApplied != null && order.creditApplied > 0 && (
@@ -537,6 +605,58 @@ export default function OrderDetail() {
             )}
           </div>
 
+          {/* Taking the money is a different act from advancing the status — a courier can mark a
+              cash order delivered with the notes still in their pocket — so this card appears and
+              disappears on the server's moneyCollected, never on the status above. */}
+          {order.paymentMethod === "CASH_ON_DELIVERY" && (!order.moneyCollected || codMsg) && (
+            <div
+              className={`rounded-2xl border p-6 ${
+                order.moneyCollected
+                  ? "border-green-200 bg-green-50 dark:border-green-500/30 dark:bg-green-500/10"
+                  : "border-yellow-200 bg-yellow-50 dark:border-yellow-500/30 dark:bg-yellow-500/10"
+              }`}
+            >
+              <h3 className="mb-1 font-semibold text-gray-800 dark:text-white/90">Cash on delivery</h3>
+              {!order.moneyCollected && (
+                <>
+                  <p className="mb-3 text-xs text-yellow-800 dark:text-yellow-300">
+                    This order settles at handover. Record it once the money is actually in hand.
+                  </p>
+                  {/* Leave the amount blank for the full total: the server books totalAmount when
+                      no amount is sent, whereas a 0 put there in its place is recorded as a real
+                      collection of nothing. */}
+                  <input
+                    value={codAmount}
+                    onChange={(e) => setCodAmount(e.target.value)}
+                    inputMode="decimal"
+                    placeholder={`Amount (blank = full ${order.currency} ${order.totalAmount.toFixed(2)})`}
+                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
+                  />
+                  <textarea
+                    value={codNotes}
+                    onChange={(e) => setCodNotes(e.target.value)}
+                    placeholder="Notes (optional)"
+                    rows={2}
+                    className="mt-2 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRecordCashCollected}
+                    disabled={busy !== null}
+                    className="mt-2 rounded-lg bg-gray-800 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-gray-700 disabled:opacity-50 dark:bg-gray-700 dark:hover:bg-gray-600"
+                  >
+                    {busy === "cod-collected" ? "Recording…" : "Record cash collected"}
+                  </button>
+                </>
+              )}
+              {codMsg && (
+                <p className="mt-3 rounded-lg bg-green-50 px-3 py-2 text-xs text-green-700 dark:bg-green-500/10 dark:text-green-300">
+                  {codMsg}
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Proof uploads */}
           <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
             <h3 className="mb-4 font-semibold text-gray-800 dark:text-white/90">Upload Proof Photos</h3>
@@ -721,25 +841,50 @@ export default function OrderDetail() {
           <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
             <h3 className="mb-4 font-semibold text-gray-800 dark:text-white/90">Payment & Milestones</h3>
             <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <p className="text-xs text-gray-400 uppercase mb-1">Paid with</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {order.paymentMethodType === "CARD"
-                    ? `${order.cardBrand ?? "Card"}${order.cardLast4 ? ` •••• ${order.cardLast4}` : ""}`
-                    : order.paymentMethodType === "TABBY"
-                      ? "Tabby (pay in 4)"
-                      : order.paymentMethodType === "TAMARA"
-                        ? "Tamara"
-                        : order.paymentMethodType === "B2B_CREDIT"
-                          ? "B2B credit"
-                          : order.paymentTransactionId
-                            ? "Online payment"
-                            : "—"}
-                </p>
-                {order.paymentTransactionId && (
-                  <p className="mt-1 break-all text-xs text-gray-400">tx {order.paymentTransactionId}</p>
-                )}
-              </div>
+              {/* Cash is not one more value of paymentMethodType: that field names the gateway
+                  instrument that settled the order, and a cash order has no gateway transaction
+                  to name — which is why the ladder below would otherwise show it as "—". */}
+              {order.paymentMethod === "CASH_ON_DELIVERY" ? (
+                <div>
+                  <p className="text-xs text-gray-400 uppercase mb-1">Payment method</p>
+                  <Badge size="sm" color={order.moneyCollected ? "success" : "warning"}>
+                    Cash on delivery
+                  </Badge>
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    {order.moneyCollected
+                      ? "Collected in cash — no gateway transaction."
+                      : "Settles at handover — no gateway transaction yet."}
+                  </p>
+                  {(order.codCollectedAmount != null || order.codCollectedAt) && (
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      {order.codCollectedAmount != null
+                        ? `${order.currency} ${order.codCollectedAmount.toFixed(2)}`
+                        : "Full total"}
+                      {order.codCollectedAt ? ` · ${formatDate(order.codCollectedAt)}` : ""}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  <p className="text-xs text-gray-400 uppercase mb-1">Paid with</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {order.paymentMethodType === "CARD"
+                      ? `${order.cardBrand ?? "Card"}${order.cardLast4 ? ` •••• ${order.cardLast4}` : ""}`
+                      : order.paymentMethodType === "TABBY"
+                        ? "Tabby (pay in 4)"
+                        : order.paymentMethodType === "TAMARA"
+                          ? "Tamara"
+                          : order.paymentMethodType === "B2B_CREDIT"
+                            ? "B2B credit"
+                            : order.paymentTransactionId
+                              ? "Online payment"
+                              : "—"}
+                  </p>
+                  {order.paymentTransactionId && (
+                    <p className="mt-1 break-all text-xs text-gray-400">tx {order.paymentTransactionId}</p>
+                  )}
+                </div>
+              )}
               {(order.trackingCode || order.carrierName) && (
                 <div>
                   <p className="text-xs text-gray-400 uppercase mb-1">Carrier / tracking</p>

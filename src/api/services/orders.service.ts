@@ -161,6 +161,23 @@ export const ordersService = {
     return apiClient.patch<ApiResponse<OrderAdminResponse>>(`${BASE}/${id}/courier`, { courierProfileId });
   },
 
+  /**
+   * POST /api/admin/orders/{id}/cod-collected — record that a cash order's money is in hand.
+   *
+   * Deliberately not a status change. A cash order is packed, dispatched and delivered while
+   * unpaid, and the cash is banked at the end, so there is no point in the status flow where
+   * "paid" belongs — it is stamped on the order itself. Idempotent server-side: a second call
+   * returns the order untouched rather than rewriting who collected it and when.
+   *
+   * @param amount collected, in the order's own currency. Omit for the full total.
+   */
+  recordCashCollected(
+    id: string,
+    body?: { amount?: number; notes?: string }
+  ): Promise<ApiResponse<OrderAdminResponse>> {
+    return apiClient.post<ApiResponse<OrderAdminResponse>>(`${BASE}/${id}/cod-collected`, body ?? {});
+  },
+
   // PATCH /api/supplier/orders/{id}/status  — supplier advances their own order
   supplierUpdateStatus(
     id: string,
