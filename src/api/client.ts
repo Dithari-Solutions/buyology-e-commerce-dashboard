@@ -130,7 +130,18 @@ export function registerSessionExpiredHandler(fn: () => void): void {
 let _isRefreshing = false;
 const _refreshQueue: Array<(token: string | null) => void> = [];
 
-async function runRefresh(): Promise<string | null> {
+/**
+ * Runs at most ONE /auth/refresh at a time, resolving every other caller with its result.
+ *
+ * <p>Exported because the boot-time restore in AuthContext has to come through here too. It used
+ * to call doRefresh() directly, which put it OUTSIDE this guard — so an ordinary page reload fired
+ * the boot refresh and, at the same moment, a refresh for every page request that 401'd on the
+ * empty in-memory token. They all presented the SAME rotated-once-only cookie, the losers were
+ * rejected, and a rejected refresh signs the admin out. That is the "refreshing the page logs me
+ * out of the dashboard" report, and the fix belongs on both sides: the backend now tolerates a
+ * token reused within seconds of its rotation, and this stops the dashboard firing the race at all.
+ */
+export async function runRefresh(): Promise<string | null> {
   if (_isRefreshing) {
     // Another request is already refreshing — wait for it to finish
     return new Promise<string | null>((resolve) => {
@@ -151,6 +162,32 @@ async function runRefresh(): Promise<string | null> {
   } finally {
     _isRefreshing = false;
     _refreshQueue.length = 0;
+  }
+}
+
+/**
+ * Whether this response means "your access token is no longer good", as opposed to "you are not
+ * allowed to do that".
+ *
+ * <p>The distinction is not the status code. An expired, malformed or wrong-audience token does
+ * NOT produce a 401: JwtAuthenticationFilter simply continues without setting an authentication,
+ * and Spring Security's default entry point answers **403 with an empty body**. A real permission
+ * denial is also a 403 — but GlobalExceptionHandler renders that one as JSON carrying "You do not
+ * have permission to perform this action". The body is what tells them apart.
+ *
+ * <p>Only retrying 401 meant the dashboard never refreshed at all once a token aged out: every
+ * call came back 403, nothing triggered a refresh, and the admin was left on a dashboard where
+ * each panel failed until they signed in again.
+ *
+ * <p>The response is cloned, so the caller's body is still unread afterwards.
+ */
+async function isSessionLapsed(response: Response): Promise<boolean> {
+  if (response.status === 401) return true;
+  if (response.status !== 403) return false;
+  try {
+    return (await response.clone().text()).trim() === "";
+  } catch {
+    return false;
   }
 }
 
@@ -227,8 +264,8 @@ class HttpClient {
 
     let response = await executeFetch();
 
-    // ── 401 → silent refresh + retry ─────────────────────────────────────────
-    if (response.status === 401 && _refreshFn) {
+    // ── Session lapsed → silent refresh + retry ──────────────────────────────
+    if ((await isSessionLapsed(response)) && _refreshFn) {
       const newToken = await runRefresh();
 
       if (newToken) {

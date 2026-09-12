@@ -10,6 +10,7 @@ import { authService } from "../api/services/auth.service";
 import {
   registerRefreshFn,
   registerSessionExpiredHandler,
+  runRefresh,
   setAccessToken,
 } from "../api/client";
 import { landingPathForCurrentUser } from "../auth/roles";
@@ -86,11 +87,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // ── On app load: attempt to restore session via the HttpOnly cookie ───────
   //
-  // If the user has a valid refresh_token cookie, doRefresh() will succeed and
-  // restore their session silently (no redirect to /signin needed).
-  // If not, isLoading will be set to false and ProtectedRoute will redirect.
+  // If the user has a valid refresh_token cookie, this succeeds and restores their
+  // session silently (no redirect to /signin needed). If not, isLoading is set to
+  // false and ProtectedRoute redirects.
+  //
+  // Through runRefresh(), NOT doRefresh() directly. The access token lives in memory
+  // only, so after a reload every page that mounts fires a request with no token and
+  // each of those is answered "session lapsed" — which starts a refresh of its own.
+  // Calling doRefresh() here put this one outside the single-flight guard, so a plain
+  // page reload sent several /auth/refresh calls carrying the SAME cookie. Refresh
+  // tokens rotate on use, so the losers were rejected and the admin was signed out by
+  // the act of reloading the page.
   useEffect(() => {
-    doRefresh().finally(() => setIsLoading(false));
+    runRefresh().finally(() => setIsLoading(false));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── 2FA challenge handling ─────────────────────────────────────────────────
