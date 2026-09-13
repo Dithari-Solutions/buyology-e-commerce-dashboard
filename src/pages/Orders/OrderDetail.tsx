@@ -14,6 +14,15 @@ import { PaymentSupportPanel } from "./PaymentSupportPanel";
 function nextStatuses(order: OrderAdminResponse): OrderStatus[] {
   const isPickup = order.deliveryMethod === "PICKUP";
   switch (order.status) {
+    // A CASH order is packed and shipped before its money arrives, so PENDING_PAYMENT is where its
+    // fulfilment starts rather than a dead end — the backend permits PENDING_PAYMENT -> PACKAGING
+    // for cash orders specifically, and refuses it for card ones. There was no case for
+    // PENDING_PAYMENT at all, so it fell to the default and offered NOTHING: a cash order could
+    // not be advanced, and could not even be cancelled, from the one screen that manages orders.
+    case "PENDING_PAYMENT":
+      return order.paymentMethod === "CASH_ON_DELIVERY"
+        ? ["PACKAGING", "CANCELLED"]
+        : ["CANCELLED"];
     case "PAID":             return ["PACKAGING", "CANCELLED"];
     case "PACKAGING":        return isPickup ? ["READY_FOR_PICKUP", "CANCELLED"] : ["IN_COURIER", "CANCELLED"];
     case "READY_FOR_PICKUP": return ["DELIVERED", "CANCELLED", "FAILED"];
