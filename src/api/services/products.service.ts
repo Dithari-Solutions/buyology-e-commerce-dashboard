@@ -55,8 +55,10 @@ export interface CreateProductRequest {
   availabilityStatus: AvailabilityStatus;
   isSuperDeal: boolean;
   isLimitedStock: boolean;
-  /** Admin-managed stock count. Omit/undefined = not tracked. */
+  /** Display-only urgency hint. Omit/undefined = no hint. Does not limit orders. */
   stockQuantity?: number;
+  /** Units on hand. Omit = not tracked (no order ceiling); a number is a hard limit. */
+  availableQuantity?: number;
   accessoryIds: string[];
   translations: {
     titleAz: string;
@@ -81,8 +83,16 @@ export interface UpdateProductRequest {
   availabilityStatus?: AvailabilityStatus;
   isSuperDeal?: boolean;
   isLimitedStock?: boolean;
-  /** Admin-managed stock count. Omit = leave untouched. */
+  /** Display-only urgency hint. Omit = leave untouched. Does not limit orders. */
   stockQuantity?: number;
+  /** Units on hand. Omit = leave untouched; a number replaces the order ceiling. */
+  availableQuantity?: number;
+  /**
+   * Send true to clear availableQuantity back to null (stop tracking, drop the ceiling).
+   * Needed because an omitted availableQuantity means "unchanged", so there is otherwise
+   * no way to express "no longer limited". Wins over availableQuantity server-side.
+   */
+  untrackAvailableQuantity?: boolean;
   sku?: string;
   accessoryIds?: string[];
   translations?: {

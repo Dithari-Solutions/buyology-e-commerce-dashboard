@@ -41,6 +41,32 @@ function productTypeColor(type: string): string {
   }
 }
 
+/**
+ * Sellable units. An absent availableQuantity means stock is not tracked for this product —
+ * it sells with no ceiling. That is not 0, which refuses every order, so the two must never
+ * look alike.
+ */
+function UnitsAvailable({ quantity }: { quantity?: number | null }) {
+  if (quantity == null) {
+    return <span className="text-sm font-medium text-gray-400 dark:text-gray-500">Not tracked</span>;
+  }
+  if (quantity === 0) {
+    return (
+      <Badge size="sm" color="error">
+        0 left
+      </Badge>
+    );
+  }
+  if (quantity < 5) {
+    return (
+      <Badge size="sm" color="warning">
+        {quantity} left
+      </Badge>
+    );
+  }
+  return <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{quantity}</span>;
+}
+
 // ---------------------------------------------------------------------------
 // Loading skeleton
 // ---------------------------------------------------------------------------
@@ -353,6 +379,17 @@ export default function ProductDetail() {
                 </p>
               </div>
               <div>
+                <p className="text-xs text-gray-400 dark:text-gray-500">Units available</p>
+                <div className="mt-0.5">
+                  <UnitsAvailable quantity={product.availableQuantity} />
+                </div>
+                <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                  {product.availableQuantity == null
+                    ? "No order limit"
+                    : "Orders above this are refused"}
+                </p>
+              </div>
+              <div>
                 <p className="text-xs text-gray-400 dark:text-gray-500">Refurbished</p>
                 <p className="mt-0.5 text-sm font-medium text-gray-700 dark:text-gray-200">
                   {product.isRefurbished ? "Yes" : "No"}
@@ -460,7 +497,8 @@ export default function ProductDetail() {
                     <line x1="12" y1="17" x2="12.01" y2="17" />
                   </svg>
                   <p className="text-xs text-amber-700 dark:text-amber-400">
-                    Price and stock are managed per-store in Store Management.
+                    Per-store variant price and stock are managed in Store Management; this
+                    product&apos;s own sellable units are the Units available figure above.
                   </p>
                 </div>
                 <table className="w-full text-sm">

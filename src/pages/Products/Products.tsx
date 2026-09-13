@@ -52,6 +52,36 @@ function availabilityColor(status: AvailabilityStatus): AvailBadgeColor {
   }
 }
 
+/**
+ * Sellable units. An absent availableQuantity means stock is not tracked for this product —
+ * it sells with no ceiling. That is emphatically not 0, which means it cannot be sold at all,
+ * so the two must never look alike.
+ */
+function UnitsCell({ quantity }: { quantity?: number | null }) {
+  if (quantity == null) {
+    return (
+      <span className="text-xs text-gray-300 dark:text-gray-600" title="Stock not tracked — sells without a limit">
+        Not tracked
+      </span>
+    );
+  }
+  if (quantity === 0) {
+    return (
+      <Badge size="sm" color="error">
+        0 left
+      </Badge>
+    );
+  }
+  if (quantity < 5) {
+    return (
+      <Badge size="sm" color="warning">
+        {quantity} left
+      </Badge>
+    );
+  }
+  return <span className="text-sm text-gray-600 dark:text-gray-300">{quantity}</span>;
+}
+
 // ---------------------------------------------------------------------------
 // ProductRow
 // ---------------------------------------------------------------------------
@@ -126,6 +156,11 @@ function ProductRow({
         <Badge size="sm" color={availabilityColor(product.availabilityStatus)}>
           {product.availabilityStatus?.replace("_", " ") ?? "—"}
         </Badge>
+      </td>
+
+      {/* Units */}
+      <td className="px-4 py-4">
+        <UnitsCell quantity={product.availableQuantity} />
       </td>
 
       {/* Flags */}
@@ -207,7 +242,7 @@ function SkeletonRow() {
           </div>
         </div>
       </td>
-      {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+      {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
         <td key={i} className="px-4 py-4">
           <div className="h-3 w-16 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" />
         </td>
@@ -430,7 +465,7 @@ export default function Products() {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-white/[0.02]">
-                  {["Product", "Type", "Brand", "Availability", "Flags", "Variants", "Status", "Created", ""].map(
+                  {["Product", "Type", "Brand", "Availability", "Units", "Flags", "Variants", "Status", "Created", ""].map(
                     (col) => (
                       <th
                         key={col}

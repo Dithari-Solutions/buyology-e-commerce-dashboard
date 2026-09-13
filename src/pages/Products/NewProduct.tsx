@@ -337,7 +337,23 @@ type FormErrors = Partial<{
   specs: string;
   colors: string;
   media: string;
+  stockQuantity: string;
+  availableQuantity: string;
 }>;
+
+/**
+ * Blank is always allowed (both counts mean "not set" when empty). The form is rendered
+ * noValidate, so min={0} on the inputs never fires on submit — and availableQuantity is
+ * guarded by a DB CHECK >= 0, so an unchecked negative comes back as an opaque 500.
+ */
+function countError(raw: string, label: string): string | undefined {
+  if (raw.trim() === "") return undefined;
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return `${label} must be a number`;
+  if (!Number.isInteger(n)) return `${label} must be a whole number`;
+  if (n < 0) return `${label} cannot be negative`;
+  return undefined;
+}
 
 function validate(
   categoryId: string,
@@ -350,6 +366,8 @@ function validate(
   specs: SpecState[],
   colors: ColorState[],
   filesCount: number,
+  stockQuantity: string,
+  availableQuantity: string,
   isEdit = false,
   keptMediaCount = 0
 ): FormErrors {
@@ -363,6 +381,11 @@ function validate(
   if (!descAz.trim()) e.descAz = "Required";
   if (!descEn.trim()) e.descEn = "Required";
   if (!descAr.trim()) e.descAr = "Required";
+
+  const stockErr = countError(stockQuantity, "Almost sold out hint");
+  if (stockErr) e.stockQuantity = stockErr;
+  const availErr = countError(availableQuantity, "Units available");
+  if (availErr) e.availableQuantity = availErr;
 
   if (specs.length === 0) {
     e.specs = "At least one specification is required";
@@ -442,6 +465,10 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
   const [isSuperDeal, setIsSuperDeal] = useState(false);
   const [isLimitedStock, setIsLimitedStock] = useState(false);
   const [stockQuantity, setStockQuantity] = useState<string>("");
+  const [availableQuantity, setAvailableQuantity] = useState<string>("");
+  // Whether the product was loaded WITH a tracked count. Clearing the box only means
+  // "stop tracking" if there was something to stop — see the untrack flag on submit.
+  const [wasAvailableQuantityTracked, setWasAvailableQuantityTracked] = useState(false);
   const [categoryId, setCategoryId] = useState("");
   const [accessoryIdsRaw, setAccessoryIdsRaw] = useState("");
 
@@ -506,6 +533,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
   const specsRef = useRef<HTMLDivElement>(null);
   const colorsRef = useRef<HTMLDivElement>(null);
   const mediaRef = useRef<HTMLDivElement>(null);
+  const availabilityRef = useRef<HTMLDivElement>(null);
 
   // ─────────────────────────────────────────────────────────────────────────
   // Load brands and global spec library on mount
@@ -557,6 +585,10 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
         setIsSuperDeal(p.isSuperDeal);
         setIsLimitedStock(p.isLimitedStock);
         setStockQuantity(p.stockQuantity != null ? String(p.stockQuantity) : "");
+        // Absent means "not tracked", so the box stays empty — showing "0" here would
+        // read as "out of stock" and, once saved, would make it so.
+        setAvailableQuantity(p.availableQuantity != null ? String(p.availableQuantity) : "");
+        setWasAvailableQuantityTracked(p.availableQuantity != null);
         setIsRefurbished(p.isRefurbished);
         setRefurbGrade(p.refurbGrade ?? "");
         setProductSku(p.sku ?? "");
@@ -854,6 +886,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
       titleAz, titleEn, titleAr,
       descAz, descEn, descAr,
       specs, colors, files.length,
+      stockQuantity, availableQuantity,
       isEdit, keptMediaCount
     );
 
@@ -879,6 +912,8 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
       else if (errs.specs) specsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       else if (errs.colors) colorsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       else if (errs.media) mediaRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      else if (errs.stockQuantity || errs.availableQuantity)
+        availabilityRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
 
@@ -896,6 +931,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
         isSuperDeal,
         isLimitedStock,
         stockQuantity: stockQuantity.trim() === "" ? undefined : Number(stockQuantity),
+        availableQuantity: availableQuantity.trim() === "" ? undefined : Number(availableQuantity),
         accessoryIds: accessoryIdsRaw.split(",").map((s) => s.trim()).filter(Boolean),
         translations: {
           titleAz, titleEn, titleAr,
@@ -942,6 +978,11 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
           isSuperDeal,
           isLimitedStock,
           stockQuantity: stockQuantity.trim() === "" ? undefined : Number(stockQuantity),
+          availableQuantity: availableQuantity.trim() === "" ? undefined : Number(availableQuantity),
+          // An omitted availableQuantity is "leave unchanged", so emptying the box has to
+          // say so explicitly — this flag is the only way to lift the order ceiling again.
+          untrackAvailableQuantity:
+            wasAvailableQuantityTracked && availableQuantity.trim() === "" ? true : undefined,
           isRefurbished,
           refurbGrade: isRefurbished ? (refurbGrade || null) : null,
           sku: productSku.trim() || undefined,
@@ -997,6 +1038,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
   const specsHasError = submitted && !!errors.specs;
   const colorsHasError = submitted && !!errors.colors;
   const mediaHasError = submitted && !!errors.media;
+  const availabilityHasError = submitted && !!(errors.stockQuantity || errors.availableQuantity);
 
   // All defined local keys across all specs (for variant multi-select)
   const allLocalKeys = specs.flatMap((s) => s.options.map((o) => o.localKey)).filter(Boolean);
@@ -1190,6 +1232,8 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
                 {errors.specs && <li>{errors.specs}</li>}
                 {errors.colors && <li>{errors.colors}</li>}
                 {errors.media && <li>{errors.media}</li>}
+                {errors.stockQuantity && <li>{errors.stockQuantity}</li>}
+                {errors.availableQuantity && <li>{errors.availableQuantity}</li>}
               </ul>
             </div>
           </div>
@@ -1257,7 +1301,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
               <div>
                 <p className="text-sm font-medium text-brand-700 dark:text-brand-400">No pricing required</p>
                 <p className="mt-0.5 text-xs text-brand-600 dark:text-brand-500">
-                  Enter a SKU below, or leave it blank to auto-generate one. After creating this product, assign it to stores from the Store Management section to set pricing and stock.
+                  Enter a SKU below, or leave it blank to auto-generate one. After creating this product, assign it to stores from the Store Management section to set pricing and per-store variant stock. This product&apos;s own sellable units are set below, under Availability &amp; Flags.
                 </p>
               </div>
             </div>
@@ -1368,7 +1412,8 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
         </div>
 
         {/* ── Availability & Flags ─────────────────────────────────────────── */}
-        <Section title="Availability &amp; Flags">
+        <div ref={availabilityRef}>
+        <Section title="Availability &amp; Flags" hasError={availabilityHasError}>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             <div>
               <Label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -1407,23 +1452,57 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
 
             <div className="pt-6">
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Stock quantity
+                Almost sold out hint
               </Label>
               <input
                 type="number"
                 min={0}
                 value={stockQuantity}
                 onChange={(e) => setStockQuantity(e.target.value)}
-                placeholder="Leave empty if not tracked"
-                className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 outline-none focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                placeholder="Leave empty for no hint"
+                className={`mt-1 w-full rounded-lg border bg-white px-3 py-2 text-sm text-gray-800 outline-none focus:border-brand-500 dark:bg-gray-900 dark:text-gray-100 ${
+                  submitted && !!errors.stockQuantity
+                    ? "border-red-400 dark:border-red-700"
+                    : "border-gray-300 dark:border-gray-700"
+                }`}
               />
               <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
-                Decreases as orders are placed. When below 5, the storefront shows an
-                "almost sold out" message. Leave empty to not track stock.
+                Marketing hint only — it never limits what a customer can order. While it sits
+                between 1 and 4, the storefront shows an "almost sold out" message. It counts down
+                as orders are placed and is never put back, so it drifts; use "Units available"
+                for real stock. Leave empty for no hint.
               </p>
+              <FieldError msg={submitted ? errors.stockQuantity : undefined} />
+            </div>
+
+            <div className="pt-6">
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Units available
+              </Label>
+              <input
+                type="number"
+                min={0}
+                value={availableQuantity}
+                onChange={(e) => setAvailableQuantity(e.target.value)}
+                placeholder="Leave empty to sell without a limit"
+                className={`mt-1 w-full rounded-lg border bg-white px-3 py-2 text-sm text-gray-800 outline-none focus:border-brand-500 dark:bg-gray-900 dark:text-gray-100 ${
+                  submitted && !!errors.availableQuantity
+                    ? "border-red-400 dark:border-red-700"
+                    : "border-gray-300 dark:border-gray-700"
+                }`}
+              />
+              <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                Real stock. Empty means not tracked — the product sells with no limit, which is how
+                every product behaves until you type a number here. A number is a hard ceiling:
+                customers cannot order more than this, it goes down as orders are placed and back up
+                if an order is cancelled. Enter 0 to stop sales; clear the box to stop limiting
+                altogether. Applies to pre-orders too.
+              </p>
+              <FieldError msg={submitted ? errors.availableQuantity : undefined} />
             </div>
           </div>
         </Section>
+        </div>
 
         {/* ── Translations ─────────────────────────────────────────────────── */}
         <div ref={translationsRef}>
@@ -1759,7 +1838,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
               <line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
             <p className="text-xs text-amber-700 dark:text-amber-400">
-              Price and stock are set per-store after creation. Variants here define only SKU and which spec options they represent.
+              Price and per-store variant stock are set in Store Management after creation; this product&apos;s own sellable units are set above, under Availability &amp; Flags. Variants here define only SKU and which spec options they represent.
             </p>
           </div>
           <div className="space-y-4">

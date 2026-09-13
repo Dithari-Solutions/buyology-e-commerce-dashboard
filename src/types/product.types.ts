@@ -126,6 +126,11 @@ export interface Product {
   isSuperDeal: boolean;
   isLimitedStock: boolean;
   stockQuantity?: number | null;
+  /**
+   * Units on hand, and a hard ceiling on orders. Absent/null = not tracked, so the
+   * product sells without a limit — a missing value is NEVER zero.
+   */
+  availableQuantity?: number | null;
   accessoryIds: string[];
   colors: string[];
   slug: string;
