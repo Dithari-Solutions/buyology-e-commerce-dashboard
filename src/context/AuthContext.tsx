@@ -8,11 +8,14 @@ import {
 import { useNavigate } from "react-router";
 import { authService } from "../api/services/auth.service";
 import {
+  cancelProactiveRefresh,
   registerRefreshFn,
   registerSessionExpiredHandler,
   runRefresh,
   setAccessToken,
 } from "../api/client";
+import type { RefreshResult } from "../api/client";
+import { ApiRequestError } from "../api/types/api.types";
 import { landingPathForCurrentUser } from "../auth/roles";
 import { IS_SUPPLIER_PORTAL } from "../config/portal";
 import type { SignInData, SignInRequest } from "../types/auth.types";
@@ -58,23 +61,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // The browser automatically sends the HttpOnly refresh_token cookie because
   // authService uses `credentials: "include"`. JavaScript never sees the cookie
   // value — only the new accessToken in the response body.
-  const doRefresh = useCallback(async (): Promise<string | null> => {
+  //
+  // This reports WHY it failed and leaves the decision to runRefresh. It used to answer null for
+  // every failure and clear the session itself, which meant a dropped packet, a 502 from the
+  // gateway or a 429 from the platform-wide refresh throttle all read as "you are logged out" —
+  // and an admin half-way through a product form lost it to a blip that had nothing to do with
+  // their session. Only a refusal of the token itself ends the session now.
+  const doRefresh = useCallback(async (): Promise<RefreshResult> => {
     try {
       const res = await authService.refresh();
-      const { accessToken } = res.data;
+      const { accessToken, expiresIn } = res.data;
       setAccessToken(accessToken);
       setIsAuthenticated(true);
-      return accessToken;
-    } catch {
-      setAccessToken(null);
-      setIsAuthenticated(false);
-      return null;
+      return { status: "refreshed", accessToken, expiresInSeconds: expiresIn };
+    } catch (e) {
+      // 401/403 is the backend having read the cookie and rejected it (AuthController answers 401
+      // for a missing, unknown, expired or already-rotated token). Anything else — no status at
+      // all because fetch never completed, 429 from the throttle, or any 5xx — is inconclusive,
+      // and inconclusive must not cost the admin their session.
+      const status = e instanceof ApiRequestError ? e.statusCode : undefined;
+      const refused = status === 401 || status === 403;
+
+      if (refused) {
+        setAccessToken(null);
+        setIsAuthenticated(false);
+        return { status: "expired" };
+      }
+      return { status: "transient" };
     }
   }, []);
 
   // ── Session-expired handler (called by HttpClient when refresh fails) ──────
   const handleSessionExpired = useCallback(() => {
     setAccessToken(null);
+    cancelProactiveRefresh();
     setIsAuthenticated(false);
     navigate("/signin", { replace: true });
   }, [navigate]);
@@ -99,8 +119,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // tokens rotate on use, so the losers were rejected and the admin was signed out by
   // the act of reloading the page.
   useEffect(() => {
-    runRefresh().finally(() => setIsLoading(false));
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    void runRefresh().finally(() => setIsLoading(false));
+    // Stop the renewal timer when the provider goes away, so a hot reload or a remount cannot
+    // leave two timers refreshing the same session against each other.
+    return () => cancelProactiveRefresh();
+  }, []);
 
   // ── 2FA challenge handling ─────────────────────────────────────────────────
   // Privileged accounts (admin/supplier) don't get a session straight away — the

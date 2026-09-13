@@ -21,9 +21,20 @@ let _accessToken: string | null = null;
 /**
  * Called by AuthContext after a successful sign-in or token refresh.
  * Pass `null` to clear (on logout / session expiry).
+ *
+ * <p>Arming the renewal timer here, rather than at each call site, is deliberate: a session can be
+ * established by ordinary sign-in, by finishing a 2FA challenge, by a supplier setting their first
+ * password, or by a refresh, and only some of those responses carry an `expiresIn`. The token states
+ * its own expiry in its `exp` claim, so reading it back from the token covers every path and cannot
+ * drift from the lifetime the backend actually issued.
  */
 export function setAccessToken(token: string | null): void {
   _accessToken = token;
+  if (token === null) {
+    cancelProactiveRefresh();
+  } else {
+    scheduleProactiveRefreshFromToken();
+  }
 }
 
 export function getAccessToken(): string | null {
@@ -52,6 +63,8 @@ interface JwtPayload {
   aud?: string;
   roles?: string[];
   permissions?: string[];
+  /** Expiry, seconds since the epoch — what the renewal timer is scheduled against. */
+  exp?: number;
 }
 
 function decodeJwtPayload(): JwtPayload | null {
@@ -108,15 +121,118 @@ export function hasPermission(code: string): boolean {
 // a silent token refresh or a redirect to /signin without depending on React.
 // ─────────────────────────────────────────────────────────────────────────────
 
-let _refreshFn: (() => Promise<string | null>) | null = null;
+/**
+ * Why a refresh failed, which is the difference between "sign the admin out" and "try again".
+ *
+ * <p>Collapsing every failure into null is what made this dashboard lose sessions for no reason. A
+ * refresh can fail because the token really is finished — and then the only honest answer is the
+ * sign-in page — or because the network dropped a packet, the browser was offline for a second, the
+ * gateway answered 502, or the platform-wide refresh throttle returned 429. Those say nothing at all
+ * about whether the session is still valid, and treating them as "you are logged out" throws away a
+ * perfectly good session, along with whatever the admin had typed into the product form.
+ */
+export type RefreshResult =
+  | { status: "refreshed"; accessToken: string; expiresInSeconds: number }
+  /** Could not reach a verdict. The session is probably fine; retry, do not sign out. */
+  | { status: "transient" }
+  /** The server looked at the token and refused it. This one is a real logout. */
+  | { status: "expired" };
+
+let _refreshFn: (() => Promise<RefreshResult>) | null = null;
 let _onSessionExpired: (() => void) | null = null;
 
-export function registerRefreshFn(fn: () => Promise<string | null>): void {
+export function registerRefreshFn(fn: () => Promise<RefreshResult>): void {
   _refreshFn = fn;
 }
 
 export function registerSessionExpiredHandler(fn: () => void): void {
   _onSessionExpired = fn;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Proactive refresh
+//
+// The old client only ever refreshed in reaction to a failed request. That is
+// enough to keep working, but it means every single access-token expiry is met
+// with a failure first — and each of those is a chance for the retry to go wrong
+// and end the session. An admin who spends an afternoon adding products crosses
+// that boundary all afternoon.
+//
+// So renew BEFORE it expires, on a timer, while nothing is at stake: if a
+// proactive refresh fails transiently it is retried with nothing lost, because no
+// real request was waiting on it.
+//
+// Timers alone are not enough. A laptop that sleeps, or a tab the browser
+// throttles in the background, will not fire them on schedule — so the tab also
+// re-checks whenever it becomes visible again, which is exactly the moment an
+// admin comes back to a form they left open.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Renew once this share of the token's life has passed, leaving room to retry. */
+const REFRESH_AT_FRACTION = 0.75;
+/** Never schedule closer than this, so a short token cannot spin the timer. */
+const MIN_REFRESH_DELAY_MS = 30_000;
+/** On regaining focus, renew if the token has less than this left. */
+const FOCUS_REFRESH_MARGIN_MS = 120_000;
+
+let _refreshTimer: ReturnType<typeof setTimeout> | null = null;
+let _accessTokenExpiresAt: number | null = null;
+
+function clearRefreshTimer(): void {
+  if (_refreshTimer !== null) {
+    clearTimeout(_refreshTimer);
+    _refreshTimer = null;
+  }
+}
+
+/**
+ * Notes when the stored access token dies and arms the renewal timer against it.
+ *
+ * <p>The deadline comes from the token's own `exp` claim, so it follows whatever lifetime the
+ * backend is configured to issue — no number here to fall out of step with `jwt`
+ * `.access-token-validity-minutes`. A token with no readable expiry leaves the timer unarmed and
+ * the client simply falls back to renewing in reaction to a failed request, as it always did.
+ */
+export function scheduleProactiveRefreshFromToken(): void {
+  clearRefreshTimer();
+  _accessTokenExpiresAt = null;
+
+  const exp = decodeJwtPayload()?.exp;
+  if (typeof exp !== "number" || !Number.isFinite(exp)) return;
+
+  const expiresAt = exp * 1000;
+  const remainingMs = expiresAt - Date.now();
+  if (remainingMs <= 0) return;
+
+  _accessTokenExpiresAt = expiresAt;
+  const delay = Math.max(MIN_REFRESH_DELAY_MS, remainingMs * REFRESH_AT_FRACTION);
+  _refreshTimer = setTimeout(() => {
+    _refreshTimer = null;
+    // Fire and forget: runRefresh re-arms on success and retries transient failures itself.
+    void runRefresh();
+  }, delay);
+}
+
+/** Forgets the schedule — on sign-out, or once the session is genuinely over. */
+export function cancelProactiveRefresh(): void {
+  clearRefreshTimer();
+  _accessTokenExpiresAt = null;
+}
+
+/**
+ * Renews now if the token is spent or nearly spent. Safe to call as often as you like — it is a
+ * no-op while there is comfortable life left, and runRefresh is single-flight regardless.
+ */
+export async function refreshIfStale(): Promise<void> {
+  if (!_refreshFn || _accessTokenExpiresAt === null) return;
+  if (Date.now() < _accessTokenExpiresAt - FOCUS_REFRESH_MARGIN_MS) return;
+  await runRefresh();
+}
+
+if (typeof document !== "undefined") {
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") void refreshIfStale();
+  });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -128,7 +244,14 @@ export function registerSessionExpiredHandler(fn: () => void): void {
 // ─────────────────────────────────────────────────────────────────────────────
 
 let _isRefreshing = false;
-const _refreshQueue: Array<(token: string | null) => void> = [];
+const _refreshQueue: Array<(result: RefreshResult) => void> = [];
+
+/** How many times a transient refresh failure is retried before giving up for now. */
+const REFRESH_TRANSIENT_ATTEMPTS = 3;
+/** Backoff between those attempts. Short — a real request may be waiting behind this. */
+const REFRESH_RETRY_DELAYS_MS = [400, 1200];
+
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 /**
  * Runs at most ONE /auth/refresh at a time, resolving every other caller with its result.
@@ -141,28 +264,63 @@ const _refreshQueue: Array<(token: string | null) => void> = [];
  * out of the dashboard" report, and the fix belongs on both sides: the backend now tolerates a
  * token reused within seconds of its rotation, and this stops the dashboard firing the race at all.
  */
-export async function runRefresh(): Promise<string | null> {
+export async function runRefresh(): Promise<RefreshResult> {
   if (_isRefreshing) {
     // Another request is already refreshing — wait for it to finish
-    return new Promise<string | null>((resolve) => {
+    return new Promise<RefreshResult>((resolve) => {
       _refreshQueue.push(resolve);
     });
   }
 
   _isRefreshing = true;
   try {
-    const newToken = await _refreshFn!();
-    setAccessToken(newToken);
-    _refreshQueue.forEach((resolve) => resolve(newToken));
-    return newToken;
-  } catch {
-    setAccessToken(null);
-    _refreshQueue.forEach((resolve) => resolve(null));
-    return null;
+    const result = await attemptRefreshWithRetries();
+
+    if (result.status === "refreshed") {
+      // setAccessToken re-arms the renewal timer from the new token's own expiry.
+      setAccessToken(result.accessToken);
+    } else if (result.status === "expired") {
+      // Genuinely over. Drop the token and stop renewing.
+      setAccessToken(null);
+      cancelProactiveRefresh();
+    }
+    // "transient": deliberately keep the existing token and the existing schedule. It may well
+    // still be valid, and throwing it away here is precisely the bug — the next request, or the
+    // next timer tick, gets another go.
+
+    _refreshQueue.forEach((resolve) => resolve(result));
+    return result;
   } finally {
     _isRefreshing = false;
     _refreshQueue.length = 0;
   }
+}
+
+/**
+ * One refresh, retried while the failures are inconclusive.
+ *
+ * <p>An `expired` verdict is returned immediately and never retried: the server has looked at the
+ * token and refused it, and asking again cannot change that answer — it would only delay the
+ * sign-in page.
+ */
+async function attemptRefreshWithRetries(): Promise<RefreshResult> {
+  let last: RefreshResult = { status: "transient" };
+
+  for (let attempt = 0; attempt < REFRESH_TRANSIENT_ATTEMPTS; attempt++) {
+    try {
+      last = await _refreshFn!();
+    } catch {
+      // A throw out of the refresh call itself tells us nothing about the token.
+      last = { status: "transient" };
+    }
+
+    if (last.status !== "transient") return last;
+
+    const delay = REFRESH_RETRY_DELAYS_MS[attempt];
+    if (delay !== undefined) await sleep(delay);
+  }
+
+  return last;
 }
 
 /**
@@ -266,13 +424,22 @@ class HttpClient {
 
     // ── Session lapsed → silent refresh + retry ──────────────────────────────
     if ((await isSessionLapsed(response)) && _refreshFn) {
-      const newToken = await runRefresh();
+      const outcome = await runRefresh();
 
-      if (newToken) {
+      if (outcome.status === "refreshed") {
         // Token refreshed — retry the original request (headers rebuild with new token)
         response = await executeFetch();
+      } else if (outcome.status === "transient") {
+        // We could not find out whether the session is still good. Report THIS request as failed
+        // and leave the session alone: signing the admin out because a refresh call could not be
+        // reached would discard a session that is very likely still valid, and with it whatever
+        // they were part-way through entering. The next request retries the whole dance.
+        throw new ApiRequestError({
+          statusCode: 503,
+          message: "Could not reach the server. Check your connection and try again.",
+        });
       } else {
-        // Refresh failed → session is expired, redirect to login
+        // The server refused the refresh token itself → the session really is over.
         _onSessionExpired?.();
         throw new ApiRequestError({
           statusCode: 401,

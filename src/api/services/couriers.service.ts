@@ -1,6 +1,4 @@
-import { apiClient, getAccessToken } from "../client";
-import { ApiRequestError } from "../types/api.types";
-import { env } from "../../config/env";
+import { apiClient } from "../client";
 import type {
   CourierListResponse,
   CourierSummary,
@@ -46,40 +44,30 @@ function normalizeDetail(raw: Record<string, unknown>): CourierDetail {
 // ---------------------------------------------------------------------------
 // Multipart helper
 //
-// The httpClient always injects Content-Type: application/json which breaks
-// multipart boundaries. Use raw fetch for multipart endpoints instead.
+// Goes through apiClient, like every other call here. It used to use raw fetch,
+// on the grounds that "the httpClient always injects Content-Type:
+// application/json which breaks multipart boundaries" — that has not been true
+// for a while: buildHeaders leaves Content-Type off for a FormData body, so the
+// browser sets the multipart boundary itself.
+//
+// Staying on raw fetch had a real cost. apiClient is where the silent token
+// refresh lives, so these uploads were the one kind of request that could NOT
+// recover from an expired access token: it went out with a stale Bearer, came
+// back 403, and surfaced as a failure the admin had to resolve by signing in
+// again — after picking their files a second time. Uploads are also the requests
+// most likely to be made at the end of a long form, which is exactly when the
+// token is most likely to have aged out.
 // ---------------------------------------------------------------------------
 
-async function multipartFetch<T>(
-  url: string,
+function multipartFetch<T>(
+  endpoint: string,
   method: "POST" | "PATCH",
   form: FormData,
   signal?: AbortSignal
 ): Promise<T> {
-  const token = getAccessToken();
-  const response = await fetch(url, {
-    method,
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-    credentials: "include",
-    body: form,
-    signal,
-  });
-
-  if (!response.ok) {
-    let payload: { statusCode: number; message: string };
-    try {
-      payload = await response.json();
-    } catch {
-      payload = {
-        statusCode: response.status,
-        message: response.statusText || "Request failed.",
-      };
-    }
-    throw new ApiRequestError(payload);
-  }
-
-  if (response.status === 204) return undefined as T;
-  return response.json() as Promise<T>;
+  return method === "POST"
+    ? apiClient.post<T>(endpoint, form, { signal })
+    : apiClient.patch<T>(endpoint, form, { signal });
 }
 
 // ---------------------------------------------------------------------------
@@ -166,7 +154,7 @@ export const couriersService = {
       form.append("drivingLicenceBack", files.drivingLicenceBack);
 
     const raw = await multipartFetch<Record<string, unknown>>(
-      `${env.apiBaseUrl}${BASE}`,
+      BASE,
       "POST",
       form,
       signal
@@ -195,7 +183,7 @@ export const couriersService = {
       form.append("drivingLicenceImage", files.drivingLicenceImage);
 
     const raw = await multipartFetch<Record<string, unknown>>(
-      `${env.apiBaseUrl}${BASE}/${courierId}`,
+      `${BASE}/${courierId}`,
       "PATCH",
       form,
       signal

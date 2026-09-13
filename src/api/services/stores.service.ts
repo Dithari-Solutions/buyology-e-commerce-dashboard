@@ -1,7 +1,5 @@
-import { apiClient, getAccessToken } from "../client";
-import { ApiRequestError } from "../types/api.types";
+import { apiClient } from "../client";
 import type { ApiResponse } from "../types/api.types";
-import { env } from "../../config/env";
 import type {
   Country,
   Store,
@@ -62,27 +60,17 @@ export const storesService = {
   // POST /api/stores
 
   // multipart/form-data: `request` (JSON blob) + optional `banner` (file)
-  async create(data: CreateStoreRequest, banner?: File, signal?: AbortSignal): Promise<ApiResponse<Store>> {
+  //
+  // Through apiClient, not raw fetch: apiClient leaves Content-Type off a FormData body so the
+  // browser sets the multipart boundary, and — the reason this matters — it is where the silent
+  // token refresh lives. On raw fetch an upload was the one request that could not survive an
+  // expired access token, which is unfortunate for a form you reach after filling in a long one.
+  create(data: CreateStoreRequest, banner?: File, signal?: AbortSignal): Promise<ApiResponse<Store>> {
     const formData = new FormData();
     formData.append("request", new Blob([JSON.stringify(data)], { type: "application/json" }));
     if (banner) formData.append("banner", banner);
 
-    const token = getAccessToken();
-    const response = await fetch(`${env.apiBaseUrl}${BASE}`, {
-      method: "POST",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-      credentials: "include",
-      body: formData,
-      signal,
-    });
-
-    if (!response.ok) {
-      let payload: { statusCode: number; message: string };
-      try { payload = await response.json(); }
-      catch { payload = { statusCode: response.status, message: response.statusText || "Failed to create store." }; }
-      throw new ApiRequestError(payload);
-    }
-    return response.json() as Promise<ApiResponse<Store>>;
+    return apiClient.post<ApiResponse<Store>>(BASE, formData, { signal });
   },
 
   // GET /api/stores
@@ -101,27 +89,12 @@ export const storesService = {
   },
 
   // PATCH /api/stores/{id}  — multipart/form-data: `request` (JSON blob) + optional `banner` (file)
-  async update(id: string, data: UpdateStoreRequest, banner?: File, signal?: AbortSignal): Promise<ApiResponse<Store>> {
+  update(id: string, data: UpdateStoreRequest, banner?: File, signal?: AbortSignal): Promise<ApiResponse<Store>> {
     const formData = new FormData();
     formData.append("request", new Blob([JSON.stringify(data)], { type: "application/json" }));
     if (banner) formData.append("banner", banner);
 
-    const token = getAccessToken();
-    const response = await fetch(`${env.apiBaseUrl}${BASE}/${id}`, {
-      method: "PATCH",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-      credentials: "include",
-      body: formData,
-      signal,
-    });
-
-    if (!response.ok) {
-      let payload: { statusCode: number; message: string };
-      try { payload = await response.json(); }
-      catch { payload = { statusCode: response.status, message: response.statusText || "Failed to update store." }; }
-      throw new ApiRequestError(payload);
-    }
-    return response.json() as Promise<ApiResponse<Store>>;
+    return apiClient.patch<ApiResponse<Store>>(`${BASE}/${id}`, formData, { signal });
   },
 
   // DELETE /api/stores/{id}  — soft-delete
