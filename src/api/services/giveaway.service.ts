@@ -54,4 +54,12 @@ export const giveawayService = {
     search.set("size", String(params.size ?? 50));
     return apiClient.get<ApiResponse<SpringPage<GiveawayEntry>>>(`${BASE}/entries?${search}`, { signal });
   },
+
+  /**
+   * GET /api/admin/giveaway/entries/export — every entry (not one page) as an .xlsx workbook,
+   * the file the live-draw page loads.
+   */
+  exportEntries(): Promise<Blob> {
+    return apiClient.getBlob(`${BASE}/entries/export`);
+  },
 };

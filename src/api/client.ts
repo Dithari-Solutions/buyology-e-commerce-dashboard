@@ -399,11 +399,15 @@ class HttpClient {
     return headers;
   }
 
-  private async request<T>(
+  /**
+   * Sends a request with the auth, refresh-and-retry and error handling every call shares, and
+   * returns the successful response unread — so JSON calls and file downloads read it their own way.
+   */
+  private async send(
     method: HttpMethod,
     endpoint: string,
     { body, headers: extraHeaders, ...rest }: RequestWithBodyOptions = {}
-  ): Promise<T> {
+  ): Promise<Response> {
     const url = this.buildUrl(endpoint);
     const isFormData = body instanceof FormData;
 
@@ -464,12 +468,24 @@ class HttpClient {
       throw new ApiRequestError(payload);
     }
 
+    return response;
+  }
+
+  private async request<T>(method: HttpMethod, endpoint: string, options: RequestWithBodyOptions = {}): Promise<T> {
+    const response = await this.send(method, endpoint, options);
+
     // Handle 204 No Content
     if (response.status === 204) {
       return undefined as T;
     }
 
     return response.json() as Promise<T>;
+  }
+
+  /** GET a file (an export) as a Blob, with the same auth and session handling as every other call. */
+  async getBlob(endpoint: string, options?: RequestOptions): Promise<Blob> {
+    const response = await this.send("GET", endpoint, options);
+    return response.blob();
   }
 
   get<T>(endpoint: string, options?: RequestOptions): Promise<T> {

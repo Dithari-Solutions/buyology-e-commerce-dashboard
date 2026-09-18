@@ -29,6 +29,8 @@ export default function Giveaway() {
   const [campaign, setCampaign] = useState<GiveawayCampaign | null>(null);
   const [switching, setSwitching] = useState(false);
   const [switchError, setSwitchError] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!allowed) return;
@@ -55,6 +57,29 @@ export default function Giveaway() {
       );
     } finally {
       setSwitching(false);
+    }
+  };
+
+  // All entries, not the page on screen — the list is paged, the draw needs everyone.
+  const exportEntries = async () => {
+    setExporting(true);
+    setExportError(null);
+    try {
+      const blob = await giveawayService.exportEntries();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `buyology-giveaway-entries-${new Date().toISOString().slice(0, 10)}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    } catch (err) {
+      setExportError(
+        err instanceof ApiRequestError && err.message ? err.message : "Could not export the entries.",
+      );
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -149,13 +174,34 @@ export default function Giveaway() {
               </span>
             )}
           </h2>
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Filter this page by handle or email"
-            className="w-64 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
-          />
+          <div className="flex flex-wrap items-center gap-3">
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Filter this page by handle or email"
+              className="w-64 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
+            />
+            <button
+              type="button"
+              onClick={exportEntries}
+              disabled={exporting || !data?.totalElements}
+              className="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-600 disabled:opacity-50"
+            >
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <path d="M7 10l5 5 5-5" />
+                <path d="M12 15V3" />
+              </svg>
+              {exporting ? "Exporting…" : "Export Excel"}
+            </button>
+          </div>
         </div>
+
+        {exportError && (
+          <p className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400">
+            {exportError}
+          </p>
+        )}
 
         {error && (
           <p className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400">
