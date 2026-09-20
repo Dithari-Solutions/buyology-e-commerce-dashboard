@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { useSidebar } from "../context/SidebarContext";
 import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
+import { BuyologyLockup } from "../components/common/BuyologyLogo";
 import NotificationDropdown from "../components/header/NotificationDropdown";
 import UserDropdown from "../components/header/UserDropdown";
 import LanguageToggler from "../components/header/LanguageToggler";
@@ -68,88 +69,83 @@ const AppHeader: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-[99999] w-full">
-      {/* Glass bar */}
-      <div className="relative flex w-full items-center justify-between gap-3 bg-white/80 px-4 py-3 backdrop-blur-md dark:bg-gray-900/80 lg:px-6 lg:py-3.5">
+      {/* Glass bar — translucent so the shell's brand wash shows through as you scroll. */}
+      <div className="relative flex w-full items-center justify-between gap-3 border-b border-gray-200/70 bg-white/75 px-4 py-3 backdrop-blur-xl dark:border-white/5 dark:bg-gray-900/75 lg:px-6">
 
         {/* Left — toggle + logo + search */}
         <div className="flex items-center gap-3">
-          {/* Sidebar toggle */}
           <button
             onClick={handleToggle}
             aria-label="Toggle Sidebar"
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 text-gray-500 transition hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+            className="flex size-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 transition hover:border-buyology-200 hover:bg-buyology-50 hover:text-buyology-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-buyology-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-buyology-yellow-500 dark:focus-visible:ring-offset-gray-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-gray-400 dark:hover:border-buyology-500/40 dark:hover:bg-buyology-500/15 dark:hover:text-buyology-200"
           >
             {isMobileOpen ? <CloseIcon /> : <MenuIcon />}
           </button>
 
-          {/* Logo — mobile only */}
-          <Link to="/" className="lg:hidden">
-            <img className="h-7 dark:hidden" src="/images/logo/logo.svg" alt="Logo" />
-            <img className="hidden h-7 dark:block" src="/images/logo/logo-dark.svg" alt="Logo" />
+          {/* Logo — the sidebar carries it from lg up, so this is mobile only. */}
+          <Link to="/" aria-label="Buyology home" className="lg:hidden">
+            <BuyologyLockup className="h-6" />
           </Link>
 
-          {/* Search — desktop only */}
-          <div className="relative hidden lg:block">
-            <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+          {/* Command search */}
+          <div className="group relative hidden lg:block">
+            <span className="pointer-events-none absolute left-4 top-1/2 z-1 -translate-y-1/2 text-gray-400 transition-colors group-focus-within:text-buyology-500 dark:group-focus-within:text-buyology-yellow-500">
               <SearchIcon />
             </span>
             <input
               ref={inputRef}
               type="text"
-              placeholder="Search anything..."
-              className="h-10 w-72 rounded-full border border-gray-200 bg-gray-50 py-2 pl-10 pr-16 text-sm text-gray-700 placeholder:text-gray-400 focus:border-indigo-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-gray-700 dark:bg-gray-800/60 dark:text-gray-200 dark:placeholder:text-gray-500 dark:focus:border-indigo-600 dark:focus:bg-gray-800 xl:w-96"
+              placeholder="Search anything…"
+              className="h-11 w-72 rounded-full border border-gray-200 bg-gray-50/80 py-2 pl-11 pr-20 text-sm text-gray-700 transition placeholder:text-gray-400 focus:border-buyology-300 focus:bg-white focus:outline-none focus:ring-4 focus:ring-buyology-yellow-500/20 dark:border-white/10 dark:bg-white/[0.04] dark:text-gray-200 dark:placeholder:text-gray-500 dark:focus:border-buyology-500/50 dark:focus:bg-white/[0.07] xl:w-96"
             />
-            <kbd className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 hidden items-center gap-0.5 rounded-md border border-gray-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-500 sm:flex">
-              <span>⌘</span><span>K</span>
+            <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 items-center gap-1 rounded-lg border border-gray-200 bg-white px-2 py-1 text-[10px] font-semibold text-gray-400 dark:border-white/10 dark:bg-white/[0.06] dark:text-gray-500 sm:flex">
+              <span className="text-xs leading-none">⌘</span>
+              <span>K</span>
             </kbd>
           </div>
         </div>
 
         {/* Right — actions + user (desktop) / dots (mobile) */}
         <div className="flex items-center gap-2">
-          {/* Desktop action bar */}
           <div className="hidden items-center gap-2 lg:flex">
-            {/* Divider */}
-            <span className="mx-1 h-5 w-px bg-gray-200 dark:bg-gray-700" />
             {/* Suppliers (without higher admin roles) get a language toggler. */}
             {hasRole("SUPPLIER") && !hasAnyRole("ADMIN", "SUPERADMIN", "CUSTOMER_SUPPORT") && (
               <LanguageToggler />
             )}
             <ThemeToggleButton />
             <NotificationDropdown />
+            <span className="mx-1 h-6 w-px bg-gray-200 dark:bg-white/10" />
           </div>
 
-          {/* User dropdown — always visible on desktop */}
           <div className="hidden lg:block">
             <UserDropdown />
           </div>
 
-          {/* Mobile three-dot menu toggle */}
           <button
             onClick={() => setApplicationMenuOpen(!isApplicationMenuOpen)}
             aria-label="App menu"
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 transition hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
+            aria-expanded={isApplicationMenuOpen}
+            className="flex size-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 transition hover:bg-gray-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-gray-400 dark:hover:bg-white/[0.08] lg:hidden"
           >
             <DotsIcon />
           </button>
         </div>
       </div>
 
-      {/* Bottom gradient accent line */}
-      <div className="h-px bg-gradient-to-r from-transparent via-indigo-400/50 to-transparent dark:via-indigo-600/40" />
+      {/* Brand hairline — American Blue warming into Mikado Yellow. */}
+      <div className="h-px bg-gradient-to-r from-buyology-600/0 via-buyology-yellow-500/80 to-buyology-600/50 dark:to-buyology-400/50" />
 
       {/* Mobile expanded menu */}
       {isApplicationMenuOpen && (
-        <div className="flex items-center justify-between gap-4 border-t border-gray-100 bg-white/90 px-5 py-3 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/90 lg:hidden">
-          {/* Mobile search */}
+        <div className="flex items-center gap-3 border-b border-gray-200/70 bg-white/90 px-4 py-3 backdrop-blur-xl dark:border-white/5 dark:bg-gray-900/90 lg:hidden">
           <div className="relative flex-1">
             <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
               <SearchIcon />
             </span>
             <input
               type="text"
-              placeholder="Search..."
-              className="h-9 w-full rounded-full border border-gray-200 bg-gray-50 py-2 pl-9 pr-4 text-sm text-gray-700 placeholder:text-gray-400 focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:placeholder:text-gray-500"
+              placeholder="Search…"
+              className="h-10 w-full rounded-full border border-gray-200 bg-gray-50 py-2 pl-9 pr-4 text-sm text-gray-700 placeholder:text-gray-400 focus:border-buyology-300 focus:outline-none focus:ring-4 focus:ring-buyology-yellow-500/20 dark:border-white/10 dark:bg-white/[0.04] dark:text-gray-200 dark:placeholder:text-gray-500"
             />
           </div>
           <div className="flex items-center gap-2">
@@ -158,8 +154,8 @@ const AppHeader: React.FC = () => {
             )}
             <ThemeToggleButton />
             <NotificationDropdown />
+            <UserDropdown />
           </div>
-          <UserDropdown />
         </div>
       )}
     </header>

@@ -60,7 +60,7 @@ function FieldInput({
             ? "border-red-400 focus:border-red-400 focus:ring-red-400/20"
             : readOnly
             ? "border-gray-200 bg-gray-50 dark:bg-gray-800 cursor-default"
-            : "border-gray-300 focus:border-[#FBBB14] focus:ring-[#FBBB14]/30 dark:border-gray-700"
+            : "border-gray-300 focus:border-[#FFBE12] focus:ring-[#FFBE12]/30 dark:border-gray-700"
         }`}
       />
       {error && (
@@ -85,7 +85,7 @@ function UnitSelect({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-10 w-full rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 focus:border-[#FBBB14] focus:outline-none focus:ring-2 focus:ring-[#FBBB14]/30 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+        className="h-10 w-full rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 focus:border-[#FFBE12] focus:outline-none focus:ring-2 focus:ring-[#FFBE12]/30 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
       >
         {UNIT_OPTIONS.map((u) => (
           <option key={u} value={u}>
@@ -162,7 +162,7 @@ function AddOptionForm({
     <form
       onSubmit={handleSubmit}
       noValidate
-      className="mt-3 rounded-xl border border-dashed border-[#402F75]/30 dark:border-[#FBBB14]/20 bg-[#402F75]/5 dark:bg-[#FBBB14]/5 p-4"
+      className="mt-3 rounded-xl border border-dashed border-[#402F75]/30 dark:border-[#FFBE12]/20 bg-[#402F75]/5 dark:bg-[#FFBE12]/5 p-4"
     >
       {apiError && (
         <p className="mb-3 text-xs text-red-500 dark:text-red-400">{apiError}</p>
@@ -326,7 +326,7 @@ function SpecGroupRow({
         onClick={() => setExpanded((v) => !v)}
         className="flex w-full items-center gap-3 px-5 py-4 text-left hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors"
       >
-        <span className="inline-flex items-center rounded-md bg-[#402F75]/10 dark:bg-[#402F75]/30 px-2.5 py-1 text-xs font-mono font-semibold text-[#402F75] dark:text-[#FBBB14]">
+        <span className="inline-flex items-center rounded-md bg-[#402F75]/10 dark:bg-[#402F75]/30 px-2.5 py-1 text-xs font-mono font-semibold text-[#402F75] dark:text-[#FFBE12]">
           {group.code}
         </span>
         <span className="flex-1 text-sm font-semibold text-gray-800 dark:text-white/90">
@@ -353,7 +353,7 @@ function SpecGroupRow({
         <div className="border-t border-gray-100 dark:border-gray-800 px-5 pb-5 pt-4">
           {/* Names + group edit/delete */}
           {editingGroup ? (
-            <div className="mb-4 rounded-xl border border-dashed border-[#402F75]/30 dark:border-[#FBBB14]/20 bg-[#402F75]/5 dark:bg-[#FBBB14]/5 p-4">
+            <div className="mb-4 rounded-xl border border-dashed border-[#402F75]/30 dark:border-[#FFBE12]/20 bg-[#402F75]/5 dark:bg-[#FFBE12]/5 p-4">
               <div className="grid grid-cols-3 gap-3">
                 <FieldInput label="Name AZ" value={nameAz} onChange={setNameAz} placeholder="RAM" />
                 <FieldInput label="Name EN" value={nameEn} onChange={setNameEn} placeholder="RAM" />
@@ -397,7 +397,7 @@ function SpecGroupRow({
                 <button
                   type="button"
                   onClick={startEditGroup}
-                  className="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 hover:text-[#402F75] dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-[#FBBB14] transition-colors"
+                  className="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 hover:text-[#402F75] dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-[#FFBE12] transition-colors"
                 >
                   Edit
                 </button>
@@ -444,7 +444,7 @@ function SpecGroupRow({
                               onClick={() => moveOption(index, -1)}
                               disabled={reordering || index === 0}
                               title="Move up"
-                              className="flex h-4 w-5 items-center justify-center rounded text-gray-400 hover:bg-[#402F75]/10 hover:text-[#402F75] disabled:opacity-30 disabled:hover:bg-transparent dark:hover:text-[#FBBB14] transition-colors"
+                              className="flex h-4 w-5 items-center justify-center rounded text-gray-400 hover:bg-[#402F75]/10 hover:text-[#402F75] disabled:opacity-30 disabled:hover:bg-transparent dark:hover:text-[#FFBE12] transition-colors"
                             >
                               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                                 <path d="M18 15l-6-6-6 6" />
@@ -454,7 +454,7 @@ function SpecGroupRow({
                               onClick={() => moveOption(index, 1)}
                               disabled={reordering || index === sortedOptions.length - 1}
                               title="Move down"
-                              className="flex h-4 w-5 items-center justify-center rounded text-gray-400 hover:bg-[#402F75]/10 hover:text-[#402F75] disabled:opacity-30 disabled:hover:bg-transparent dark:hover:text-[#FBBB14] transition-colors"
+                              className="flex h-4 w-5 items-center justify-center rounded text-gray-400 hover:bg-[#402F75]/10 hover:text-[#402F75] disabled:opacity-30 disabled:hover:bg-transparent dark:hover:text-[#FFBE12] transition-colors"
                             >
                               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                                 <path d="M6 9l6 6 6-6" />
@@ -480,7 +480,7 @@ function SpecGroupRow({
                         <button
                           onClick={() => { setEditingOptionId(opt.id); setAddingOption(false); }}
                           title="Edit option"
-                          className="flex h-7 w-7 items-center justify-center rounded-full text-gray-400 hover:bg-[#402F75]/10 hover:text-[#402F75] dark:hover:bg-[#FBBB14]/10 dark:hover:text-[#FBBB14] transition-colors"
+                          className="flex h-7 w-7 items-center justify-center rounded-full text-gray-400 hover:bg-[#402F75]/10 hover:text-[#402F75] dark:hover:bg-[#FFBE12]/10 dark:hover:text-[#FFBE12] transition-colors"
                         >
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M12 20h9" />
@@ -546,7 +546,7 @@ function SpecGroupRow({
             <button
               type="button"
               onClick={() => setAddingOption(true)}
-              className="mt-3 inline-flex items-center gap-1.5 rounded-[30px] border border-dashed border-[#402F75] px-4 py-1.5 text-xs font-medium text-[#402F75] hover:bg-[#402F75]/5 dark:border-[#FBBB14] dark:text-[#FBBB14] dark:hover:bg-[#FBBB14]/5 transition-colors"
+              className="mt-3 inline-flex items-center gap-1.5 rounded-[30px] border border-dashed border-[#402F75] px-4 py-1.5 text-xs font-medium text-[#402F75] hover:bg-[#402F75]/5 dark:border-[#FFBE12] dark:text-[#FFBE12] dark:hover:bg-[#FFBE12]/5 transition-colors"
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <line x1="12" y1="5" x2="12" y2="19" />
@@ -643,7 +643,7 @@ function CreateGroupForm({ onCreated, onCancel }: { onCreated: (g: GlobalSpecGro
   return (
     <div className="mb-6 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-white/[0.03] overflow-hidden">
       <div className="border-b border-gray-100 dark:border-gray-700 bg-[#402F75]/5 dark:bg-[#402F75]/20 px-6 py-4">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-[#402F75] dark:text-[#FBBB14]">
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-[#402F75] dark:text-[#FFBE12]">
           New Spec Group
         </h3>
       </div>
@@ -666,7 +666,7 @@ function CreateGroupForm({ onCreated, onCancel }: { onCreated: (g: GlobalSpecGro
               className={`h-11 w-full rounded-lg border bg-transparent px-4 text-sm text-gray-800 focus:outline-none focus:ring-3 dark:bg-gray-900 dark:text-white/90 ${
                 submitted && errors.code
                   ? "border-red-400 focus:border-red-400 focus:ring-red-400/20"
-                  : "border-gray-300 focus:border-[#FBBB14] focus:ring-[#FBBB14]/30 dark:border-gray-700"
+                  : "border-gray-300 focus:border-[#FFBE12] focus:ring-[#FFBE12]/30 dark:border-gray-700"
               }`}
             >
               <option value="">Select code…</option>
@@ -690,7 +690,7 @@ function CreateGroupForm({ onCreated, onCancel }: { onCreated: (g: GlobalSpecGro
               className={`h-11 w-full rounded-lg border bg-transparent px-4 text-sm text-gray-800 focus:outline-none focus:ring-3 dark:bg-gray-900 dark:text-white/90 placeholder:text-gray-400 dark:placeholder:text-white/30 ${
                 submitted && errors.nameAz
                   ? "border-red-400 focus:border-red-400 focus:ring-red-400/20"
-                  : "border-gray-300 focus:border-[#FBBB14] focus:ring-[#FBBB14]/30 dark:border-gray-700"
+                  : "border-gray-300 focus:border-[#FFBE12] focus:ring-[#FFBE12]/30 dark:border-gray-700"
               }`}
             />
             {submitted && errors.nameAz && (
@@ -709,7 +709,7 @@ function CreateGroupForm({ onCreated, onCancel }: { onCreated: (g: GlobalSpecGro
               className={`h-11 w-full rounded-lg border bg-transparent px-4 text-sm text-gray-800 focus:outline-none focus:ring-3 dark:bg-gray-900 dark:text-white/90 placeholder:text-gray-400 dark:placeholder:text-white/30 ${
                 submitted && errors.nameEn
                   ? "border-red-400 focus:border-red-400 focus:ring-red-400/20"
-                  : "border-gray-300 focus:border-[#FBBB14] focus:ring-[#FBBB14]/30 dark:border-gray-700"
+                  : "border-gray-300 focus:border-[#FFBE12] focus:ring-[#FFBE12]/30 dark:border-gray-700"
               }`}
             />
             {submitted && errors.nameEn && (
@@ -729,7 +729,7 @@ function CreateGroupForm({ onCreated, onCancel }: { onCreated: (g: GlobalSpecGro
               className={`h-11 w-full rounded-lg border bg-transparent px-4 text-sm text-gray-800 focus:outline-none focus:ring-3 dark:bg-gray-900 dark:text-white/90 placeholder:text-gray-400 dark:placeholder:text-white/30 ${
                 submitted && errors.nameAr
                   ? "border-red-400 focus:border-red-400 focus:ring-red-400/20"
-                  : "border-gray-300 focus:border-[#FBBB14] focus:ring-[#FBBB14]/30 dark:border-gray-700"
+                  : "border-gray-300 focus:border-[#FFBE12] focus:ring-[#FFBE12]/30 dark:border-gray-700"
               }`}
             />
             {submitted && errors.nameAr && (
@@ -770,7 +770,7 @@ function CreateGroupForm({ onCreated, onCancel }: { onCreated: (g: GlobalSpecGro
         <button
           type="button"
           onClick={addOption}
-          className="inline-flex items-center gap-1.5 rounded-[30px] border border-dashed border-[#402F75] px-4 py-2 text-xs font-medium text-[#402F75] hover:bg-[#402F75]/5 dark:border-[#FBBB14] dark:text-[#FBBB14] dark:hover:bg-[#FBBB14]/5 transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-[30px] border border-dashed border-[#402F75] px-4 py-2 text-xs font-medium text-[#402F75] hover:bg-[#402F75]/5 dark:border-[#FFBE12] dark:text-[#FFBE12] dark:hover:bg-[#FFBE12]/5 transition-colors"
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <line x1="12" y1="5" x2="12" y2="19" />

@@ -65,7 +65,7 @@ export default function ActivePendingOrders() {
         </div>
         <Link
           to="/orders/all?bucket=active"
-          className="text-sm font-medium text-brand-500 hover:text-brand-600"
+          className="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-300 dark:hover:text-brand-200"
         >
           View all
         </Link>

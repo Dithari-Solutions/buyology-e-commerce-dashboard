@@ -1,3 +1,7 @@
+<!-- The Buyology Dashboard is built on the TailAdmin React template. The
+     notice below is TailAdmin's and must be retained under the MIT licence.
+     Buyology branding, product code and integrations are (c) Buyology. -->
+
 MIT License
 
 Copyright (c) 2023 TailAdmin

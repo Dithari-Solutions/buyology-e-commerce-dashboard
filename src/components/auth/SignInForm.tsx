@@ -5,7 +5,6 @@ import Label from "../form/Label";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import { EyeCloseIcon, EyeIcon } from "../../icons";
-import Logo from "../../../public/logo.png";
 import Curve from "../../assets/vectors/auth-bg-vector.png";
 
 export default function SignInForm() {
@@ -43,7 +42,20 @@ export default function SignInForm() {
       <div className="w-full max-w-[400px] z-2">
         {/* Mobile-only logo */}
         <div className="flex lg:hidden justify-center mb-6">
-          <img src={Logo} alt="Buyology" className="w-14 h-14 rounded-xl shadow-md" />
+          <img
+            src="/images/logo/buyology-wordmark-light.png"
+            alt="Buyology"
+            width={2651}
+            height={582}
+            className="h-8 w-auto dark:hidden"
+          />
+          <img
+            src="/images/logo/buyology-wordmark-dark.png"
+            alt="Buyology"
+            width={2651}
+            height={582}
+            className="hidden h-8 w-auto dark:block"
+          />
         </div>
 
         {/* Heading */}

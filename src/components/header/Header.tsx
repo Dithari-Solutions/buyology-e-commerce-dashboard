@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { BuyologyLockup } from "../common/BuyologyLogo";
 import { ThemeToggleButton } from "../common/ThemeToggleButton";
 import NotificationDropdown from "./NotificationDropdown";
 import UserDropdown from "./UserDropdown";
@@ -78,17 +79,8 @@ const Header: React.FC<HeaderProps> = ({ onClick, onToggle }) => {
             </svg>
           </button>
 
-          <Link to="/" className="lg:hidden">
-            <img
-              className="dark:hidden"
-              src="./images/logo/logo.svg"
-              alt="Logo"
-            />
-            <img
-              className="hidden dark:block"
-              src="./images/logo/logo-dark.svg"
-              alt="Logo"
-            />
+          <Link to="/" aria-label="Buyology home" className="lg:hidden">
+            <BuyologyLockup className="h-6" />
           </Link>
 
           <button

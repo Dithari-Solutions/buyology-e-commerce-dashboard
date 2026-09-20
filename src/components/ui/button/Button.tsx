@@ -29,8 +29,12 @@ const Button: React.FC<ButtonProps> = ({
 
   // Variant Classes
   const variantClasses = {
+    // Mikado Yellow takes black ink, not white: that is the pairing the Brand
+    // Identity Guidelines publish, and white on #FFBE12 sits at 1.8:1 — below
+    // the 4.5:1 a button label needs. `hover:[#FFBE12]` was never a real class,
+    // so the hover state did nothing either.
     primary:
-      "bg-[#FBBB14] text-white shadow-theme-xs hover:[#FBBB14] disabled:bg-brand-300",
+      "bg-buyology-yellow-500 text-black shadow-theme-xs hover:bg-mikado-tint-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-buyology-600 focus-visible:ring-offset-2 disabled:bg-buyology-yellow-200 disabled:text-black/50",
     outline:
       "bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300",
   };

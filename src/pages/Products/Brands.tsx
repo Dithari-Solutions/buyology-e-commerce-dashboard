@@ -38,7 +38,7 @@ function Field({
         className={`h-11 w-full rounded-lg border bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:outline-none focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${
           error
             ? "border-red-400 focus:border-red-400 focus:ring-red-400/20"
-            : "border-gray-300 focus:border-[#FBBB14] focus:ring-[#FBBB14]/30 dark:border-gray-700"
+            : "border-gray-300 focus:border-[#FFBE12] focus:ring-[#FFBE12]/30 dark:border-gray-700"
         }`}
       />
       {error && (
@@ -307,7 +307,7 @@ export default function Brands() {
       {showForm && (
         <div className="mb-6 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-white/[0.03] overflow-hidden">
           <div className="border-b border-gray-100 dark:border-gray-700 bg-[#402F75]/5 dark:bg-[#402F75]/20 px-6 py-4">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-[#402F75] dark:text-[#FBBB14]">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-[#402F75] dark:text-[#FFBE12]">
               New Brand
             </h3>
           </div>

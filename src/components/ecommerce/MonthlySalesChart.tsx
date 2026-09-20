@@ -4,10 +4,13 @@ import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { MoreDotIcon } from "../../icons";
 import { useState } from "react";
+import { useChartPalette } from "../charts/brandPalette";
 
 export default function MonthlySalesChart() {
+  const palette = useChartPalette();
+
   const options: ApexOptions = {
-    colors: ["#7c3aed"],
+    colors: [palette.primary],
     chart: {
       fontFamily: "Plus Jakarta Sans, sans-serif",
       type: "bar",

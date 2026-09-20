@@ -1,14 +1,16 @@
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
+import { useChartPalette } from "../charts/brandPalette";
 import { useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { MoreDotIcon } from "../../icons";
 
 export default function MonthlyTarget() {
+  const palette = useChartPalette();
   const series = [75.55];
   const options: ApexOptions = {
-    colors: ["#7c3aed"],
+    colors: [palette.primary],
     chart: {
       fontFamily: "Plus Jakarta Sans, sans-serif",
       type: "radialBar",
@@ -25,7 +27,7 @@ export default function MonthlyTarget() {
           size: "80%",
         },
         track: {
-          background: "#E4E7EC",
+          background: palette.track,
           strokeWidth: "100%",
           margin: 5, // margin is in pixels
         },
@@ -47,7 +49,7 @@ export default function MonthlyTarget() {
     },
     fill: {
       type: "solid",
-      colors: ["#7c3aed"],
+      colors: [palette.primary],
     },
     stroke: {
       lineCap: "round",

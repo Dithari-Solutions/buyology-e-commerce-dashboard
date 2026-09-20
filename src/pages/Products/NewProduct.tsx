@@ -151,7 +151,7 @@ function Section({
           className={`text-sm font-semibold uppercase tracking-wide ${
             hasError
               ? "text-red-600 dark:text-red-400"
-              : "text-[#402F75] dark:text-[#FBBB14]"
+              : "text-[#402F75] dark:text-[#FFBE12]"
           }`}
         >
           {title}
@@ -209,7 +209,7 @@ function Select({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className={`h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-[#FBBB14] focus:outline-none focus:ring-3 focus:ring-[#FBBB14]/30 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 ${className}`}
+      className={`h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-[#FFBE12] focus:outline-none focus:ring-3 focus:ring-[#FFBE12]/30 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 ${className}`}
     >
       {children}
     </select>
@@ -244,7 +244,7 @@ function AddBtn({ onClick, label }: { onClick: () => void; label: string }) {
     <button
       type="button"
       onClick={onClick}
-      className="mt-3 inline-flex items-center gap-1.5 rounded-[30px] border border-dashed border-[#402F75] px-4 py-2 text-xs font-medium text-[#402F75] hover:bg-[#402F75]/5 dark:border-[#FBBB14] dark:text-[#FBBB14] dark:hover:bg-[#FBBB14]/5 transition-colors"
+      className="mt-3 inline-flex items-center gap-1.5 rounded-[30px] border border-dashed border-[#402F75] px-4 py-2 text-xs font-medium text-[#402F75] hover:bg-[#402F75]/5 dark:border-[#FFBE12] dark:text-[#FFBE12] dark:hover:bg-[#FFBE12]/5 transition-colors"
     >
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
         <line x1="12" y1="5" x2="12" y2="19" />
@@ -281,7 +281,7 @@ function Textarea({
       className={`w-full rounded-lg border bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:outline-none focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${
         hasError
           ? "border-red-400 focus:border-red-400 focus:ring-red-400/20 dark:border-red-600"
-          : "border-gray-300 focus:border-[#FBBB14] focus:ring-[#FBBB14]/30 dark:border-gray-700"
+          : "border-gray-300 focus:border-[#FFBE12] focus:ring-[#FFBE12]/30 dark:border-gray-700"
       }`}
     />
   );
@@ -1088,7 +1088,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
-              <h4 className="text-sm font-semibold text-[#402F75] dark:text-[#FBBB14]">
+              <h4 className="text-sm font-semibold text-[#402F75] dark:text-[#FFBE12]">
                 Select Global Spec Group
               </h4>
               <button
@@ -1148,7 +1148,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
-                <h4 className="text-sm font-semibold text-[#402F75] dark:text-[#FBBB14]">
+                <h4 className="text-sm font-semibold text-[#402F75] dark:text-[#FFBE12]">
                   Pick Option — {spec.groupMode === "library" ? spec.groupDisplayName : (specCodeLabels[spec.code] ?? spec.code)}
                 </h4>
                 <button
@@ -1360,7 +1360,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
                   value={productSku}
                   onChange={(e) => setProductSku(e.target.value)}
                   placeholder="Auto-generated if left blank"
-                  className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm text-gray-800 focus:border-[#FBBB14] focus:outline-none focus:ring-3 focus:ring-[#FBBB14]/30 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+                  className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm text-gray-800 focus:border-[#FFBE12] focus:outline-none focus:ring-3 focus:ring-[#FFBE12]/30 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
                 />
                 <p className="mt-1 text-xs text-gray-400">Optional. Leave blank to auto-generate. Must be unique if set.</p>
               </div>
@@ -1512,7 +1512,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
               {/* Azerbaijani */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center rounded-md bg-[#402F75]/10 px-2.5 py-1 text-xs font-semibold text-[#402F75] dark:bg-[#402F75]/30 dark:text-[#FBBB14]">AZ</span>
+                  <span className="inline-flex items-center rounded-md bg-[#402F75]/10 px-2.5 py-1 text-xs font-semibold text-[#402F75] dark:bg-[#402F75]/30 dark:text-[#FFBE12]">AZ</span>
                   <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Azerbaijani</span>
                 </div>
                 <div>
@@ -1530,7 +1530,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
               {/* English */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center rounded-md bg-[#402F75]/10 px-2.5 py-1 text-xs font-semibold text-[#402F75] dark:bg-[#402F75]/30 dark:text-[#FBBB14]">EN</span>
+                  <span className="inline-flex items-center rounded-md bg-[#402F75]/10 px-2.5 py-1 text-xs font-semibold text-[#402F75] dark:bg-[#402F75]/30 dark:text-[#FFBE12]">EN</span>
                   <span className="text-sm font-medium text-gray-600 dark:text-gray-400">English</span>
                 </div>
                 <div>
@@ -1548,7 +1548,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
               {/* Arabic */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center rounded-md bg-[#402F75]/10 px-2.5 py-1 text-xs font-semibold text-[#402F75] dark:bg-[#402F75]/30 dark:text-[#FBBB14]">AR</span>
+                  <span className="inline-flex items-center rounded-md bg-[#402F75]/10 px-2.5 py-1 text-xs font-semibold text-[#402F75] dark:bg-[#402F75]/30 dark:text-[#FFBE12]">AR</span>
                   <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Arabic</span>
                 </div>
                 <div>
@@ -1579,7 +1579,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
               {specs.map((spec, si) => (
                 <div key={si} className="rounded-xl border border-gray-200 dark:border-gray-700 p-4">
                   <div className="mb-4 flex items-center justify-between">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-[#402F75] dark:text-[#FBBB14]">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-[#402F75] dark:text-[#FFBE12]">
                       Spec #{si + 1}
                     </span>
                     <RemoveBtn onClick={() => removeSpec(si)} />
@@ -1619,7 +1619,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
                     <div className="mb-4">
                       {spec.globalSpecGroupId ? (
                         <div className="flex items-center gap-3 rounded-lg bg-[#402F75]/5 dark:bg-[#402F75]/10 px-4 py-3">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-[#402F75] dark:text-[#FBBB14] flex-shrink-0">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-[#402F75] dark:text-[#FFBE12] flex-shrink-0">
                             <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
                             <path d="M9 12l2 2 4-4" />
                           </svg>
@@ -1639,7 +1639,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
                         <button
                           type="button"
                           onClick={() => setActiveGroupPicker({ si })}
-                          className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-[#402F75]/30 dark:border-[#FBBB14]/20 px-4 py-3 text-sm text-[#402F75] dark:text-[#FBBB14] hover:border-[#402F75]/60 dark:hover:border-[#FBBB14]/40 hover:bg-[#402F75]/5 transition-colors"
+                          className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-[#402F75]/30 dark:border-[#FFBE12]/20 px-4 py-3 text-sm text-[#402F75] dark:text-[#FFBE12] hover:border-[#402F75]/60 dark:hover:border-[#FFBE12]/40 hover:bg-[#402F75]/5 transition-colors"
                         >
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <circle cx="11" cy="11" r="8" />
@@ -1732,7 +1732,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
                               From Library
                             </button>
                             {opt.mode === "library" && opt.displayValue && (
-                              <span className="ml-1 text-xs text-[#402F75] dark:text-[#FBBB14] font-medium">
+                              <span className="ml-1 text-xs text-[#402F75] dark:text-[#FFBE12] font-medium">
                                 → {opt.displayValue}
                               </span>
                             )}
@@ -1845,7 +1845,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
             {variants.map((v, vi) => (
               <div key={vi} className="rounded-xl border border-gray-200 dark:border-gray-700 p-4">
                 <div className="mb-4 flex items-center justify-between">
-                  <span className="text-xs font-semibold uppercase tracking-wide text-[#402F75] dark:text-[#FBBB14]">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-[#402F75] dark:text-[#FFBE12]">
                     Variant #{vi + 1}
                   </span>
                   <RemoveBtn onClick={() => removeVariant(vi)} />
@@ -1919,7 +1919,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
                 <div key={ci} className="rounded-xl border border-gray-200 dark:border-gray-700 p-4">
                   <div className="mb-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <span className="text-xs font-semibold uppercase tracking-wide text-[#402F75] dark:text-[#FBBB14]">
+                      <span className="text-xs font-semibold uppercase tracking-wide text-[#402F75] dark:text-[#FFBE12]">
                         Color #{ci + 1}
                       </span>
                       <span
@@ -2076,7 +2076,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
                 className={`flex h-20 w-20 flex-col items-center justify-center rounded-xl border-2 border-dashed transition-colors ${
                   mediaHasError
                     ? "border-red-400 text-red-400 hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-500/5"
-                    : "border-[#402F75]/40 text-[#402F75] hover:border-[#402F75] hover:bg-[#402F75]/5 dark:border-[#FBBB14]/30 dark:text-[#FBBB14] dark:hover:border-[#FBBB14]/60"
+                    : "border-[#402F75]/40 text-[#402F75] hover:border-[#402F75] hover:bg-[#402F75]/5 dark:border-[#FFBE12]/30 dark:text-[#FFBE12] dark:hover:border-[#FFBE12]/60"
                 }`}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

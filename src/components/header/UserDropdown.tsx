@@ -86,13 +86,14 @@ export default function UserDropdown() {
     <div className="relative">
       <button
         onClick={toggleDropdown}
-        className="flex items-center text-gray-700 dropdown-toggle dark:text-gray-400"
+        aria-expanded={isOpen}
+        className="dropdown-toggle flex h-10 items-center gap-2 rounded-full border border-gray-200 bg-white py-1 pl-1 pr-3 text-gray-700 transition hover:border-buyology-200 hover:bg-buyology-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-gray-300 dark:hover:border-buyology-500/40 dark:hover:bg-buyology-500/15"
       >
-        <span className="mr-3 flex h-11 w-11 items-center justify-center rounded-full bg-brand-500 text-sm font-semibold uppercase text-white ring-2 ring-buyology-yellow-300/70 dark:ring-buyology-yellow-400/30">
+        <span className="flex size-8 items-center justify-center rounded-full bg-buyology-600 text-xs font-semibold uppercase text-white ring-2 ring-buyology-yellow-400/70 dark:ring-buyology-yellow-400/40">
           {initials || "?"}
         </span>
 
-        <span className="block mr-1 font-medium text-theme-sm">
+        <span className="hidden max-w-[9rem] truncate font-medium text-theme-sm xl:block">
           {user?.firstName || user?.name || "User"}
         </span>
         <svg
@@ -121,7 +122,7 @@ export default function UserDropdown() {
         className="absolute right-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
       >
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-500 text-sm font-semibold uppercase text-white">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-buyology-600 text-sm font-semibold uppercase text-white ring-2 ring-buyology-yellow-400/60">
             {initials || "?"}
           </span>
           <div className="min-w-0">

@@ -88,7 +88,7 @@ export default function MfaVerify() {
                       setCode("");
                       setError(null);
                     }}
-                    className="text-[#402F75] dark:text-[#FBBB14] hover:underline"
+                    className="text-[#402F75] dark:text-[#FFBE12] hover:underline"
                   >
                     {useRecovery ? "Use authenticator code" : "Use a recovery code"}
                   </button>

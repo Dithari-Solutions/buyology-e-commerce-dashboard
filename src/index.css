@@ -172,6 +172,20 @@ layer(base);
   --color-buyology-yellow-400: #ffc72e;
   --color-buyology-yellow-500: #ffbe12;
   --color-buyology-yellow-600: #e0a710;
+  --color-buyology-yellow-700: #b8890d;
+  --color-buyology-yellow-800: #8a6500;
+  --color-buyology-yellow-900: #5c4400;
+
+  /* The four published tints of each brand colour, verbatim from the guide
+     (Color 5 and Color 6). Use these when a surface has to match print. */
+  --color-mikado-tint-1: #ffcb41;
+  --color-mikado-tint-2: #ffd871;
+  --color-mikado-tint-3: #ffe5a0;
+  --color-mikado-tint-4: #fff2d0;
+  --color-american-tint-1: #665991;
+  --color-american-tint-2: #8c82ac;
+  --color-american-tint-3: #b3acc8;
+  --color-american-tint-4: #d9d5e3;
 
   --shadow-theme-md: 0px 4px 8px -2px rgba(16, 24, 40, 0.1),
     0px 2px 4px -2px rgba(16, 24, 40, 0.06);
@@ -183,7 +197,7 @@ layer(base);
   --shadow-theme-xl: 0px 20px 24px -4px rgba(16, 24, 40, 0.08),
     0px 8px 8px -4px rgba(16, 24, 40, 0.03);
   --shadow-datepicker: -5px 0 0 #262d3c, 5px 0 0 #262d3c;
-  --shadow-focus-ring: 0px 0px 0px 4px rgba(70, 95, 255, 0.12);
+  --shadow-focus-ring: 0px 0px 0px 4px rgba(255, 190, 18, 0.28);
   --shadow-slider-navigation: 0px 1px 2px 0px rgba(16, 24, 40, 0.1),
     0px 1px 3px 0px rgba(16, 24, 40, 0.1);
   --shadow-tooltip: 0px 4px 6px -2px rgba(16, 24, 40, 0.05),
@@ -227,15 +241,21 @@ layer(base);
 }
 
 @utility menu-item {
-  @apply relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-theme-sm;
+  @apply relative flex w-full items-center gap-3 rounded-lg px-3.5 py-2.5 font-medium text-theme-sm transition-all duration-200;
 }
 
+@utility menu-item-text {
+  @apply truncate;
+}
+
+/* Active nav pill — American Blue ink on a soft blue ground, ringed in Mikado
+   Yellow. The two brand colours doing exactly the job the guidelines give them. */
 @utility menu-item-active {
-  @apply bg-buyology-50 text-buyology-600 ring-1 ring-buyology-yellow-300/70 dark:bg-buyology-500/[0.15] dark:text-buyology-300 dark:ring-buyology-yellow-400/30;
+  @apply bg-buyology-50 text-buyology-700 shadow-sm shadow-buyology-900/5 ring-1 ring-buyology-yellow-400/70 dark:bg-buyology-500/20 dark:text-white dark:shadow-none dark:ring-buyology-yellow-400/40;
 }
 
 @utility menu-item-inactive {
-  @apply text-gray-700 hover:bg-gray-100 group-hover:text-gray-700 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-gray-300;
+  @apply text-gray-600 hover:bg-gray-100/80 hover:text-gray-900 group-hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-100 dark:group-hover:text-gray-100;
 }
 
 @utility menu-item-icon {
@@ -243,7 +263,7 @@ layer(base);
 }
 
 @utility menu-item-icon-active {
-  @apply text-buyology-600 dark:text-buyology-300;
+  @apply text-buyology-600 dark:text-buyology-yellow-500;
 }
 
 @utility menu-item-icon-size {
@@ -273,11 +293,11 @@ layer(base);
 }
 
 @utility menu-dropdown-item-active {
-  @apply bg-buyology-50 text-buyology-600 dark:bg-buyology-500/[0.15] dark:text-buyology-300;
+  @apply bg-buyology-50 font-semibold text-buyology-700 ring-1 ring-buyology-yellow-400/50 dark:bg-buyology-500/20 dark:text-white dark:ring-buyology-yellow-400/30;
 }
 
 @utility menu-dropdown-item-inactive {
-  @apply text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5;
+  @apply text-gray-600 hover:bg-gray-100/80 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-100;
 }
 
 @utility menu-dropdown-badge {

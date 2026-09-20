@@ -24,7 +24,7 @@ export default function LanguageToggler() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+        className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-gray-600 transition hover:border-buyology-200 hover:bg-buyology-50 hover:text-buyology-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-gray-300 dark:hover:bg-buyology-500/15"
       >
         <span className="uppercase">{lang}</span>
         <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">

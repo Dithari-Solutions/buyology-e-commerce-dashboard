@@ -1,0 +1,71 @@
+/**
+ * Buyology brand marks.
+ *
+ * Two assets, straight from the Brand Identity Guidelines:
+ *  - the BUYOLOGY.ONLINE wordmark lockup (shared with the v2 storefront), which
+ *    has to be swapped per theme because the black wordmark is unreadable on a
+ *    dark ground and the white one is invisible on a light ground; and
+ *  - the B-wave logomark, traced from the guide's vector so it stays crisp at
+ *    any size. It carries the brand on its own wherever the wordmark is too
+ *    wide — the collapsed sidebar rail, favicons, avatars.
+ */
+
+/** The B-wave, exactly as drawn in the guidelines (426.94 × 111.18). */
+const WAVE_PATH =
+  "M238.4 111.11 C230.82 111.18 223.41 108.88 217.2 104.53 C211.0 100.17 206.31 93.98 203.8 86.83 L179.9 21.36 C178.69 18.05 176.51 15.18 173.64 13.13 C170.77 11.08 167.35 9.94 163.83 9.87 C160.3 9.8 156.84 10.79 153.89 12.73 C150.94 14.66 148.64 17.43 147.3 20.69 L118.0 91.71 C115.66 97.4 111.61 102.22 106.42 105.51 C101.23 108.8 95.14 110.41 89.0 110.11 C82.86 109.81 76.96 107.61 72.12 103.83 C67.27 100.04 63.72 94.85 61.94 88.96 L41.35 20.71 C40.49 17.87 38.92 15.29 36.79 13.22 C34.65 11.15 32.03 9.65 29.16 8.88 C26.29 8.11 23.27 8.08 20.38 8.79 C17.5 9.51 14.84 10.95 12.67 12.98 L5.49 19.71 L0.0 13.85 L7.17 7.17 C10.34 4.21 14.21 2.1 18.42 1.05 C22.62 0.0 27.03 0.04 31.22 1.17 C35.41 2.3 39.24 4.48 42.35 7.5 C45.46 10.52 47.75 14.29 49.0 18.44 L69.6 86.62 C70.9 90.93 73.5 94.72 77.05 97.49 C80.59 100.26 84.9 101.86 89.4 102.08 C93.89 102.3 98.33 101.12 102.13 98.71 C105.93 96.3 108.89 92.78 110.6 88.62 L139.9 17.62 C141.86 12.87 145.21 8.83 149.51 6.02 C153.81 3.2 158.86 1.76 164.0 1.87 C169.13 1.97 174.12 3.63 178.3 6.62 C182.47 9.61 185.65 13.8 187.41 18.62 L211.32 84.09 C213.45 89.85 217.35 94.77 222.47 98.17 C227.58 101.56 233.63 103.25 239.76 102.98 C245.89 102.72 251.78 100.52 256.58 96.7 C261.38 92.87 264.84 87.63 266.47 81.71 L281.22 27.21 C285.64 10.86 299.45 0.55 316.36 0.97 C333.27 1.39 346.57 12.33 350.21 28.87 L361.3 79.36 C365.01 96.26 378.94 102.26 389.77 102.26 L389.85 102.26 C400.7 102.26 414.65 96.17 418.28 79.2 L419.12 75.29 L426.94 76.97 L426.1 80.88 C421.77 101.12 404.79 110.22 389.87 110.26 L389.77 110.26 C374.89 110.26 357.92 101.26 353.49 81.07 L342.39 30.58 C338.97 15.01 326.13 9.21 316.17 8.97 C306.21 8.73 293.1 13.91 288.94 29.3 L274.19 83.8 C272.22 91.42 267.84 98.2 261.69 103.12 C255.54 108.04 247.97 110.83 240.1 111.07 L238.4 111.11 Z";
+
+/** Bare B-wave. Inherits `currentColor` so callers pick the ink. */
+export function BuyologyWave({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 426.94 111.18"
+      fill="none"
+      aria-hidden="true"
+      className={className}
+    >
+      <path d={WAVE_PATH} fill="currentColor" />
+    </svg>
+  );
+}
+
+/**
+ * Square brand tile — the B-wave on American Blue. Used where a logo has to sit
+ * in a fixed square: the collapsed sidebar rail and the auth panel.
+ */
+export function BuyologyMark({ className = "" }: { className?: string }) {
+  return (
+    <span
+      className={`relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-buyology-600 shadow-lg shadow-buyology-900/25 ring-1 ring-white/10 ${className}`}
+      aria-hidden="true"
+    >
+      {/* Warm bloom in the corner keeps the tile from reading as flat block colour. */}
+      <span className="absolute -right-3 -top-3 size-10 rounded-full bg-buyology-yellow-500/30 blur-xl" />
+      <BuyologyWave className="relative w-[62%] text-buyology-yellow-500" />
+    </span>
+  );
+}
+
+/**
+ * Full BUYOLOGY.ONLINE lockup. Both files are transparent PNGs, so the mark
+ * sits on any surface without a plate — only the ink changes between themes.
+ */
+export function BuyologyLockup({ className = "h-8" }: { className?: string }) {
+  return (
+    <>
+      <img
+        src="/images/logo/buyology-wordmark-light.png"
+        alt="Buyology"
+        width={2651}
+        height={582}
+        className={`block w-auto dark:hidden ${className}`}
+      />
+      <img
+        src="/images/logo/buyology-wordmark-dark.png"
+        alt="Buyology"
+        width={2651}
+        height={582}
+        className={`hidden w-auto dark:block ${className}`}
+      />
+    </>
+  );
+}

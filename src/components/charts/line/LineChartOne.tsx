@@ -1,14 +1,17 @@
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
+import { useChartPalette } from "../brandPalette";
 
 export default function LineChartOne() {
+  const palette = useChartPalette();
+
   const options: ApexOptions = {
     legend: {
       show: false, // Hide legend
       position: "top",
       horizontalAlign: "left",
     },
-    colors: ["#7c3aed", "#bda4f7"], // Define line colors
+    colors: [palette.primary, palette.secondary],
     chart: {
       fontFamily: "Plus Jakarta Sans, sans-serif",
       height: 310,
@@ -88,7 +91,7 @@ export default function LineChartOne() {
       labels: {
         style: {
           fontSize: "12px", // Adjust font size for y-axis labels
-          colors: ["#6B7280"], // Color of the labels
+          colors: [palette.axis],
         },
       },
       title: {

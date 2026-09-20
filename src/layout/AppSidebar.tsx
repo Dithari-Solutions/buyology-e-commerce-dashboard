@@ -29,6 +29,8 @@ import {
   UserCircleIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
+import { BuyologyLockup, BuyologyMark } from "../components/common/BuyologyLogo";
+import SidebarWidget from "./SidebarWidget";
 import { canAccessRoles, isProcurement, isRepair, isSupport, isPureSupplier, isSuperAdmin, landingPathForCurrentUser } from "../auth/roles";
 import { storesService, b2bProductRequestsService, b2bQuotesService, repairService, sellService, supportService } from "../api";
 import type { Store } from "../types";
@@ -647,10 +649,10 @@ const AppSidebar: React.FC = () => {
                     {/* Tree connectors — rounded yellow branch + continuous trunk (elbow on the last item) */}
                     <span
                       aria-hidden
-                      className="absolute left-0 top-0 h-1/2 w-3 rounded-bl-[12px] border-b-2 border-l-2 border-[#FBBB14]"
+                      className="absolute left-0 top-0 h-1/2 w-3 rounded-bl-[12px] border-b-2 border-l-2 border-[#FFBE12]"
                     />
                     {subIndex !== subArr.length - 1 && (
-                      <span aria-hidden className="absolute left-0 top-1/2 bottom-0 w-0.5 bg-[#FBBB14]" />
+                      <span aria-hidden className="absolute left-0 top-1/2 bottom-0 w-0.5 bg-[#FFBE12]" />
                     )}
                     <Link
                       to={subItem.path}
@@ -736,92 +738,79 @@ const AppSidebar: React.FC = () => {
     </ul>
   );
 
+  /** Section heading — a label when open, the dots glyph when collapsed to the rail. */
+  const sectionLabel = (label: string) => (
+    <h2
+      className={`mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase leading-5 tracking-[0.18em] text-gray-400 dark:text-gray-500 ${
+        !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
+      }`}
+    >
+      {isExpanded || isHovered || isMobileOpen ? (
+        <>
+          <span className="h-px w-3 rounded-full bg-buyology-yellow-500" />
+          {label}
+        </>
+      ) : (
+        <HorizontaLDots className="size-6" />
+      )}
+    </h2>
+  );
+
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
-        ${
-          isExpanded || isMobileOpen
-            ? "w-[290px]"
-            : isHovered
-            ? "w-[290px]"
-            : "w-[90px]"
-        }
+      className={`fixed left-0 top-0 z-50 mt-16 flex h-[calc(100vh-4rem)] flex-col overflow-hidden border-r border-gray-200 bg-white/95 text-gray-900 backdrop-blur-xl transition-all duration-300 ease-in-out dark:border-white/5 dark:bg-gray-900/95 lg:mt-0 lg:h-screen
+        ${isExpanded || isMobileOpen || isHovered ? "w-[290px]" : "w-[90px]"}
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0`}
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Brand glow behind the logo, and a warm hairline down the trailing edge. */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -left-10 -top-16 size-48 rounded-full bg-buyology-yellow-500/15 blur-3xl dark:bg-buyology-yellow-500/10"
+      />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-buyology-yellow-500/40 to-transparent"
+      />
+
       <div
-        className={`py-8 flex ${
+        className={`relative flex shrink-0 px-5 py-7 ${
           !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
         }`}
       >
-        <Link to={homePath}>
+        <Link to={homePath} aria-label="Buyology home" className="flex items-center">
           {isExpanded || isHovered || isMobileOpen ? (
-            <div className="flex items-center gap-3">
-              <img
-                className="rounded-full"
-                src="/logo.png"
-                alt="Logo"
-                width={90}
-                height={40}
-              />
-              <span className="text-xl font-bold tracking-tight text-brand-500 dark:text-white">
-                Buyology
-              </span>
-            </div>
+            <BuyologyLockup className="h-8" />
           ) : (
-            <div>
-              <img
-            className=" rounded-full"
-              src="/logo.png"
-              alt="Logo"
-              width={32}
-              height={32}
-            />
-            </div>
+            <BuyologyMark className="size-11" />
           )}
         </Link>
       </div>
-      <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
+
+      <div className="relative flex flex-1 flex-col overflow-y-auto px-5 duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-5">
             <div>
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Menu"
-                ) : (
-                  <HorizontaLDots className="size-6" />
-                )}
-              </h2>
+              {sectionLabel("Menu")}
               {renderMenuItems(visibleNavItems, "main")}
             </div>
             {visibleOthersItems.length > 0 && (
-              <div className="">
-                <h2
-                  className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                    !isExpanded && !isHovered
-                      ? "lg:justify-center"
-                      : "justify-start"
-                  }`}
-                >
-                  {isExpanded || isHovered || isMobileOpen ? (
-                    "Others"
-                  ) : (
-                    <HorizontaLDots />
-                  )}
-                </h2>
+              <div>
+                {sectionLabel("Others")}
                 {renderMenuItems(visibleOthersItems, "others")}
               </div>
             )}
           </div>
         </nav>
+
+        {/* Pushed to the bottom of the scroll area so short menus still look finished. */}
+        {(isExpanded || isHovered || isMobileOpen) && (
+          <div className="mt-auto pt-2">
+            <SidebarWidget />
+          </div>
+        )}
       </div>
     </aside>
   );

@@ -138,7 +138,7 @@ export default function MfaSetup() {
                 <div className="px-4 py-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/20 dark:text-red-400 dark:border-red-800">
                   {loadError}
                 </div>
-                <Link to="/signin" className="text-sm text-[#402F75] dark:text-[#FBBB14] hover:underline">
+                <Link to="/signin" className="text-sm text-[#402F75] dark:text-[#FFBE12] hover:underline">
                   Back to sign in
                 </Link>
               </div>

@@ -1,5 +1,5 @@
 import React from "react";
-import Logo from "../../../public/logo.png";
+import { BuyologyWave } from "../../components/common/BuyologyLogo";
 
 export default function AuthLayout({
   children,
@@ -7,24 +7,27 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex">
-      {/* Left branding panel */}
-      <div className="hidden lg:flex lg:w-[45%] bg-[#402F75] relative overflow-hidden flex-col items-center justify-center p-12 z-10">
-        {/* Decorative blobs */}
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#FFBE12]/10 rounded-full" />
-        <div className="absolute -bottom-40 -right-20 w-[28rem] h-[28rem] bg-white/5 rounded-full" />
-        <div className="absolute top-1/2 right-0 translate-x-1/2 w-48 h-48 bg-[#FFBE12]/15 rounded-full" />
+    <div className="flex min-h-screen">
+      {/* Left branding panel — American Blue ground, per the guidelines' approved
+          "white logo on American Blue" and "Mikado Yellow tagline on American
+          Blue" pairings. */}
+      <div className="relative z-10 hidden flex-col items-center justify-center overflow-hidden bg-[#402F75] p-12 lg:flex lg:w-[45%]">
+        {/* Decorative blooms */}
+        <div className="absolute -left-24 -top-24 size-96 rounded-full bg-[#FFBE12]/10 blur-3xl" />
+        <div className="absolute -bottom-40 -right-20 size-[28rem] rounded-full bg-white/5 blur-3xl" />
+        <BuyologyWave className="absolute -bottom-10 left-0 w-full text-white/[0.06]" />
 
-        <div className="relative z-10 text-center max-w-sm">
+        <div className="relative z-10 max-w-sm text-center">
+          {/* The dark-theme lockup: white wordmark, which is the one that reads
+              on American Blue. */}
           <img
-            src={Logo}
+            src="/images/logo/buyology-wordmark-dark.png"
             alt="Buyology"
-            className="w-24 h-24 rounded-2xl mx-auto shadow-2xl mb-8"
+            width={2651}
+            height={582}
+            className="mx-auto mb-10 h-10 w-auto"
           />
-          <h1 className="text-4xl font-bold text-white mb-3 tracking-tight">
-            Buyology
-          </h1>
-          <p className="text-white/60 text-base leading-relaxed">
+          <p className="text-base leading-relaxed text-white/65">
             Your all-in-one e-commerce dashboard for smarter business decisions.
           </p>
 
@@ -35,7 +38,7 @@ export default function AuthLayout({
       </div>
 
       {/* Right form panel */}
-      <div className="flex-1 flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-6">
+      <div className="flex flex-1 items-center justify-center bg-gray-50 p-6 dark:bg-gray-900">
         {children}
       </div>
     </div>

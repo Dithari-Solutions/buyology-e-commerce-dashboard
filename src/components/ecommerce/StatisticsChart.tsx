@@ -1,11 +1,13 @@
 import { useEffect, useRef } from "react";
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
+import { useChartPalette } from "../charts/brandPalette";
 import flatpickr from "flatpickr";
 import ChartTab from "../common/ChartTab";
 import { CalenderIcon } from "../../icons";
 
 export default function StatisticsChart() {
+  const palette = useChartPalette();
   const datePickerRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -41,7 +43,7 @@ export default function StatisticsChart() {
       position: "top",
       horizontalAlign: "left",
     },
-    colors: ["#7c3aed", "#bda4f7"], // Define line colors
+    colors: [palette.primary, palette.secondary],
     chart: {
       fontFamily: "Plus Jakarta Sans, sans-serif",
       height: 310,
@@ -121,7 +123,7 @@ export default function StatisticsChart() {
       labels: {
         style: {
           fontSize: "12px", // Adjust font size for y-axis labels
-          colors: ["#6B7280"], // Color of the labels
+          colors: [palette.axis],
         },
       },
       title: {

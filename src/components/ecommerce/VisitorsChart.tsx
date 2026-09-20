@@ -2,21 +2,21 @@ import { useMemo, useState } from "react";
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import type { VisitorMetricsResponse } from "../../api/services/analytics.service";
+import { useChartPalette } from "../charts/brandPalette";
 
 /**
  * Website traffic over time.
  *
  * Both series are counts of people on the same scale, so they share one y-axis (never a second
- * axis). Series colours are fixed per measure — #7c3aed for unique visitors, #0d9488 for visits —
- * and stay put regardless of which range is selected; both pass CVD separation and 3:1 contrast
- * against the light and dark card surfaces.
+ * axis). Series colours come from the shared brand palette — American Blue for unique visitors,
+ * Mikado Yellow for visits — and stay put regardless of which range is selected; the palette
+ * swaps tints per theme so both keep 3:1 against the card they sit on, and blue against gold
+ * separates under all three common colour-vision deficiencies.
  *
  * The 7d/30d toggle slices the series the parent already fetched instead of re-requesting: the API
  * returns 30 days in one call and the window totals come with it.
  */
 
-const UNIQUE_COLOR = "#7c3aed";
-const VISITS_COLOR = "#0d9488";
 
 type Range = 7 | 30;
 
@@ -42,6 +42,7 @@ export default function VisitorsChart({
   metrics: VisitorMetricsResponse | null;
   loading: boolean;
 }) {
+  const palette = useChartPalette();
   const [range, setRange] = useState<Range>(30);
 
   const points = useMemo(() => {
@@ -76,7 +77,7 @@ export default function VisitorsChart({
   const hasTraffic = (metrics?.allTime.pageViews ?? 0) > 0;
 
   const options: ApexOptions = {
-    colors: [UNIQUE_COLOR, VISITS_COLOR],
+    colors: [palette.primary, palette.secondary],
     chart: {
       fontFamily: "Plus Jakarta Sans, sans-serif",
       type: "area",
@@ -98,10 +99,10 @@ export default function VisitorsChart({
       horizontalAlign: "left",
       fontFamily: "Plus Jakarta Sans",
       markers: { size: 6 },
-      labels: { colors: "#667085" },
+      labels: { colors: palette.axis },
     },
     grid: {
-      borderColor: "rgba(102, 112, 133, 0.15)",
+      borderColor: palette.grid,
       strokeDashArray: 3,
       xaxis: { lines: { show: false } },
       yaxis: { lines: { show: true } },
@@ -113,7 +114,7 @@ export default function VisitorsChart({
       axisTicks: { show: false },
       tooltip: { enabled: false },
       labels: {
-        style: { colors: "#98A2B3", fontSize: "12px" },
+        style: { colors: palette.axis, fontSize: "12px" },
         // 30 daily labels don't fit side by side; drop the ones that would collide
         // rather than rotating them into an unreadable diagonal.
         rotate: 0,
@@ -124,7 +125,7 @@ export default function VisitorsChart({
       min: 0,
       forceNiceScale: true,
       labels: {
-        style: { colors: "#98A2B3", fontSize: "12px" },
+        style: { colors: palette.axis, fontSize: "12px" },
         formatter: (val: number) => (Number.isInteger(val) ? String(val) : val.toFixed(0)),
       },
     },
@@ -178,12 +179,12 @@ export default function VisitorsChart({
 
       <div className="mt-5 grid grid-cols-3 gap-4 border-y border-gray-100 py-4 dark:border-gray-800">
         <StatBlock
-          color={UNIQUE_COLOR}
+          color={palette.primary}
           label={`Unique visitors (${range}d)`}
           value={loading ? "…" : fmt(totals?.uniqueVisitors)}
         />
         <StatBlock
-          color={VISITS_COLOR}
+          color={palette.secondary}
           label={`Visits (${range}d)`}
           value={loading ? "…" : fmt(totals?.visits)}
         />

@@ -97,7 +97,7 @@ function Section({
           className={`text-sm font-semibold uppercase tracking-wide ${
             hasError
               ? "text-red-600 dark:text-red-400"
-              : "text-[#402F75] dark:text-[#FBBB14]"
+              : "text-[#402F75] dark:text-[#FFBE12]"
           }`}
         >
           {title}
@@ -536,7 +536,7 @@ export default function NewStory() {
                 className={`flex h-20 w-20 flex-col items-center justify-center rounded-xl border-2 border-dashed transition-colors ${
                   mediaHasError
                     ? "border-red-400 text-red-400 hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-500/5"
-                    : "border-[#402F75]/40 text-[#402F75] hover:border-[#402F75] hover:bg-[#402F75]/5 dark:border-[#FBBB14]/30 dark:text-[#FBBB14] dark:hover:border-[#FBBB14]/60"
+                    : "border-[#402F75]/40 text-[#402F75] hover:border-[#402F75] hover:bg-[#402F75]/5 dark:border-[#FFBE12]/30 dark:text-[#FFBE12] dark:hover:border-[#FFBE12]/60"
                 }`}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
