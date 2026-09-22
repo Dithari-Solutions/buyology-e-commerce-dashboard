@@ -49,6 +49,14 @@ export interface QuiqupEvent {
   sourceIp?: string | null;
 }
 
+/** What retrying a cancelled order's courier cancel came to. */
+export interface QuiqupCancelRetry {
+  orderId: string;
+  outcome: string;
+  refundAllowed: boolean;
+  detail: string;
+}
+
 export interface Envelope<T> {
   ok: boolean;
   data?: T;
@@ -87,6 +95,11 @@ export const quiqupService = {
   markReady: (id: string) => call<QuiqupResult>(put<QuiqupResult>(`/orders/${encodeURIComponent(id)}/ready`)),
   getLabel: (id: string) => call<QuiqupResult>(get<QuiqupResult>(`/orders/${encodeURIComponent(id)}/label`)),
   cancelOrder: (id: string) => call<QuiqupResult>(post<QuiqupResult>("/orders/cancel", { id })),
+
+  // One of OUR orders, by our order id: ask Quiqup again to stop a cancelled order's job, and
+  // release the held stock/refund once it confirms.
+  retryCancel: (orderId: string) =>
+    call<QuiqupCancelRetry>(post<QuiqupCancelRetry>(`/cancel/${encodeURIComponent(orderId)}`)),
 
   // Raw request tester
   raw: (method: string, path: string, body?: unknown) =>

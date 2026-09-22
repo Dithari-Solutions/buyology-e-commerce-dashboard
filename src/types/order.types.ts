@@ -164,6 +164,8 @@ export interface OrderAdminResponse {
   quiqupStatus?: string | null;
   quiqupDispatchedAt?: string | null;
   quiqupDispatchError?: string | null;
+  /** When the job was marked ready for collection — the moment a courier was summoned. */
+  quiqupReleasedAt?: string | null;
   quiqupCancelStatus?: string | null;
   quiqupCancelConfirmedAt?: string | null;
   quiqupCancelError?: string | null;

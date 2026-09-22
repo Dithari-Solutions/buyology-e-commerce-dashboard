@@ -6,6 +6,7 @@ import Badge from "../../components/ui/badge/Badge";
 import { ordersService, ApiRequestError } from "../../api";
 import { isSuperAdmin } from "../../auth/roles";
 import { courierProfilesService, type CourierProfile } from "../../api/services/courierProfiles.service";
+import { quiqupService } from "../../api/services/quiqup.service";
 import type { OrderAdminResponse, OrderStatus } from "../../types";
 import { PaymentSupportPanel } from "./PaymentSupportPanel";
 
@@ -105,6 +106,7 @@ export default function OrderDetail() {
   const [codAmount, setCodAmount] = useState("");
   const [codNotes, setCodNotes] = useState("");
   const [codMsg, setCodMsg] = useState<string | null>(null);
+  const [quiqupMsg, setQuiqupMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const pickupInputRef = useRef<HTMLInputElement>(null);
   const dropoffInputRef = useRef<HTMLInputElement>(null);
 
@@ -173,6 +175,12 @@ export default function OrderDetail() {
       });
       setOrder(res.data);
       setCancellationReason("");
+      // The reply is the plain admin view; reload the full one so the payment card and proof
+      // photos the page shows do not drop out after a status change.
+      ordersService
+        .getByIdWithProof(orderId)
+        .then((fresh) => setOrder(fresh.data))
+        .catch(() => undefined);
     } catch (err) {
       setActionError(err instanceof ApiRequestError ? err.message : "Failed to update status.");
     } finally {
@@ -204,6 +212,37 @@ export default function OrderDetail() {
       setBusy(null);
     }
   }, [orderId, paymobTxnId]);
+
+  /**
+   * Ask Quiqup again to stop a cancelled order's job. For when the automatic cancel gave up or was
+   * refused — typically after the job has been cancelled by hand in Quiqup's dashboard, so this
+   * re-reads it, confirms the stop, and releases the stock and refund the cancel was holding.
+   */
+  const handleRetryQuiqupCancel = useCallback(async () => {
+    if (!orderId) return;
+    setBusy("quiqup-cancel");
+    setActionError(null);
+    setQuiqupMsg(null);
+    const res = await quiqupService.retryCancel(orderId);
+    if (res.ok && res.data) {
+      const stopped = res.data.refundAllowed;
+      setQuiqupMsg({
+        ok: stopped,
+        text: stopped
+          ? "Quiqup confirms the job is cancelled."
+          : `Still not confirmed (${res.data.outcome}). ${res.data.detail}`,
+      });
+      try {
+        const fresh = await ordersService.getByIdWithProof(orderId);
+        setOrder(fresh.data);
+      } catch {
+        // The message above already says how it went; the card refreshes on the next load.
+      }
+    } else {
+      setActionError(res.error ?? "Could not retry the Quiqup cancel.");
+    }
+    setBusy(null);
+  }, [orderId]);
 
   /**
    * Book the cash as being in hand. The amount box stays optional and blank means "the whole
@@ -934,6 +973,13 @@ export default function OrderDetail() {
                     {order.quiqupDispatchedAt && (
                       <p className="mt-1 text-xs text-gray-400">dispatched {formatDate(order.quiqupDispatchedAt)}</p>
                     )}
+                    {order.quiqupReleasedAt ? (
+                      <p className="mt-1 text-xs text-gray-400">courier summoned {formatDate(order.quiqupReleasedAt)}</p>
+                    ) : order.status === "PAID" ? (
+                      <p className="mt-1 text-xs text-gray-400">courier is summoned when the order moves to Packaging</p>
+                    ) : order.status === "PACKAGING" ? (
+                      <p className="mt-1 text-xs text-gray-400">courier not summoned yet — refresh in a moment</p>
+                    ) : null}
                   </div>
                 )}
                 {order.quiqupDispatchError && (
@@ -951,6 +997,22 @@ export default function OrderDetail() {
                     </p>
                     {order.quiqupCancelError && (
                       <p className="mt-1 text-xs text-red-600 dark:text-red-400">{order.quiqupCancelError}</p>
+                    )}
+                    {order.status === "CANCELLED" &&
+                      ["PENDING", "UNCONFIRMED", "NEEDS_HUMAN", "REFUSED_TOO_LATE"].includes(order.quiqupCancelStatus) && (
+                        <button
+                          type="button"
+                          onClick={handleRetryQuiqupCancel}
+                          disabled={busy === "quiqup-cancel"}
+                          className="mt-3 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.03]"
+                        >
+                          {busy === "quiqup-cancel" ? "Asking Quiqup…" : "Retry Quiqup cancel"}
+                        </button>
+                      )}
+                    {quiqupMsg && (
+                      <p className={`mt-2 text-xs ${quiqupMsg.ok ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                        {quiqupMsg.text}
+                      </p>
                     )}
                   </div>
                 )}
