@@ -280,6 +280,7 @@ export default function Users() {
   const [totalPages, setTotalPages] = useState(0);
 
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("ALL");
 
@@ -300,12 +301,27 @@ export default function Users() {
     setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3500);
   }
 
+  // Search runs server-side, so debounce it rather than firing a request per keystroke. Resetting
+  // the page matters as much as the debounce: a new search while on page 3 would otherwise ask the
+  // server for the third page of a result set that may only have one.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(0);
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [search]);
+
   const load = useCallback(
-    (pageNum: number, signal?: AbortSignal) => {
+    (pageNum: number, query: string, signal?: AbortSignal) => {
       setLoading(true);
       setError(null);
+      // Server-side, across the whole table. This used to fetch a page and filter it in the
+      // browser, so a search only ever looked at the newest 20 accounts: every older customer was
+      // invisible and the page answered "No users match your search." The same mistake was fixed
+      // on the Admins page and never carried across.
       usersService
-        .getAll(pageNum, PAGE_SIZE, signal)
+        .getAll(pageNum, PAGE_SIZE, query, signal)
         .then((res) => {
           setUsers(res.data.users);
           setTotalElements(res.data.totalElements);
@@ -322,9 +338,9 @@ export default function Users() {
 
   useEffect(() => {
     const controller = new AbortController();
-    load(page, controller.signal);
+    load(page, debouncedSearch, controller.signal);
     return () => controller.abort();
-  }, [page, load]);
+  }, [page, debouncedSearch, load]);
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -393,14 +409,13 @@ export default function Users() {
     }
   }
 
+  // The text search is gone from here — the server has already applied it. Re-filtering the
+  // response against the same term would drop rows the server matched on a field the browser
+  // cannot see: the backend also searches credential emails the list does not display.
   const filtered = users.filter((u) => {
-    const term = search.toLowerCase();
-    const matchesSearch =
-      fullName(u.firstName, u.lastName).toLowerCase().includes(term) ||
-      (u.email ?? "").toLowerCase().includes(term);
     const matchesStatus = statusFilter === "ALL" || u.status === statusFilter;
     const matchesType = typeFilter === "ALL" || u.userType === typeFilter;
-    return matchesSearch && matchesStatus && matchesType;
+    return matchesStatus && matchesType;
   });
 
   const activeCount = users.filter((u) => u.status === "ACTIVE").length;

@@ -75,15 +75,22 @@ export const usersService = {
     return apiClient.delete<ApiResponse<string>>(`${BASE}/${userId}`);
   },
 
+  /**
+   * A page of users, optionally narrowed by a server-side search.
+   *
+   * <p>The search has to reach the server. The backend matches first name, last name and every
+   * credential email across the WHOLE table; filtering the returned page in the browser instead
+   * only narrows the newest 20 accounts, so searching for anyone older finds nothing.
+   */
   getAll(
     page: number = 0,
     size: number = 20,
+    search?: string,
     signal?: AbortSignal
   ): Promise<ApiResponse<UsersListResponse>> {
-    return apiClient.get<ApiResponse<UsersListResponse>>(
-      `${BASE}?page=${page}&size=${size}`,
-      { signal }
-    );
+    const qs = new URLSearchParams({ page: String(page), size: String(size) });
+    if (search && search.trim()) qs.set("search", search.trim());
+    return apiClient.get<ApiResponse<UsersListResponse>>(`${BASE}?${qs.toString()}`, { signal });
   },
 
   /** Search users by name or credential email (for the promo issue-to-user picker). */
