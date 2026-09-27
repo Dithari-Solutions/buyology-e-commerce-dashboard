@@ -306,7 +306,7 @@ export default function Home() {
   useEffect(() => {
     const ctrl = new AbortController();
     // Each metric loads independently — one failing endpoint shouldn't blank the others.
-    usersService.getAll(0, 1, ctrl.signal)
+    usersService.getAll(0, 1, undefined, ctrl.signal)
       .then((r) => setStats((s) => ({ ...s, customers: r.data?.totalElements })))
       .catch(() => {});
     ordersService.getAll({ page: 0, size: 1 }, ctrl.signal)

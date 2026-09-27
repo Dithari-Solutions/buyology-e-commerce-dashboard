@@ -357,7 +357,7 @@ export default function Users() {
     } catch (err) {
       if (err instanceof ApiRequestError && err.statusCode === 409) {
         showToast("This user is already blocked.", "error");
-        load(page);
+        load(page, debouncedSearch);
       } else {
         showToast(
           err instanceof ApiRequestError ? err.message : "Failed to block user.",
@@ -379,7 +379,7 @@ export default function Users() {
     } catch (err) {
       if (err instanceof ApiRequestError && err.statusCode === 409) {
         showToast("This user is already active.", "error");
-        load(page);
+        load(page, debouncedSearch);
       } else {
         showToast(
           err instanceof ApiRequestError ? err.message : "Failed to unblock user.",
@@ -397,7 +397,7 @@ export default function Users() {
       const res = await usersService.blockInactive();
       setBlockInactiveOpen(false);
       showToast(res.message, "success");
-      load(page);
+      load(page, debouncedSearch);
     } catch (err) {
       setBlockInactiveOpen(false);
       showToast(
@@ -613,7 +613,7 @@ export default function Users() {
           </svg>
           <p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>
           <button
-            onClick={() => load(page)}
+            onClick={() => load(page, debouncedSearch)}
             className="mt-3 text-xs text-brand-500 hover:text-brand-600 dark:text-brand-400"
           >
             Retry
