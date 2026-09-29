@@ -61,6 +61,13 @@ function formatRate(rate: number): string {
   return Number.isInteger(rate) ? String(rate) : rate.toFixed(2);
 }
 
+// Which app the customer cancelled from. Only these two can arrive: the server coerces anything
+// else to null before storing (CancellationFeedbackCodec.coerceSource), so there is no third case to
+// handle and no unrecognised string to pass through — an unknown client is simply not named.
+function sourceLabel(source: string): string {
+  return source === "MOBILE" ? "Mobile app" : "Web app";
+}
+
 type BadgeColor = "success" | "error" | "warning" | "info" | "light";
 
 function statusColor(status: OrderStatus): BadgeColor {
@@ -331,6 +338,20 @@ export default function OrderDetail() {
     );
   }
 
+  // Only "answers" is walked. The stored payload carries each question and answer as displayable
+  // English text, so an entry whose question shipped after this build still renders correctly —
+  // that is the whole reason it is self-describing rather than a list of codes. Entries with
+  // nothing to show are dropped instead of printed as an empty row, since two clients write this
+  // data and a future version may add keys this build has never heard of.
+  const feedback = order.cancellationFeedback;
+  const cancellationAnswers = (feedback?.answers ?? []).filter((a) => !!a?.answer?.trim());
+  const feedbackMeta = [
+    feedback?.submittedAt ? formatDate(feedback.submittedAt) : null,
+    feedback?.source ? sourceLabel(feedback.source) : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
     <>
       <PageMeta
@@ -384,6 +405,42 @@ export default function OrderDetail() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
+          {/* What the customer themselves said when they cancelled. A card of its own, in the main
+              column, because the only cancellation text on this page used to be the red line inside
+              Update Status — directly under the textarea an ADMIN types a reason into, which made a
+              customer's answers read as if an admin had written them. It sits above the items and
+              level with the status card because on a cancelled order "why?" is what whoever opened
+              this page came to find out. The admin's own typed reason stays where it was. */}
+          {cancellationAnswers.length > 0 && (
+            <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden">
+              <div className="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
+                <h3 className="font-semibold text-gray-800 dark:text-white/90">Cancelled by the customer</h3>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  What the customer answered in the app when they cancelled — their words, not an admin's.
+                </p>
+                {feedbackMeta && (
+                  <p className="mt-0.5 text-xs text-gray-400">{feedbackMeta}</p>
+                )}
+              </div>
+              <div className="p-6">
+                <div className="space-y-4">
+                  {cancellationAnswers.map((entry, idx) => (
+                    <div key={idx}>
+                      {/* break-words on the question too, not only the answer. It is client-supplied
+                          and capped at 300 chars with no break opportunities inserted, so one long
+                          unbroken string ran to the card edge and the rest disappeared behind the
+                          wrapper's overflow-hidden — taking the meaning of the answer under it. */}
+                      <p className="mb-1 break-words text-xs text-gray-400">
+                        {entry.question?.trim() || entry.key || "Answer"}
+                      </p>
+                      <p className="break-words text-sm font-medium text-gray-700 dark:text-gray-300">{entry.answer}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Order Items */}
           <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden">
             <div className="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
@@ -567,9 +624,19 @@ export default function OrderDetail() {
                 className="mt-3 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
               />
             )}
+            {/* This field has two authors and they read identically until you label them. An admin
+                types into the textarea above and it lands here; the customer's cancel flow writes
+                assembled prose into the SAME field, so on a customer cancellation this line was the
+                customer's own sentence sitting unattributed under an admin's input box — the exact
+                misreading the card in the main column exists to prevent, left in place beneath it.
+                The structured feedback is the only reliable signal of which author it was: nothing
+                but the customer flow sends it. */}
             {order.cancellationReason && (
               <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700 dark:bg-red-500/10 dark:text-red-300">
-                <span className="font-semibold">Cancellation reason:</span> {order.cancellationReason}
+                <span className="font-semibold">
+                  {feedback ? "Reason the customer gave:" : "Cancellation reason:"}
+                </span>{" "}
+                {order.cancellationReason}
               </p>
             )}
             {order.status === "PENDING_PAYMENT" && (

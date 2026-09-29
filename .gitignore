@@ -27,3 +27,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# macOS AppleDouble sidecars (._Foo), which this repo collects because it lives on a non-APFS
+# volume: the OS writes one beside any file it touches. They are metadata, never source. One landed
+# in .git/objects/pack, where git read ._pack-*.idx as a real pack index and failed every command
+# with "non-monotonic index" until it was deleted. Ignoring them stops them being committed;
+# it does nothing for the build: tsconfig.app.json includes "src", so a ._Thing.tsx sidecar
+# there still reaches tsc whether git ignores it or not.
+._*

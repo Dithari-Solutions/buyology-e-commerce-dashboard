@@ -88,6 +88,8 @@ export type {
   OrderStatus,
   TrackingEvent,
   OrderItem,
+  CancellationFeedbackAnswer,
+  CancellationFeedback,
   OrderAdminResponse,
   OrderListResponse,
 } from "./order.types";
