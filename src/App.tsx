@@ -48,6 +48,7 @@ import OrderDetail from "./pages/Orders/OrderDetail";
 import AllOrdersPage from "./pages/Orders/AllOrdersPage";
 import GamesPage from "./pages/Games/GamesPage";
 import PromoCodePage from "./pages/PromoCode/PromoCodePage";
+import FlashSalePage from "./pages/FlashSale/FlashSalePage";
 import NewsletterPage from "./pages/Newsletter/NewsletterPage";
 import AnnouncementsPage from "./pages/Announcements/AnnouncementsPage";
 import ServiceHealthPage from "./pages/ServiceHealth/ServiceHealthPage";
@@ -169,6 +170,9 @@ export default function App() {
 
               {/* Promo Codes */}
               <Route path="/promo-codes" element={<PromoCodePage />} />
+
+              {/* Flash Sale — time-boxed store-product discounts */}
+              <Route path="/flash-sale" element={<FlashSalePage />} />
 
               {/* Newsletter & News */}
               <Route path="/newsletter" element={<NewsletterPage />} />

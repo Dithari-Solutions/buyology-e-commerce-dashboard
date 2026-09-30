@@ -27,6 +27,7 @@ export type { ModerateReviewRequest, AddReviewReplyRequest } from "./services/re
 export { questionsService } from "./services/questions.service";
 export { storesService } from "./services/stores.service";
 export { storeProductsService } from "./services/storeProducts.service";
+export { flashSaleService } from "./services/flashSale.service";
 export { usersService } from "./services/users.service";
 export { couriersService } from "./services/couriers.service";
 export { ordersService } from "./services/orders.service";
@@ -90,6 +91,13 @@ export type {
   AssignVariantToStoreRequest,
   UpdateStoreVariantRequest,
 } from "../types/product.types";
+export type {
+  FlashSaleItem,
+  FlashSaleStatus,
+  FlashSaleItemRequest,
+  AssignFlashSaleRequest,
+  RemoveFromFlashSaleRequest,
+} from "../types/flashSale.types";
 export type { ModerateQuestionRequest, AddQuestionAnswerRequest } from "./services/questions.service";
 export type { GlobalSpecGroup, GlobalSpecOption, CreateGlobalSpecGroupRequest, CreateGlobalSpecOptionInput, SpecCode, SpecGroupTranslation, SpecOptionTranslation, SpecLanguage } from "./services/specs.service";
 export { analyticsService } from "./services/analytics.service";

@@ -9,6 +9,13 @@ import type {
   DiscountType,
 } from "../../types";
 import type { Product, ProductVariant } from "../../types";
+import {
+  computeEffectivePrice,
+  dubaiEndOfDayInstant,
+  dubaiInstant,
+  formatDubai,
+  formatDubaiSaleEnd,
+} from "../../utils/flashSale";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -29,17 +36,6 @@ function Spinner() {
       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
     </svg>
   );
-}
-
-function computeEffectivePrice(
-  storePrice: number,
-  discountType: DiscountType | "",
-  discountValue: number
-): number | null {
-  if (!discountType || !storePrice) return null;
-  if (discountType === "PERCENTAGE") return storePrice * (1 - discountValue / 100);
-  if (discountType === "FIXED") return discountValue;
-  return null;
 }
 
 // ---------------------------------------------------------------------------
@@ -77,6 +73,9 @@ export default function AssignProduct() {
   const [storePrice, setStorePrice] = useState("");
   const [discountType, setDiscountType] = useState<DiscountType | "">("");
   const [discountValue, setDiscountValue] = useState("");
+  // Optional sale window. Left empty the discount behaves as it always has: live now, no end.
+  const [discountStartDate, setDiscountStartDate] = useState("");
+  const [discountEndDate, setDiscountEndDate] = useState("");
   const [isActive, setIsActive] = useState(true);
   const [b2cEnabled, setB2cEnabled] = useState(true);
   const [b2bEnabled, setB2bEnabled] = useState(false);
@@ -124,6 +123,8 @@ export default function AssignProduct() {
     setStorePrice("");
     setDiscountType("");
     setDiscountValue("");
+    setDiscountStartDate("");
+    setDiscountEndDate("");
     setB2cEnabled(true);
     setB2bEnabled(false);
     setSubmitError(null);
@@ -133,11 +134,49 @@ export default function AssignProduct() {
     setVariantRows((rows) => rows.map((r, i) => (i === idx ? { ...r, ...patch } : r)));
   }
 
-  const effectivePreview = computeEffectivePrice(
-    parseFloat(storePrice) || 0,
-    discountType,
-    parseFloat(discountValue) || 0
-  );
+  // The store price as a number, and only when it is one worth previewing against. Gated on being
+  // above zero because computeEffectivePrice mirrors the server exactly, floor included: a store price
+  // of nothing with a percentage off it is a sale price of one cent, which is arithmetically true and
+  // useless to show under a price box that is empty or zeroed.
+  const parsedStorePrice = parseFloat(storePrice);
+  const previewablePrice = parsedStorePrice > 0 ? parsedStorePrice : null;
+  const effectivePreview =
+    previewablePrice === null
+      ? null
+      : computeEffectivePrice(previewablePrice, discountType, parseFloat(discountValue) || 0);
+
+  // Dates are typed as Dubai wall-clock and converted here, at the edge. An end date with no time
+  // means "through the whole of that day", i.e. midnight at the start of the next one.
+  //
+  // Gated on discountType for the same reason the PAYLOAD is: the two date inputs are only rendered
+  // while a discount is set, and their state survives being switched back to None. Ungated, a past
+  // end date typed under a discount that was then removed kept refusing the submit over a field no
+  // longer on screen — with nothing left to clear it from, the form could not be saved at all.
+  const windowed = !!discountType;
+  const discountStartsAt = windowed && discountStartDate ? dubaiInstant(discountStartDate, "00:00") : null;
+  const discountEndsAt = windowed && discountEndDate ? dubaiEndOfDayInstant(discountEndDate) : null;
+  // A date the browser gave us that we could not read back. Null from the two helpers above means
+  // "nothing was typed" everywhere else, so a date that is present but unusable has to be told apart
+  // from it here — otherwise it is silently dropped and the listing goes on sale with no window.
+  const unreadableDate =
+    (windowed && !!discountStartDate && !discountStartsAt) ||
+    (windowed && !!discountEndDate && !discountEndsAt);
+
+  // Exactly the rows the payload will carry: a variant is only assigned when it has both a price and
+  // a stock. Hoisted out of handleSubmit so the form and the request cannot disagree about which
+  // rows count as assigned.
+  const variantsToAssign: AssignVariantInlineRequest[] = variantRows
+    .filter((r) => r.storePrice && r.stock)
+    .map((r) => ({
+      variantId: r.variantId,
+      storePrice: parseFloat(r.storePrice),
+      stock: parseInt(r.stock),
+      isActive: r.isActive,
+    }));
+  // The discount above belongs to the LISTING and is charged on every line of it, variant or not, so
+  // nothing below re-prices per variant. A variant's price column is store bookkeeping; the price a
+  // customer pays is the one in step 2.
+  const discountedValue = parseFloat(discountValue) || 0;
 
   const filteredProducts = products.filter((p) =>
     search
@@ -156,14 +195,31 @@ export default function AssignProduct() {
       return;
     }
 
-    const variants: AssignVariantInlineRequest[] = variantRows
-      .filter((r) => r.storePrice && r.stock)
-      .map((r) => ({
-        variantId: r.variantId,
-        storePrice: parseFloat(r.storePrice),
-        stock: parseInt(r.stock),
-        isActive: r.isActive,
-      }));
+    if (unreadableDate) {
+      setSubmitError("Those discount dates could not be read — re-pick them, or clear them both.");
+      return;
+    }
+    if (discountEndsAt && Date.parse(discountEndsAt) <= Date.now()) {
+      setSubmitError("That discount end date has already passed in Dubai.");
+      return;
+    }
+    if (discountStartsAt && discountEndsAt && Date.parse(discountStartsAt) >= Date.parse(discountEndsAt)) {
+      setSubmitError("The discount has to start before it ends.");
+      return;
+    }
+    // A FIXED discount is an absolute sale price, so it has to be below the price it replaces — at or
+    // above it the "sale" is a price rise wearing a sale badge. The price it has to beat is the
+    // LISTING's, the one number this form sets and the only one a customer is ever charged; there is
+    // no second, per-variant price for it to be measured against. The API refuses this too
+    // (FlashSalePolicy.validateDiscount); said here it costs no round trip, and this request also
+    // carries the store price, both channel flags and every variant row — a 400 loses all of it.
+    if (discountType === "FIXED" && discountedValue >= price) {
+      setSubmitError(
+        `A fixed sale price of ${discountedValue} is not below the store price of ${price} — that is a `
+          + "price rise, not a sale. Lower the sale price, or use a percentage discount."
+      );
+      return;
+    }
 
     const payload: AssignProductToStoreRequest = {
       productId: selectedProduct.id,
@@ -174,8 +230,10 @@ export default function AssignProduct() {
       ...(discountType && {
         discountType: discountType as DiscountType,
         discountValue: parseFloat(discountValue) || 0,
+        ...(discountStartsAt && { discountStartsAt }),
+        ...(discountEndsAt && { discountEndsAt }),
       }),
-      ...(variants.length > 0 && { variants }),
+      ...(variantsToAssign.length > 0 && { variants: variantsToAssign }),
     };
 
     setSubmitting(true);
@@ -322,8 +380,15 @@ export default function AssignProduct() {
                 className={selectCls}
                 value={discountType}
                 onChange={(e) => {
-                  setDiscountType(e.target.value as DiscountType | "");
+                  const next = e.target.value as DiscountType | "";
+                  setDiscountType(next);
                   setDiscountValue("");
+                  // The window belongs to the discount. Left behind it is state behind a hidden
+                  // field: not sent, but still checked, which is how this form used to wedge.
+                  if (!next) {
+                    setDiscountStartDate("");
+                    setDiscountEndDate("");
+                  }
                 }}
               >
                 <option value="">None</option>
@@ -352,8 +417,44 @@ export default function AssignProduct() {
               </div>
             )}
 
+            {/* Sale window — what makes a discount a flash sale rather than a markdown */}
+            {discountType && (
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={labelCls}>Discount starts (optional)</label>
+                  <input
+                    type="date"
+                    className={inputCls}
+                    value={discountStartDate}
+                    onChange={(e) => setDiscountStartDate(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className={labelCls}>Discount ends (optional)</label>
+                  <input
+                    type="date"
+                    className={inputCls}
+                    value={discountEndDate}
+                    onChange={(e) => setDiscountEndDate(e.target.value)}
+                  />
+                </div>
+                <p className="col-span-2 -mt-1 text-xs text-gray-400">
+                  Dubai time. Leave both blank for a permanent discount; set an end date and it expires on its
+                  own — the customer pays the normal price again with nothing to switch off.
+                </p>
+                {/* The end is inclusive, so it is read back as the day it covers — the date that
+                    was typed, not the midnight that follows it. */}
+                {discountEndsAt && (
+                  <p className="col-span-2 text-xs text-brand-600 dark:text-brand-400">
+                    Runs from {discountStartsAt ? formatDubai(discountStartsAt) : "assignment"} through{" "}
+                    {formatDubaiSaleEnd(discountEndsAt)}.
+                  </p>
+                )}
+              </div>
+            )}
+
             {/* Effective price preview */}
-            {effectivePreview !== null && storePrice && (
+            {effectivePreview !== null && (
               <div className="flex items-center gap-2 rounded-xl bg-green-50 dark:bg-green-500/10 border border-green-100 dark:border-green-500/20 px-4 py-2.5">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-green-500 flex-shrink-0">
                   <polyline points="20 6 9 17 4 12" />
@@ -459,10 +560,25 @@ export default function AssignProduct() {
               <h2 className="text-base font-semibold text-gray-800 dark:text-white">
                 3. Variants
               </h2>
+              {/* Not "set the store price for each variant". The store price is the listing's — the one
+                  number in step 2, the only one anybody is charged — and naming this field after it is
+                  what made this step read as pricing each variant separately. */}
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                Set the store price and stock for each variant. Leave blank to skip assigning a variant now.
+                Stock per variant, and what each one is worth in your own records. Leave a row blank to skip
+                assigning that variant now.
               </p>
             </div>
+
+            {/* Said once, here, because it is the thing an admin would otherwise assume the other way
+                round: a cart line is priced from the LISTING whichever variant it names. Unconditional,
+                because it was gated on a discount being set — and with no discount the two "Store
+                Price" boxes, step 2's and each variant's, read as interchangeable prices, which is the
+                misreading this paragraph exists to prevent. */}
+            <p className="rounded-xl bg-brand-50 dark:bg-brand-500/10 border border-brand-100 dark:border-brand-500/20 px-4 py-2.5 text-xs text-brand-700 dark:text-brand-400">
+              Every variant sells at the listing&apos;s price from step 2
+              {discountType && " — discounted while the sale runs"}. The figures below are your own record of
+              what each variant is worth; nothing is charged from them.
+            </p>
 
             <div className="space-y-3">
               {variantRows.map((row, idx) => (
@@ -491,7 +607,9 @@ export default function AssignProduct() {
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className={labelCls}>Store Price</label>
+                      {/* "Store Price" is the listing's field in step 2 and the only price a customer
+                          pays. This one is a record, so it is not called by that name. */}
+                      <label className={labelCls}>Recorded price</label>
                       <input
                         type="number"
                         min={0}
