@@ -6,7 +6,16 @@ import Badge from "../../components/ui/badge/Badge";
 import { Modal } from "../../components/ui/modal";
 import { storesService, storeProductsService, ApiRequestError } from "../../api";
 import { validateFileUpload } from "../../utils/fileValidation";
+import { productLabel } from "../../utils/storeProduct";
 import type { StoreProductResponse } from "../../types";
+import { useStoreCurrencies } from "../../hooks/useStoreCurrencies";
+import {
+  formatDubaiSaleEnd,
+  formatMoney,
+  isFlashSale,
+  resolveDiscountStatus,
+  serverSaysLive,
+} from "../../utils/flashSale";
 import LocationPickerMap from "../../components/store/LocationPickerMap";
 import type { GeoResult } from "../../components/store/LocationPickerMap";
 import type {
@@ -890,6 +899,15 @@ export default function StoreDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
+  // The currency this store's prices are in — it lives on the store's country, not on the store or
+  // the store-product row. Best-effort: unresolved, the figures render bare as they always did.
+  const { currencyOf } = useStoreCurrencies();
+  const currency = currencyOf(id ?? "");
+
+  // One clock for the whole product table, so two rows cannot straddle the instant a sale expires —
+  // one still inside its window while the next is already Ended. Nothing here counts down.
+  const now = Date.now();
+
   const [store, setStore] = useState<Store | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -1531,33 +1549,76 @@ export default function StoreDetail() {
                 </thead>
                 <tbody className="divide-y divide-gray-50 dark:divide-gray-800/60">
                   {storeProducts.map((sp) => {
-                    const hasDiscount = sp.effectivePrice < sp.storePrice;
-                    const discountLabel = !sp.discountType
-                      ? "—"
-                      : sp.discountType === "PERCENTAGE"
-                      ? `${sp.discountValue}% OFF`
-                      : `Sale: ${sp.discountValue?.toLocaleString()}`;
+                    // The same rule the Store Products and Flash Sale tables badge with: a discount
+                    // keeps its type and value outside its window, so "25% OFF" on its own would
+                    // advertise a sale that has not started, or one that finished last month.
+                    const state = resolveDiscountStatus(sp, now);
+                    const hasDiscount = state === "LIVE" && sp.effectivePrice < sp.storePrice;
+                    // That rule takes the cautious verdict where the shop's flag and this browser's
+                    // clock disagree, which is right to badge and wrong to leave unsaid: customers are
+                    // charged against the shop, so "Ended" over a price the shop is still charging is a
+                    // false statement rather than a careful one. The Flash Sale table has said so since
+                    // it shipped; this one badged it and said nothing.
+                    const shopStillCharging = serverSaysLive(sp, now);
+                    // Both halves nullable in the type, so neither is asserted: a "Sale: 0.00" on a
+                    // row that lost its value would read as a giveaway rather than as missing data.
+                    const discountLabel =
+                      !sp.discountType || sp.discountValue == null
+                        ? "—"
+                        : sp.discountType === "PERCENTAGE"
+                        ? `${sp.discountValue}% OFF`
+                        : `Sale: ${formatMoney(sp.discountValue, currency)}`;
                     return (
                       <tr key={sp.id} className="hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-colors">
                         <td className="px-5 py-4">
                           <p className="font-semibold text-gray-800 dark:text-white/90 max-w-[180px] truncate">
-                            {sp.productTitle}
+                            {productLabel(sp)}
                           </p>
                           <p className="mt-0.5 font-mono text-xs text-gray-400">{sp.productSku}</p>
                         </td>
                         <td className="px-4 py-4 text-gray-700 dark:text-gray-300">
-                          {sp.storePrice.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                          {formatMoney(sp.storePrice, currency)}
                         </td>
                         <td className="px-4 py-4">
                           {hasDiscount ? (
                             <span className="font-semibold text-green-600 dark:text-green-400">
-                              {sp.effectivePrice.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                              {formatMoney(sp.effectivePrice, currency)}
                             </span>
                           ) : (
                             <span className="text-gray-300 dark:text-gray-600">—</span>
                           )}
                         </td>
-                        <td className="px-4 py-4 text-gray-600 dark:text-gray-300">{discountLabel}</td>
+                        <td className="px-4 py-4 text-gray-600 dark:text-gray-300">
+                          <span className="block">{discountLabel}</span>
+                          {state === "SCHEDULED" && (
+                            <span className="mt-1 inline-block">
+                              <Badge size="sm" color="info">Scheduled</Badge>
+                            </span>
+                          )}
+                          {state === "ENDED" && (
+                            <span
+                              className="mt-1 inline-block"
+                              title={
+                                shopStillCharging
+                                  ? "The shop reports this sale as live while this screen's clock puts it outside its window. Customers are charged against the shop — refresh, and check this device's clock."
+                                  : undefined
+                              }
+                            >
+                              <Badge size="sm" color="error">Ended</Badge>
+                            </span>
+                          )}
+                          {shopStillCharging && (
+                            <span className="mt-0.5 block text-xs text-amber-600 dark:text-amber-400">
+                              The shop is still charging it — refresh
+                            </span>
+                          )}
+                          {isFlashSale(sp) && (
+                            <span className="mt-0.5 block text-xs text-gray-400">
+                              {state === "ENDED" ? "Ended after" : "Through"}{" "}
+                              {formatDubaiSaleEnd(sp.discountEndsAt)}
+                            </span>
+                          )}
+                        </td>
                         <td className="px-4 py-4 text-gray-600 dark:text-gray-300">
                           {sp.variants.length} variant{sp.variants.length !== 1 ? "s" : ""}
                         </td>

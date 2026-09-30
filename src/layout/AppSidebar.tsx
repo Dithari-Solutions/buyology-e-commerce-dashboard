@@ -162,6 +162,11 @@ const navItems: NavItem[] = [
       { name: "Stores", path: "/stores", pro: false },
       { name: "New Store", path: "/stores/new", pro: false },
       { name: "Countries", path: "/countries", pro: false },
+      // Filed under Store, not Marketing: a flash sale IS a store-product price edit, and the
+      // endpoints are gated on store:product:read / store:product:update — permissions the
+      // STORE_ADMIN role holds and MARKETING does not. Listed for marketing it was an entry
+      // MARKETING could see and only get a 403 from, and one STORE_ADMIN could use but never find.
+      { name: "Flash Sale", path: "/flash-sale", pro: false },
     ],
   },
   {

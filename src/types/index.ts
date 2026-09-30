@@ -12,6 +12,7 @@ export type {
   RefurbGrade,
   AvailabilityStatus,
   DiscountType,
+  DiscountStatus,
   StoreVariantResponse,
   StoreProductResponse,
   AssignVariantInlineRequest,
@@ -20,6 +21,13 @@ export type {
   AssignVariantToStoreRequest,
   UpdateStoreVariantRequest,
 } from "./product.types";
+export type {
+  FlashSaleItem,
+  FlashSaleStatus,
+  FlashSaleItemRequest,
+  AssignFlashSaleRequest,
+  RemoveFromFlashSaleRequest,
+} from "./flashSale.types";
 export type { Brand, BrandStatus, CreateBrandRequest } from "./brand.types";
 export type { Review, ReviewMedia, ReviewReply, ReviewStats, ReviewMediaType, ModerationStatus } from "./review.types";
 export type { Question, QuestionAnswer } from "./question.types";
