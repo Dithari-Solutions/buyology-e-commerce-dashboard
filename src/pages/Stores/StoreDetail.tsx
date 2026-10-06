@@ -17,6 +17,7 @@ import {
   serverSaysLive,
 } from "../../utils/flashSale";
 import LocationPickerMap from "../../components/store/LocationPickerMap";
+import ExportStoreProductsModal from "../../components/store/ExportStoreProductsModal";
 import type { GeoResult } from "../../components/store/LocationPickerMap";
 import type {
   Store,
@@ -937,6 +938,7 @@ export default function StoreDetail() {
   // Store Products
   const [storeProducts, setStoreProducts] = useState<StoreProductResponse[]>([]);
   const [storeProductsLoading, setStoreProductsLoading] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
 
   // ── Load store ─────────────────────────────────────────────────────────────
 
@@ -1506,16 +1508,31 @@ export default function StoreDetail() {
                 <span className="ml-2 text-sm font-normal text-gray-400">({storeProducts.length})</span>
               )}
             </h2>
-            <button
-              onClick={() => navigate(`/stores/${id}/products/assign`)}
-              className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-              Assign Product
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setExportOpen(true)}
+                disabled={storeProductsLoading || storeProducts.length === 0}
+                className="flex items-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <path d="M7 10l5 5 5-5" />
+                  <path d="M12 15V3" />
+                </svg>
+                Export
+              </button>
+              <button
+                onClick={() => navigate(`/stores/${id}/products/assign`)}
+                className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Assign Product
+              </button>
+            </div>
           </div>
 
           {storeProductsLoading ? (
@@ -1687,6 +1704,15 @@ export default function StoreDetail() {
           storeId={store.id}
           existing={editingAdmin}
           onSaved={() => fetchAdmins()}
+        />
+      )}
+
+      {exportOpen && (
+        <ExportStoreProductsModal
+          isOpen={exportOpen}
+          onClose={() => setExportOpen(false)}
+          storeId={store.id}
+          productCount={storeProducts.length}
         />
       )}
     </>
