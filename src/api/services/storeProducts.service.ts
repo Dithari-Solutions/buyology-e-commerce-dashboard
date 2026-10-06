@@ -11,6 +11,8 @@ import type {
 
 const base = (storeId: string) => `/api/stores/${storeId}/products`;
 
+export type StoreProductExportFormat = "XLSX" | "PDF";
+
 export const storeProductsService = {
   // POST /api/stores/{storeId}/products
   assign(
@@ -34,6 +36,15 @@ export const storeProductsService = {
       base(storeId),
       { signal }
     );
+  },
+
+  /**
+   * GET /api/stores/{storeId}/products/export?format= — every product in the store as an .xlsx
+   * workbook or a .pdf catalogue: name, description, price, availability and quantity, brand,
+   * storefront URL and image URLs (thumbnail marked).
+   */
+  exportProducts(storeId: string, format: StoreProductExportFormat): Promise<Blob> {
+    return apiClient.getBlob(`${base(storeId)}/export?format=${format}`);
   },
 
   // PATCH /api/stores/{storeId}/products/{storeProductId}

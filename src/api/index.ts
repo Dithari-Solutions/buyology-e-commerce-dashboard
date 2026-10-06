@@ -27,6 +27,7 @@ export type { ModerateReviewRequest, AddReviewReplyRequest } from "./services/re
 export { questionsService } from "./services/questions.service";
 export { storesService } from "./services/stores.service";
 export { storeProductsService } from "./services/storeProducts.service";
+export type { StoreProductExportFormat } from "./services/storeProducts.service";
 export { flashSaleService } from "./services/flashSale.service";
 export { usersService } from "./services/users.service";
 export { couriersService } from "./services/couriers.service";
