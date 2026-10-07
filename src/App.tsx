@@ -31,6 +31,7 @@ import StoreDetail from "./pages/Stores/StoreDetail";
 import StoreProducts from "./pages/Stores/StoreProducts";
 import AssignProduct from "./pages/Stores/AssignProduct";
 import Countries from "./pages/Stores/Countries";
+import CartActivityPage from "./pages/CartActivity/CartActivityPage";
 import Users from "./pages/Users/Users";
 import UserDetail from "./pages/Users/UserDetail";
 import Admins from "./pages/Admins/Admins";
@@ -145,6 +146,7 @@ export default function App() {
 
               {/* Users */}
               <Route path="/admin/users" element={<Users />} />
+              <Route path="/admin/cart-activity" element={<CartActivityPage />} />
               <Route path="/admin/users/:authCredentialId" element={<UserDetail />} />
 
               {/* Couriers */}

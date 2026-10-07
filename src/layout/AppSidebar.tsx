@@ -101,6 +101,12 @@ const navItems: NavItem[] = [
     ],
   },
   {
+    name: "Customer Carts",
+    icon: <ShoppingCartOutlinedIcon />,
+    path: "/admin/cart-activity",
+    roles: [SUPPORT, MARKETING],
+  },
+  {
     name: "Service Health",
     icon: <MonitorHeartOutlinedIcon />,
     path: "/service-health",
