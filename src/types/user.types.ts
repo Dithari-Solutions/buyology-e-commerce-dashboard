@@ -11,6 +11,7 @@ export interface CreateAdminRequest {
 }
 
 export interface UserListItem {
+  appleSignIn?: boolean;
   userId: string;
   authCredentialId: string;
   email: string | null;
@@ -107,6 +108,7 @@ export interface ActiveCart {
 }
 
 export interface UserDetail {
+  appleSignIn?: boolean;
   userId: string;
   authCredentialId: string;
   email: string | null;

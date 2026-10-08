@@ -1,3 +1,4 @@
+import { AppleSignInBadge } from "../../components/users/AppleSignInBadge";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
@@ -560,6 +561,9 @@ export default function UserDetail() {
                     </span>
                   }
                 />
+                {user.appleSignIn && (
+                  <ProfileField label="Sign-in method" value={<AppleSignInBadge />} />
+                )}
                 <ProfileField
                   label="Email"
                   value={user.email ?? <span className="italic text-gray-400 dark:text-gray-500">No email</span>}

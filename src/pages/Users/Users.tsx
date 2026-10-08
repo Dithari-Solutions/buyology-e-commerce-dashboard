@@ -1,3 +1,4 @@
+import { AppleSignInBadge } from "../../components/users/AppleSignInBadge";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
@@ -136,6 +137,7 @@ function UserRow({
       <td className="px-4 py-3">
         <span className="text-sm font-medium text-gray-800 dark:text-white/90">
           {fullName(user.firstName, user.lastName)}
+          {user.appleSignIn && <AppleSignInBadge />}
         </span>
       </td>
       <td className="px-4 py-3">
