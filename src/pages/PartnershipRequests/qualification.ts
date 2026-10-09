@@ -29,6 +29,6 @@ export const partnerships = [
 ];
 export type Application = {
   name: string; company: string; cityCountry: string; phone: string; email: string; website: string;
-  answers: Record<string, boolean>; investment: string; partnerships: string[];
+  answers: Record<string, boolean>; investment: string; partnerships: string[]; whyBuyology?: string | null;
 };
-export const initialApplication: Application = { name: "", company: "", cityCountry: "", phone: "", email: "", website: "", answers: {}, investment: "", partnerships: [] };
+export const initialApplication: Application = { name: "", company: "", cityCountry: "", phone: "", email: "", website: "", answers: {}, investment: "", partnerships: [], whyBuyology: "" };
