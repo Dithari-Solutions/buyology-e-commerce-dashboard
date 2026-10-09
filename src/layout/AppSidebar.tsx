@@ -246,6 +246,12 @@ const navItems: NavItem[] = [
     ],
   },
   {
+    name: "Partnership requests",
+    icon: <HandshakeOutlinedIcon />,
+    roles: [SUPPORT, "ADMIN"],
+    path: "/partnership-requests",
+  },
+  {
     name: "B2B Membership",
     icon: <CardMembershipOutlinedIcon />,
     roles: [SUPPORT],
