@@ -46,6 +46,7 @@ import CourierMap from "./pages/Couriers/CourierMap";
 import Orders from "./pages/Orders/Orders";
 import StoreOrders from "./pages/Orders/StoreOrders";
 import OrderDetail from "./pages/Orders/OrderDetail";
+import PaymentVerification from "./pages/Orders/PaymentVerification";
 import AllOrdersPage from "./pages/Orders/AllOrdersPage";
 import GamesPage from "./pages/Games/GamesPage";
 import PromoCodePage from "./pages/PromoCode/PromoCodePage";
@@ -161,6 +162,7 @@ export default function App() {
               {/* Orders */}
               <Route path="/orders" element={<Orders />} />
               <Route path="/orders/all" element={<AllOrdersPage />} />
+              <Route path="/orders/payment-verification" element={<PaymentVerification />} />
               <Route path="/orders/:storeId" element={<StoreOrders />} />
               <Route path="/orders/:storeId/:orderId" element={<OrderDetail />} />
 

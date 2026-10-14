@@ -99,7 +99,28 @@ export interface PaymentRecheckResult {
   message: string;
 }
 
+export interface PaymobPaymentLookup {
+  providerTransactionId: string;
+  paymentTransactionId: string | null;
+  orderId: string | null;
+  orderStatus: string | null;
+  paymentStatus: string | null;
+  gatewayPaid: boolean;
+  canConfirm: boolean;
+  amountCents: number;
+  currency: string;
+  message: string;
+}
+
 export const ordersService = {
+  lookupPaymobPayment(transactionId: string): Promise<ApiResponse<PaymobPaymentLookup>> {
+    return apiClient.get(`/api/admin/payments/paymob/transactions/${encodeURIComponent(transactionId)}`);
+  },
+
+  confirmPaymobPayment(transactionId: string, orderId: string): Promise<ApiResponse<PaymentRecheckResult>> {
+    return apiClient.post(`/api/admin/payments/paymob/transactions/${encodeURIComponent(transactionId)}/confirm?orderId=${encodeURIComponent(orderId)}`);
+  },
+
   // GET /api/admin/orders
   getAll(
     params: {

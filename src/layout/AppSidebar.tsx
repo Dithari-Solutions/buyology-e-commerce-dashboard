@@ -182,6 +182,7 @@ const navItems: NavItem[] = [
     subItems: [
       { name: "By Store", path: "/orders", pro: false },
       { name: "All Orders", path: "/orders/all", superAdminOnly: true },
+      { name: "Payment verification", path: "/orders/payment-verification", superAdminOnly: true },
       { name: "Trash", path: "/orders/trash", superAdminOnly: true },
     ],
   },

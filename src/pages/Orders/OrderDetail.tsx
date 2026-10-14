@@ -208,10 +208,15 @@ export default function OrderDetail() {
     setRecheckMsg(null);
     try {
       const res = await ordersService.recheckPayment(orderId, paymobTxnId.trim() || undefined);
-      setRecheckMsg({ ok: res.data.settled, text: res.data.message });
       if (res.data.settled) {
         const fresh = await ordersService.getById(orderId);
         setOrder(fresh.data);
+        const applied = ["PAID", "PACKAGING", "READY_FOR_PICKUP", "IN_COURIER", "IN_TRANSIT", "DELIVERED"].includes(fresh.data.status);
+        setRecheckMsg({ ok: applied, text: applied
+          ? `Paymob confirms payment. Order status: ${STATUS_LABELS[fresh.data.status] ?? fresh.data.status}.`
+          : "Payment is confirmed, but the order has not advanced to paid. Check its payment-review details before retrying." });
+      } else {
+        setRecheckMsg({ ok: false, text: res.data.message });
       }
     } catch (err) {
       setActionError(err instanceof ApiRequestError ? err.message : "Could not re-check the payment.");
@@ -639,7 +644,7 @@ export default function OrderDetail() {
                 {order.cancellationReason}
               </p>
             )}
-            {order.status === "PENDING_PAYMENT" && (
+            {order.status === "PENDING_PAYMENT" && isSuperAdmin() && (
               <div className="mt-3 border-t border-gray-100 pt-3 dark:border-gray-800">
                 <p className="text-xs text-gray-500">
                   Paid at the gateway but still showing as awaiting payment? Ask Paymob what the
