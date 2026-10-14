@@ -99,7 +99,22 @@ export interface PaymentRecheckResult {
   message: string;
 }
 
+export interface PaymobEvidence {
+  orderId: string | null;
+  merchantReference: string | null;
+  intentionId: string | null;
+  integrationId: string | null;
+  createdAt: string | null;
+  billingPhone: string | null;
+  billingEmail: string | null;
+  source: string | null;
+  platform: string | null;
+  gatewayBaseUrl: string;
+  live: boolean | null;
+}
+
 export interface PaymobPaymentLookup {
+  evidence?: PaymobEvidence | null;
   providerTransactionId: string;
   paymentTransactionId: string | null;
   orderId: string | null;

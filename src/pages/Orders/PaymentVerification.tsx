@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, Navigate } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
+import { env } from "../../config/env";
 import { isSuperAdmin } from "../../auth/roles";
 import { ApiRequestError } from "../../api";
 import { ordersService, type PaymobPaymentLookup } from "../../api/services/orders.service";
@@ -75,6 +76,20 @@ export default function PaymentVerification() {
           ["Local payment status", result.paymentStatus ?? "No matching attempt"], ["Amount", `${(result.amountCents / 100).toFixed(2)} ${result.currency}`]].map(([label, value]) =>
           <div key={label}><dt className="text-gray-500 dark:text-gray-400">{label}</dt><dd className="mt-1 break-all font-medium text-gray-900 dark:text-white">{value}</dd></div>)}
       </dl>
+      {result.evidence && <div className="mt-6 border-t border-gray-200 pt-5 dark:border-gray-800">
+        <h3 className="font-semibold text-gray-900 dark:text-white">Paymob references and contact</h3>
+        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">These details identify the payment's source. They do not link it to an order by amount or contact alone.</p>
+        <dl className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
+          {[["Paymob order ID", result.evidence.orderId], ["Merchant reference", result.evidence.merchantReference],
+            ["Paymob intention", result.evidence.intentionId], ["Integration ID", result.evidence.integrationId],
+            ["Billing phone", result.evidence.billingPhone], ["Billing email", result.evidence.billingEmail],
+            ["Payment source", result.evidence.source], ["Platform marker", result.evidence.platform],
+            ["Created at Paymob", result.evidence.createdAt], ["Paymob gateway", result.evidence.gatewayBaseUrl],
+            ["Transaction mode", result.evidence.live == null ? null : result.evidence.live ? "Live" : "Test"],
+            ["Dashboard backend API", env.apiBaseUrl]].map(([label, value]) =>
+            <div key={label}><dt className="text-gray-500 dark:text-gray-400">{label}</dt><dd className="mt-1 break-all font-medium text-gray-900 dark:text-white">{value || "Not supplied"}</dd></div>)}
+        </dl>
+      </div>}
       <p className="mt-5 text-sm text-gray-600 dark:text-gray-300">{result.message}</p>
       <div className="mt-5 flex flex-wrap items-center gap-4">
         {result.canConfirm && <button onClick={confirm} disabled={busy} className="rounded-lg bg-brand-500 px-5 py-3 text-sm font-medium text-white disabled:opacity-50">{busy ? "Confirming…" : "Confirm payment for this order"}</button>}
