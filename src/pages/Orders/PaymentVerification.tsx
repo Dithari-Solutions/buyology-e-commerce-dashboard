@@ -7,7 +7,7 @@ import { ApiRequestError } from "../../api";
 import { ordersService, type PaymobPaymentLookup } from "../../api/services/orders.service";
 
 export default function PaymentVerification() {
-  const [transactionId, setTransactionId] = useState("");
+  const [transactionId, setTransactionId] = useState(() => new URLSearchParams(window.location.search).get("transactionId") ?? "");
   const [result, setResult] = useState<PaymobPaymentLookup | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { useParams, useNavigate } from "react-router";
+import { Link, useParams, useNavigate } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Badge from "../../components/ui/badge/Badge";
@@ -647,8 +647,8 @@ export default function OrderDetail() {
             {order.status === "PENDING_PAYMENT" && isSuperAdmin() && (
               <div className="mt-3 border-t border-gray-100 pt-3 dark:border-gray-800">
                 <p className="text-xs text-gray-500">
-                  Paid at the gateway but still showing as awaiting payment? Ask Paymob what the
-                  payment really did — if it went through, the order is settled properly here.
+                  Paid in Paymob but still awaiting payment here? Re-check the linked attempts,
+                  or look up the Paymob transaction directly to find the matched order.
                 </p>
                 {/* When no webhook ever arrived we hold no Paymob id, so the only way to ask
                     about the payment is the id shown on the transaction in Paymob's dashboard.
@@ -668,6 +668,12 @@ export default function OrderDetail() {
                 >
                   {busy === "recheck" ? "Checking with Paymob…" : "Re-check payment"}
                 </button>
+                <Link
+                  to={`/orders/payment-verification${paymobTxnId.trim() ? `?transactionId=${encodeURIComponent(paymobTxnId.trim())}` : ""}`}
+                  className="mt-3 block text-xs font-medium text-brand-500 underline"
+                >
+                  Open Paymob transaction verification
+                </Link>
               </div>
             )}
             {recheckMsg && (
