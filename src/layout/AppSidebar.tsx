@@ -78,6 +78,7 @@ const navItems: NavItem[] = [
     name: "Dashboard",
     subItems: [
       { name: "Ecommerce", path: "/", pro: false },
+      { name: "Cookie consent", path: "/admin/cookie-consents", superAdminOnly: true },
       { name: "Revenues", path: "/revenue", pro: false, roles: [STORE] },
       { name: "Supplier Revenues", path: "/supplier-revenue", pro: false, roles: [STORE] },
       { name: "Revenue Exports", path: "/revenue-exports", pro: false, superAdminOnly: true },

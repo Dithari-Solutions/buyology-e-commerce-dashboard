@@ -98,6 +98,7 @@ import Repair from "./pages/Repair/Repair";
 import RepairDetail from "./pages/Repair/RepairDetail";
 import QuiqupTestingPage from "./pages/QuiqupTesting/QuiqupTestingPage";
 import ErpPage from "./pages/Erp/ErpPage";
+import CookieConsentsPage from "./pages/Privacy/CookieConsentsPage";
 
 export default function App() {
   return (
@@ -149,6 +150,7 @@ export default function App() {
               {/* Users */}
               <Route path="/admin/users" element={<Users />} />
               <Route path="/admin/cart-activity" element={<CartActivityPage />} />
+              <Route path="/admin/cookie-consents" element={<CookieConsentsPage />} />
               <Route path="/admin/users/:authCredentialId" element={<UserDetail />} />
 
               {/* Couriers */}
