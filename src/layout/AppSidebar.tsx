@@ -40,6 +40,7 @@ type NavArea = "admin" | "supplier" | "shared";
 type NavSubItem = {
   name: string;
   path: string;
+  exact?: boolean;
   pro?: boolean;
   new?: boolean;
   /** When true, only visible to SUPERADMIN. */
@@ -251,7 +252,10 @@ const navItems: NavItem[] = [
     name: "Partnership requests",
     icon: <HandshakeOutlinedIcon />,
     roles: [SUPPORT, "ADMIN"],
-    path: "/partnership-requests",
+    subItems: [
+      { name: "Requests", path: "/partnership-requests", exact: true, pro: false },
+      { name: "Manual Invitation", path: "/partnership-requests/manual-invitation", pro: false },
+    ],
   },
   {
     name: "B2B Membership",
@@ -493,7 +497,7 @@ const AppSidebar: React.FC = () => {
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const isActive = useCallback(
-    (path: string) => location.pathname === path || location.pathname.startsWith(path + "/"),
+    (path: string, exact = false) => location.pathname === path || (!exact && location.pathname.startsWith(path + "/")),
     [location.pathname]
   );
 
@@ -504,7 +508,7 @@ const AppSidebar: React.FC = () => {
       items.forEach((nav, index) => {
         if (nav.subItems) {
           nav.subItems.forEach((subItem) => {
-            if (isActive(subItem.path)) {
+            if (isActive(subItem.path, subItem.exact)) {
               setOpenSubmenu({
                 type: menuType as "main" | "others",
                 index,
@@ -676,7 +680,7 @@ const AppSidebar: React.FC = () => {
                     <Link
                       to={subItem.path}
                       className={`menu-dropdown-item rounded-[30px] ${
-                        isActive(subItem.path)
+                        isActive(subItem.path, subItem.exact)
                           ? "menu-dropdown-item-active"
                           : "menu-dropdown-item-inactive"
                       }`}
@@ -726,7 +730,7 @@ const AppSidebar: React.FC = () => {
                         {subItem.new && (
                           <span
                             className={`ml-auto ${
-                              isActive(subItem.path)
+                              isActive(subItem.path, subItem.exact)
                                 ? "menu-dropdown-badge-active"
                                 : "menu-dropdown-badge-inactive"
                             } menu-dropdown-badge`}
@@ -737,7 +741,7 @@ const AppSidebar: React.FC = () => {
                         {subItem.pro && (
                           <span
                             className={`ml-auto ${
-                              isActive(subItem.path)
+                              isActive(subItem.path, subItem.exact)
                                 ? "menu-dropdown-badge-active"
                                 : "menu-dropdown-badge-inactive"
                             } menu-dropdown-badge`}

@@ -56,6 +56,7 @@ import AnnouncementsPage from "./pages/Announcements/AnnouncementsPage";
 import ServiceHealthPage from "./pages/ServiceHealth/ServiceHealthPage";
 import BannersPage from "./pages/Banners/BannersPage";
 import PartnershipRequestsPage from "./pages/PartnershipRequests/PartnershipRequestsPage";
+import ManualInvitationPage from "./pages/PartnershipRequests/ManualInvitationPage";
 import B2BInquiriesPage from "./pages/B2BInquiries/B2BInquiriesPage";
 import RefundsPage from "./pages/Refunds/RefundsPage";
 import Support from "./pages/Support/Support";
@@ -192,6 +193,7 @@ export default function App() {
               {/* B2B Inquiries */}
               <Route path="/b2b-inquiries" element={<B2BInquiriesPage />} />
               <Route path="/partnership-requests" element={<PartnershipRequestsPage />} />
+              <Route path="/partnership-requests/manual-invitation" element={<ManualInvitationPage />} />
 
               {/* Refunds */}
               <Route path="/orders/trash" element={<OrdersTrash />} />
