@@ -1,0 +1,93 @@
+import { hasPermission } from "../api/client";
+import { usesCustomRolePermissions } from "./roles";
+
+// Most specific routes precede their parents. Unknown pages stay closed for custom staff roles.
+// These gates guide navigation; the API checks current database permissions on every request.
+const rules: { path: RegExp; permissions: string[] }[] = [
+  { path: /^\/products\/trash(?:\/|$)/, permissions: ["product:delete"] },
+  { path: /^\/products\/[^/]+\/edit(?:\/|$)/, permissions: ["product:read", "product:update"] },
+  { path: /^\/new-product$/, permissions: ["product:create"] },
+  { path: /^\/products(?:\/|$)/, permissions: ["product:read"] },
+  { path: /^\/(categories|brands)$/, permissions: ["product:read"] },
+  { path: /^\/(specs|spec-codes)$/, permissions: ["product:spec:read"] },
+  { path: /^\/stores\/new$/, permissions: ["store:create"] },
+  { path: /^\/stores\/[^/]+\/products\/assign$/, permissions: ["store:read", "store:product:read", "store:product:assign", "product:read"] },
+  { path: /^\/stores\/[^/]+\/products(?:\/|$)/, permissions: ["store:read", "store:product:read"] },
+  { path: /^\/stores(?:\/|$)/, permissions: ["store:read"] },
+  { path: /^\/countries$/, permissions: ["country:read"] },
+  { path: /^\/flash-sale$/, permissions: ["store:read", "store:product:read"] },
+  { path: /^\/orders\/(all|trash|payment-verification)(?:\/|$)/, permissions: [] },
+  { path: /^\/orders(?:\/|$)/, permissions: ["order:read", "store:read"] },
+  { path: /^\/refunds(?:\/|$)/, permissions: ["refund:read"] },
+  { path: /^\/admin\/users(?:\/|$)/, permissions: ["user:read"] },
+  { path: /^\/admin\/couriers\/new$/, permissions: ["courier:create"] },
+  { path: /^\/admin\/couriers(?:\/|$)/, permissions: ["courier:read"] },
+  { path: /^\/admin\/courier-profiles$/, permissions: ["courier:profile:read"] },
+  { path: /^\/reviews$/, permissions: ["review:read"] },
+  { path: /^\/questions$/, permissions: ["question:read"] },
+  { path: /^\/promo-codes$/, permissions: ["promo:read"] },
+  { path: /^\/announcements$/, permissions: ["newsletter:article:read"] },
+  { path: /^\/newsletter$/, permissions: ["newsletter:subscriber:read"] },
+  { path: /^\/banners$/, permissions: ["banner:read"] },
+  { path: /^\/stories$/, permissions: ["story:read"] },
+  { path: /^\/new-story$/, permissions: ["story:create"] },
+  { path: /^\/games$/, permissions: ["game:read"] },
+  { path: /^\/giveaway$/, permissions: ["giveaway:entry:read"] },
+  { path: /^\/support(?:\/|$)/, permissions: ["support:read"] },
+  { path: /^\/repair(?:\/|$)/, permissions: ["repair:read"] },
+  { path: /^\/procurement\/quotes(?:\/|$)/, permissions: ["b2b:quote:read"] },
+  { path: /^\/procurement\/requests(?:\/|$)/, permissions: ["b2b:product-request:read"] },
+  { path: /^\/procurement\/sell-requests(?:\/|$)/, permissions: ["sell:read"] },
+  { path: /^\/b2b-inquiries$/, permissions: ["b2b:inquiry:read"] },
+  { path: /^\/b2b-membership(?:\/|$)/, permissions: ["b2b:membership:read", "b2b:membership:application:read"] },
+  { path: /^\/suppliers(?:\/|$)/, permissions: ["supplier:application:read"] },
+  { path: /^\/supplier-products$/, permissions: ["supplier:product:read"] },
+  { path: /^\/(revenue|supplier-revenue)$/, permissions: ["revenue:read"] },
+  { path: /^\/payouts(?:\/|$)/, permissions: ["payout:read"] },
+  { path: /^\/erp$/, permissions: ["erp:read"] },
+];
+
+export function canAccessPage(path: string): boolean {
+  if (!usesCustomRolePermissions()) return true;
+  if (path === "/" || path === "/profile") return true;
+  const rule = rules.find((r) => r.path.test(path));
+  return !!rule && rule.permissions.length > 0 && rule.permissions.every(hasPermission);
+}
+
+export const staffSections = [
+  { name: "Products", path: "/products" },
+  { name: "Create product", path: "/new-product" },
+  { name: "Categories", path: "/categories" },
+  { name: "Brands", path: "/brands" },
+  { name: "Specifications", path: "/specs" },
+  { name: "Stores & inventory", path: "/stores" },
+  { name: "Create store", path: "/stores/new" },
+  { name: "Countries", path: "/countries" },
+  { name: "Flash sale", path: "/flash-sale" },
+  { name: "Orders", path: "/orders" },
+  { name: "Refunds", path: "/refunds" },
+  { name: "Users", path: "/admin/users" },
+  { name: "Couriers", path: "/admin/couriers" },
+  { name: "Reviews", path: "/reviews" },
+  { name: "Questions", path: "/questions" },
+  { name: "Support", path: "/support" },
+  { name: "Repair", path: "/repair" },
+  { name: "Procurement quotes", path: "/procurement/quotes" },
+  { name: "Product requests", path: "/procurement/requests" },
+  { name: "Sell requests", path: "/procurement/sell-requests" },
+  { name: "Promo codes", path: "/promo-codes" },
+  { name: "Announcements", path: "/announcements" },
+  { name: "Newsletter", path: "/newsletter" },
+  { name: "Banners", path: "/banners" },
+  { name: "Stories", path: "/stories" },
+  { name: "Create story", path: "/new-story" },
+  { name: "Games", path: "/games" },
+  { name: "Giveaway", path: "/giveaway" },
+  { name: "B2B membership", path: "/b2b-membership" },
+  { name: "B2B inquiries", path: "/b2b-inquiries" },
+  { name: "Suppliers", path: "/suppliers" },
+  { name: "Supplier products", path: "/supplier-products" },
+  { name: "Revenue", path: "/revenue" },
+  { name: "Payouts", path: "/payouts" },
+  { name: "ERP", path: "/erp" },
+];

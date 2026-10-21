@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import PageMeta from "../components/common/PageMeta";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
-import { getRolesFromToken, hasRole } from "../api/client";
+import { getAccountIdFromToken, getRolesFromToken, hasRole } from "../api/client";
+import { usesCustomRolePermissions } from "../auth/roles";
 import { usersService } from "../api/services/users.service";
 import { suppliersService } from "../api/services/suppliers.service";
 import { mfaService } from "../api/services/mfa.service";
@@ -214,9 +215,12 @@ export default function UserProfiles() {
     const promises: Promise<unknown>[] = [];
 
     if (authCredId) {
+      const accountId = getAccountIdFromToken();
+      const request = usesCustomRolePermissions() && accountId
+        ? usersService.getOwnProfile(accountId)
+        : usersService.getById(authCredId);
       promises.push(
-        usersService
-          .getById(authCredId)
+        request
           .then((res) => {
             if (cancelled) return;
             const d = res.data as Partial<AdminProfile & { userId?: string }> | undefined;

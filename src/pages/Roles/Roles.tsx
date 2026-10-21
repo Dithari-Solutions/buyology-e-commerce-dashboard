@@ -4,6 +4,7 @@ import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Badge from "../../components/ui/badge/Badge";
 import { rolesService } from "../../api/services/roles.service";
+import AssignRoleModal from "./AssignRoleModal";
 import { ApiRequestError } from "../../api";
 import { isSuperAdmin } from "../../auth/roles";
 import type { Role, Permission, RoleHolder } from "../../types/roles.types";
@@ -33,7 +34,7 @@ function actionOf(code: string): string {
 }
 
 function roleLabel(name: string): string {
-  return name.replace(/_/g, " ");
+  return name.toLowerCase().replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function holderName(holder: RoleHolder): string {
@@ -73,8 +74,8 @@ function ConfirmDialog({
 }) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-6 shadow-xl">
+    <div className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+      <div role="dialog" aria-modal="true" aria-label={title} className="w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-6 shadow-xl">
         <h3 className="text-base font-semibold text-gray-800 dark:text-white/90 mb-2">{title}</h3>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{message}</p>
         <div className="flex gap-3 justify-end">
@@ -103,25 +104,31 @@ function ConfirmDialog({
 function RoleFormModal({
   open,
   role,
+  permissions,
   onClose,
   onSaved,
 }: {
   open: boolean;
   role: Role | null;
+  permissions: Permission[];
   onClose: () => void;
-  onSaved: (message: string) => void;
+  onSaved: (message: string, role: Role) => void;
 }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [permissionIds, setPermissionIds] = useState<Set<string>>(new Set());
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (!open) return;
-    setName(role?.name ?? "");
+    setName(role ? roleLabel(role.name) : "");
     setDescription(role?.description ?? "");
     setError(null);
     setSubmitting(false);
+    setPermissionIds(new Set());
+    setSearch("");
   }, [open, role]);
 
   if (!open) return null;
@@ -143,10 +150,10 @@ function RoleFormModal({
           ...(nameLocked ? {} : { name: trimmed }),
           description: description.trim(),
         })
-      : rolesService.createRole({ name: trimmed, description: description.trim() });
+      : rolesService.createRole({ name: trimmed, description: description.trim(), permissionIds: [...permissionIds] });
 
     request
-      .then(() => onSaved(editing ? "Role updated." : "Role created."))
+      .then((res) => onSaved(editing ? "Role updated." : "Role created. You can now assign people to it.", res.data))
       .catch((err: unknown) =>
         setError(errorMessage(err, editing ? "Failed to update role." : "Failed to create role."))
       )
@@ -155,12 +162,12 @@ function RoleFormModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 backdrop-blur-sm px-4 py-8"
+      className="fixed inset-0 z-[100000] flex items-start justify-center overflow-y-auto bg-black/40 backdrop-blur-sm px-4 py-8"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget && !submitting) onClose();
       }}
     >
-      <div className="w-full max-w-lg rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-xl">
+      <div role="dialog" aria-modal="true" aria-label={editing ? "Edit role" : "New role"} className="w-full max-w-lg rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-xl">
         <div className="flex items-start justify-between gap-4 border-b border-gray-100 dark:border-gray-800 px-6 py-4">
           <div>
             <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">
@@ -169,7 +176,7 @@ function RoleFormModal({
             <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
               {editing
                 ? "Update the role's name and description."
-                : "Create a custom role, then grant it permissions from the matrix."}
+                : "Name the role and choose the permissions it should grant."}
             </p>
           </div>
           <button
@@ -194,18 +201,39 @@ function RoleFormModal({
               Name {!nameLocked && <span className="text-red-500">*</span>}
             </label>
             <input
+              aria-label="Role name"
               className={inputClass}
               value={name}
+              maxLength={50}
               disabled={nameLocked}
-              onChange={(e) => setName(e.target.value.toUpperCase())}
-              placeholder="CONTENT_EDITOR"
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Inventory Manager"
             />
             <p className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">
               {nameLocked
                 ? "Built-in roles cannot be renamed — access checks across the platform reference them by name."
-                : "Letters, numbers and underscores. Saved in upper case."}
+                : "Use a descriptive name, such as Inventory Manager. Letters, numbers and spaces are supported."}
             </p>
           </div>
+          {!editing && (
+            <div>
+              <p className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Permissions ({permissionIds.size} selected)</p>
+              <input aria-label="Search permissions" className={inputClass} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search permissions, e.g. stock or product" />
+              <div className="mt-2 max-h-64 overflow-y-auto rounded-xl border border-gray-200 dark:border-gray-700">
+                {permissions.filter((p) => `${p.code} ${p.description ?? ""}`.toLowerCase().includes(search.toLowerCase())).map((p) => (
+                  <label key={p.id} className="flex cursor-pointer items-start gap-3 border-b border-gray-100 p-3 last:border-0 dark:border-gray-800">
+                    <input type="checkbox" className="mt-1 accent-brand-500" checked={permissionIds.has(p.id)} onChange={(e) => setPermissionIds((current) => {
+                      const next = new Set(current);
+                      if (e.target.checked) next.add(p.id); else next.delete(p.id);
+                      return next;
+                    })} />
+                    <span className="text-sm text-gray-700 dark:text-gray-300"><span className="block font-medium">{moduleOf(p.code)} · {actionOf(p.code)}</span><span className="text-xs text-gray-500">{p.description || p.code}</span></span>
+                  </label>
+                ))}
+              </div>
+              <p className="mt-2 text-xs text-gray-500">A role with no permissions cannot access business data. You can change its permissions later.</p>
+            </div>
+          )}
 
           <div>
             <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -284,7 +312,7 @@ function PermissionFormModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 backdrop-blur-sm px-4 py-8"
+      className="fixed inset-0 z-[100000] flex items-start justify-center overflow-y-auto bg-black/40 backdrop-blur-sm px-4 py-8"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget && !submitting) onClose();
       }}
@@ -389,6 +417,10 @@ export default function Roles() {
 
   const [holders, setHolders] = useState<RoleHolder[]>([]);
   const [holdersLoading, setHoldersLoading] = useState(false);
+  const [assigningRole, setAssigningRole] = useState<Role | null>(null);
+  const [membersVersion, setMembersVersion] = useState(0);
+  const [removeMember, setRemoveMember] = useState<{ role: Role; holder: RoleHolder } | null>(null);
+  const [removingMember, setRemovingMember] = useState(false);
 
   const [roleModalOpen, setRoleModalOpen] = useState(false);
   const [roleBeingEdited, setRoleBeingEdited] = useState<Role | null>(null);
@@ -466,7 +498,7 @@ export default function Roles() {
       })
       .finally(() => setHoldersLoading(false));
     return () => controller.abort();
-  }, [allowed, tab, selectedRoleId, showToast]);
+  }, [allowed, tab, selectedRoleId, showToast, membersVersion]);
 
   // ── Permission matrix ────────────────────────────────────────────────────
 
@@ -607,13 +639,34 @@ export default function Roles() {
       <RoleFormModal
         open={roleModalOpen}
         role={roleBeingEdited}
+        permissions={permissions}
         onClose={() => setRoleModalOpen(false)}
-        onSaved={(message) => {
+        onSaved={(message, savedRole) => {
           setRoleModalOpen(false);
           showToast(message, "success");
+          setSelectedRoleId(savedRole.id);
+          setTab("permissions");
           load();
         }}
       />
+      {assigningRole && <AssignRoleModal role={assigningRole} onClose={() => setAssigningRole(null)} onAssigned={() => {
+        setAssigningRole(null);
+        setMembersVersion((n) => n + 1);
+        load();
+        showToast("Role assigned. Access changes take effect immediately; menu changes appear after refreshing the person's session.", "success");
+      }} />}
+      <ConfirmDialog open={removeMember !== null} title="Remove role from person" message={`Remove ${removeMember ? roleLabel(removeMember.role.name) : "this role"} from ${removeMember ? holderName(removeMember.holder) : "this person"}? Their other roles stay assigned.`} confirmLabel="Remove role" confirmColor="bg-red-500 hover:bg-red-600" loading={removingMember} onCancel={() => setRemoveMember(null)} onConfirm={async () => {
+        if (!removeMember) return;
+        setRemovingMember(true);
+        try {
+          await rolesService.removeRole(removeMember.holder.userId, removeMember.role.id);
+          setRemoveMember(null);
+          setMembersVersion((n) => n + 1);
+          load();
+          showToast("Role removed.", "success");
+        } catch (err) { showToast(errorMessage(err, "Could not remove role."), "error"); }
+        finally { setRemovingMember(false); }
+      }} />
       <PermissionFormModal
         open={permissionModalOpen}
         onClose={() => setPermissionModalOpen(false)}
@@ -624,7 +677,7 @@ export default function Roles() {
         }}
       />
 
-      <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 items-end">
+      <div className="fixed bottom-5 right-5 z-[100001] flex flex-col gap-2 items-end">
         {toasts.map((t) => (
           <div
             key={t.id}
@@ -644,7 +697,7 @@ export default function Roles() {
             Roles &amp; Permissions
           </h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Grant permissions to roles here; assign roles to people from an admin's page.
+            Create named roles, choose their permissions, and assign people to them.
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
@@ -763,6 +816,7 @@ export default function Roles() {
                       </p>
                     </div>
                     <div className="flex gap-2">
+                      <button disabled={dirty} title={dirty ? "Save your permission changes before assigning people" : undefined} onClick={() => { setTab("members"); setAssigningRole(selectedRole); }} className="rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50">Assign people</button>
                       <button
                         onClick={() => {
                           setRoleBeingEdited(selectedRole);
@@ -876,6 +930,7 @@ export default function Roles() {
                                         <span className="block truncate font-mono text-xs text-gray-400 dark:text-gray-500">
                                           {permission.code}
                                         </span>
+                                        {permission.description && <span className="mt-1 block text-xs text-gray-500 dark:text-gray-400">{permission.description}</span>}
                                       </span>
                                     </label>
                                   );
@@ -918,6 +973,10 @@ export default function Roles() {
                 {/* Members */}
                 {tab === "members" && (
                   <div className="overflow-x-auto">
+                    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-5 dark:border-gray-800">
+                      <p className="text-sm text-gray-500">Manage the people who hold {roleLabel(selectedRole.name)}.</p>
+                      <button disabled={dirty} title={dirty ? "Save your permission changes before assigning people" : undefined} onClick={() => setAssigningRole(selectedRole)} className="rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50">+ Assign people</button>
+                    </div>
                     {holdersLoading ? (
                       <div className="animate-pulse space-y-3 p-5">
                         {Array.from({ length: 4 }).map((_, i) => (
@@ -926,7 +985,7 @@ export default function Roles() {
                       </div>
                     ) : holders.length === 0 ? (
                       <p className="px-5 py-16 text-center text-sm text-gray-500 dark:text-gray-400">
-                        Nobody holds this role yet. Assign it from an admin's page.
+                        Nobody holds this role yet. Use Assign people to get started.
                       </p>
                     ) : (
                       <table className="w-full text-left">
@@ -971,6 +1030,7 @@ export default function Roles() {
                                 </Badge>
                               </td>
                               <td className="px-5 py-3.5 text-right">
+                                {!selectedRole.locked && <button onClick={() => setRemoveMember({ role: selectedRole, holder })} className="mr-2 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600">Remove role</button>}
                                 {holder.authCredentialId && (
                                   <button
                                     onClick={() =>

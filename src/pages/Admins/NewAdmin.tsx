@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { usersService, rolesService, ApiRequestError } from "../../api";
@@ -60,6 +60,7 @@ function formatDate(iso: string): string {
 
 export default function NewAdmin() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const superAdmin = isSuperAdmin();
 
   const [roles, setRoles] = useState<Role[]>([]);
@@ -72,7 +73,7 @@ export default function NewAdmin() {
     email: "",
     password: "",
   });
-  const [roleIds, setRoleIds] = useState<string[]>([]);
+  const [roleIds, setRoleIds] = useState<string[]>(() => searchParams.get("roleId") ? [searchParams.get("roleId")!] : []);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);

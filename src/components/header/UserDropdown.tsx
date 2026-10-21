@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { useAuth } from "../../context/AuthContext";
-import { getUserIdFromToken, hasRole } from "../../api/client";
+import { getAccountIdFromToken, getUserIdFromToken, hasRole } from "../../api/client";
+import { usesCustomRolePermissions } from "../../auth/roles";
 import { usersService } from "../../api/services/users.service";
 import { suppliersService } from "../../api/services/suppliers.service";
 
@@ -38,8 +39,11 @@ export default function UserDropdown() {
     // Admins/staff resolve through the admin users endpoint; pure suppliers fall
     // back to their supplier record (the admin endpoint 403s for them).
     if (authCredId) {
-      usersService
-        .getById(authCredId)
+      const accountId = getAccountIdFromToken();
+      const request = usesCustomRolePermissions() && accountId
+        ? usersService.getOwnProfile(accountId)
+        : usersService.getById(authCredId);
+      request
         .then((res) => {
           if (cancelled) return;
           const d = res.data;

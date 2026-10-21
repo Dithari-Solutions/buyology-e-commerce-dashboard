@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { canPerformPermission } from "../../auth/roles";
 import { useParams, useNavigate } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
@@ -1143,7 +1144,9 @@ export default function StoreDetail() {
 
       {/* Tabs */}
       <div className="mb-6 flex gap-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 p-1 w-fit">
-        {tabs.map((t) => (
+        {tabs.filter((t) => t.id === "overview" || canPerformPermission(
+          t.id === "locations" ? "store:location:read" : t.id === "admins" ? "store:admin:read" : "store:product:read"
+        )).map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}

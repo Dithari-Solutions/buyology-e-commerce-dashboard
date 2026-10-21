@@ -62,6 +62,7 @@ interface JwtPayload {
   uid?: string;
   aud?: string;
   roles?: string[];
+  customRoles?: string[];
   permissions?: string[];
   /** Expiry, seconds since the epoch — what the renewal timer is scheduled against. */
   exp?: number;
@@ -91,6 +92,11 @@ export function getAccountIdFromToken(): string | null {
 /** Returns the role names assigned to the current user, e.g. ["ADMIN", "SUPPLIER"]. */
 export function getRolesFromToken(): string[] {
   return decodeJwtPayload()?.roles ?? [];
+}
+
+/** Custom roles use their selected permissions even on deployments supporting legacy admins. */
+export function getCustomRolesFromToken(): string[] {
+  return decodeJwtPayload()?.customRoles ?? [];
 }
 
 /** Returns the permission codes granted to the current user. */

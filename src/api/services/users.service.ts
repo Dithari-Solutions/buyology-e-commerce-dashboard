@@ -11,6 +11,14 @@ import type {
 const BASE = "/api/admin/users";
 
 export const usersService = {
+  /** Read the signed-in person's own profile without granting customer-directory access. */
+  getOwnProfile(userId: string): Promise<ApiResponse<{
+    userId: string; email: string | null; firstName: string | null;
+    lastName: string | null; createdAt: string | null;
+  }>> {
+    return apiClient.get(`/api/users/${encodeURIComponent(userId)}/profile`);
+  },
+
   /** SUPERADMIN: create a new admin user and assign roles. Returns the created user's detail. */
   createAdmin(payload: CreateAdminRequest): Promise<ApiResponse<UserDetail>> {
     return apiClient.post<ApiResponse<UserDetail>>(BASE, payload);

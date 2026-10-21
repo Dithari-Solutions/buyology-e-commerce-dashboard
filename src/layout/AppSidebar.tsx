@@ -31,7 +31,8 @@ import {
 import { useSidebar } from "../context/SidebarContext";
 import { BuyologyLockup, BuyologyMark } from "../components/common/BuyologyLogo";
 import SidebarWidget from "./SidebarWidget";
-import { canAccessRoles, isProcurement, isRepair, isSupport, isPureSupplier, isSuperAdmin, landingPathForCurrentUser } from "../auth/roles";
+import { canAccessRoles, isProcurement, isRepair, isSupport, isPureSupplier, isSuperAdmin, landingPathForCurrentUser, usesCustomRolePermissions } from "../auth/roles";
+import { canAccessPage } from "../auth/pageAccess";
 import { storesService, b2bProductRequestsService, b2bQuotesService, repairService, sellService, supportService } from "../api";
 import type { Store } from "../types";
 
@@ -334,6 +335,7 @@ const AppSidebar: React.FC = () => {
 
   const supplierOnly = isPureSupplier();
   const superAdmin = isSuperAdmin();
+  const customStaff = usesCustomRolePermissions();
   const homePath = landingPathForCurrentUser();
 
   // Fetch all stores for any admin (not gated on isSuperAdmin(), which reads the JWT at
@@ -341,14 +343,14 @@ const AppSidebar: React.FC = () => {
   // Visibility is enforced by filterByRole (the injected items are superAdminOnly).
   const [stores, setStores] = useState<Store[]>([]);
   useEffect(() => {
-    if (supplierOnly) return; // suppliers don't manage stores
+    if (supplierOnly || !canAccessPage("/stores")) return;
     const ctrl = new AbortController();
     storesService
       .getAll(ctrl.signal)
       .then((res) => setStores(Array.isArray(res.data) ? res.data : []))
       .catch(() => {/* sidebar store shortcuts are best-effort */});
     return () => ctrl.abort();
-  }, [supplierOnly]);
+  }, [supplierOnly, customStaff]);
 
   // Poll the count of NEW B2B product requests + SUBMITTED quotes + sell requests with unseen
   // customer activity, so the Procurement group dot and its subitems surface a red badge without a
@@ -467,21 +469,21 @@ const AppSidebar: React.FC = () => {
           return supplierOnly ? area === "supplier" : area === "admin";
         })
         // 2. Group-level role gate (e.g. only STORE_ADMIN/SUPERADMIN see the Product group).
-        .filter((item) => canAccessRoles(item.roles))
+        .filter((item) => customStaff ? !!item.subItems || (!!item.path && canAccessPage(item.path)) : canAccessRoles(item.roles))
         // 3. Sub-item gate: SUPERADMIN-only entries + per-sub-item role restrictions.
         .map((item) =>
           item.subItems
             ? {
                 ...item,
                 subItems: item.subItems.filter(
-                  (s) => (!s.superAdminOnly || superAdmin) && canAccessRoles(s.roles)
+                  (s) => (!s.superAdminOnly || superAdmin) && (customStaff ? canAccessPage(s.path) : canAccessRoles(s.roles))
                 ),
               }
             : item
         )
         // 4. Drop a group whose sub-items were all filtered out.
         .filter((item) => !item.subItems || item.subItems.length > 0),
-    [supplierOnly, superAdmin]
+    [supplierOnly, superAdmin, customStaff]
   );
   const visibleNavItems = filterByRole(navItemsWithStores);
   // Suppliers don't see the kitchen-sink/UI-kit "Others" section at all.

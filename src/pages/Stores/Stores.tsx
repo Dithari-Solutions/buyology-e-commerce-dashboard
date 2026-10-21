@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router";
+import { canPerformPermission } from "../../auth/roles";
 import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Badge from "../../components/ui/badge/Badge";
@@ -350,7 +351,7 @@ export default function Stores() {
           </div>
 
           {/* New Store */}
-          <button
+          {canPerformPermission("store:create") && (<button
             onClick={() => navigate("/stores/new")}
             className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors whitespace-nowrap"
           >
@@ -359,7 +360,7 @@ export default function Stores() {
               <line x1="5" y1="12" x2="19" y2="12" />
             </svg>
             New Store
-          </button>
+          </button>)}
         </div>
       </div>
 
@@ -459,7 +460,7 @@ export default function Stores() {
                               <circle cx="12" cy="12" r="3" />
                             </svg>
                           </button>
-                          <button
+                          {canPerformPermission("store:delete") && (<button
                             onClick={(e) => openDelete(store, e)}
                             className="flex items-center justify-center h-8 w-8 rounded-lg text-gray-400 hover:text-error-500 hover:bg-error-50 dark:hover:bg-error-500/10 transition-colors"
                             title="Delete"
@@ -470,7 +471,7 @@ export default function Stores() {
                               <path d="M10 11v6M14 11v6" />
                               <path d="M9 6V4h6v2" />
                             </svg>
-                          </button>
+                          </button>)}
                         </div>
                       </td>
                     </tr>
@@ -497,7 +498,7 @@ export default function Stores() {
                   Clear filters
                 </button>
               )}
-              {!search && statusFilter === "ALL" && (
+              {!search && statusFilter === "ALL" && canPerformPermission("store:create") && (
                 <button
                   onClick={() => navigate("/stores/new")}
                   className="mt-3 text-xs text-brand-500 hover:text-brand-600 dark:text-brand-400 transition-colors"

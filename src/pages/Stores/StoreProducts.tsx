@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router";
+import { canPerformPermission } from "../../auth/roles";
 import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Badge from "../../components/ui/badge/Badge";
@@ -869,7 +870,7 @@ function ManageVariantsModal({
                       <Badge color={v.isActive ? "success" : "error"}>
                         {v.isActive ? "Active" : "Inactive"}
                       </Badge>
-                      <button
+                      {canPerformPermission("store:product:update") && (<button
                         type="button"
                         onClick={() => {
                           setEditingId(v.id);
@@ -882,8 +883,8 @@ function ManageVariantsModal({
                           <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                           <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                         </svg>
-                      </button>
-                      <button
+                      </button>)}
+                      {canPerformPermission("store:product:remove") && (<button
                         type="button"
                         onClick={() => handleRemove(v.id)}
                         disabled={removing === v.id}
@@ -900,7 +901,7 @@ function ManageVariantsModal({
                             <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
                           </svg>
                         )}
-                      </button>
+                      </button>)}
                     </div>
                   </div>
                 )}
@@ -914,7 +915,7 @@ function ManageVariantsModal({
         )}
 
         {/* Add variant */}
-        <div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-700 p-4 space-y-3">
+        {canPerformPermission("store:product:assign") && (<div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-700 p-4 space-y-3">
           <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
             Add Variant
           </p>
@@ -971,6 +972,7 @@ function ManageVariantsModal({
           </div>
         </div>
 
+        )}
         {error && <p className="text-sm text-red-500">{error}</p>}
 
         <div className="flex justify-end pt-2">
@@ -1129,7 +1131,7 @@ export default function StoreProducts() {
               </svg>
               Export
             </button>
-            <button
+            {canPerformPermission("store:product:assign") && (<button
               type="button"
               onClick={() => navigate(`/stores/${storeId}/products/assign`)}
               className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-600 transition-colors"
@@ -1139,7 +1141,7 @@ export default function StoreProducts() {
                 <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
               Assign Product
-            </button>
+            </button>)}
           </div>
         </div>
 
@@ -1163,13 +1165,13 @@ export default function StoreProducts() {
         ) : products.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 py-20 text-center">
             <p className="text-sm text-gray-400 dark:text-gray-500">No products assigned to this store yet.</p>
-            <button
+            {canPerformPermission("store:product:assign") && (<button
               type="button"
               onClick={() => navigate(`/stores/${storeId}/products/assign`)}
               className="mt-3 text-sm font-semibold text-brand-500 hover:text-brand-600"
             >
               Assign your first product
-            </button>
+            </button>)}
           </div>
         ) : (
           <div className="overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm">
@@ -1318,7 +1320,7 @@ export default function StoreProducts() {
                         {/* Actions */}
                         <td className="px-4 py-4">
                           <div className="flex items-center gap-1">
-                            <button
+                            {canPerformPermission("store:product:update") && (<button
                               type="button"
                               onClick={() => setEditTarget(sp)}
                               className="rounded-lg p-1.5 text-gray-400 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-500/10 transition-colors"
@@ -1328,8 +1330,8 @@ export default function StoreProducts() {
                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                               </svg>
-                            </button>
-                            <button
+                            </button>)}
+                            {canPerformPermission("store:product:remove") && (<button
                               type="button"
                               onClick={() => setRemoveTarget(sp)}
                               className="rounded-lg p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
@@ -1341,7 +1343,7 @@ export default function StoreProducts() {
                                 <path d="M10 11v6M14 11v6" />
                                 <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
                               </svg>
-                            </button>
+                            </button>)}
                           </div>
                         </td>
                       </tr>

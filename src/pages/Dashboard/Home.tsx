@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
+import { usesCustomRolePermissions } from "../../auth/roles";
+import { hasPermission } from "../../api/client";
+import { canAccessPage, staffSections } from "../../auth/pageAccess";
 import PageMeta from "../../components/common/PageMeta";
 import { BuyologyWave } from "../../components/common/BuyologyLogo";
 import { usersService } from "../../api/services/users.service";
@@ -293,6 +296,35 @@ const pctChange = (current: number, previous: number): number | null => {
 };
 
 export default function Home() {
+  if (!usesCustomRolePermissions()) return <AdminHome />;
+  return <StaffHome />;
+}
+
+function StaffHome() {
+  const canViewTraffic = hasPermission("analytics:visitor:read");
+  const [traffic, setTraffic] = useState<VisitorMetricsResponse | null>(null);
+  const [trafficUnavailable, setTrafficUnavailable] = useState(false);
+  useEffect(() => {
+    if (!canViewTraffic) return;
+    const controller = new AbortController();
+    analyticsService.getVisitorMetrics(30, controller.signal)
+      .then((res) => setTraffic(res.data))
+      .catch(() => { if (!controller.signal.aborted) setTrafficUnavailable(true); });
+    return () => controller.abort();
+  }, [canViewTraffic]);
+  const sections = staffSections.filter((section) => canAccessPage(section.path));
+  return <>
+    <PageMeta title="Your workspace | Buyology" description="Your permitted dashboard sections" />
+    <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+      <h1 className="text-2xl font-semibold text-gray-800 dark:text-white">Your workspace</h1>
+      <p className="mt-2 text-sm text-gray-500">Your role gives you access to the sections below.</p>
+      {sections.length === 0 && !canViewTraffic ? <p className="mt-6 text-sm text-gray-500">No sections are available yet. Ask a Super Admin to review your role's permissions.</p> : <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{sections.map((section) => <Link key={section.path} to={section.path} className="rounded-xl border border-gray-200 p-4 font-medium text-brand-500 transition hover:border-brand-400 dark:border-gray-700">{section.name} →</Link>)}</div>}
+    </div>
+    {canViewTraffic && !trafficUnavailable && <div className="mt-6"><VisitorsChart metrics={traffic} loading={traffic === null} /></div>}
+  </>;
+}
+
+function AdminHome() {
   const [stats, setStats] = useState<Stats>({});
   /** Website traffic. Held whole because the chart needs the daily series too. */
   const [visitors, setVisitors] = useState<VisitorMetricsResponse | null>(null);

@@ -27,6 +27,7 @@ export interface RoleHolder {
 export interface CreateRoleRequest {
   name: string;
   description?: string;
+  permissionIds?: string[];
 }
 
 export interface UpdateRoleRequest {

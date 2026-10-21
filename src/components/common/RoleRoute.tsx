@@ -1,5 +1,6 @@
-import { Navigate, Outlet } from "react-router";
+import { Navigate, Outlet, useLocation } from "react-router";
 import { isPureSupplier } from "../../auth/roles";
+import { canAccessPage } from "../../auth/pageAccess";
 
 type RoleArea = "admin" | "supplier";
 
@@ -14,11 +15,15 @@ type RoleArea = "admin" | "supplier";
  */
 export default function RoleRoute({ mode }: { mode: RoleArea }) {
   const supplier = isPureSupplier();
+  const { pathname } = useLocation();
 
   if (mode === "admin" && supplier) {
     return <Navigate to="/supplier/my-products" replace />;
   }
   if (mode === "supplier" && !supplier) {
+    return <Navigate to="/" replace />;
+  }
+  if (mode === "admin" && !canAccessPage(pathname)) {
     return <Navigate to="/" replace />;
   }
   return <Outlet />;
