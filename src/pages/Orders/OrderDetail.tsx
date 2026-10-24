@@ -9,6 +9,7 @@ import { courierProfilesService, type CourierProfile } from "../../api/services/
 import { quiqupService } from "../../api/services/quiqup.service";
 import type { OrderAdminResponse, OrderStatus } from "../../types";
 import { PaymentSupportPanel } from "./PaymentSupportPanel";
+import { OrderItemWarranties } from "./OrderItemWarranties";
 
 // Status transitions allowed from each current status (must mirror backend validateTransition).
 // Pickup orders branch to READY_FOR_PICKUP after packaging; delivery orders go to a courier.
@@ -456,6 +457,9 @@ export default function OrderDetail() {
                 {order.items?.map((item) => (
                   <div
                     key={item.id}
+                    className="border-b border-gray-50 pb-4 last:border-0 last:pb-0 dark:border-gray-800"
+                  >
+                  <div
                     onClick={() => item.productId && navigate(`/products/${item.productId}`)}
                     role={item.productId ? "button" : undefined}
                     tabIndex={item.productId ? 0 : undefined}
@@ -465,7 +469,7 @@ export default function OrderDetail() {
                         navigate(`/products/${item.productId}`);
                       }
                     }}
-                    className={`flex items-center gap-4 border-b border-gray-50 pb-4 last:border-0 last:pb-0 dark:border-gray-800 -mx-2 rounded-lg px-2 transition-colors ${
+                    className={`flex items-center gap-4 -mx-2 rounded-lg px-2 transition-colors ${
                       item.productId ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.03]" : ""
                     }`}
                   >
@@ -495,6 +499,27 @@ export default function OrderDetail() {
                     <p className="font-semibold text-gray-800 dark:text-white/90">
                       {order.currency} {item.totalPrice.toFixed(2)}
                     </p>
+                  </div>
+                  <OrderItemWarranties
+                    warranties={item.warranties}
+                    onChanged={(updated) =>
+                      setOrder((current) =>
+                        current && {
+                          ...current,
+                          items: current.items?.map((it) =>
+                            it.id !== item.id
+                              ? it
+                              : {
+                                  ...it,
+                                  warranties: it.warranties?.map((w) =>
+                                    w.serialNumber === updated.serialNumber ? updated : w,
+                                  ),
+                                },
+                          ),
+                        },
+                      )
+                    }
+                  />
                   </div>
                 ))}
               </div>

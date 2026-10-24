@@ -23,6 +23,7 @@ import Categories from "./pages/Products/Categories";
 import Brands from "./pages/Products/Brands";
 import Specs from "./pages/Products/Specs";
 import SpecCodes from "./pages/Products/SpecCodes";
+import WarrantyPresets from "./pages/Products/WarrantyPresets";
 import Reviews from "./pages/ReviewsQA/Reviews";
 import Questions from "./pages/ReviewsQA/Questions";
 import Stores from "./pages/Stores/Stores";
@@ -132,6 +133,7 @@ export default function App() {
               <Route path="/brands" element={<Brands />} />
               <Route path="/specs" element={<Specs />} />
               <Route path="/spec-codes" element={<SpecCodes />} />
+              <Route path="/warranty-presets" element={<WarrantyPresets />} />
 
               {/* Stores */}
               <Route path="/stores" element={<Stores />} />

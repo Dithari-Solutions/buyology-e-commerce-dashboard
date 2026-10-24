@@ -186,6 +186,10 @@ export interface Product {
    * product sells without a limit — a missing value is NEVER zero.
    */
   availableQuantity?: number | null;
+  /** Warranty length in whole months; absent when the product states none. */
+  warrantyMonths?: number | null;
+  /** The preset the warranty follows; absent for a custom length. */
+  warrantyPresetId?: string | null;
   accessoryIds: string[];
   colors: string[];
   slug: string;

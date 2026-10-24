@@ -39,6 +39,15 @@ export interface TrackingEvent {
   location?: string;
 }
 
+/** A warranty card for one unit of an order item, issued when the order is delivered. */
+export interface OrderItemWarranty {
+  serialNumber: string;
+  /** Computed by the backend on the day of the request. */
+  status: "ACTIVE" | "EXPIRING_SOON" | "EXPIRED" | "VOID";
+  startDate: string;
+  endDate: string;
+}
+
 export interface OrderItem {
   id: string;
   productId: string;
@@ -49,6 +58,8 @@ export interface OrderItem {
   quantity: number;
   unitPrice: number;
   totalPrice: number;
+  /** One card per unit; absent before delivery and for products without a warranty. */
+  warranties?: OrderItemWarranty[];
 }
 
 /**

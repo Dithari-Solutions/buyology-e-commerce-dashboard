@@ -151,6 +151,7 @@ const navItems: NavItem[] = [
       { name: "Brands", path: "/brands", pro: false },
       { name: "Spec Library", path: "/specs", pro: false },
       { name: "Spec Codes", path: "/spec-codes", pro: false },
+      { name: "Warranty Presets", path: "/warranty-presets", pro: false },
       { name: "Trash", path: "/products/trash", pro: false }
     ],
   },

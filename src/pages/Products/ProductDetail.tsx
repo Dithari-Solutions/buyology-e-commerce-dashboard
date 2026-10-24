@@ -6,6 +6,7 @@ import { Modal } from "../../components/ui/modal";
 import { productsService, ApiRequestError } from "../../api";
 import type { Product, ProductMedia, ProductStatus } from "../../types";
 import { getImageUrl } from "../../utils/imageUrl";
+import { formatWarranty } from "../../utils/warranty";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -393,6 +394,19 @@ export default function ProductDetail() {
                 <p className="text-xs text-gray-400 dark:text-gray-500">Refurbished</p>
                 <p className="mt-0.5 text-sm font-medium text-gray-700 dark:text-gray-200">
                   {product.isRefurbished ? "Yes" : "No"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-400 dark:text-gray-500">Warranty</p>
+                <p className="mt-0.5 text-sm font-medium text-gray-700 dark:text-gray-200">
+                  {formatWarranty(product.warrantyMonths)}
+                </p>
+                <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                  {product.warrantyMonths == null
+                    ? "No card is issued when it sells"
+                    : product.warrantyPresetId
+                      ? "Follows a warranty preset"
+                      : "Custom duration"}
                 </p>
               </div>
               {product.isRefurbished && (

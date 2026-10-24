@@ -59,6 +59,10 @@ export interface CreateProductRequest {
   stockQuantity?: number;
   /** Units on hand. Omit = not tracked (no order ceiling); a number is a hard limit. */
   availableQuantity?: number;
+  /** Warranty preset to follow; wins over warrantyMonths. */
+  warrantyPresetId?: string;
+  /** Custom warranty in whole months (1-120), used when no preset is sent. */
+  warrantyMonths?: number;
   accessoryIds: string[];
   translations: {
     titleAz: string;
@@ -93,6 +97,12 @@ export interface UpdateProductRequest {
    * no way to express "no longer limited". Wins over availableQuantity server-side.
    */
   untrackAvailableQuantity?: boolean;
+  /** Switch to this warranty preset. Omit both warranty fields to leave the warranty unchanged. */
+  warrantyPresetId?: string;
+  /** Switch to a custom warranty of this many months, unlinking any preset. */
+  warrantyMonths?: number;
+  /** Send true to remove the warranty. Wins over the other two server-side. */
+  removeWarranty?: boolean;
   sku?: string;
   accessoryIds?: string[];
   translations?: {

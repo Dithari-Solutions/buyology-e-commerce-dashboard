@@ -18,6 +18,9 @@ import { validateFileUpload } from "../../utils/fileValidation";
 import { compressImage } from "../../utils/imageCompression";
 import { getImageUrl } from "../../utils/imageUrl";
 import { useSpecCodes } from "../../hooks/useSpecCodes";
+import { warrantyPresetsService, type WarrantyPreset } from "../../api/services/warrantyPresets.service";
+import { formatWarranty, splitWarranty, warrantyMonthsFrom, type WarrantyUnit } from "../../utils/warranty";
+import { canAccessPage } from "../../auth/pageAccess";
 import type { CreateProductRequest, UpdateProductRequest } from "../../api/services/products.service";
 import type { GlobalSpecGroup } from "../../api";
 import type {
@@ -339,6 +342,7 @@ type FormErrors = Partial<{
   media: string;
   stockQuantity: string;
   availableQuantity: string;
+  warranty: string;
 }>;
 
 /**
@@ -472,6 +476,17 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
   const [categoryId, setCategoryId] = useState("");
   const [accessoryIdsRaw, setAccessoryIdsRaw] = useState("");
 
+  // ── Warranty ──────────────────────────────────────────────────────────────
+  // "" = not chosen yet, "custom" = a typed length, anything else = a preset id.
+  const [warrantyChoice, setWarrantyChoice] = useState("");
+  const [warrantyValue, setWarrantyValue] = useState("12");
+  const [warrantyUnit, setWarrantyUnit] = useState<WarrantyUnit>("months");
+  const [warrantyPresets, setWarrantyPresets] = useState<WarrantyPreset[]>([]);
+  // Edit mode: the warranty the product was loaded with. Products created before warranties
+  // existed have none, and editing their price or stock must not be blocked on picking one.
+  const [loadedWarrantyMonths, setLoadedWarrantyMonths] = useState<number | null>(null);
+  const warrantyRequired = !isEdit || loadedWarrantyMonths != null;
+
   // ── Brands (fetched from API) ─────────────────────────────────────────────
   const [brands, setBrands] = useState<Brand[]>([]);
 
@@ -552,6 +567,23 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
     return () => ctrl.abort();
   }, []);
 
+  // Suppliers neither set warranties nor can read presets; an admin sets one when reviewing.
+  useEffect(() => {
+    if (supplierMode) return;
+    const ctrl = new AbortController();
+    warrantyPresetsService.getAll(ctrl.signal)
+      .then((res) => setWarrantyPresets(res.data ?? []))
+      .catch(() => {});
+    return () => ctrl.abort();
+  }, [supplierMode]);
+
+  // For presets added in another tab via "Manage presets".
+  const reloadWarrantyPresets = () => {
+    warrantyPresetsService.getAll()
+      .then((res) => setWarrantyPresets(res.data ?? []))
+      .catch(() => {});
+  };
+
   useEffect(() => {
     if (specLibraryLoaded) return;
     const ctrl = new AbortController();
@@ -593,6 +625,15 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
         setRefurbGrade(p.refurbGrade ?? "");
         setProductSku(p.sku ?? "");
         setAccessoryIdsRaw((p.accessoryIds ?? []).join(", "));
+        setLoadedWarrantyMonths(p.warrantyMonths ?? null);
+        if (p.warrantyPresetId) {
+          setWarrantyChoice(p.warrantyPresetId);
+        } else if (p.warrantyMonths) {
+          const typed = splitWarranty(p.warrantyMonths);
+          setWarrantyChoice("custom");
+          setWarrantyValue(typed.value);
+          setWarrantyUnit(typed.unit);
+        }
         setTitleEn(en.data.title ?? ""); setDescEn(en.data.description ?? "");
         setTitleAz(az.data.title ?? ""); setDescAz(az.data.description ?? "");
         setTitleAr(ar.data.title ?? ""); setDescAr(ar.data.description ?? "");
@@ -875,6 +916,24 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
   // Submit
   // ─────────────────────────────────────────────────────────────────────────
 
+  function warrantyError(): string | undefined {
+    if (warrantyChoice === "") {
+      return warrantyRequired ? "Choose a warranty preset, or pick Custom and enter the length" : undefined;
+    }
+    if (warrantyChoice === "custom") return warrantyMonthsFrom(warrantyValue, warrantyUnit).error;
+    return undefined;
+  }
+
+  /** The warranty part of the create/update payload; nothing when none was chosen. */
+  function warrantyPayload(): { warrantyPresetId?: string; warrantyMonths?: number } {
+    if (supplierMode || warrantyChoice === "") return {};
+    if (warrantyChoice === "custom") {
+      const length = warrantyMonthsFrom(warrantyValue, warrantyUnit);
+      return length.months ? { warrantyMonths: length.months } : {};
+    }
+    return { warrantyPresetId: warrantyChoice };
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setApiError(null);
@@ -889,6 +948,10 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
       stockQuantity, availableQuantity,
       isEdit, keptMediaCount
     );
+    if (!supplierMode) {
+      const warrantyErr = warrantyError();
+      if (warrantyErr) errs.warranty = warrantyErr;
+    }
 
     // Detailed file validation
     if (files.length > 0) {
@@ -905,7 +968,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
     setErrors(errs);
 
     if (Object.keys(errs).length > 0) {
-      const hasBasic = errs.categoryId;
+      const hasBasic = errs.categoryId || errs.warranty;
       const hasTrans = errs.titleAz || errs.titleEn || errs.titleAr || errs.descAz || errs.descEn || errs.descAr;
       if (hasBasic) basicRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       else if (hasTrans) translationsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -932,6 +995,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
         isLimitedStock,
         stockQuantity: stockQuantity.trim() === "" ? undefined : Number(stockQuantity),
         availableQuantity: availableQuantity.trim() === "" ? undefined : Number(availableQuantity),
+        ...warrantyPayload(),
         accessoryIds: accessoryIdsRaw.split(",").map((s) => s.trim()).filter(Boolean),
         translations: {
           titleAz, titleEn, titleAr,
@@ -983,6 +1047,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
           // say so explicitly — this flag is the only way to lift the order ceiling again.
           untrackAvailableQuantity:
             wasAvailableQuantityTracked && availableQuantity.trim() === "" ? true : undefined,
+          ...warrantyPayload(),
           isRefurbished,
           refurbGrade: isRefurbished ? (refurbGrade || null) : null,
           sku: productSku.trim() || undefined,
@@ -1031,7 +1096,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
   // Derived
   // ─────────────────────────────────────────────────────────────────────────
 
-  const basicHasError = submitted && !!errors.categoryId;
+  const basicHasError = submitted && !!(errors.categoryId || errors.warranty);
   const translationsHasError =
     submitted &&
     !!(errors.titleAz || errors.titleEn || errors.titleAr || errors.descAz || errors.descEn || errors.descAr);
@@ -1227,6 +1292,7 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
               </p>
               <ul className="mt-1.5 space-y-0.5 text-xs text-orange-600 dark:text-orange-500 list-disc list-inside">
                 {errors.categoryId && <li>{errors.categoryId}</li>}
+                {errors.warranty && <li>{errors.warranty}</li>}
                 {(errors.titleAz || errors.titleEn || errors.titleAr) && <li>All titles are required (AZ, EN, AR)</li>}
                 {(errors.descAz || errors.descEn || errors.descAr) && <li>All descriptions are required (AZ, EN, AR)</li>}
                 {errors.specs && <li>{errors.specs}</li>}
@@ -1374,6 +1440,81 @@ export default function NewProduct({ supplierMode = false, editId }: NewProductP
                   <option value="INACTIVE">Inactive</option>
                 </Select>
               </div>
+
+              {!supplierMode && (
+                <div>
+                  <Label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Warranty {warrantyRequired && <span className="text-red-500">*</span>}
+                  </Label>
+                  <Select
+                    value={warrantyChoice}
+                    onChange={setWarrantyChoice}
+                    className={submitted && !!errors.warranty && warrantyChoice !== "custom" ? "border-red-400" : ""}
+                  >
+                    <option value="">Select warranty</option>
+                    {warrantyPresets.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} — {formatWarranty(p.durationMonths)}
+                      </option>
+                    ))}
+                    {/* The product's preset when the list could not be loaded (e.g. no access to it). */}
+                    {warrantyChoice !== "" && warrantyChoice !== "custom" &&
+                      !warrantyPresets.some((p) => p.id === warrantyChoice) && (
+                        <option value={warrantyChoice}>Current preset — {formatWarranty(loadedWarrantyMonths)}</option>
+                      )}
+                    <option value="custom">Custom duration…</option>
+                  </Select>
+                  {warrantyChoice !== "custom" && <FieldError msg={submitted ? errors.warranty : undefined} />}
+                  <p className="mt-1 text-xs text-gray-400">
+                    Each unit sold gets a warranty card when its order is delivered.
+                    {canAccessPage("/warranty-presets") && (
+                      <>
+                        {" "}
+                        <a href="/warranty-presets" target="_blank" rel="noopener noreferrer" className="text-brand-500 hover:underline">
+                          Manage presets
+                        </a>
+                        {" · "}
+                        <button type="button" onClick={reloadWarrantyPresets} className="text-brand-500 hover:underline">
+                          Refresh list
+                        </button>
+                      </>
+                    )}
+                  </p>
+                  {isEdit && !warrantyRequired && warrantyChoice === "" && (
+                    <p className="mt-1 text-xs text-orange-600 dark:text-orange-400">
+                      This product has no warranty yet, so units sold get no warranty card.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {!supplierMode && warrantyChoice === "custom" && (
+                <div>
+                  <Label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Custom warranty length <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      min={1}
+                      value={warrantyValue}
+                      onChange={(e) => setWarrantyValue(e.target.value)}
+                      aria-label="Warranty length"
+                      className={`h-11 w-full rounded-lg border bg-transparent px-4 text-sm text-gray-800 focus:border-[#FFBE12] focus:outline-none focus:ring-3 focus:ring-[#FFBE12]/30 dark:bg-gray-900 dark:text-white/90 ${
+                        submitted && !!errors.warranty ? "border-red-400" : "border-gray-300 dark:border-gray-700"
+                      }`}
+                    />
+                    <div className="w-32 shrink-0">
+                      <Select value={warrantyUnit} onChange={(v) => setWarrantyUnit(v as WarrantyUnit)}>
+                        <option value="months">Months</option>
+                        <option value="years">Years</option>
+                      </Select>
+                    </div>
+                  </div>
+                  <FieldError msg={submitted ? errors.warranty : undefined} />
+                  <p className="mt-1 text-xs text-gray-400">For a length that has no preset. 1 month to 10 years.</p>
+                </div>
+              )}
 
               <div className="flex items-center gap-3 pt-2">
                 <Toggle checked={isRefurbished} onChange={setIsRefurbished} />
